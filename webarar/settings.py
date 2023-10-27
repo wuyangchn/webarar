@@ -23,7 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#2pgsxsbe7)8rc4ss*^%&$jlsf(=qcih9hiu_f&9d@14oz73*m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# 关闭Debug, 使用nginx部署静态文件
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '172.24.32.202',  # cug
@@ -91,11 +92,11 @@ WSGI_APPLICATION = 'webarar.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'v1_webarar',
+        'NAME': 'webarar',
         'HOST': '127.0.0.1',
         'PORT': 3306,
         'USER': 'root',
-        'PASSWORD': 'a123456'
+        'PASSWORD': 'password'
     }
 }
 
