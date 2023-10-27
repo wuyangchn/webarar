@@ -1,0 +1,547 @@
+{% extends 'calc.html' %}
+
+{% block raw_file_modal %}
+    <script>
+        $(function () {
+            $('.btn-Close').each(function () {
+                document.getElementById(this.id).onclick = function () {
+                    return confirm("将退出文件，请确认！");
+                }
+            })
+        });
+        $(document).ready(function(){
+            $('#file-btn-import-blank').click(function(){$('#file-input-import-blank').click()});
+            $('#file-input-import-blank').change(function(){import_blank()});
+        });
+    </script>
+
+    <!-- 模态框( Modal ) 外推截距值界面  -->
+    <div class="modal" id="modal-extrapolate" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="overflow: auto">
+        <div class="modal-dialog modal-dialog-width-85">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Extrapolate intercepts</h4>
+                </div>
+                <div class="modal-body modal-page-size" style="padding: 0 0 0 0">
+                    <div id="figure-big" class="pull-left echarts-dom" style="width: 80%;height:100%"></div>
+                    <div id="figure-sm-group" class="pull-right" style="width: 20%;height: 100%">
+                        <div id="figure-sm-01" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                        <div id="figure-sm-02" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                        <div id="figure-sm-03" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                        <div id="figure-sm-04" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                        <div id="figure-sm-05" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="text-left" id="settingsContainer">
+                        <div class="form-inline">
+                            <div class="checkbox-inline">
+                                <label>
+                                    <input id="applySelectionToAll" type="checkbox">Apply adjustment to all isotopes simultaneously
+                                </label>
+                            </div>
+                            <div class="checkbox-inline">
+                                <label>Fitting method:
+                                    <select id="fitMethod" class="form-control" onchange="fitMethodChanged()">
+                                        <option value="0">Linear</option>
+                                        <option value="1">Quadratic</option>
+                                        <option value="2">Power</option>
+                                        <option value="3">Exponential</option>
+                                        <option value="4">Average</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="checkbox-inline">
+                                <label>
+                                    <input id="applyFitMethodToAll" type="checkbox" onchange="fitMethodChanged()">Apply the fitting method to all steps and isotopes
+                                </label>
+                            </div>
+
+                            <div class="checkbox-inline">
+                                <label>
+                                    <input id="isBlank" type="checkbox" onchange="isBlankLabelChanged()">Set as blank sequence
+                                </label>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="text-left" id="sequenceContainer"></div>
+                    <br>
+                    <div class="pull-right">
+                        <a id="btn-Close-1" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
+                        <button type="submit" class="btn btn-primary" name="btn" value="Submit" onclick="submitExtrapolate()">Submit</button>
+                    </div>
+                    <div style="padding-left: 142px">
+                        <div class="text-center">
+                            <button type="button" class="btn btn-default" onclick="lastSequence()">&lt;Last</button>
+                            <label id="page_num" style="width: 40px; font-weight: normal">1/3</label>
+                            <button type="button" class="btn btn-default" onclick="nextSequence()">Next&gt;</button>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <!-- 模态框（Modal）本底数据显示界面 -->
+    <div class="modal fade" id="modal-blank-info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="modal-blank-info-title">title</h4>
+                </div>
+                <div class="modal-body">
+                    <h4><span id="experiment-time"></span></h4>
+                    <table class="table table-bordered" id="table-blank-info"></table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <!-- 模态框( Modal ) 设置-->
+    <div class="modal" id="modal-settings" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="overflow: auto">
+        <!-- /.modal 本底对应阶段 -->
+        <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-blank">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Blank Correction</h4>
+                </div>
+                <div class="modal-body modal-page-size" style="overflow: auto; padding-right: 15px; padding-left: 15px;">
+                    <div class="form-inline">
+                        <label>Fixed Values:
+                            <select id="corrBlankMethod" class="form-control" onchange="corrBlankMethodChanged()">
+                                <option value="0">Pre-run subtraction</option>
+                                <option value="1">Post-run subtraction</option>
+                                <option value="2">Adjacent subtraction</option>
+                                <option value="3">Interpolation subtraction</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="col-md-6">
+                        <form>
+                            <table class="table table-hover" id="table-sequences"></table>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <form>
+                            <div class="form-group">
+                                <label for="inputBlankSequences">Input</label>
+                                <div>
+                                    <input type="text" class="form-control" id="inputBlankSequences" placeholder="Blank Sequence, splits sequences with semicolons (;)">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="outputBlankSequences">Output</label>
+                                <div>
+                                    <input type="text" class="form-control" id="outputBlankSequences" placeholder="uneditable" disabled>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="text: center" style="display: inline">
+                            <button type="button" class="btn btn-primary" onclick="getAverageofBlanks()">Average()</button>
+                            <button type="button" class="btn btn-primary" onclick="getInterpolatedBlank()">Interpolate()</button>
+                            <button type="button" class="btn btn-primary" onclick="addNewBlank()">Add to list</button>
+                            <button id="file-btn-import-blank" type="button" class="btn btn-primary" disabled>Import from (to be completed)</button>
+                            <form id="form-import-blank-file" enctype="multipart/form-data">
+                                <label><input type="file" style="display: none" id="file-input-import-blank" name="blank_file" accept=".xls"></label>
+                            </form>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-11 col-md-11">
+                                <ul id="listGroupBlankName" class="list-group" style="margin-top: 10px"></ul>
+                            </div>
+                            <div class="col-xs-1 col-md-1">
+                                <ul id="listGroupBlankBtn" class="list-group" style="margin-top: 10px"></ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+
+                <br>
+                <div class="pull-right">
+                    <button type="button" class="btn btn-default" onclick="showModal('modal-extrapolate')">Last</button>
+                    <a id="btn-Close-2" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
+                    <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-irradiation-params')">Next</button>
+                </div>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+        <!-- /.modal 本底拟合 -->
+        <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-interpolate-blank" hidden>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Blank Interpolation</h4>
+                </div>
+                <div class="modal-body modal-page-size" id="modal-body-interpolate-blank" style="overflow: auto; padding-right: 15px; padding-left: 15px;">
+                    <div id="figure-main" class="pull-left echarts-dom" style="width: 80%;height:100%"></div>
+                    <div class="pull-right" style="width: 20%;height: 100%">
+                        <div id="figure-01" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                        <div id="figure-02" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                        <div id="figure-03" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                        <div id="figure-04" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                        <div id="figure-05" class="echarts-dom" style="width: 100%;height: 20%"></div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <br>
+                    <div class="pull-left">
+                        <div class="form-inline">
+                            <label>Fitting method:
+                                <select name="blankInterpolate" class="form-control">
+                                    <option value="0">Linear Fit</option>
+                                    <option value="1" selected>Quadratic Fit</option>
+                                    <option value="2">Polynomial Fit</option>
+                                    <option value="3">Exponential Fit</option>
+                                    <option value="4">Power Fit</option>
+                                    <option value="5">Average</option>
+                                </select>
+                                <select name="blankInterpolate" class="form-control" style="display: none">
+                                    <option value="0">Linear Fit</option>
+                                    <option value="1" selected>Quadratic Fit</option>
+                                    <option value="2">Polynomial Fit</option>
+                                    <option value="3">Exponential Fit</option>
+                                    <option value="4">Power Fit</option>
+                                    <option value="5">Average</option>
+                                </select>
+                                <select name="blankInterpolate" class="form-control" style="display: none">
+                                    <option value="0">Linear Fit</option>
+                                    <option value="1" selected>Quadratic Fit</option>
+                                    <option value="2">Polynomial Fit</option>
+                                    <option value="3">Exponential Fit</option>
+                                    <option value="4">Power Fit</option>
+                                    <option value="5">Average</option>
+                                </select>
+                                <select name="blankInterpolate" class="form-control" style="display: none">
+                                    <option value="0">Linear Fit</option>
+                                    <option value="1" selected>Quadratic Fit</option>
+                                    <option value="2">Polynomial Fit</option>
+                                    <option value="3">Exponential Fit</option>
+                                    <option value="4">Power Fit</option>
+                                    <option value="5">Average</option>
+                                </select>
+                                <select name="blankInterpolate" class="form-control" style="display: none">
+                                    <option value="0">Linear Fit</option>
+                                    <option value="1" selected>Quadratic Fit</option>
+                                    <option value="2">Polynomial Fit</option>
+                                    <option value="3">Exponential Fit</option>
+                                    <option value="4">Power Fit</option>
+                                    <option value="5">Average</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-blank')">Close</button>
+                        <button name="apply" type="button" class="btn btn-primary">Apply</button>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+        <!-- /.modal 辐照参数设置 -->
+        <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-irradiation-params" hidden>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Irradiation Parameters</h4>
+                </div>
+                <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
+                    <div style="padding-right: 15px; padding-left: 30px;">
+                        <div class="radio form-inline">
+                            <label>
+                                <input type="radio" name="irraParamsRadio" id="irraParamsRadio1" value="option1" onchange="paramsRadioChanged('irra')" checked>
+                                Use an Irradiation Project
+                            </label>
+                            <select class="form-control" id="irraProjectName" name="projectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px; padding: 6px 12px;">
+                                {% for each in allIrraNames %}
+                                    <option>{{ each }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="irraParamsRadio" id="irraParamsRadio2" value="option2" onchange="paramsRadioChanged('irra')">
+                                Use Input Params
+                            </label>
+                        </div>
+                        {% include "irradiation_setting_modal_body_div.html" %}
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <br>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-blank')">Last</button>
+                        <a id="btn-Close-3" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
+                        <button type="button" class="btn btn-primary" value="Submit" onclick="showModalDialog('modal-dialog-calc-params')">Next</button>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+        <!-- /.modal 计算参数设置 -->
+        <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-calc-params" hidden>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Calculation Parameters</h4>
+                </div>
+                <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
+                    <div style="padding-right: 15px; padding-left: 30px;">
+                        <div class="radio form-inline">
+                            <label>
+                                <input type="radio" name="calcParamsRadio" id="calcParamsRadio1" value="option1" onchange="paramsRadioChanged('calc')" checked>
+                                Use an Calculation Project
+                            </label>
+                            <select class="form-control" id="calcProjectName" name="projectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px; padding: 6px 12px;">
+                                {% for each in allCalcNames %}
+                                    <option>{{ each }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="calcParamsRadio" id="calcParamsRadio2" value="option2" onchange="paramsRadioChanged('calc')">
+                                Use Input Params
+                            </label>
+                        </div>
+                        {% include "calculation_setting_modal_body_div.html" %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <br>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-irradiation-params')">Last</button>
+                        <a id="btn-Close-4" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
+                        <button type="button" class="btn btn-primary" value="Submit" onclick="showModalDialog('modal-dialog-sample-params')">Next</button>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+        <!-- /.modal 样品参数设置 -->
+        <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-sample-params" hidden>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Specific Parameters</h4>
+                </div>
+
+                <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
+                    <div style="padding-right: 15px; padding-left: 30px;">
+                        <div class="radio form-inline">
+                            <label>
+                                <input type="radio" name="ParamsRadio" id="smpParamsRadio1" value="option1" onchange="paramsRadioChanged('smp')" checked>
+                                Use an Calculation Project
+                            </label>
+                            <select class="form-control" id="smpProjectName" name="projectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px; padding: 6px 12px;">
+                                {% for each in allSmpNames %}
+                                    <option>{{ each }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="ParamsRadio" id="smpParamsRadio2" value="option2" onchange="paramsRadioChanged('smp')">
+                                Use Input Params
+                            </label>
+                        </div>
+                        {% include "sample_setting_modal_body_div.html" %}
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <br>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-calc-params')">Last</button>
+                        <a id="btn-Close-4" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
+                        <button type="button" class="btn btn-primary" value="Submit" onclick="showModalDialog('modal-dialog-sample-info')">Next</button>
+                    </div>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+        <!-- /.modal 样品信息设置 -->
+        <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-sample-info" hidden>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Sample Info</h4>
+                </div>
+                <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
+                    <div style="padding-right: 15px; padding-left: 30px;">
+                        <div class="div-params" style="border: 1px none #d5d5d5; border-radius: 4px; width: 100%; height: auto; float: left">
+                            <form id="sampleInfoInputForm" method="post">
+                                <!--  sample info  -->
+                                <div style="width: 500px; float: left; border: 1px solid #ccc; padding-left: 15px; margin-right: 15px">
+                                    <label style="width: 400px; text-align: left; font-weight: bold">Sample Info</label>
+                                    <div class="form-inline">
+                                        <label style="width: 180px; text-align: left">Sample Name</label>
+                                        <label>
+                                            <input type="text" class="sample-info" style="width: 460px;">
+                                        </label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <label style="width: 180px; text-align: left">Sample Material</label>
+                                        <label>
+                                            <input type="text" class="sample-info" style="width: 460px;">
+                                        </label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <label style="width: 180px; text-align: left">Sample Location</label>
+                                        <label>
+                                            <input type="text" class="sample-info" style="width: 460px;">
+                                        </label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <label style="width: 180px; text-align: left">Researcher</label>
+                                        <label>
+                                            <input type="text" class="sample-info" style="width: 460px;">
+                                        </label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <label style="width: 180px; text-align: left">Laboratory</label>
+                                        <label>
+                                            <input type="text" class="sample-info" style="width: 460px;">
+                                        </label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <label style="width: 180px; text-align: left">Laboratory More</label>
+                                        <label>
+                                            <textarea class="form-control sample-info" style="width: 460px;" rows="3"></textarea>
+                                        </label>
+                                    </div>
+                                    <div class="form-inline">
+                                        <label style="width: 180px; text-align: left">Analyst</label>
+                                        <label>
+                                            <input type="text" class="sample-info" style="width: 460px;">
+                                        </label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <br>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-calc-params')">Last</button>
+                        <a id="btn-Close-5" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
+                        <button type="button" class="btn btn-primary" value="Submit" onclick="submitRawData()">Submit</button>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+    </div>
+
+    <div class="sr-only">
+        <form method="post" id="fingerprint-form">
+            <label><input type="text" name="fingerprint" value=""/></label>
+            <label><input type="text" name="flag" value="upload_raw_project"/></label>
+        </form>
+    </div>
+    <script type="text/javascript">
+        let myRawData = {{ data | safe }};
+        console.log(myRawData);
+        let current_page = 1;
+        let max_page = myRawData.selectedData.length;
+        let sequenceContainer = document.getElementById('sequenceContainer');
+        // 创建图形, 初始化echarts实例
+        let chartBig = echarts.init(document.getElementById('figure-big'), null, {renderer: 'svg'});
+        chartBig.setOption(getExtrapolateEchartsOption());
+        chartBig.setOption({
+            title: {text: `${myRawData.sequenceName[current_page-1]} Ar36`},
+            toolbox: {feature: {dataView: {show: true, readOnly: true}, saveAsImage: { show: true }}},
+            xAxis: {name: 'Time (s)', axisLabel: {show: true}, axisTick: {show: true, lineStyle: {width: 1, color: '#333'}}},
+            yAxis: {name: 'Intensity (fA)', axisLabel: {show: true}, axisTick: {show: true}},
+            series: [
+                {name: 'Filled points', symbolSize: 15, color: FILLED_POINTS_COLOR},
+                {name: 'Unfilled points', symbolSize: 15, itemStyle: {normal: {borderColor: FILLED_POINTS_COLOR}}},
+            ]});
+        let chartSm01 = createSmChart(document.getElementById('figure-sm-01'), {
+            title: {text: 'Ar36'},
+            series: [{name: 'Filled points', color: FILLED_POINTS_COLOR},]
+        });
+        let chartSm02 = createSmChart(document.getElementById('figure-sm-02'), {
+            title: {text: 'Ar37'},});
+        let chartSm03 = createSmChart(document.getElementById('figure-sm-03'), {
+            title: {text: 'Ar38'},});
+        let chartSm04 = createSmChart(document.getElementById('figure-sm-04'), {
+            title: {text: 'Ar39'},});
+        let chartSm05 = createSmChart(document.getElementById('figure-sm-05'), {
+            title: {text: 'Ar40'},});
+        let smCharts = [chartSm01, chartSm02, chartSm03, chartSm04, chartSm05]
+        setSmChartClickListen(smCharts, chartBig);
+        // 大图鼠标响应事件
+        chartBig.on('click', 'series.scatter', function (params) {chartScatterClicked(params)});
+        for (let i=0;i<smCharts.length;i++){
+            smCharts[i].on('click', 'series.scatter', function (params) {chartScatterClicked(params)});
+        }
+        console.log(chartBig);
+        // 自适应大小
+        function chartResize(){
+            $.each(document.getElementsByClassName('echarts-dom'), (index, dom) => {
+                let c = echarts.getInstanceByDom(dom);
+                if (typeof c !== "undefined") {
+                    echarts.getInstanceByDom(dom).resize();
+                }
+            })
+        }
+        window.onresize = function() {
+            chartResize();
+        };
+
+        // modal与echarts配合可能有问题，在modal打开渲染之后才能有尺寸，https://blog.csdn.net/ardo_pass/article/details/78503892
+        $('#modal-extrapolate').on('shown.bs.modal',function(){
+            chartResize();
+        });
+
+        showModal('modal-extrapolate');
+        {#changeIrraProject();#}
+        {#changeCalcProject();#}
+
+        // 为各个阶段创建按钮
+        for (let i=0;i<max_page;i++){
+            let btn = document.createElement('button');
+            btn.name="sequenceBtn";
+            btn.type="button";
+            btn.style.width="46px";
+            btn.style.marginRight="2px";
+            btn.style.marginLeft="2px";
+            btn.style.marginTop="2px";
+            btn.style.marginBottom="2px";
+            btn.style.outline="none";  // 把outline: none加到这里才能真正取消点击的黑框，加到style class无效
+            (function(i){
+                btn.innerText=i+1;
+                btn.onclick=function(){
+                    showSequence(i+1);
+                };
+            })(i);  // 动态给btn绑定函数
+            sequenceContainer.appendChild(btn);
+        }
+
+        $(document).ready(function(){
+            $('#modal-extrapolate').modal('show');
+            showSequence(1);
+            // 键盘检测左右键
+            document.onkeydown = function (event) {
+                switch (event.code){
+                case 'ArrowLeft':
+                    lastSequence();
+                    break;
+                case 'ArrowRight':
+                    nextSequence();
+                    break;
+                }
+            }
+            // 手动设置disable属性
+            paramsRadioChanged('irra');
+            paramsRadioChanged('calc');
+            paramsRadioChanged('smp');
+        });
+
+    </script>
+{% endblock %}

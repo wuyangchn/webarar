@@ -1,0 +1,417 @@
+2023-08-18 12:53:10.429 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 12:56:59.120 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.2 (II)
+2023-08-18 12:58:24.466 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-18 12:58:32.935 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 12:59:00.307 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.17 (II)
+2023-08-18 13:00:07.950 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.00017971422945405296, 5.030341804632979e-06, 0.0025945689530503823, 1.4058494002892648e-05, 0.02707045531307847, 1], set: set_1
+2023-08-18 13:00:13.188 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.00017971422945405296, 5.030341804632979e-06, 0.0025945689530503823, 1.4058494002892648e-05, 0.02707045531307847, 1], set: set_1
+2023-08-18 13:00:16.489 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0003466701038509845, 2.9625385785048007e-06, 0.001878312077877989, 8.644750087480501e-06, 0.025323492107355263, 2], set: set_2
+2023-08-18 13:00:17.860 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0004844340413427413, 2.3007684024478585e-06, 0.001610599860754962, 6.246032050785743e-06, 0.07055550807160042, 5], set: set_2
+2023-08-18 13:00:18.956 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0003710825571996894, 2.578064626998395e-06, 0.0015347765939387069, 5.9972248715758435e-06, 0.015268806906303245, 3], set: set_2
+2023-08-18 13:00:19.892 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0004312672952406875, 2.4606318669048688e-06, 0.001596231578579907, 5.224296989966909e-06, 0.009345678685283744, 4], set: set_2
+2023-08-18 13:00:20.931 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0006950699521865997, 5.5034659646100404e-06, 0.0013761988667486992, 6.800834496905467e-06, 0.016421206664092643, 7], set: set_2
+2023-08-18 13:00:21.583 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0007036386585266129, 4.689471591877931e-06, 0.0013172309224473466, 6.0371432830949225e-06, 0.06775083850715136, 6], set: set_2
+2023-08-18 13:00:22.217 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0007573276129484235, 4.757696828881671e-06, 0.0012771766304341182, 5.606944385309723e-06, 0.01070061000036154, 8], set: set_2
+2023-08-18 13:00:22.880 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0009594668399640705, 6.465957610006226e-06, 0.001135504332474558, 6.702320418633554e-06, 0.01591806227242744, 10], set: set_2
+2023-08-18 13:00:23.685 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0008500579010202215, 5.31702241758079e-06, 0.0011475737973416886, 7.024834509636937e-06, 0.011125062498611574, 9], set: set_2
+2023-08-18 13:00:24.294 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0011899517098590668, 8.627892641950239e-06, 0.001240517779547991, 1.0088419100943258e-05, 0.024986970993018998, 11], set: set_2
+2023-08-18 13:00:25.117 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0017421548116504561, 1.412034364057334e-05, 0.0011621391726862249, 9.39692522963762e-06, 0.037582168500407236, 12], set: set_2
+2023-08-18 13:00:25.965 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0020384302600150303, 1.5951527738806984e-05, 0.0013472020722637803, 1.3378160700929228e-05, 0.02480474125555857, 13], set: set_2
+2023-08-18 13:00:27.643 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.002723436181665698, 1.402552662332226e-05, 0.0011597751017886591, 1.3068934964157337e-05, 0.03838563595479983, 14], set: set_2
+2023-08-18 13:00:28.524 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.003706848781988233, 2.481250993608431e-05, 0.0011455386769999205, 1.7698291025952488e-05, 0.023745958863544882, 15], set: set_2
+2023-08-18 13:00:29.183 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.004421009120084768, 2.232190675936964e-05, 0.00111832955568384, 1.4202545063810276e-05, 0.03369170697519556, 17], set: set_2
+2023-08-18 13:00:30.180 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.0047216182850555516, 2.787814091401232e-05, 0.001241730634786457, 2.0495570455186224e-05, 0.03649896795741041, 16], set: set_2
+2023-08-18 13:00:35.923 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.17 (II)
+2023-08-18 13:07:38.203 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 13:32:19.696 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.21
+2023-08-18 13:57:09.058 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.21
+2023-08-18 14:01:29.468 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: 127.0.0.1:8000, it is not matched
+2023-08-18 14:01:41.472 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 14:02:40.480 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: {% url 'calc_view' %}, it is not matched
+2023-08-18 14:03:20.894 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: 545644, it is not matched
+2023-08-18 14:03:34.298 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: 545644, it is not matched
+2023-08-18 15:03:05.157 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:03:05.160 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:05:37.594 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 15:13:30.394 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:13:30.751 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:14:51.755 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:14:51.784 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:15:05.526 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 15:16:02.860 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:16:48.497 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:20:20.478 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:20:30.360 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:24:42.845 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:26:19.505 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:27:00.053 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:27:19.888 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:27:24.119 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:27:37.051 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:27:55.062 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:38:13.044 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:40:15.553 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 15:41:28.052 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 15:42:13.047 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 15:42:44.081 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 15:42:44.333 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 15:42:44.351 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 15:46:47.832 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 15:48:40.377 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:11:52.292 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:13:29.372 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:13:29.377 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:13:29.387 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:15:55.108 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:17:38.260 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 16:17:45.522 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 16:18:08.859 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:18:39.575 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:39.716 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:39.718 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:39.790 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:39.949 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:40.030 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:40.117 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:40.491 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:42.220 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:43.150 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:43.150 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:43.151 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:43.626 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:44.904 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:45.219 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:45.786 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:45.787 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:46.148 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:46.153 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:46.759 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:47.096 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:47.106 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:47.106 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:47.640 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:47.810 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:48.591 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:48.593 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:49.450 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:50.858 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:51.132 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:51.136 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:51.152 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:51.154 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:51.654 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:51.657 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:51.662 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:51.839 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:18:52.283 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:18:52.435 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:34.254 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:34.257 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:37.190 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:37.256 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:37.281 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:37.408 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:37.559 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:37.719 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:20:37.931 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:38.374 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:38.864 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:38.866 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:38.896 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:20:39.641 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:20:40.105 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:41.662 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:42.133 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:42.419 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:42.886 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:44.221 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:44.886 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:45.230 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:45.553 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:45.556 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:45.848 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:46.329 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:46.363 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:47.375 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:47.568 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:48.088 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:49.372 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:49.547 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:50.403 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:51.030 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:51.166 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:51.225 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:52.304 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:53.615 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:53.909 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:53.919 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:53.937 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:54.396 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:54.453 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:55.360 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:56.107 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:56.171 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:58.719 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:58.753 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:20:59.184 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:20:59.981 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:20:59.981 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:00.289 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:21:01.332 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:21:01.741 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:03.488 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:03.601 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:05.142 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:06.012 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:21:06.030 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:06.035 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:09.015 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:09.286 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:21:10.749 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:15.166 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:16.993 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:19.641 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:19.677 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 16:21:24.131 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 16:24:17.941 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L21A
+2023-08-18 16:24:34.060 -- ip: 127.0.0.1, operation: Handle param project, msg: Irra param project is not found in database, using params in total param values, sample name: L21A
+2023-08-18 16:24:36.246 -- ip: 127.0.0.1, operation: Click btn, msg: Reset irra params, sample name: L21A
+2023-08-18 16:24:55.180 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values, sample name: L21A
+2023-08-18 16:24:56.872 -- ip: 127.0.0.1, operation: Click btn, msg: Reset calc params, sample name: L21A
+2023-08-18 16:25:06.919 -- ip: 127.0.0.1, operation: Handle param project, msg: Irra param project is not found in database, using params in total param values, sample name: L21A
+2023-08-18 16:25:09.053 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, sample name: SAMPLE NAME, param name: WH03-XA, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH03-XA.irra
+2023-08-18 16:25:10.084 -- ip: 127.0.0.1, operation: Click btn, msg: Reset irra params, sample name: L21A
+2023-08-18 16:25:19.048 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L21A
+2023-08-18 16:29:30.794 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:29:43.411 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-18 16:29:58.555 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [30.867564655424665, 0.18750467625983852, 767.1796210922689, 4.106280940177018, 0.8801480023753152, 26], set: set_2
+2023-08-18 16:29:59.576 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [31.51605538759388, 0.08750973581885867, 782.9860566411204, 2.105977349048658, 0.9647646486704414, 25], set: set_2
+2023-08-18 16:30:04.912 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [31.690337436475343, 0.18281304068652005, 786.7659907452693, 4.048655624912727, 0.8198342732794774, 27], set: set_2
+2023-08-18 16:30:06.609 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [33.03254087732962, 0.0827595535421773, 797.0073274627513, 1.9386916525204272, 0.9667530193779896, 23], set: set_2
+2023-08-18 16:30:07.855 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [33.887955355029966, 0.10349567843933882, 822.1550086528317, 2.4563990293281113, 0.9746915090302042, 24], set: set_2
+2023-08-18 16:30:08.891 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [35.33915578712368, 0.09107170602499368, 829.2312985788452, 2.1075521253999536, 0.9643027965516022, 22], set: set_2
+2023-08-18 16:30:10.036 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [36.1173154227443, 0.08462126135745897, 817.9791579157636, 1.792076496965142, 0.9317125525578343, 21], set: set_2
+2023-08-18 16:30:14.862 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-18 16:45:06.900 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:45:44.691 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 16:54:29.296 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-08-18 16:54:29.311 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: raw, it is not matched
+2023-08-18 16:55:18.071 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: raw, it is not matched
+2023-08-18 16:55:29.483 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: raw, it is not matched
+2023-08-18 16:55:32.420 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: raw, it is not matched
+2023-08-18 16:55:36.704 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-08-18 16:55:36.713 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: raw, it is not matched
+2023-08-18 16:59:09.995 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: raw, it is not matched
+2023-08-18 17:00:15.889 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: raw, it is not matched
+2023-08-18 17:01:32.279 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-08-18 17:01:37.880 -- ip: 127.0.0.1, operation: Handle raw file, msg: Close
+2023-08-18 17:01:39.139 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-08-18 17:01:39.149 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-08-18 17:01:41.605 -- ip: 127.0.0.1, operation: Handle raw file, msg: Close
+2023-08-18 17:13:15.356 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 17:13:17.380 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 17:13:18.993 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 17:15:58.753 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 17:16:00.831 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 17:16:00.836 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 17:20:04.903 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 17:20:34.512 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 17:23:12.172 -- ip: 127.0.0.1, operation: Open file, msg: Received flag: , it is not matched
+2023-08-18 17:40:04.769 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 17:40:04.770 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-18 17:40:04.774 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 17:40:04.871 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.full file
+2023-08-18 17:40:26.775 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.04023512070286368, 0.00011602047496901227, 0.0013034757083044699, 6.976772205411131e-06, 0.0020766885222899974, 26], set: set_1
+2023-08-18 17:40:30.228 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.04023512070286368, 0.00011602047496901227, 0.0013034757083044699, 6.976772205411131e-06, 0.0020766885222899974, 26], set: set_1
+2023-08-18 17:40:32.626 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.04027924161599367, 0.00013410332088038422, 0.0012710259616747583, 6.540631483409808e-06, 0.12511269545324963, 27], set: set_2
+2023-08-18 17:40:33.617 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.04023512070286368, 0.00011602047496901227, 0.0013034757083044699, 6.976772205411131e-06, 0.0020766885222899974, 26], set: set_2
+2023-08-18 17:40:36.664 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.04121845029024169, 2.8145409571916884e-05, 0.0012163156454384214, 3.6340550618395155e-06, 0.016102163669262547, 24], set: set_2
+2023-08-18 17:40:38.394 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.04144571792393392, 2.65560627159379e-05, 0.001254693608882455, 3.05199706727267e-06, 0.016178266490510695, 23], set: set_2
+2023-08-18 17:40:39.141 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.04261676548833685, 2.9181800452978457e-05, 0.001205936150400765, 3.0649751175933366e-06, 0.08249920397910189, 22], set: set_2
+2023-08-18 17:40:39.951 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.044154322360452726, 3.7574884063926025e-05, 0.0012225250366378908, 2.6783792275252936e-06, 0.009280219328741622, 21], set: set_2
+2023-08-18 17:40:53.761 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: 22WHA0433, btn id: 7
+2023-08-18 17:41:14.335 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.005322042018664675, 2.79075144909837e-06, 0.0008854448421580192, 1.799884139458868e-06, 0.008210218487290874, 3], set: set_1
+2023-08-18 17:41:15.600 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.002980424541499932, 1.6343338002646148e-06, 0.0009038431564451058, 1.834898457642591e-06, 0.006363747087225401, 2], set: set_1
+2023-08-18 17:41:16.727 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.002217954908355078, 1.337706917283003e-06, 0.0009748447899140528, 1.9748525964828206e-06, 0.0028497491926565356, 1], set: set_1
+2023-08-18 17:41:32.248 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.044154322360452726, 3.7574884063926025e-05, 0.0012225250366378908, 2.6783792275252936e-06, 0.009280219328741622, 21], set: set_2
+2023-08-18 17:41:34.293 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.08336950890689754, 4.3887120090506877e-05, 0.00047197652874104745, 9.998909009209728e-07, 0.01593319349913121, 11], set: set_2
+2023-08-18 17:41:35.609 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.08440274641426136, 4.416469708762137e-05, 0.0004869132803998138, 1.015822788816617e-06, 0.01497791275861556, 12], set: set_2
+2023-08-18 17:41:36.786 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.08440274641426136, 4.416469708762137e-05, 0.0004869132803998138, 1.015822788816617e-06, 0.01497791275861556, 12], set: set_2
+2023-08-18 17:41:37.807 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.08336950890689754, 4.3887120090506877e-05, 0.00047197652874104745, 9.998909009209728e-07, 0.01593319349913121, 11], set: set_2
+2023-08-18 17:41:40.945 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.08336950890689754, 4.3887120090506877e-05, 0.00047197652874104745, 9.998909009209728e-07, 0.01593319349913121, 11], set: set_1
+2023-08-18 17:50:43.601 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 17:51:14.281 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-18 18:40:38.597 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 18:47:57.427 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 18:49:59.674 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 18:57:11.517 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 18:58:09.489 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 18:59:42.310 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:01:36.583 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:03:23.237 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:04:02.859 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:04:41.785 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:04:42.171 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:11:46.191 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:11:46.810 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:16:06.518 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:16:46.416 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:16:47.224 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:22:35.212 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:26:13.066 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:30:12.338 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:33:11.107 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:41:11.352 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:45:12.108 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:46:06.230 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:48:06.499 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:48:12.119 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:48:28.951 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:49:30.901 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:49:40.667 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:49:45.867 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:50:22.656 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:50:29.035 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:50:40.197 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 19:56:11.840 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 19:56:18.589 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 19:56:47.872 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 19:57:04.609 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 19:57:47.327 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 20:09:28.126 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 20:09:55.258 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 20:10:23.222 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 20:10:59.074 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 20:11:21.305 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 20:11:30.097 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 20:11:51.710 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-08-18 20:18:13.128 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 20:18:22.214 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 20:18:29.749 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 20:18:38.744 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 20:50:07.724 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 20:50:17.019 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 20:51:03.467 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 20:51:10.148 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 20:57:33.023 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 21:03:30.600 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 21:12:56.859 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 21:13:11.594 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 21:15:03.576 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 21:18:31.080 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 21:19:36.699 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 21:19:57.758 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 21:20:32.661 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-18 23:04:18.339 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-08-18 23:05:16.176 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-08-18 23:05:21.943 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:08:04.566 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:08:24.587 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-08-18 23:08:33.660 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:08:40.250 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:08:46.887 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:11:22.433 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:11:50.607 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-08-18 23:11:56.870 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:12:58.361 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-08-18 23:13:03.348 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:13:16.621 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:13:34.012 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-08-18 23:13:39.622 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:13:43.724 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:13:45.217 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:13:46.429 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:13:47.302 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:13:49.700 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:13:50.859 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [14, 3, 3, 3, 3, 7], set: set_1
+2023-08-18 23:13:51.926 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [10, 1, 1, 1, 1, 5], set: set_1
+2023-08-18 23:13:56.251 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [1, 1, 1, 1, 1, 1], set: set_1
+2023-08-18 23:13:57.545 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [2, 2, 2, 2, 2, 2], set: set_1
+2023-08-18 23:14:50.659 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [23, 4, 4, 4, 4, 8], set: set_1
+2023-08-18 23:19:12.928 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-08-18 23:19:19.091 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:21:23.417 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:21:50.153 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:23:44.521 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:25:26.757 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:31:14.460 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:31:18.269 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:34:00.846 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:34:51.867 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:34:55.722 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:41:06.009 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:41:24.288 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:41:56.258 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:42:49.895 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-08-18 23:42:53.524 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:43:47.049 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [3, 3, 3, 3, 3, 3], set: set_1
+2023-08-18 23:43:48.278 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [4, 4, 4, 4, 4, 4], set: set_1
+2023-08-18 23:43:51.581 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [10, 1, 1, 1, 1, 5], set: set_1
+2023-08-18 23:43:54.051 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [10, 1, 1, 1, 1, 5], set: set_2
+2023-08-18 23:44:01.907 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:44:56.533 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:45:21.743 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [3, 3, 3, 3, 3, 3], set: set_2
+2023-08-18 23:45:23.367 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [2, 2, 2, 2, 2, 2], set: set_2
+2023-08-18 23:45:26.141 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [1, 1, 1, 1, 1, 1], set: set_1
+2023-08-18 23:45:26.952 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [1, 1, 1, 1, 1, 1], set: set_1
+2023-08-18 23:45:27.638 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [1, 1, 1, 1, 1, 1], set: set_1
+2023-08-18 23:45:43.145 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-08-18 23:45:49.399 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:45:55.277 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:46:00.420 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:47:09.920 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [4, 4, 4, 4, 4, 4], set: set_1
+2023-08-18 23:47:10.662 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [4, 4, 4, 4, 4, 4], set: set_1
+2023-08-18 23:47:11.794 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [14, 3, 3, 3, 3, 7], set: set_1
+2023-08-18 23:47:12.338 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:47:13.374 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [23, 4, 4, 4, 4, 8], set: set_1
+2023-08-18 23:47:13.895 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [23, 4, 4, 4, 4, 8], set: set_1
+2023-08-18 23:47:14.765 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [14, 3, 3, 3, 3, 7], set: set_1
+2023-08-18 23:47:15.271 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:47:18.379 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:47:19.968 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [10, 1, 1, 1, 1, 5], set: set_1
+2023-08-18 23:47:21.191 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:47:23.261 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [10, 1, 1, 1, 1, 5], set: set_1
+2023-08-18 23:47:24.284 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:47:25.287 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [14, 3, 3, 3, 3, 7], set: set_1
+2023-08-18 23:47:28.798 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:47:32.420 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:47:33.443 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [14, 3, 3, 3, 3, 7], set: set_1
+2023-08-18 23:47:35.444 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:47:40.984 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:47:53.992 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:48:01.447 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:48:16.423 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-08-18 23:48:23.185 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:48:27.378 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:48:32.874 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:48:37.369 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:48:41.049 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:48:47.098 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:48:51.470 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [23, 4, 4, 4, 4, 8], set: set_1
+2023-08-18 23:48:52.511 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [23, 4, 4, 4, 4, 8], set: set_1
+2023-08-18 23:48:54.839 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:48:59.348 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:49:03.058 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:49:08.869 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [14, 3, 3, 3, 3, 7], set: set_1
+2023-08-18 23:49:09.432 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:49:13.052 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:49:15.869 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [12, 2, 2, 2, 2, 6], set: set_1
+2023-08-18 23:49:17.242 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [14, 3, 3, 3, 3, 7], set: set_1
+2023-08-18 23:53:30.023 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-08-18 23:53:54.501 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-08-18 23:54:49.151 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:54:53.115 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:56:21.093 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:58:02.062 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:58:14.794 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:58:18.918 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:58:37.405 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:58:42.158 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:58:55.933 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:59:02.134 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:59:06.955 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:59:10.574 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:59:40.340 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-08-18 23:59:45.037 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:59:49.145 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-08-18 23:59:53.421 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME

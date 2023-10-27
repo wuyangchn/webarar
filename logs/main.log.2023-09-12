@@ -1,0 +1,44 @@
+2023-09-12 09:39:40.490 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 09:39:53.362 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-09-12 09:39:58.640 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.39A, export href: /static/download/L.39A.arr
+2023-09-12 09:40:38.815 -- ip: 127.0.0.1, operation: Click btn, msg: Fail to export origin file (.opju), sample name: L.39A
+2023-09-12 09:53:00.252 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 09:53:04.057 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.39A, export href: /static/download/L.39A.arr
+2023-09-12 09:53:33.150 -- ip: 127.0.0.1, operation: Click btn, msg: Fail to export origin file (.opju), sample name: L.39A
+2023-09-12 09:56:09.257 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.39A, export href: /static/download/L.39A.arr
+2023-09-12 09:56:32.799 -- ip: 127.0.0.1, operation: Click btn, msg: Fail to export origin file (.opju), sample name: L.39A
+2023-09-12 10:01:00.709 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.39A, export href: /static/download/L.39A.arr
+2023-09-12 10:01:37.267 -- ip: 127.0.0.1, operation: Click btn, msg: Fail to export origin file (.opju), sample name: L.39A
+2023-09-12 10:05:27.041 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.39A, export href: /static/download/L.39A.arr
+2023-09-12 10:06:05.822 -- ip: 127.0.0.1, operation: Click btn, msg: Fail to export origin file (.opju), sample name: L.39A
+2023-09-12 10:07:24.635 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.39A
+2023-09-12 10:07:32.733 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.39A
+2023-09-12 10:07:51.246 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.39A, export href: /static/download/L.39A.arr
+2023-09-12 10:07:53.685 -- ip: 127.0.0.1, operation: Click btn, msg: Fail to export origin file (.opju), sample name: L.39A
+2023-09-12 10:08:24.463 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.39A, export href: /static/download/L.39A.arr
+2023-09-12 10:08:25.046 -- ip: 127.0.0.1, operation: Click btn, msg: Fail to export origin file (.opju), sample name: L.39A
+2023-09-12 10:10:38.989 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 10:10:44.262 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.39A, export href: /static/download/L.39A.arr
+2023-09-12 10:11:25.131 -- ip: 127.0.0.1, operation: Click btn, msg: Fail to export origin file (.opju), sample name: L.39A
+2023-09-12 10:14:13.139 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-09-12 10:14:27.388 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.32A, export href: /static/download/L.32A.arr
+2023-09-12 10:15:30.948 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export origin file (.opju), sample name: L.32A, export href: /static/download/L.32A_export.opju
+2023-09-12 10:16:51.860 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-09-12 10:17:22.019 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.32A, export href: /static/download/L.32A.arr
+2023-09-12 10:18:12.623 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export origin file (.opju), sample name: L.32A, export href: /static/download/L.32A_export.opju
+2023-09-12 15:22:35.272 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 15:22:45.841 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-12 15:52:41.535 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-12 19:29:51.300 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.002217954908355078, 1.337706917283003e-06, 0.0009748447899140528, 1.9748525964828206e-06, 0.0028497491926565356, 1], set: set_2
+2023-09-12 19:39:12.911 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-12 19:41:00.769 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-12 19:50:16.570 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-12 22:27:59.077 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 22:29:06.820 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 22:31:08.480 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 22:54:25.947 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 23:29:51.945 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 23:40:48.274 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 23:43:07.533 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-12 23:57:31.420 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-12 23:58:26.256 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file

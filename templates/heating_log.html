@@ -1,0 +1,273 @@
+{% extends 'home.html' %}
+
+{% block content %}
+
+<script>
+
+</script>
+
+<div class="jumbotron" style="height: 810px">
+    <div style="width: 1000px; margin-left: 100px; float: left">
+        <div class="upload-drop-zone" style="margin-left: 40px; height: 100px;" id="drop-zone">
+            <h4 style="padding-top: 30px">Drag a log file <i>here</i>.</h4>
+        </div>
+        <div id="oven_log_container" style="width: 100%; height: 700px;"></div>
+    </div>
+    <div style="float: left; margin-left: 50px">
+{#            <label for="text_area"></label><textarea class="container" style="height: 500px; width: 500px; float: left" id="text_area"></textarea>#}
+        <div style="height: 800px; width: 400px; float: right; padding-left: 20px">
+            <label><input id="input_datetime" type="datetime-local" class="button" style="width: 200px"></label>
+            <button onclick="getCurrentDatetime()">Get Current Datetime</button>
+            <label><input id="input_temperature" type="number" class="button" style="width: 200px">Inside Temperature</label>
+            <label><input id="input_vacuum" type="number" class="button" style="width: 200px">Vacuum</label>
+            <label><input id="filename" type="text" class="button" style="width: 200px">Filename</label>
+            <button value="send" style="float: right" onclick="sendInputData()">Send</button>
+            <label for="input_text_area"></label>
+            <textarea id="input_text_area" class="container" style="height: 630px" onchange="inputDataChanged()"></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // 初始化文件选择框
+    $('#file-input-text').val('');
+    
+    function getCurrentDatetime() {
+        let currentdate = new Date();
+        let date = ("0" + currentdate.getDate()).slice(-2);
+        let hours = ("0" + currentdate.getHours()).slice(-2);
+        let minutes = ("0" + currentdate.getMinutes()).slice(-2);
+        let second = ("0" + currentdate.getSeconds()).slice(-2);
+        let datetime = "" + currentdate.getFullYear() + "-"
+            + (currentdate.getMonth()+1) + "-"
+            + date + "T"
+            + hours + ":"
+            + minutes + ":"
+            + second;
+        $("#input_datetime").val(datetime);
+    }
+    
+    function sendInputData() {
+        let currenttext = $("#input_text_area").val();
+        let inputtemperature = $("#input_temperature").val();
+        let inputvacuum = $("#input_vacuum").val();
+        currenttext = currenttext + $("#input_datetime").val() + "Z;" + inputtemperature + ";" + inputvacuum + "\n";
+        $("#input_text_area").val(currenttext);
+        inputDataChanged();
+    }
+    
+    function inputDataChanged() {
+        let inputtext = $("#input_text_area").val();
+        let inputdata = inputtext.split("\n").map((item, index) => {
+            if (item.length === 0) {
+                return []
+            } else {
+                return [item.split("Z;")[0], item.split(";")[1]]
+            }
+        });
+        oven_log_chart.setOption({
+            series: [{
+                id: 'Inside', name: 'Inside',
+                type: 'line', symbolSize: 6, z: 2, data: inputdata, silent: true,
+                lineStyle: {width: 1, type: 'solid'},
+                itemStyle: {borderColor: '#222', borderWidth: 2, opacity: 0.8},
+            }]
+        });
+        oven_log_chart.resize();
+        $.ajax({
+            url: url_reference_update_log,
+            type: 'POST',
+            async: false,
+            data: JSON.stringify({
+                'text': inputtext,
+                'filename': $('#filename').val(),
+            }),
+            contentType:'application/json',
+            success: function(res){
+                //
+            }
+        })
+    }
+
+    function _dropHandler(ev) {
+        // Prevent default behavior (Prevent file from being opened)
+        // Handle drag and drop events
+        ev.preventDefault();
+        let files = [];
+        let directory_entry = [];
+        if (ev.dataTransfer.items) {
+            // Use DataTransferItemList interface to access the file(s)
+            for (let item of [...ev.dataTransfer.items]){
+                if (item.kind === "file") {
+                    let file = item.getAsFile();
+                    let entry = item.webkitGetAsEntry();
+                    if (entry.isDirectory) {
+                        directory_entry.push(entry);
+                    } else {files.push(file);}
+                }
+            }
+        }
+        let formData = new FormData();
+        let num_file = 0;
+        let getFileFormdata = (_) => {
+            if (_.constructor === Array) {
+                _.forEach((__, i) => (getFileFormdata(__)));
+            } else {
+                formData.append(`${num_file}`, _);
+                num_file += 1;
+            }
+        }
+        getFileFormdata(files);
+        let send_erquest = () => {
+            $.ajax({
+                url: url_reference_log,
+                type: 'POST',
+                data: formData,
+                processData : false,
+                contentType : false,
+                mimeType: "multipart/form-data",
+                success: function(res){
+                    res = JSON.parse(res);
+                    {#console.log("Multi files have been uploaded");#}
+                    {#document.getElementById('text_area').textContent = res.text;#}
+                    {#document.getElementById('text_area').textContent = res.data;#}
+                    oven_log_chart.setOption({
+                        series: res.data.map((item, index) => {
+                            return {
+                                id: ['SP', 'AP'][index],
+                                name: ['SP', 'AP'][index],
+                                data: item,
+                            };
+                        }),
+                    });
+                    oven_log_chart.resize();
+                }
+            })
+        }
+        if (directory_entry.length === 0) {
+            send_erquest();
+        } else {
+            if (directory_entry.length > 1) {
+                alert("Only one directory on the top level is supported.");
+            }
+            traverseDirectory(directory_entry[0]).then((files_promise)=> {
+                // AT THIS POINT THE DIRECTORY SHOULD BE FULLY TRAVERSED.
+                Promise.all(files_promise[0]).then((res) => {
+                    files.push(...res);
+                    send_erquest();
+                });
+            });
+        }
+    }
+
+    let drop_zone = document.getElementById('drop-zone');
+    drop_zone.ondrop = function(e) {
+        this.className = 'upload-drop-zone';
+        _dropHandler(e);
+    }
+    drop_zone.ondragover = function(e) {
+        this.className = 'upload-drop-zone drop';
+        dragOverHandler(e);
+        return false;
+    }
+    drop_zone.ondragleave = function() {
+        this.className = 'upload-drop-zone';
+        return false;
+    }
+
+    const oven_log_chart = echarts.init(document.getElementById('oven_log_container'), null, {renderer: 'svg'}); // svg渲染适合小数据，更清晰
+
+    window.onresize = function() {
+        oven_log_chart.resize();
+    };
+
+    oven_log_chart.setOption({
+        title: {
+            show: true, text: 'Time-Temperature Log', left: 'center', top: '6%',
+            textStyle: {
+                color: '#333', fontWeight: 'bolder', fontFamily: 'Microsoft Sans Serif',
+                fontSize: 18
+            },
+            triggerEvent: true, z: 0,
+        },
+        grid: {show: true, borderWidth: 1, borderColor: '#222', z: 100,
+            top: '5%', left: '8%', bottom: '15%', right: '1%'},
+        legend: {top: 0},
+        xAxis: [
+            {
+                name: 'Time', type: 'time', nameLocation: 'middle', nameGap: 25,
+                axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
+                axisLabel: {showMaxLabel: true, color: '#222'},
+                axisTick: {inside: false},
+                nameTextStyle: {
+                        fontSize: 16, fontFamily: 'Microsoft Sans Serif',
+                    },
+            },
+        ],
+        yAxis: [
+            {
+                name: 'Temperature', type: 'value', nameLocation: 'middle', nameGap: 50,
+                min: 0, max: function (value) {
+                    let n = Math.ceil(value.max / 200)
+                    n = n === value.max / 200? (n + 1) : n
+                    return n * 200;
+                },
+                axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
+                axisLabel: {showMaxLabel: true, color: '#222',},
+                axisTick: {inside: false},
+                nameTextStyle: {
+                        fontSize: 16, fontFamily: 'Microsoft Sans Serif',
+                    },
+            },
+        ],
+        dataZoom: [
+            {
+                type: 'inside',
+                start: 0,
+                end: 100,
+                zoomOnMouseWheel: 'ctrl',
+                moveOnMouseWheel: 'shift',
+            },
+            {
+                start: 0,
+                end: 100,
+                zoomOnMouseWheel: 'ctrl',
+                moveOnMouseWheel: 'shift',
+            }
+        ],
+        series: [
+            {
+                id: 'SP', name: 'SP', color: '#a4d38f',
+                type: 'line', symbolSize: 6, z: 2,  silent: true,
+                lineStyle: {width: 1, type: 'solid'},
+                itemStyle: {borderColor: '#a4d38f', borderWidth: 2, opacity: 0.8},
+            },
+            {
+                id: 'AP', name: 'AP', color: '#f5d68e',
+                type: 'line', symbolSize: 6, z: 2,  silent: true,
+                lineStyle: {width: 1, type: 'solid'},
+                itemStyle: {borderColor: '#f5d68e', borderWidth: 2, opacity: 0.8},
+            },
+            {
+                id: 'Inside', name: 'Inside', color: '#6176b7',
+                type: 'line', symbolSize: 6, z: 2,  silent: true,
+                lineStyle: {width: 1, type: 'solid'},
+                itemStyle: {borderColor: '#6176b7', borderWidth: 2, opacity: 0.8},
+            },
+        ],
+        animation: true,
+        animationDuration: 500,
+        }
+    );
+    oven_log_chart.resize();
+
+    document.addEventListener("wheel", function(event){
+    if(document.activeElement.type === "number"){
+        document.activeElement.blur();
+    }
+});
+
+</script>
+
+{% endblock %}

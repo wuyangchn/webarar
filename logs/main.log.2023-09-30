@@ -1,0 +1,183 @@
+2023-09-15 01:00:34.195 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.03298597814622353, 1.7248401631670563e-05, 0.0008608047396356156, 1.7512787924385731e-06, 0.01080836007397858, 6], set: set_2
+2023-09-15 01:00:35.377 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.020490254527492112, 1.0580129534938748e-05, 0.0009680632516595488, 1.981839004685919e-06, 0.009812537560206612, 5], set: set_2
+2023-09-15 01:00:37.000 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.05161958238312729, 2.7120958049962274e-05, 0.0007019791550769444, 1.429129600346911e-06, 0.012234906903756284, 7], set: set_2
+2023-09-15 01:00:38.782 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06679940264332826, 3.527234426148683e-05, 0.0005396007230131898, 1.1014199293150123e-06, 0.014936917580096232, 8], set: set_2
+2023-09-15 01:00:39.951 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.07639796470308667, 4.070564410564799e-05, 0.0004964772498555042, 1.0247779847709335e-06, 0.016111019845175958, 9], set: set_2
+2023-09-15 11:23:26.129 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-15 14:42:07.989 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-09-15 14:42:17.019 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-15 14:42:24.119 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 14:42:29.620 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 14:43:34.002 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-15 14:43:45.020 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 14:45:38.485 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-15 14:45:43.897 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 14:47:42.469 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-15 14:47:45.150 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 14:47:49.325 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 14:47:57.770 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 14:49:20.163 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-15 14:49:24.919 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 15:11:27.780 -- ip: 127.0.0.1, operation: Click btn, msg: Reset calc params, sample name: SAMPLE NAME
+2023-09-15 15:11:32.382 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 15:12:04.353 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.006625, 0.000118, 0.001991, 4.7e-05, 0, 1], set: set_1
+2023-09-15 15:12:06.667 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.005843, 0.000154, 0.002107, 4.9e-05, 0, 4], set: set_1
+2023-09-15 15:12:07.357 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.005911, 0.000357, 0.002115, 4.3e-05, 0, 2], set: set_1
+2023-09-15 15:12:08.738 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.00547, 0.000212, 0.00218, 4.3e-05, 0, 12], set: set_1
+2023-09-15 15:12:09.520 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.005464, 0.00016, 0.00228, 3.8e-05, 0, 5], set: set_1
+2023-09-15 15:12:10.288 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.005178, 0.000126, 0.002332, 3.4e-05, 0, 11], set: set_1
+2023-09-15 15:12:11.217 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.004969, 0.000206, 0.00234, 4.2e-05, 0, 10], set: set_1
+2023-09-15 15:12:12.499 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.004587, 0.000197, 0.002431, 3.4e-05, 0, 9], set: set_1
+2023-09-15 15:12:13.133 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.004343, 0.000208, 0.002432, 5.3e-05, 0, 8], set: set_1
+2023-09-15 15:12:14.640 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.003928, 0.000122, 0.002501, 3.7e-05, 0, 3], set: set_1
+2023-09-15 15:12:15.320 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.004107, 0.000177, 0.0025, 7.7e-05, 0, 7], set: set_1
+2023-09-15 15:12:16.020 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.004227, 0.000106, 0.002508, 3.4e-05, 0, 6], set: set_1
+2023-09-15 15:14:11.398 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 15:14:17.136 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: 0609TestCalcParams, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\0609TestCalcParams.calc
+2023-09-15 15:14:24.182 -- ip: 127.0.0.1, operation: Click btn, msg: Reset calc params, sample name: SAMPLE NAME
+2023-09-15 15:14:28.805 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 15:14:45.481 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 15:14:48.512 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 15:22:43.283 -- ip: 127.0.0.1, operation: Handle param project, msg: Irra param project is not found in database, using params in total param values
+2023-09-15 15:22:44.289 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 15:27:09.218 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-15 15:27:38.828 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-15 15:28:43.457 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-15 15:42:23.510 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-15 16:07:14.856 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 16:08:52.820 -- ip: 127.0.0.1, operation: Handle param project, msg: Irra param project is not found in database, using params in total param values
+2023-09-15 16:10:25.473 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-09-15 16:10:38.261 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-15 16:10:43.631 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:19:21.787 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:19:46.781 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 16:19:57.449 -- ip: 127.0.0.1, operation: Click btn, msg: Reset calc params, sample name: SAMPLE NAME
+2023-09-15 16:20:02.397 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 16:21:35.248 -- ip: 127.0.0.1, operation: Click btn, msg: Reset calc params, sample name: SAMPLE NAME
+2023-09-15 16:21:39.619 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:27:28.434 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:45:02.666 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:45:36.396 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-15 16:45:56.280 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 16:46:19.503 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 16:46:58.526 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 8
+2023-09-15 16:47:08.052 -- ip: 127.0.0.1, operation: Handle param project, msg: Irra param project is not found in database, using params in total param values
+2023-09-15 16:47:17.398 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:50:10.174 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-15 16:50:14.243 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:50:24.080 -- ip: 127.0.0.1, operation: Handle param project, msg: Irra param project is not found in database, using params in total param values
+2023-09-15 16:50:28.712 -- ip: 127.0.0.1, operation: Click btn, msg: Update calc params, sample name: SAMPLE NAME
+2023-09-15 16:50:48.363 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 4
+2023-09-15 16:50:51.408 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:51:39.992 -- ip: 127.0.0.1, operation: Click btn, msg: Update calc params, sample name: 22WHA0433
+2023-09-15 16:51:57.495 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-15 16:52:04.707 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:52:09.802 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:52:53.743 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 16:56:59.508 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:58:42.622 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 4
+2023-09-15 16:58:52.536 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:59:04.954 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:59:21.281 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 16:59:50.273 -- ip: 127.0.0.1, operation: Handle param project, msg: Irra param project is not found in database, using params in total param values
+2023-09-15 16:59:57.020 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 17:00:15.024 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 4
+2023-09-15 17:00:29.646 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:01:12.284 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-09-15 17:01:20.372 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:01:40.200 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:01:59.207 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values
+2023-09-15 17:02:03.680 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:03:25.335 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:03:39.243 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:05:09.047 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:05:15.672 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:05:22.491 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-09-15 17:05:29.990 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-09-15 17:05:41.893 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 4
+2023-09-15 17:06:05.377 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 8
+2023-09-15 17:06:08.003 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 8
+2023-09-15 17:06:16.185 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:06:28.987 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:06:36.673 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-15 17:06:55.519 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-15 17:08:40.055 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 0
+2023-09-15 17:08:49.651 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-15 17:09:00.693 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: 22WHA0433, btn id: 0
+2023-09-15 17:09:04.848 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-15 17:10:58.028 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-15 17:12:11.468 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-15 17:12:38.251 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.020490254527492112, 1.0580129534938748e-05, 0.0009680632516595488, 1.981839004685919e-06, 0.009812537560206612, 5], set: set_1
+2023-09-15 17:12:39.345 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.03298597814622353, 1.7248401631670563e-05, 0.0008608047396356156, 1.7512787924385731e-06, 0.01080836007397858, 6], set: set_1
+2023-09-15 17:12:41.582 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.020490254527492112, 1.0580129534938748e-05, 0.0009680632516595488, 1.981839004685919e-06, 0.009812537560206612, 5], set: set_2
+2023-09-15 17:12:42.319 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.03298597814622353, 1.7248401631670563e-05, 0.0008608047396356156, 1.7512787924385731e-06, 0.01080836007397858, 6], set: set_2
+2023-09-15 17:12:43.334 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.05161958238312729, 2.7120958049962274e-05, 0.0007019791550769444, 1.429129600346911e-06, 0.012234906903756284, 7], set: set_2
+2023-09-15 17:12:44.267 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06679940264332826, 3.527234426148683e-05, 0.0005396007230131898, 1.1014199293150123e-06, 0.014936917580096232, 8], set: set_2
+2023-09-15 17:12:45.133 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.07639796470308667, 4.070564410564799e-05, 0.0004964772498555042, 1.0247779847709335e-06, 0.016111019845175958, 9], set: set_2
+2023-09-15 17:12:46.172 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.08128546155353, 4.355126301243311e-05, 0.00048023197564360943, 9.893500985816942e-07, 0.019634015201128438, 10], set: set_2
+2023-09-15 17:13:10.066 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.010670461364516359, 5.510713068746593e-06, 0.0009689948691800441, 1.9720472401513773e-06, 0.0072163792434547175, 4], set: set_2
+2023-09-15 17:14:28.060 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 22:12:20.692 -- ip: 127.0.0.1, operation: Click btn, msg: Update calc params, sample name: 22WHA0433
+2023-09-15 22:12:49.086 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 22:24:11.470 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 22:24:18.674 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-09-15 22:24:25.892 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 22:25:23.199 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-09-15 22:25:35.014 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 22:25:48.096 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 22:26:05.877 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 22:26:40.734 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 22:26:54.393 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 22:58:27.082 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 23:00:35.723 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 23:00:38.263 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 23:08:37.407 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 23:09:32.271 -- ip: 127.0.0.1, operation: Click btn, msg: Fail to export origin file (.opju), sample name: 22WHA0433
+2023-09-15 23:12:11.149 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-15 23:13:30.883 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export origin file (.opju), sample name: 22WHA0433, export href: /static/download/22WHA0433_export.opju
+2023-09-15 23:17:59.550 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-30 01:55:35.646 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-30 01:55:41.435 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-09-30 01:55:46.863 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-30 01:57:55.522 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-30 02:02:29.167 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-30 02:04:20.414 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-30 02:04:54.044 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-30 02:05:12.581 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-30 02:05:20.768 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-09-30 02:05:45.343 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-30 02:05:50.485 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [61.102514310420574, 1.7499964639827608, 6464.818594611653, 186.6933455993185, 0.9895257197158706, 32], set: set_1
+2023-09-30 02:05:51.455 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [56.644683035284444, 1.7079693381777037, 6807.872036955753, 206.65726169019104, 0.9851072156465404, 31], set: set_1
+2023-09-30 02:05:52.945 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [99.67604015034686, 3.9767408942001308, 8223.580100562394, 329.7622774551783, 0.9927494062455934, 33], set: set_1
+2023-09-30 02:05:53.702 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [106.56391178854611, 4.534915268039878, 7328.127005157637, 314.69933532738804, 0.9886516932525483, 34], set: set_1
+2023-09-30 02:05:57.177 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [149.7401484119782, 10.415379899506044, 8266.750960901281, 578.0071831231952, 0.994235958764185, 35], set: set_1
+2023-09-30 02:05:58.648 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [227.46339314229132, 29.54325181981289, 10004.89989795304, 1301.6655674707927, 0.9981253774156148, 36], set: set_1
+2023-09-30 02:06:01.154 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [227.46339314229132, 29.54325181981289, 10004.89989795304, 1301.6655674707927, 0.9981253774156148, 36], set: set_1
+2023-09-30 02:06:02.987 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [227.46339314229132, 29.54325181981289, 10004.89989795304, 1301.6655674707927, 0.9981253774156148, 36], set: set_1
+2023-09-30 02:06:04.106 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [227.46339314229132, 29.54325181981289, 10004.89989795304, 1301.6655674707927, 0.9981253774156148, 36], set: set_1
+2023-09-30 02:06:05.082 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [227.46339314229132, 29.54325181981289, 10004.89989795304, 1301.6655674707927, 0.9981253774156148, 36], set: set_1
+2023-09-30 02:06:06.420 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [149.7401484119782, 10.415379899506044, 8266.750960901281, 578.0071831231952, 0.994235958764185, 35], set: set_1
+2023-09-30 02:06:07.520 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [106.56391178854611, 4.534915268039878, 7328.127005157637, 314.69933532738804, 0.9886516932525483, 34], set: set_1
+2023-09-30 12:05:36.870 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-30 12:05:48.522 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-30 12:05:51.890 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:06:22.628 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:09:32.849 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:10:40.440 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:12:29.332 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:14:04.428 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:14:18.858 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:14:19.737 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export excel file (.xls), sample name: 22WHA0218, export href: /static/download/22WHA0218_export.xlsx
+2023-09-30 12:18:10.140 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:22:14.989 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:22:15.852 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export excel file (.xls), sample name: 22WHA0218, export href: /static/download/22WHA0218_export.xlsx
+2023-09-30 12:24:36.934 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:24:37.878 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export excel file (.xls), sample name: 22WHA0218, export href: /static/download/22WHA0218_export.xlsx
+2023-09-30 12:26:01.574 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:26:02.206 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export excel file (.xls), sample name: 22WHA0218, export href: /static/download/22WHA0218_export.xlsx
+2023-09-30 12:27:09.417 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:27:10.295 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export excel file (.xls), sample name: 22WHA0218, export href: /static/download/22WHA0218_export.xlsx
+2023-09-30 12:29:25.101 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:29:26.151 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export excel file (.xls), sample name: 22WHA0218, export href: /static/download/22WHA0218_export.xlsx
+2023-09-30 12:31:27.140 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0218, export href: /static/download/22WHA0218.arr
+2023-09-30 12:31:27.826 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export excel file (.xls), sample name: 22WHA0218, export href: /static/download/22WHA0218_export.xlsx

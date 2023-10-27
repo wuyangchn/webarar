@@ -1,0 +1,130 @@
+2023-08-23 00:35:04.791 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:41:06.351 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:41:47.931 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:45:33.608 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:46:11.424 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:47:16.930 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:47:58.240 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:51:49.315 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:53:43.297 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:54:25.923 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 00:59:48.926 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 01:00:05.841 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 01:05:45.787 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 01:05:54.386 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 01:08:32.467 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 01:09:50.300 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 01:10:32.952 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 11:44:02.486 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-23 11:44:15.525 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 11:47:32.701 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 11:50:33.396 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 11:52:33.734 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 12:04:10.570 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 12:08:26.392 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 12:08:47.271 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.044154322360452726, 3.7574884063926025e-05, 0.0012225250366378908, 2.6783792275252936e-06, 0.009280219328741622, 21], set: set_1
+2023-08-23 12:08:48.913 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.044154322360452726, 3.7574884063926025e-05, 0.0012225250366378908, 2.6783792275252936e-06, 0.009280219328741622, 21], set: set_1
+2023-08-23 12:09:08.970 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-08-23 12:09:17.382 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:09:41.203 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:09:57.014 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.018687157787638884, 7.439435960165454e-05, 0.0001587746918813779, 5.778373006690903e-06, 0.08607959226758378, 15], set: set_1
+2023-08-23 12:19:28.970 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:19:51.429 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:23:58.339 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.22 (II)
+2023-08-23 12:24:14.599 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.22 (II)
+2023-08-23 12:24:50.834 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.22 (II)
+2023-08-23 12:25:02.654 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.7517061013852918, 0.005167644674414925, 1347.5261146311836, 7.415213436639993, 0.7939912450621789, 18], set: set_1
+2023-08-23 12:25:03.272 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.8794446490605518, 0.00612295484723431, 1388.3181389700283, 6.473897975398963, 0.6616911714751548, 19], set: set_1
+2023-08-23 12:25:05.869 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [1.0723078668892716, 0.007223349608698037, 1426.7063836003795, 8.518013813090471, 0.8385636765294414, 20], set: set_1
+2023-08-23 12:25:08.664 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [1.4523699057276989, 0.009159315468999401, 1510.212797867149, 7.741659561201629, 0.7313676093719631, 22], set: set_1
+2023-08-23 12:25:10.273 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [1.1964440166033117, 0.00804306085825343, 1429.8084442479271, 8.018005805937808, 0.7883115699735949, 21], set: set_1
+2023-08-23 12:25:17.794 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.22 (II)
+2023-08-23 12:25:54.478 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values, sample name: L.22 (II)
+2023-08-23 12:26:00.948 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.22 (II)
+2023-08-23 12:26:17.897 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.22 (II)
+2023-08-23 12:26:43.677 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.22 (II)
+2023-08-23 12:26:57.099 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.22 (II)
+2023-08-23 12:28:25.227 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.22 (II)
+2023-08-23 12:32:44.077 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:32:51.177 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:33:15.423 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:35:54.719 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:49:14.913 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:49:28.966 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:50:31.527 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.32A, export href: /static/download/L.32A.arr
+2023-08-23 12:50:39.253 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:51:16.742 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 12:57:29.663 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 12:57:41.888 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values, sample name: L.32A
+2023-08-23 12:57:48.628 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 12:58:25.407 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.32A, export href: /static/download/L.32A.arr
+2023-08-23 13:00:28.055 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 13:00:38.595 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 13:06:38.614 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 13:06:47.953 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 13:12:34.867 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 13:12:58.787 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 13:14:38.403 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 13:14:56.428 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 13:35:00.083 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 13:35:13.600 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 13:35:17.770 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 13:35:24.310 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 13:35:38.846 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 13:37:03.916 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 14:05:54.937 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 14:17:11.895 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 14:20:05.993 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 14:21:09.202 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-23 14:23:12.263 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-23 14:23:20.335 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 14:23:53.852 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.010670461364516359, 5.510713068746593e-06, 0.0009689948691800441, 1.9720472401513773e-06, 0.0072163792434547175, 4], set: set_1
+2023-08-23 14:24:09.409 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 14:24:37.774 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-23 14:28:26.270 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 14:38:11.697 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 14:40:00.137 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 14:50:17.300 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:30:16.378 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:31:50.540 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:33:59.308 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:34:37.324 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:37:55.087 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:38:07.964 -- ip: 127.0.0.1, operation: Click btn, msg: Update calc params, sample name: 22WHA0433
+2023-08-23 15:43:54.748 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:46:51.847 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:52:30.286 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:54:32.507 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 15:58:03.349 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:01:10.025 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:02:44.436 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:13:19.376 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:16:51.686 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:22:47.298 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:26:09.387 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:35:43.057 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:38:02.574 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:41:17.863 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 16:59:28.880 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 17:05:32.025 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 17:08:52.216 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 17:11:40.817 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [54.783766008889586, 0.12098997029093105, 992.6236149896782, 2.1345085268298587, 0.9711071450252434, 18], set: set_2
+2023-08-23 17:11:59.715 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [74.75982543797393, 0.16290357668828992, 1176.1304075837122, 2.495484228235598, 0.9700300082397311, 17], set: set_2
+2023-08-23 17:12:01.476 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [111.89720737878068, 0.24170921784415572, 1485.8661364818806, 3.124415656362883, 0.971647168415404, 15], set: set_2
+2023-08-23 17:26:38.668 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 17:27:28.558 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: L.32A, export href: /static/download/L.32A.arr
+2023-08-23 17:27:39.521 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 17:32:27.767 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 17:32:45.149 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 17:50:08.765 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-23 17:50:39.661 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 18:23:51.620 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 18:33:48.499 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 18:34:28.401 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-23 23:18:09.075 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-23 23:18:40.978 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-23 23:40:15.129 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-08-23 23:40:39.073 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 23:41:13.813 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-08-23 23:42:27.580 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-23 23:51:49.904 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A

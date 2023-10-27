@@ -1,0 +1,60 @@
+2023-09-13 11:01:36.257 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-13 12:16:50.103 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-13 15:28:36.567 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-13 15:29:29.433 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-13 15:45:26.713 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-13 15:46:04.349 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-13 15:47:08.036 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-13 16:15:37.047 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-13 16:16:16.751 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 16:19:09.546 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 16:20:11.134 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 16:21:23.332 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 16:25:33.062 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 16:35:23.323 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 16:37:51.728 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 16:39:00.012 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 16:39:59.690 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-09-13 16:40:11.983 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-09-13 16:57:25.344 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-09-13 16:57:45.798 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-09-13 16:59:06.914 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-09-13 16:59:15.641 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.32A
+2023-09-13 17:03:52.972 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 17:06:15.907 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 17:18:32.069 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 17:20:17.782 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-13 17:21:10.395 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-09-13 17:21:26.268 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-09-13 17:31:53.712 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-09-13 17:32:01.470 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.39A
+2023-09-13 17:32:30.665 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.39A
+2023-09-13 19:52:26.451 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: L.39A
+2023-09-13 19:59:11.442 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-09-13 19:59:30.375 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-13 19:59:37.320 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:02:37.084 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-13 20:02:41.914 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:02:51.943 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-13 20:03:06.539 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:05:00.215 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:06:00.837 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:06:25.123 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-13 20:06:30.380 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:06:49.776 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-13 20:06:59.000 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:07:53.631 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-09-13 20:08:05.040 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-13 20:08:26.603 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:08:43.584 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-09-13 20:08:59.368 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-09-13 20:09:37.909 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:10:31.224 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:13:01.927 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:21:26.325 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:26:01.516 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:26:44.440 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:29:20.570 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-13 20:33:31.997 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-09-13 20:33:55.468 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-09-13 20:35:05.923 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME

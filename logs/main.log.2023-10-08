@@ -1,0 +1,203 @@
+2023-10-08 11:05:45.092 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-08 11:05:51.322 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-08 11:05:51.332 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 11:06:05.182 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 11:06:05.183 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 11:06:09.662 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 11:06:09.685 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 11:06:50.996 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 11:06:52.527 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 11:07:07.346 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 11:07:07.353 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 11:07:14.383 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 11:07:14.413 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 11:08:32.159 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 11:08:34.911 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 11:08:45.463 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 11:08:45.463 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 11:08:47.623 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 11:08:47.649 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 11:25:05.723 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 11:25:05.729 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 11:25:33.470 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 11:25:33.500 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 11:26:31.675 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 11:26:31.677 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 11:28:26.553 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 11:28:26.581 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 11:28:49.617 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 11:28:49.620 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 11:28:55.837 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 11:28:55.872 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 18:38:42.023 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-08 18:38:42.023 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 18:38:51.223 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 18:38:51.228 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 19:03:56.924 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-08 19:05:41.035 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-08 19:05:41.043 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 19:05:50.471 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 19:05:50.475 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 19:05:52.877 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 19:05:52.912 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 19:05:59.518 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 19:05:59.612 -- ip: 127.0.0.1, operation: Handle raw file, msg: Success to submit raw file
+2023-10-08 19:05:59.644 -- ip: 127.0.0.1, operation: Handle raw file, msg: Upload raw project
+2023-10-08 19:17:10.483 -- ip: 127.0.0.1, operation: Handle raw file, msg: Upload raw project
+2023-10-08 19:17:14.857 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 19:17:26.139 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 19:17:26.143 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 19:17:28.702 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 19:17:28.736 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 19:18:57.755 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 19:18:57.799 -- ip: 127.0.0.1, operation: Handle raw file, msg: Success to submit raw file
+2023-10-08 19:18:57.850 -- ip: 127.0.0.1, operation: Handle raw file, msg: Upload raw project
+2023-10-08 19:19:00.011 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 19:19:00.017 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 19:19:30.998 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 19:19:31.027 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 19:26:40.889 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 19:26:40.918 -- ip: 127.0.0.1, operation: Handle raw file, msg: Success to submit raw file
+2023-10-08 19:26:41.014 -- ip: 127.0.0.1, operation: Handle raw file, msg: Upload raw project
+2023-10-08 19:26:44.677 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 19:26:44.682 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 19:45:08.661 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 19:45:08.666 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 19:45:11.175 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 19:45:11.205 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 20:05:18.052 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 20:05:18.059 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 20:11:18.155 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 20:11:18.190 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 20:11:21.939 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 20:11:25.966 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 20:13:08.981 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-08 20:13:08.984 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 20:13:20.600 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 20:13:20.607 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 20:13:23.456 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 20:13:23.484 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 20:13:27.914 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 20:15:05.893 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 20:15:05.900 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 20:15:16.424 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 20:15:16.457 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 20:15:21.340 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 20:15:46.849 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 20:15:56.897 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 20:15:56.911 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 20:15:59.803 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 20:15:59.832 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 20:16:02.939 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 20:16:03.004 -- ip: 127.0.0.1, operation: Handle raw file, msg: Success to submit raw file
+2023-10-08 20:16:03.022 -- ip: 127.0.0.1, operation: Handle raw file, msg: Upload raw project
+2023-10-08 20:20:34.294 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 20:20:34.294 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 20:20:36.233 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 20:20:36.259 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 20:22:46.250 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 20:22:46.346 -- ip: 127.0.0.1, operation: Handle raw file, msg: Success to submit raw file
+2023-10-08 20:22:46.407 -- ip: 127.0.0.1, operation: Handle raw file, msg: Upload raw project
+2023-10-08 20:22:48.715 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 20:22:48.720 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 20:22:50.671 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 20:22:50.700 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 20:22:55.228 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-08 20:22:55.275 -- ip: 127.0.0.1, operation: Handle raw file, msg: Success to submit raw file
+2023-10-08 20:22:55.292 -- ip: 127.0.0.1, operation: Handle raw file, msg: Upload raw project
+2023-10-08 20:56:27.994 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-08 20:56:27.997 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 20:56:38.144 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 20:56:38.147 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 20:56:40.645 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 20:56:40.673 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 21:18:12.616 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 21:18:12.621 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 21:18:15.525 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 21:18:15.557 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 21:42:08.715 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 21:42:08.718 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 21:42:45.451 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 21:47:41.546 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 21:47:41.550 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 21:51:28.301 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 21:51:28.760 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 21:51:36.268 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 21:51:36.270 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 21:51:46.732 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 21:53:22.764 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 21:53:22.770 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 21:53:36.116 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 21:54:03.630 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 21:54:03.635 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 21:54:06.670 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 21:54:06.704 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 21:54:15.065 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 21:54:15.066 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 21:54:17.403 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-08 21:54:17.430 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 21:57:54.195 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 21:57:54.197 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 21:58:32.055 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 21:58:32.058 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 21:58:39.209 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 22:00:59.853 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 22:00:59.855 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 22:01:03.815 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 22:02:02.124 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 22:02:02.127 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 22:02:04.127 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 22:24:46.527 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-08 22:24:46.540 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-08 22:25:27.056 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 22:25:27.056 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 22:37:07.024 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 22:37:44.888 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-08 22:42:33.448 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 22:48:07.318 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 22:48:07.325 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 22:48:22.442 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 22:48:30.528 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-08 23:01:19.009 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:14:01.955 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 23:14:01.963 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 23:14:04.211 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:14:12.723 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:14:14.272 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:14:15.606 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:15:02.095 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 23:15:02.097 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 23:15:06.758 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:15:10.028 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:15:14.540 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:15:16.562 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:15:18.042 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:15:25.281 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-08 23:15:27.426 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:16:59.394 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 23:16:59.402 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 23:30:15.318 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:30:23.172 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-08 23:30:24.939 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:30:27.138 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:30:28.278 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:30:29.252 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:30:30.357 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:48:30.496 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 23:48:30.504 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 23:48:34.116 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:48:37.904 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate average value of selected blanks, the number of selected points will be lesser than 4
+2023-10-08 23:48:40.022 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:52:46.816 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 23:52:46.823 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 23:53:28.359 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:53:33.194 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate average value of selected blanks, the number of selected points will be lesser than 4
+2023-10-08 23:53:34.487 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:53:41.547 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-08 23:53:48.055 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:55:41.199 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-08 23:55:41.203 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-08 23:55:45.813 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:56:00.148 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-08 23:56:02.217 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-08 23:56:05.606 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method

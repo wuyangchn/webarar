@@ -1,0 +1,140 @@
+2023-10-17 11:29:03.457 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-17 11:30:42.950 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-17 11:32:56.104 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-17 11:33:22.946 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-17 11:34:18.077 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.04023512070286368, 0.00011602047496901227, 0.0013034757083044699, 6.976772205411131e-06, 0.0020766885222899974, 26], set: set_1
+2023-10-17 11:34:19.087 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.04027924161599367, 0.00013410332088038422, 0.0012710259616747583, 6.540631483409808e-06, 0.12511269545324963, 27], set: set_1
+2023-10-17 11:34:19.730 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.04121845029024169, 2.8145409571916884e-05, 0.0012163156454384214, 3.6340550618395155e-06, 0.016102163669262547, 24], set: set_1
+2023-10-17 11:34:20.357 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.04144571792393392, 2.65560627159379e-05, 0.001254693608882455, 3.05199706727267e-06, 0.016178266490510695, 23], set: set_1
+2023-10-17 11:34:21.271 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.0402511067984946, 2.9409978782234362e-05, 0.001277161951376035, 3.4351494740570066e-06, 0.014835224257003891, 25], set: set_1
+2023-10-17 11:34:22.032 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.04261676548833685, 2.9181800452978457e-05, 0.001205936150400765, 3.0649751175933366e-06, 0.08249920397910189, 22], set: set_1
+2023-10-17 11:34:22.819 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.044154322360452726, 3.7574884063926025e-05, 0.0012225250366378908, 2.6783792275252936e-06, 0.009280219328741622, 21], set: set_1
+2023-10-17 11:34:55.427 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.01353788950687817, 7.972079971200585e-06, 0.0029825237095231416, 6.081245630050158e-06, 0.007693832716331117, 8], set: set_1
+2023-10-17 11:34:56.084 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.013785299716293173, 7.87291993632375e-06, 0.002989156328794735, 6.106694757556946e-06, 0.004385906203809703, 9], set: set_1
+2023-10-17 11:34:56.740 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.013813583197231277, 1.6319605935805164e-05, 0.0029640208492912037, 6.112996626134663e-06, 0.004719761289357332, 7], set: set_1
+2023-10-17 11:35:12.704 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [4.660420388248809, 0.011054376363602594, 337.37954314293484, 0.6958115728007795, 0.8671375205496695, 7], set: set_1
+2023-10-17 11:35:13.676 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [4.61176940914682, 0.009771700221198847, 334.54255649560235, 0.6834534735609281, 0.9629909887766486, 9], set: set_1
+2023-10-17 11:35:14.506 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [4.61176940914682, 0.009771700221198847, 334.54255649560235, 0.6834534735609281, 0.9629909887766486, 9], set: set_1
+2023-10-17 11:35:15.346 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [4.61176940914682, 0.009771700221198847, 334.54255649560235, 0.6834534735609281, 0.9629909887766486, 9], set: set_1
+2023-10-17 11:35:16.559 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [4.5390718818603, 0.009613461452258866, 335.28652154784857, 0.6836357033700059, 0.9605717542372116, 8], set: set_1
+2023-10-17 11:35:20.276 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.013267582961955815, 8.7572218445064e-06, 0.002934655208719891, 5.99045588244976e-06, 0.004888076221598175, 13], set: set_1
+2023-10-17 11:35:51.941 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.013267582961955815, 8.7572218445064e-06, 0.002934655208719891, 5.99045588244976e-06, 0.004888076221598175, 13], set: set_1
+2023-10-17 11:36:54.354 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [36.1173154227443, 0.08462126135745897, 817.9791579157636, 1.792076496965142, 0.9317125525578343, 21], set: set_2
+2023-10-17 11:36:54.998 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [35.33915578712368, 0.09107170602499368, 829.2312985788452, 2.1075521253999536, 0.9643027965516022, 22], set: set_2
+2023-10-17 11:36:56.061 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [33.03254087732962, 0.0827595535421773, 797.0073274627513, 1.9386916525204272, 0.9667530193779896, 23], set: set_2
+2023-10-17 11:36:57.210 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [33.887955355029966, 0.10349567843933882, 822.1550086528317, 2.4563990293281113, 0.9746915090302042, 24], set: set_2
+2023-10-17 11:36:59.229 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [31.690337436475343, 0.18281304068652005, 786.7659907452693, 4.048655624912727, 0.8198342732794774, 27], set: set_2
+2023-10-17 11:37:00.205 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [31.51605538759388, 0.08750973581885867, 782.9860566411204, 2.105977349048658, 0.9647646486704414, 25], set: set_2
+2023-10-17 11:37:01.396 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [30.867564655424665, 0.18750467625983852, 767.1796210922689, 4.106280940177018, 0.8801480023753152, 26], set: set_2
+2023-10-17 11:37:24.766 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.044154322360452726, 3.7574884063926025e-05, 0.0012225250366378908, 2.6783792275252936e-06, 0.009280219328741622, 21], set: set_1
+2023-10-17 11:43:20.821 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [30.867564655424665, 0.18750467625983852, 767.1796210922689, 4.106280940177018, 0.8801480023753152, 26], set: set_2
+2023-10-17 11:43:30.591 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.04023512070286368, 0.00011602047496901227, 0.0013034757083044699, 6.976772205411131e-06, 0.0020766885222899974, 26], set: set_2
+2023-10-17 11:44:47.867 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: 22WHA0433, btn id: 7
+2023-10-17 11:45:40.884 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: 22WHA0433, btn id: 7
+2023-10-17 12:28:27.792 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-17 12:28:32.097 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 12:36:29.013 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 12:36:54.304 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 12:37:13.592 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 12:38:41.962 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-10-17 12:39:12.985 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-17 12:40:14.535 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-10-17 12:40:17.593 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-17 12:40:33.832 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-10-17 12:40:37.654 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-17 12:40:41.271 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-17 12:41:14.310 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-17 12:41:28.015 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 12:42:23.853 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-10-17 12:42:39.325 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-10-17 12:44:25.595 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 4
+2023-10-17 12:44:42.254 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: SAMPLE NAME
+2023-10-17 12:44:50.943 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: SAMPLE NAME
+2023-10-17 12:45:19.849 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 8
+2023-10-17 12:46:18.061 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: SAMPLE NAME
+2023-10-17 12:46:31.116 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-10-17 12:48:24.618 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 0
+2023-10-17 12:49:20.488 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: J12Q, btn id: 7
+2023-10-17 12:49:33.663 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: J12Q
+2023-10-17 12:51:17.640 -- ip: 127.0.0.1, operation: Click btn, msg: Update calc params, sample name: J12Q
+2023-10-17 12:51:48.193 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: J12Q
+2023-10-17 12:52:18.902 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: J12Q, btn id: 8
+2023-10-17 12:52:26.805 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: J12Q
+2023-10-17 12:56:09.573 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: J12Q, btn id: 7
+2023-10-17 12:59:35.681 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: J12Q, btn id: 7
+2023-10-17 12:59:55.384 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: J12Q, btn id: 7
+2023-10-17 13:02:15.377 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: J12Q, btn id: 7
+2023-10-17 13:03:25.779 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: J12Q, btn id: 7
+2023-10-17 13:04:49.193 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: J12Q, export href: /static/download/J12Q.arr
+2023-10-17 13:09:42.722 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-17 13:09:46.968 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-17 13:09:49.418 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: J12Q, export href: /static/download/J12Q.arr
+2023-10-17 13:15:55.382 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:15:59.854 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:16:34.666 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-17 13:27:58.374 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:28:02.242 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:28:07.094 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:28:10.847 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:28:12.499 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:28:25.241 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:28:35.026 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:28:37.348 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:29:33.637 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:29:35.681 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:30:58.573 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:31:01.009 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:31:32.836 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:31:35.094 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:31:58.496 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:32:00.442 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:32:07.245 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:32:26.917 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:32:29.014 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:32:31.827 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:32:34.053 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:33:39.354 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:37:03.902 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-10-17 13:37:25.382 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-10-17 13:38:47.223 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 4
+2023-10-17 13:39:01.948 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: SAMPLE NAME
+2023-10-17 13:39:21.779 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: SAMPLE NAME
+2023-10-17 13:39:59.359 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: SAMPLE NAME
+2023-10-17 13:40:09.949 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-10-17 13:40:16.613 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-10-17 13:41:17.915 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-10-17 13:47:35.085 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-10-17 13:48:22.726 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-10-17 13:48:49.532 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-10-17 13:50:20.940 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 7
+2023-10-17 13:52:28.366 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:52:42.668 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:53:30.728 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-10-17 13:53:40.832 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-17 13:53:54.829 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:54:18.275 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 3
+2023-10-17 13:54:20.575 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: SAMPLE NAME, export href: /static/download/SAMPLE NAME.arr
+2023-10-17 13:54:39.746 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 0
+2023-10-17 13:54:42.093 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: Shi 2018 J18Q, export href: /static/download/Shi 2018 J18Q.arr
+2023-10-17 13:55:14.855 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: Shi 2018 J18Q, btn id: 4
+2023-10-17 13:58:36.454 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: Shi 2018 J18Q, btn id: 4
+2023-10-17 13:58:47.645 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: Shi 2018 J18Q
+2023-10-17 13:58:54.011 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: Shi 2018 J18Q
+2023-10-17 13:59:30.509 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: Shi 2018 J18Q
+2023-10-17 13:59:38.781 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: Shi 2018 J18Q
+2023-10-17 14:01:36.754 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: Shi 2018 J18Q, btn id: 7
+2023-10-17 14:02:08.305 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: Shi 2018 J18Q
+2023-10-17 14:02:19.821 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: Shi 2018 J18Q
+2023-10-17 14:04:26.905 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: Shi 2018 J18Q
+2023-10-17 14:04:44.568 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [5396.554050537632, 70.82137245363066, 32641.469503062912, 423.3830414327499, 0.9883525369076612, 15], set: set_1
+2023-10-17 14:04:45.835 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [5396.554050537632, 70.82137245363066, 32641.469503062912, 423.3830414327499, 0.9883525369076612, 15], set: set_1
+2023-10-17 14:04:49.635 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [5396.554050537632, 70.82137245363066, 32641.469503062912, 423.3830414327499, 0.9883525369076612, 15], set: set_2
+2023-10-17 14:10:02.218 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: Shi 2018 J18Q, export href: /static/download/Shi 2018 J18Q.arr
+2023-10-17 14:10:16.803 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-17 14:10:26.883 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-10-17 14:12:37.984 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: Shi 2018 J18Q, btn id: 7
+2023-10-17 14:13:47.205 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: Shi 2018 J18Q, btn id: 7
+2023-10-17 14:14:22.938 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: Shi 2018 J18Q, btn id: 7
+2023-10-17 14:16:46.831 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: Shi 2018 J18Q, export href: /static/download/Shi 2018 J18Q.arr
+2023-10-17 14:17:32.344 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-10-17 14:18:17.475 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
