@@ -1,0 +1,210 @@
+2023-10-13 10:36:21.146 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-13 10:36:29.214 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 10:36:29.448 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-13 10:36:34.380 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-13 10:36:34.543 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 10:37:30.283 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 10:37:30.395 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-13 10:37:51.479 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-13 10:37:51.587 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 10:40:28.089 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-13 10:40:28.244 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:03:17.972 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-13 11:03:20.026 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-13 11:03:20.030 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-13 11:03:40.675 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-13 11:18:00.341 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 11:19:44.815 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-13 11:19:45.186 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:20:18.031 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-13 11:20:18.187 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:20:21.779 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-13 11:20:21.787 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-13 11:20:28.705 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-13 11:20:31.680 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 11:20:41.899 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:37:22.737 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-13 11:37:22.930 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:38:02.661 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create calc param project, name: calc1013, email: wuycug@gmail.com, file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 11:38:10.813 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 11:38:10.917 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:38:12.515 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:38:30.993 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:41:50.421 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 11:41:50.533 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:41:53.949 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:43:40.671 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 11:43:40.806 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:43:43.556 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 11:44:53.067 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 11:44:53.232 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-13 11:47:25.822 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 11:47:25.935 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-13 11:47:28.901 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 11:47:29.005 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:47:55.133 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 11:47:55.291 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:47:58.903 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:48:08.479 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:48:09.789 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:50:08.404 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 11:50:08.641 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:50:23.416 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:52:09.516 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:52:10.713 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 11:52:12.288 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:52:13.213 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 11:56:32.351 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 11:56:32.458 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:56:43.688 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:56:50.432 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:56:51.445 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-13 11:58:02.190 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 11:58:02.324 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:58:03.905 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 11:58:25.527 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 11:58:25.682 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 11:58:29.310 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 12:26:31.889 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 12:26:33.580 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 12:26:34.654 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 12:26:36.145 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 12:26:39.418 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 12:26:40.735 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 12:27:04.610 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-13 12:27:04.619 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-13 12:27:12.125 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-13 12:27:14.648 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 12:27:21.948 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-13 12:30:02.319 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 12:30:07.619 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 12:30:09.380 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 12:30:18.880 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 12:30:23.079 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 12:30:27.358 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: calc1013, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-13 12:34:38.275 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 12:34:38.470 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: ArAr, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-13 12:35:02.636 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-13 12:35:02.644 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-13 12:35:09.603 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH01, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-13 12:35:13.018 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 12:35:58.093 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-13 13:21:09.491 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-13 13:21:10.786 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-13 13:21:15.359 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 13:21:49.898 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 13:21:59.822 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 13:23:13.538 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to update the irra param project, name: WH01, path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-13 13:23:22.389 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 13:37:03.982 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 13:37:56.044 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 13:38:16.793 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 13:40:23.845 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 13:41:14.241 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-13 13:41:39.608 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create irra param project, name: Irra2, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\Irra2.irra
+2023-10-13 13:41:47.549 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-13 13:48:28.317 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-13 13:48:33.708 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-13 13:49:42.715 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-13 13:50:43.418 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 13:53:56.044 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 13:55:56.376 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 13:57:49.528 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 14:01:51.217 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 14:41:34.373 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-13 14:42:56.044 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-13 14:42:59.817 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 14:46:27.548 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 14:48:37.461 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 14:49:12.860 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 14:49:43.785 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 14:51:10.909 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: 18WHA0350, btn id: 0
+2023-10-13 14:57:03.036 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-13 15:04:52.609 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:05:57.316 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:05:59.557 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:06:05.524 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:11:36.763 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:11:46.798 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:12:00.658 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 15:13:38.927 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:27:48.093 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:27:56.621 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 15:27:59.549 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:59:41.152 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:59:45.397 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:59:48.418 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:59:54.417 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 15:59:59.335 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 16:00:02.185 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 16:15:09.525 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 16:15:17.781 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 16:17:37.940 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 16:24:24.810 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 16:45:05.756 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 16:45:49.362 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-13 16:45:51.858 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 16:50:49.902 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 16:50:56.735 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 16:51:00.322 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:00:47.388 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:03:17.932 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 17:07:34.142 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:07:45.322 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:09:22.320 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:11:33.842 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:12:12.123 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:13:01.591 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:15:13.320 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:15:43.310 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change selected smpparams project, it does not exist in the server, name: smp_default
+2023-10-13 17:17:28.721 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:17:31.608 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: []
+2023-10-13 17:17:56.424 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create smpparams project, name: smp_default, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\smp_default.smp
+2023-10-13 17:18:12.735 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-13 17:21:14.859 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-13 17:23:42.699 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-13 17:23:51.154 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 17:26:34.021 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 17:26:52.645 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 17:27:10.824 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 17:30:12.789 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 17:30:14.894 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 17:30:32.609 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 17:42:07.414 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-13 17:42:11.172 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 17:42:21.237 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-13 17:42:25.607 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-13 17:42:46.555 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-13 17:42:46.562 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-13 17:42:56.070 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 17:45:58.526 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 17:47:42.857 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 17:51:00.570 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 17:52:27.734 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 17:53:35.348 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 17:54:26.870 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-13 17:54:26.880 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-13 17:54:36.460 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 17:55:34.401 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-13 17:57:08.737 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to submit raw file
+2023-10-13 18:07:13.502 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 18:07:48.279 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create calcparams project, name: CALC-params-1013, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\CALC-params-1013.smp
+2023-10-13 18:07:54.284 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'CALC-params-1013', 'calc1013']
+2023-10-13 18:08:46.855 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to create calcparams project, empty name or pin
+2023-10-13 18:08:59.644 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to create calcparams project, empty name or pin
+2023-10-13 18:09:02.668 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to create calcparams project, empty name or pin
+2023-10-13 18:10:54.099 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to create calcparams project, empty name or pin
+2023-10-13 18:11:00.785 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'CALC-params-1013', 'calc1013']
+2023-10-13 18:11:15.926 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the calcparams project does been deleted, name: CALC-params-1013
+2023-10-13 18:11:19.927 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 18:11:28.283 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-13 18:11:47.984 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create calcparams project, name: xxxxx, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\xxxxx.smp
+2023-10-13 18:11:52.762 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'xxxxx']
+2023-10-13 18:17:04.449 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'xxxxx']
+2023-10-13 18:17:23.438 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create calcparams project, name: wasd, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\wasd.smp
+2023-10-13 18:17:27.027 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-13 18:19:36.403 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-13 18:26:50.727 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-13 18:28:08.257 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-13 18:28:32.214 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to update the calcparams project, name: wasd, path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\wasd.smp
+2023-10-13 18:28:38.565 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']

@@ -1,0 +1,484 @@
+2023-10-04 10:26:33.011 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 10:26:33.023 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 10:27:41.587 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 10:27:41.591 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 10:28:31.007 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 10:28:31.034 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 10:35:45.695 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 10:35:45.702 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 10:39:14.096 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 10:39:15.277 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 10:39:17.648 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 10:39:17.670 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 10:39:21.458 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 10:39:23.236 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 10:51:20.635 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 10:54:34.221 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 10:54:34.243 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:13:47.397 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 12:13:48.477 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 12:13:52.156 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 12:13:52.161 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:14:03.072 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:14:03.077 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:14:08.427 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:14:08.448 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:15:23.682 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:15:34.908 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:15:34.910 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:16:03.397 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:16:03.423 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:16:21.513 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:16:21.527 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:17:57.059 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:18:07.216 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:18:07.218 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:18:10.781 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:18:10.797 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:19:50.971 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:20:15.141 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:20:24.513 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:20:24.516 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:20:28.188 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:20:28.209 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:21:42.612 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:21:52.179 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:21:52.181 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:21:56.755 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:21:56.771 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:27:02.037 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:27:02.890 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:27:04.886 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:27:13.759 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:27:13.763 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:27:17.062 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:27:17.083 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:27:18.037 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 12:27:24.434 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 12:27:26.074 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 12:41:34.085 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:41:34.086 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:41:39.676 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:41:39.706 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:41:40.837 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 12:42:17.385 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 12:42:24.206 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change raw fit method
+2023-10-04 12:42:27.076 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:42:27.098 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:42:36.463 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change raw fit method
+2023-10-04 12:42:39.379 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:42:39.392 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:42:42.738 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 12:51:11.596 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:51:22.711 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:51:22.714 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:53:03.914 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:53:04.605 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 12:53:16.244 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:53:16.248 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:53:20.948 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:53:20.975 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:53:24.989 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 12:53:44.338 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 12:53:44.341 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 12:53:48.349 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 12:53:48.383 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 12:53:51.638 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate average value of selected blanks, the number of selected points will be lesser than 4
+2023-10-04 13:05:46.811 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 13:13:14.730 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 13:13:14.732 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 13:13:18.488 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 13:13:18.549 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 13:17:46.489 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 13:17:46.492 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 13:17:50.177 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 13:17:50.234 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 13:19:47.017 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 13:19:47.021 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 13:19:49.576 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 13:19:49.664 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 13:20:43.188 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 13:20:43.192 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 13:20:45.590 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 13:20:45.669 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 13:20:45.684 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 13:20:45.715 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 13:50:17.156 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 13:50:17.157 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 13:50:21.041 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 13:50:21.132 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 13:51:58.097 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 13:51:58.101 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 13:52:06.175 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 13:52:06.210 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 13:52:08.247 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 13:57:01.684 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 13:57:01.687 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 13:57:08.077 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 13:57:08.108 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 13:57:10.641 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 13:58:08.543 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 13:58:08.548 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 13:58:15.159 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 13:58:15.167 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 13:58:35.864 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 13:58:35.866 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 13:58:40.822 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 13:58:40.858 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 13:58:45.062 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:04:34.336 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 14:07:09.849 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 14:07:26.925 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:07:26.928 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:07:34.442 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:07:34.476 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:07:37.928 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:08:30.568 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 14:08:32.235 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 14:08:52.347 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:08:52.349 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:09:09.705 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:09:09.740 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:09:13.575 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:22:10.358 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:22:10.362 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:22:29.424 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:22:29.459 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:22:32.999 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:25:43.089 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:25:43.095 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:26:09.586 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:26:09.622 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:26:14.257 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:27:02.289 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:27:02.292 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:27:21.367 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:27:21.402 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:27:24.752 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:33:52.658 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:33:52.660 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:34:26.497 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:34:26.553 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:34:29.839 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:35:07.681 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:35:07.688 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:35:18.281 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:35:18.644 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:35:24.389 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:35:24.392 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:35:29.355 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:35:29.386 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:35:34.951 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:36:12.363 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:36:12.387 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:36:16.138 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:36:34.522 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 14:36:43.643 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 14:36:44.654 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 14:37:07.692 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:37:07.698 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:37:49.555 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:37:49.589 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:37:59.962 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:42:01.758 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:42:01.765 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:44:49.775 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:44:49.775 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:44:53.763 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:44:53.798 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:44:57.143 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:47:03.662 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:47:03.666 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:47:08.058 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:47:08.092 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:48:28.360 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:48:28.382 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:48:46.930 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:48:46.953 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:51:00.708 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:51:00.716 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 14:52:39.822 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 14:52:39.856 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 14:53:14.695 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 14:54:52.944 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 14:54:52.953 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 14:55:12.536 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 14:55:12.542 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:11:42.588 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:11:42.592 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:27:33.688 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:27:33.693 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:27:44.005 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:27:44.056 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:27:46.974 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:34:17.182 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:34:17.184 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:34:21.528 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:34:21.559 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:34:24.877 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:38:20.863 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:38:20.868 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:39:39.486 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:39:39.533 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:39:42.452 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:41:01.794 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:41:01.797 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:41:11.145 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:41:11.180 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:41:15.034 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:41:54.991 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:41:54.998 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:44:19.670 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:44:19.704 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:44:22.691 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:50:09.521 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 15:50:09.534 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 15:50:25.545 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:50:25.549 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:50:30.544 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:50:30.574 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:50:33.303 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:50:40.910 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:51:53.989 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 15:51:56.881 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 15:51:56.890 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 15:52:24.763 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:52:24.766 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:52:51.945 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:52:52.059 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:52:55.223 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:55:11.498 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 15:55:18.924 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 15:55:18.940 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 15:55:46.088 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:55:46.092 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:56:10.519 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:56:10.557 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:56:14.672 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:57:40.727 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:57:40.730 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:58:07.908 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:58:07.942 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:58:11.832 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:58:45.233 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:58:45.242 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:58:55.857 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:58:55.889 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:58:58.655 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 15:59:32.839 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 15:59:32.840 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 15:59:37.251 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 15:59:37.285 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 15:59:39.982 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 16:00:55.446 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:00:55.450 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:00:58.967 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:00:59.002 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:01:01.675 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 16:03:02.419 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:03:02.426 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:03:12.227 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:03:12.262 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:03:15.515 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 16:04:36.770 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:04:36.772 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:04:40.646 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:04:40.679 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:04:43.380 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 16:35:02.905 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:35:02.906 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:35:18.799 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:35:18.833 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:35:22.267 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 16:37:19.888 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:37:19.895 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:39:09.825 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:39:09.861 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:39:12.795 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 16:39:19.204 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 16:43:20.328 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 16:43:28.561 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:43:28.563 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:43:47.363 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 16:43:48.706 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 16:43:49.704 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 16:43:50.608 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 16:45:14.232 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:45:14.241 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:45:35.344 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change raw fit method
+2023-10-04 16:45:36.652 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:45:36.681 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:45:39.909 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change raw fit method
+2023-10-04 16:45:41.714 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:45:41.728 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:45:51.568 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 16:48:49.605 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 16:48:49.613 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 16:49:12.027 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:49:12.031 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:49:24.684 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:49:24.721 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:49:29.262 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 16:49:40.717 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 16:49:40.724 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 16:50:02.879 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:50:02.882 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:50:16.666 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 16:50:18.338 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 16:50:20.078 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 16:50:21.298 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-10-04 16:52:43.954 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:52:43.956 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:52:50.136 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:52:50.170 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:54:09.968 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 16:54:09.971 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 16:54:44.522 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:54:44.562 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:54:51.204 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 16:54:51.226 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 16:54:54.276 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 18:17:27.156 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 18:17:28.744 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 18:17:31.191 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 18:17:31.202 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 18:18:17.612 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 18:18:17.616 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 18:22:08.683 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 18:22:08.724 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 18:22:12.985 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 18:29:46.986 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 18:29:46.993 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 18:30:04.594 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 18:30:04.628 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 18:30:10.714 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 18:34:36.276 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 18:34:36.280 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 18:34:41.412 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 18:34:41.448 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 18:34:44.445 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:00:35.033 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 19:00:35.036 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 19:00:59.479 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 19:00:59.506 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 19:01:02.523 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:03:35.384 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 19:03:35.391 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 19:03:48.023 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 19:03:48.060 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 19:03:51.412 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:06:17.357 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 19:06:17.381 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 19:06:21.249 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:07:53.267 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 19:07:53.267 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 19:12:44.246 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 19:12:44.281 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 19:12:48.062 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:13:23.706 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:13:36.046 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:14:09.667 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 19:14:09.670 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 19:14:25.101 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 19:14:25.130 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 19:14:28.604 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:18:57.386 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 19:18:57.392 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 19:19:02.612 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 19:19:02.639 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 19:19:06.301 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:19:10.625 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 19:54:29.605 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 19:54:29.623 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 19:55:02.238 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 19:55:02.282 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 19:55:05.624 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 20:02:47.108 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 20:02:47.112 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 20:02:56.226 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 20:02:56.274 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 20:03:00.243 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 20:06:30.157 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 20:06:30.168 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 20:10:04.438 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 20:10:04.479 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 20:10:07.480 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 20:15:29.743 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 20:15:29.743 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 20:16:39.568 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 20:16:39.609 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 20:16:43.445 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 20:18:41.440 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 20:18:41.440 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 20:19:08.404 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 20:19:08.446 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 20:19:12.555 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 20:21:14.422 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 20:21:14.422 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 20:21:59.018 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 20:21:59.076 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 20:22:02.204 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 21:15:44.534 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:15:44.550 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:15:52.396 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:15:52.434 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:17:27.391 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 21:17:51.245 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:17:51.251 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:17:58.278 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:17:58.315 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:19:21.793 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:19:21.796 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:20:26.339 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:20:26.407 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:25:10.987 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:25:11.001 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:25:28.164 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:25:28.211 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:25:31.507 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 21:27:28.698 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:27:28.713 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:28:01.262 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:28:01.304 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:30:56.644 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 21:31:04.262 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 21:31:58.294 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:31:58.309 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:33:22.322 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:33:22.367 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:35:38.281 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:35:38.299 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:35:49.828 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:35:49.869 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:37:18.273 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:37:18.276 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:37:32.663 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:37:32.707 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:39:31.632 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 21:39:35.779 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-04 21:39:35.779 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-04 21:40:18.845 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:40:18.849 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:40:23.517 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:40:23.562 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:44:25.693 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-04 21:46:24.841 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:46:24.849 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:47:16.968 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:47:17.012 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:50:18.614 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 21:50:18.618 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 21:50:24.063 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 21:50:24.105 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 21:50:27.581 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 21:56:17.237 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 21:56:25.337 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 21:57:26.018 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 21:58:12.133 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 21:59:14.894 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 22:02:16.437 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks
+2023-10-04 22:02:41.044 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change calc param project
+2023-10-04 22:02:41.046 -- ip: 127.0.0.1, operation: Handle param project, msg: Fail to change irra param project
+2023-10-04 22:13:38.277 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-10-04 22:13:38.317 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-04 22:13:41.766 -- ip: 127.0.0.1, operation: Handle raw file, msg: Calculate interpolate value of selected blanks

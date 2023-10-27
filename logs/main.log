@@ -1,0 +1,29 @@
+2023-10-27 10:12:16.065 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-27 10:12:22.211 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-27 10:12:26.344 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-27 10:12:39.216 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-10-27 10:13:37.937 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: J12Q, btn id: 8
+2023-10-27 10:13:44.493 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: J12Q
+2023-10-27 10:14:01.364 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [982.9572713551273, 12.851232095121306, 6207.101496321401, 80.20256179008959, 0.988244083283912, 30], set: set_1
+2023-10-27 10:14:03.053 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [985.7858434113958, 25.929111547218454, 6208.2758100672, 162.82571158554498, 0.9971006769165691, 29], set: set_1
+2023-10-27 10:14:04.625 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [897.5134575966913, 10.654248005597728, 5701.513192537243, 66.71772138890428, 0.9857506657287421, 12], set: set_1
+2023-10-27 10:14:05.669 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [829.2745946154149, 13.332264171765901, 5294.029562076446, 84.45570893371145, 0.9922171547184061, 31], set: set_1
+2023-10-27 10:14:07.442 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [1712.522137787104, 18.872844678546386, 10560.854027040203, 114.44394395456112, 0.9833036027746175, 15], set: set_1
+2023-10-27 10:14:08.079 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [1784.672459726863, 35.395944191748846, 11004.807958399302, 217.1519096054634, 0.9949130925718545, 26], set: set_1
+2023-10-27 10:14:08.806 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [1851.4516137199587, 29.90282985582953, 11405.903487227088, 182.80268020054322, 0.9923177329376459, 25], set: set_1
+2023-10-27 10:14:13.698 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [1283.9920364349694, 22.859993424742623, 8024.3054429644435, 141.96560273577163, 0.9936713802391024, 13], set: set_1
+2023-10-27 10:14:14.322 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [1344.3411802298517, 24.51693472627923, 8366.457409796369, 151.66212759433822, 0.9939809957524846, 28], set: set_1
+2023-10-27 10:14:14.962 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [1435.1065229539774, 17.73306784097149, 8920.036680416533, 108.77334061511785, 0.9868549889556549, 14], set: set_1
+2023-10-27 10:14:20.131 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [2156.474264402021, 20.775532707198607, 13206.733195495517, 124.44989944541896, 0.9781095126319929, 17], set: set_1
+2023-10-27 10:14:20.694 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [2202.8621517976558, 69.70655741513353, 13513.709935951834, 426.7710277491523, 0.9980076390510185, 16], set: set_1
+2023-10-27 10:14:21.208 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [2239.2421161288694, 22.763511497577564, 13708.719286407371, 136.61854211395936, 0.9803229079191252, 21], set: set_1
+2023-10-27 10:14:26.866 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [2399.2548917298423, 21.311842075302575, 14669.494203120767, 126.97024993183986, 0.9743917330507035, 18], set: set_1
+2023-10-27 10:14:27.283 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [2466.500022284925, 31.982333042324942, 15045.010786021154, 192.75702362240753, 0.9880706581401142, 20], set: set_1
+2023-10-27 10:14:27.779 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [2518.947821215951, 34.549627604039834, 15374.890750891538, 208.63251774103773, 0.9893374435527779, 22], set: set_1
+2023-10-27 13:06:47.873 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-27 13:06:51.372 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-27 13:11:04.685 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-27 13:11:18.449 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-27 13:11:33.523 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-27 13:11:36.748 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-27 13:11:49.400 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file

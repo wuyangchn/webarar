@@ -1,0 +1,134 @@
+2023-10-15 19:31:33.951 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-15 19:31:39.117 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-15 19:32:21.664 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 19:34:12.213 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:36:25.064 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-15 19:37:01.308 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to update the irraparams project, name: WH01, path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-15 19:37:43.616 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:39:09.874 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 19:39:27.394 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to update the calcparams project, name: ArAr, path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-15 19:40:16.664 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 19:40:19.143 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:40:27.636 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:40:57.659 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:41:11.618 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:41:30.562 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:51:16.702 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:51:19.912 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:52:09.725 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:52:12.548 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:52:13.432 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:52:14.053 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:52:22.788 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:52:24.187 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:56:53.799 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:56:57.584 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:57:35.510 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:57:38.610 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:58:15.338 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 19:59:31.842 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:59:46.361 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 19:59:47.757 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 20:01:35.436 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 20:01:38.092 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 20:01:44.305 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 20:02:06.457 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 20:16:12.503 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-15 20:16:12.521 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-15 20:17:50.020 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-15 20:20:46.886 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-15 20:20:49.183 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-15 20:23:29.241 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-15 20:54:32.750 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-10-15 20:54:32.762 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-10-15 20:55:18.512 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-10-15 21:16:20.150 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 21:18:50.624 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-15 21:27:45.610 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-15 21:28:39.031 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 21:30:33.901 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-15 21:36:20.840 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 21:38:08.833 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 21:38:25.322 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 21:38:49.397 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-15 21:39:44.999 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 21:41:01.143 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 21:42:06.885 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013', 'wasd', 'xxxxx']
+2023-10-15 21:43:31.272 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to update the calc project, name: calc1013, path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\calc1013.calc
+2023-10-15 21:43:41.439 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the calc project does been deleted, name: ArAr
+2023-10-15 21:43:45.598 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['calc1013', 'wasd', 'xxxxx']
+2023-10-15 21:43:51.957 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the calc project does been deleted, name: wasd
+2023-10-15 21:43:57.551 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['calc1013', 'xxxxx']
+2023-10-15 21:44:03.641 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the calc project does been deleted, name: xxxxx
+2023-10-15 21:44:07.916 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['calc1013']
+2023-10-15 21:44:29.601 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create calc project, name: ArAr, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.smp
+2023-10-15 21:44:33.372 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'calc1013']
+2023-10-15 21:44:41.589 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the calc project does been deleted, name: calc1013
+2023-10-15 21:44:43.691 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-15 21:45:07.203 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 21:47:03.118 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 21:48:11.875 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to update the irra project, name: Irra2, path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\Irra2.irra
+2023-10-15 21:48:19.884 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 21:48:31.453 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the irra project does been deleted, name: WH01
+2023-10-15 21:48:34.729 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2']
+2023-10-15 21:48:53.565 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create irra project, name: WH01, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.smp
+2023-10-15 21:48:56.825 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['Irra2', 'WH01']
+2023-10-15 21:49:01.265 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the irra project does been deleted, name: Irra2
+2023-10-15 21:52:09.445 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-15 21:52:26.506 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create irra project, name: 22, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\22.irra
+2023-10-15 21:52:31.333 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['22', 'WH01']
+2023-10-15 21:52:37.829 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the irra project does been deleted, name: WH01
+2023-10-15 21:52:40.210 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['22']
+2023-10-15 21:52:55.045 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create irra project, name: WH01, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH01.irra
+2023-10-15 21:53:00.158 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the irra project does been deleted, name: 22
+2023-10-15 21:53:12.941 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-15 21:53:19.602 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-15 21:53:28.458 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create calc project, name: ssss, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ssss.calc
+2023-10-15 21:53:35.958 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'ssss']
+2023-10-15 21:53:40.724 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the calc project does been deleted, name: ArAr
+2023-10-15 21:53:42.939 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ssss']
+2023-10-15 21:53:50.813 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create calc project, name: ArAr, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\ArAr.calc
+2023-10-15 21:53:55.409 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr', 'ssss']
+2023-10-15 21:54:00.503 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the calc project does been deleted, name: ssss
+2023-10-15 21:54:04.198 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
+2023-10-15 21:54:08.557 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['smp_default']
+2023-10-15 21:54:38.654 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create smp project, name: default, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\default.smp
+2023-10-15 21:54:43.190 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['default', 'smp_default']
+2023-10-15 21:54:48.056 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the smp project does been deleted, name: smp_default
+2023-10-15 21:54:51.786 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['default']
+2023-10-15 22:04:56.770 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['default']
+2023-10-15 22:05:18.910 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to create smp project, name: sample-default, email: , file path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\sample-default.smp
+2023-10-15 22:05:23.992 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['default', 'sample-default']
+2023-10-15 22:05:35.612 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['default', 'sample-default']
+2023-10-15 22:05:44.723 -- ip: 127.0.0.1, operation: Handle param project, msg: Success to delete the smp project does been deleted, name: default
+2023-10-15 22:05:48.684 -- ip: 127.0.0.1, operation: Handle param project, msg: Show sample param project names: ['sample-default']
+2023-10-15 22:08:28.834 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 22:10:18.834 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 22:14:05.346 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-15 22:14:08.229 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-15 22:15:32.648 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-15 22:15:38.055 -- ip: 127.0.0.1, operation: Handle param project, msg: Show irradiation param project names: ['WH01']
+2023-10-15 22:15:40.976 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 22:17:07.740 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 22:18:03.206 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 22:20:00.380 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 22:20:40.086 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-10-15 22:29:48.617 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 22:44:46.473 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-10-15 22:46:43.935 -- ip: 127.0.0.1, operation: Click btn, msg: Reset calc params, sample name: 19WHA0099
+2023-10-15 22:56:09.778 -- ip: 127.0.0.1, operation: Click btn, msg: Reset calc params, sample name: 19WHA0099
+2023-10-15 23:12:56.134 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-15 23:13:03.635 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:13:36.715 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:14:01.724 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:15:36.661 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:15:45.246 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:15:51.757 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:15:57.082 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:16:26.561 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:19:14.021 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:19:24.043 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:19:33.667 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:19:48.581 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:20:52.956 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099
+2023-10-15 23:21:00.719 -- ip: 127.0.0.1, operation: Click btn, msg: Set params, sample name: 19WHA0099

@@ -1,0 +1,35 @@
+2023-09-08 00:10:21.384 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 00:10:40.882 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 00:11:31.206 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 00:11:35.992 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 00:11:50.592 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 00:12:00.562 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 00:12:03.547 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 12:33:24.612 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 12:33:59.084 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-08 13:23:34.454 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 13:24:21.424 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-08 13:30:08.378 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-08 13:33:01.649 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 13:33:10.244 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-08 13:40:01.282 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 13:40:08.296 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-08 13:41:57.489 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 13:42:06.524 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-08 13:52:24.742 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-08 13:53:06.121 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-08 13:56:07.224 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-08 13:56:51.545 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [36.1173154227443, 0.08462126135745897, 817.9791579157636, 1.792076496965142, 0.9317125525578343, 21], set: set_1
+2023-09-08 13:56:52.238 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [35.33915578712368, 0.09107170602499368, 829.2312985788452, 2.1075521253999536, 0.9643027965516022, 22], set: set_1
+2023-09-08 13:56:52.987 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [33.887955355029966, 0.10349567843933882, 822.1550086528317, 2.4563990293281113, 0.9746915090302042, 24], set: set_1
+2023-09-08 13:56:53.733 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [33.03254087732962, 0.0827595535421773, 797.0073274627513, 1.9386916525204272, 0.9667530193779896, 23], set: set_1
+2023-09-08 13:56:55.195 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [31.690337436475343, 0.18281304068652005, 786.7659907452693, 4.048655624912727, 0.8198342732794774, 27], set: set_1
+2023-09-08 13:56:56.106 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [30.867564655424665, 0.18750467625983852, 767.1796210922689, 4.106280940177018, 0.8801480023753152, 26], set: set_1
+2023-09-08 13:56:56.791 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [30.867564655424665, 0.18750467625983852, 767.1796210922689, 4.106280940177018, 0.8801480023753152, 26], set: set_1
+2023-09-08 13:56:57.404 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [30.867564655424665, 0.18750467625983852, 767.1796210922689, 4.106280940177018, 0.8801480023753152, 26], set: set_1
+2023-09-08 13:56:58.304 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [31.51605538759388, 0.08750973581885867, 782.9860566411204, 2.105977349048658, 0.9647646486704414, 25], set: set_1
+2023-09-08 13:57:04.996 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-09-08 13:57:36.559 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: 22WHA0433, btn id: 7
+2023-09-08 14:18:33.655 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: 22WHA0433, btn id: 7
+2023-09-08 14:18:58.385 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [6.0105856008983185, 0.012592889988572692, 1129.375826011686, 2.295733782549858, 0.968174473018597, 3], set: set_1
+2023-09-08 14:19:00.952 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [6.0105856008983185, 0.012592889988572692, 1129.375826011686, 2.295733782549858, 0.968174473018597, 3], set: set_1

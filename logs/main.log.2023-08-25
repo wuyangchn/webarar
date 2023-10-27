@@ -1,0 +1,277 @@
+2023-08-25 00:18:22.681 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [74.75982543797393, 0.16290357668828992, 1176.1304075837122, 2.495484228235598, 0.9700300082397311, 17], set: set_1
+2023-08-25 00:19:28.238 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 00:19:41.345 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [89.59693420886803, 0.19434737302928104, 1289.37540024923, 2.721406008536463, 0.9709019830845508, 16], set: set_1
+2023-08-25 00:45:13.304 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [89.59693420886803, 0.19434737302928104, 1289.37540024923, 2.721406008536463, 0.9709019830845508, 16], set: set_1
+2023-08-25 00:45:29.792 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [155.86396720356632, 0.330161861837121, 1890.7452028386024, 3.8947628293668197, 0.9694010629566582, 13], set: set_1
+2023-08-25 00:51:02.351 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [49.9449181435331, 0.11246683103115572, 958.8827711212243, 2.1001119929980545, 0.9688506856241761, 19], set: set_1
+2023-08-25 00:51:05.170 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [54.783766008889586, 0.12098997029093105, 992.6236149896782, 2.1345085268298587, 0.9711071450252434, 18], set: set_1
+2023-08-25 00:51:07.702 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [41.885267737434035, 0.09667047840636035, 878.915538075692, 1.963822082981822, 0.964518672045418, 20], set: set_1
+2023-08-25 02:20:56.898 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [111.89720737878068, 0.24170921784415572, 1485.8661364818806, 3.124415656362883, 0.971647168415404, 15], set: set_1
+2023-08-25 02:24:07.255 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 02:33:36.701 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 02:46:05.011 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 02:46:58.602 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 02:50:22.652 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.04765562323444427, 2.904121629399897e-05, 0.001137765754135388, 2.542189114239005e-06, 0.013582247469363599, 20], set: set_1
+2023-08-25 02:50:24.440 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.05208657371654761, 2.9049583806244927e-05, 0.0010428803500460199, 2.2840805949956622e-06, 0.015224181220036328, 19], set: set_1
+2023-08-25 02:50:25.333 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.055190875153075275, 2.9089772891261932e-05, 0.0010074312004056023, 2.166350321498808e-06, 0.010776342319141477, 18], set: set_1
+2023-08-25 02:50:26.283 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06356423144569776, 3.365930340443798e-05, 0.0008502458516096346, 1.8040304877191678e-06, 0.015211258940655762, 17], set: set_1
+2023-08-25 02:50:27.123 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06948863317196013, 3.609779957619425e-05, 0.0007755693181417179, 1.6369468519559332e-06, 0.00890635503378167, 16], set: set_1
+2023-08-25 02:50:31.100 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 02:52:32.596 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 02:52:35.766 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.07530773104751029, 3.846263370043135e-05, 0.000673008136767773, 1.4151726779073037e-06, 0.007639096231281446, 15], set: set_1
+2023-08-25 02:52:40.638 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.04765562323444427, 2.904121629399897e-05, 0.001137765754135388, 2.542189114239005e-06, 0.013582247469363599, 20], set: set_2
+2023-08-25 02:52:41.375 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.05208657371654761, 2.9049583806244927e-05, 0.0010428803500460199, 2.2840805949956622e-06, 0.015224181220036328, 19], set: set_2
+2023-08-25 02:52:41.893 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.055190875153075275, 2.9089772891261932e-05, 0.0010074312004056023, 2.166350321498808e-06, 0.010776342319141477, 18], set: set_2
+2023-08-25 02:52:42.692 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.06356423144569776, 3.365930340443798e-05, 0.0008502458516096346, 1.8040304877191678e-06, 0.015211258940655762, 17], set: set_2
+2023-08-25 02:52:43.366 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.06948863317196013, 3.609779957619425e-05, 0.0007755693181417179, 1.6369468519559332e-06, 0.00890635503378167, 16], set: set_2
+2023-08-25 02:52:44.082 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.07530773104751029, 3.846263370043135e-05, 0.000673008136767773, 1.4151726779073037e-06, 0.007639096231281446, 15], set: set_2
+2023-08-25 02:52:48.452 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 02:54:33.149 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 02:54:46.021 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06627087569207224, 0.0001061079316571487, 6.331814389210516e-05, 2.9294481991261006e-06, 0.02940543526399895, 23], set: set_1
+2023-08-25 02:54:46.795 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06659330527534289, 0.00010891779758046959, 5.6961262271861834e-05, 2.4861359040285006e-06, 0.03291641374841713, 22], set: set_1
+2023-08-25 02:54:47.548 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06953404562063069, 0.00010613687256303917, 4.3002053174721244e-05, 2.6049436315684673e-06, 0.017552778573734017, 21], set: set_1
+2023-08-25 02:54:50.818 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 02:54:56.036 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.06953404562063069, 0.00010613687256303917, 4.3002053174721244e-05, 2.6049436315684673e-06, 0.017552778573734017, 21], set: set_2
+2023-08-25 02:54:56.808 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.06659330527534289, 0.00010891779758046959, 5.6961262271861834e-05, 2.4861359040285006e-06, 0.03291641374841713, 22], set: set_2
+2023-08-25 02:54:57.390 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.06627087569207224, 0.0001061079316571487, 6.331814389210516e-05, 2.9294481991261006e-06, 0.02940543526399895, 23], set: set_2
+2023-08-25 02:54:58.401 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.07217173782180952, 9.442212939268091e-05, 3.984684372175535e-05, 2.3162018814599765e-06, 0.017867238081566494, 20], set: set_2
+2023-08-25 02:54:59.119 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.07563712827701961, 8.652085907649034e-05, 3.331435486238221e-05, 1.799946992160817e-06, 0.016439825707979243, 19], set: set_2
+2023-08-25 02:54:59.643 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.07893190887078025, 8.442236256238112e-05, 2.6452848356056713e-05, 1.6196010661486737e-06, 0.013413225157352965, 18], set: set_2
+2023-08-25 02:55:01.993 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 02:55:28.416 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06505854702803913, 0.00011850208995836979, 7.192602559085028e-05, 3.346508960463561e-06, 0.03319307153135987, 25], set: set_2
+2023-08-25 02:55:29.440 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.0647216929019644, 0.00011944903188113157, 7.336795286387972e-05, 4.087765813838844e-06, 0.028909868032732412, 24], set: set_2
+2023-08-25 02:55:30.600 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06586912554680888, 0.00029446019185262094, 7.464366204026885e-05, 4.981919415265531e-06, 0.039218492461273666, 26], set: set_2
+2023-08-25 02:55:32.331 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06491181599000569, 0.00031540521187586103, 8.872334810484863e-05, 5.741408355440619e-06, 0.04665148845372972, 27], set: set_2
+2023-08-25 02:55:35.115 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.08518954694907774, 7.681742497522757e-05, 1.361460569847527e-05, 1.4223365488868714e-06, 0.005836163872239233, 17], set: set_2
+2023-08-25 02:55:39.990 -- ip: 127.0.0.1, operation: Handle param project, msg: Calc param project is not found in database, using params in total param values, sample name: 22WHA0433
+2023-08-25 02:55:43.915 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 02:57:36.418 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-08-25 02:57:44.794 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-25 02:58:33.468 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 02:58:42.901 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06659330527534289, 0.00010891779758046959, 5.6961262271861834e-05, 2.4861359040285006e-06, 0.03291641374841713, 22], set: set_1
+2023-08-25 02:58:44.736 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.07217173782180952, 9.442212939268091e-05, 3.984684372175535e-05, 2.3162018814599765e-06, 0.017867238081566494, 20], set: set_1
+2023-08-25 02:58:49.609 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.06659330527534289, 0.00010891779758046959, 5.6961262271861834e-05, 2.4861359040285006e-06, 0.03291641374841713, 22], set: set_2
+2023-08-25 02:58:50.594 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06953404562063069, 0.00010613687256303917, 4.3002053174721244e-05, 2.6049436315684673e-06, 0.017552778573734017, 21], set: set_2
+2023-08-25 02:58:52.662 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.07563712827701961, 8.652085907649034e-05, 3.331435486238221e-05, 1.799946992160817e-06, 0.016439825707979243, 19], set: set_2
+2023-08-25 02:58:54.498 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.07217173782180952, 9.442212939268091e-05, 3.984684372175535e-05, 2.3162018814599765e-06, 0.017867238081566494, 20], set: set_2
+2023-08-25 03:00:07.982 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-08-25 03:00:18.723 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-25 03:05:44.940 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-25 03:06:01.835 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-25 03:06:25.352 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-08-25 03:06:39.423 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-08-25 03:07:08.973 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06627087569207224, 0.0001061079316571487, 6.331814389210516e-05, 2.9294481991261006e-06, 0.02940543526399895, 23], set: set_1
+2023-08-25 03:07:13.857 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06491181599000569, 0.00031540521187586103, 8.872334810484863e-05, 5.741408355440619e-06, 0.04665148845372972, 27], set: set_2
+2023-08-25 03:07:16.525 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06586912554680888, 0.00029446019185262094, 7.464366204026885e-05, 4.981919415265531e-06, 0.039218492461273666, 26], set: set_2
+2023-08-25 03:07:18.240 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.07893190887078025, 8.442236256238112e-05, 2.6452848356056713e-05, 1.6196010661486737e-06, 0.013413225157352965, 18], set: set_2
+2023-08-25 03:07:19.890 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.08518954694907774, 7.681742497522757e-05, 1.361460569847527e-05, 1.4223365488868714e-06, 0.005836163872239233, 17], set: set_2
+2023-08-25 03:07:21.359 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.09042747436740566, 7.45810270338455e-05, 3.927680866368138e-06, 1.378902803582315e-06, 0.0014509980049278314, 16], set: set_2
+2023-08-25 03:07:23.469 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.09789311376948279, 6.379057742175372e-05, 0, 0, 0, 13], set: set_2
+2023-08-25 03:07:54.028 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 03:08:02.541 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.044154322360452726, 3.7574884063926025e-05, 0.0012225250366378908, 2.6783792275252936e-06, 0.009280219328741622, 21], set: set_2
+2023-08-25 03:08:03.392 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.04765562323444427, 2.904121629399897e-05, 0.001137765754135388, 2.542189114239005e-06, 0.013582247469363599, 20], set: set_2
+2023-08-25 03:08:04.422 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.05208657371654761, 2.9049583806244927e-05, 0.0010428803500460199, 2.2840805949956622e-06, 0.015224181220036328, 19], set: set_2
+2023-08-25 03:08:05.510 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.055190875153075275, 2.9089772891261932e-05, 0.0010074312004056023, 2.166350321498808e-06, 0.010776342319141477, 18], set: set_2
+2023-08-25 03:08:06.636 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.06356423144569776, 3.365930340443798e-05, 0.0008502458516096346, 1.8040304877191678e-06, 0.015211258940655762, 17], set: set_2
+2023-08-25 03:08:15.535 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.010670461364516359, 5.510713068746593e-06, 0.0009689948691800441, 1.9720472401513773e-06, 0.0072163792434547175, 4], set: set_1
+2023-08-25 03:08:16.687 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.05161958238312729, 2.7120958049962274e-05, 0.0007019791550769444, 1.429129600346911e-06, 0.012234906903756284, 7], set: set_1
+2023-08-25 03:08:17.755 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.06679940264332826, 3.527234426148683e-05, 0.0005396007230131898, 1.1014199293150123e-06, 0.014936917580096232, 8], set: set_1
+2023-08-25 03:08:18.799 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.07639796470308667, 4.070564410564799e-05, 0.0004964772498555042, 1.0247779847709335e-06, 0.016111019845175958, 9], set: set_1
+2023-08-25 03:08:19.606 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.08128546155353, 4.355126301243311e-05, 0.00048023197564360943, 9.893500985816942e-07, 0.019634015201128438, 10], set: set_1
+2023-08-25 03:08:24.750 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.002217954908355078, 1.337706917283003e-06, 0.0009748447899140528, 1.9748525964828206e-06, 0.0028497491926565356, 1], set: set_1
+2023-08-25 03:08:25.913 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.005322042018664675, 2.79075144909837e-06, 0.0008854448421580192, 1.799884139458868e-06, 0.008210218487290874, 3], set: set_1
+2023-08-25 03:08:26.971 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.002980424541499932, 1.6343338002646148e-06, 0.0009038431564451058, 1.834898457642591e-06, 0.006363747087225401, 2], set: set_1
+2023-08-25 03:08:28.257 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.020490254527492112, 1.0580129534938748e-05, 0.0009680632516595488, 1.981839004685919e-06, 0.009812537560206612, 5], set: set_1
+2023-08-25 03:08:29.327 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.03298597814622353, 1.7248401631670563e-05, 0.0008608047396356156, 1.7512787924385731e-06, 0.01080836007397858, 6], set: set_1
+2023-08-25 03:08:48.576 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export webarar file (.arr), sample name: 22WHA0433, export href: /static/download/22WHA0433.arr
+2023-08-25 03:15:22.861 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 03:17:30.803 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 03:19:20.310 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 11:59:19.512 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 12:00:44.673 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.002217954908355078, 1.337706917283003e-06, 0.0009748447899140528, 1.9748525964828206e-06, 0.0028497491926565356, 1], set: set_2
+2023-08-25 12:00:45.370 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.002980424541499932, 1.6343338002646148e-06, 0.0009038431564451058, 1.834898457642591e-06, 0.006363747087225401, 2], set: set_2
+2023-08-25 12:00:46.093 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.005322042018664675, 2.79075144909837e-06, 0.0008854448421580192, 1.799884139458868e-06, 0.008210218487290874, 3], set: set_2
+2023-08-25 12:00:48.475 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 12:34:59.260 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 12:43:57.706 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 12:52:33.480 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 12:52:40.392 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:52:42.441 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_1
+2023-08-25 12:52:45.954 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_2
+2023-08-25 12:52:48.080 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_2
+2023-08-25 12:52:51.145 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_2
+2023-08-25 12:52:52.959 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_2
+2023-08-25 12:52:55.076 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_2
+2023-08-25 12:52:56.189 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_2
+2023-08-25 12:52:59.530 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:01.654 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:03.112 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:04.999 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:06.790 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:08.492 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:10.405 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_1
+2023-08-25 12:53:12.563 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_1
+2023-08-25 12:53:14.228 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_1
+2023-08-25 12:53:15.867 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_1
+2023-08-25 12:53:18.675 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_1
+2023-08-25 12:53:20.780 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_1
+2023-08-25 12:53:23.627 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:25.255 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:26.935 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:29.950 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:31.696 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:34.402 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:38.286 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0, 0, 0, 0, 0, 10], set: set_1
+2023-08-25 12:53:40.364 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0, 0, 0, 0, 0, 9], set: set_1
+2023-08-25 12:53:42.268 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:43.708 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:45.057 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:46.342 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:48.560 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_1
+2023-08-25 12:53:49.863 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [23023.121644560306, 8082.791716303991, 254603.17017168546, 89384.30516512755, 0.9999972404946088, 16], set: set_1
+2023-08-25 12:53:52.425 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:53.655 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [7061.578393999844, 679.0418730792794, 88682.46332631874, 8527.671869769702, 0.9999762802362417, 8], set: set_1
+2023-08-25 12:53:54.914 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:56.266 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [6257.217347000972, 653.6915075828646, 73450.52968460132, 7673.477676787108, 0.9999627499406833, 17], set: set_1
+2023-08-25 12:53:58.368 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0, 0, 0, 0, 0, 9], set: set_1
+2023-08-25 12:54:36.718 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [41.885267737434035, 0.09667047840636035, 878.915538075692, 1.963822082981822, 0.964518672045418, 20], set: set_2
+2023-08-25 12:54:37.548 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [49.9449181435331, 0.11246683103115572, 958.8827711212243, 2.1001119929980545, 0.9688506856241761, 19], set: set_2
+2023-08-25 12:54:38.411 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [54.783766008889586, 0.12098997029093105, 992.6236149896782, 2.1345085268298587, 0.9711071450252434, 18], set: set_2
+2023-08-25 12:54:40.028 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [74.75982543797393, 0.16290357668828992, 1176.1304075837122, 2.495484228235598, 0.9700300082397311, 17], set: set_2
+2023-08-25 12:54:40.795 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [89.59693420886803, 0.19434737302928104, 1289.37540024923, 2.721406008536463, 0.9709019830845508, 16], set: set_2
+2023-08-25 12:54:41.555 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [111.89720737878068, 0.24170921784415572, 1485.8661364818806, 3.124415656362883, 0.971647168415404, 15], set: set_2
+2023-08-25 12:54:42.393 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [140.36930466603354, 0.3062175333716611, 1764.2950644913071, 3.7505862656791717, 0.9717015933529155, 14], set: set_2
+2023-08-25 12:54:43.282 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [155.86396720356632, 0.330161861837121, 1890.7452028386024, 3.8947628293668197, 0.9694010629566582, 13], set: set_2
+2023-08-25 12:54:44.411 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [173.3424611975189, 0.3715170066251667, 2053.7538002226615, 4.284643686801579, 0.9697460420892441, 12], set: set_2
+2023-08-25 12:54:46.522 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [123.79413109440078, 0.2600566737541358, 1853.2221276796852, 3.782752131012401, 0.9679013050191952, 8], set: set_1
+2023-08-25 12:54:50.941 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 12:57:19.835 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 12:58:11.624 -- ip: 127.0.0.1, operation: Click btn, msg: Success to export excel file (.xls), sample name: 22WHA0433, export href: /static/download/22WHA0433_export.xlsx
+2023-08-25 12:59:00.321 -- ip: 127.0.0.1, operation: Handle param project, msg: Irra param project is not found in database, using params in total param values, sample name: 22WHA0433
+2023-08-25 12:59:02.463 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, sample name: SAMPLE NAME, param name: WH03-XA, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH03-XA.irra
+2023-08-25 12:59:03.755 -- ip: 127.0.0.1, operation: Click btn, msg: Reset irra params, sample name: 22WHA0433
+2023-08-25 12:59:17.792 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: 22WHA0433, btn id: 7
+2023-08-25 13:15:57.784 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 13:16:17.675 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:16:44.115 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:16:55.899 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:24:25.709 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:24:51.790 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:29:53.827 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:35:47.690 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:35:55.133 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:36:16.161 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:38:25.408 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:39:04.822 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:39:16.561 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:40:20.586 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:40:38.840 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:41:57.952 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:42:38.362 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 13:43:03.488 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 13:44:05.343 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 13:44:27.712 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:46:34.333 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 13:57:08.447 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 14:33:54.541 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 14:43:33.852 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 14:43:56.832 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 14:48:36.513 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 14:54:39.470 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:03:40.011 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:05:38.329 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:29:28.397 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:30:36.258 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:33:41.775 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:40:07.416 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:42:31.820 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:42:51.525 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [0.01271992400908161, 0.00018963862443055192, 138.22543778222138, 0.12477592371812624, 0.019781244648812805, 3], set: set_1
+2023-08-25 15:48:02.460 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:56:10.045 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:57:16.657 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 15:59:44.901 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 16:00:46.402 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 16:06:46.017 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 16:12:56.879 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 16:15:51.645 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 16:35:40.414 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 16:38:25.751 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 16:41:15.868 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 17:48:38.305 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 17:57:55.602 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:03:58.803 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:12:58.913 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:15:27.810 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:18:10.363 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:20:34.393 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:24:00.848 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:25:46.090 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:26:51.254 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:31:11.852 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:32:03.877 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:43:19.387 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:51:59.308 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 18:55:53.238 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 21:17:49.597 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [54.783766008889586, 0.12098997029093105, 992.6236149896782, 2.1345085268298587, 0.9711071450252434, 18], set: set_1
+2023-08-25 21:21:39.302 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [54.783766008889586, 0.12098997029093105, 992.6236149896782, 2.1345085268298587, 0.9711071450252434, 18], set: set_1
+2023-08-25 21:21:46.939 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [140.36930466603354, 0.3062175333716611, 1764.2950644913071, 3.7505862656791717, 0.9717015933529155, 14], set: set_2
+2023-08-25 21:21:48.257 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [111.89720737878068, 0.24170921784415572, 1485.8661364818806, 3.124415656362883, 0.971647168415404, 15], set: set_2
+2023-08-25 21:21:49.011 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [89.59693420886803, 0.19434737302928104, 1289.37540024923, 2.721406008536463, 0.9709019830845508, 16], set: set_2
+2023-08-25 21:21:49.892 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [74.75982543797393, 0.16290357668828992, 1176.1304075837122, 2.495484228235598, 0.9700300082397311, 17], set: set_2
+2023-08-25 21:21:57.836 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 21:38:14.233 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 21:38:32.323 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 21:39:51.445 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [169.26290975229375, 0.35857931064666676, 2082.3269809549743, 4.289906770839449, 0.9675027883834317, 10], set: set_2
+2023-08-25 21:39:52.410 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [153.8800916362667, 0.3267535355531297, 2014.1909831538949, 4.157488741449832, 0.96801631274354, 9], set: set_2
+2023-08-25 21:39:53.249 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [123.79413109440078, 0.2600566737541358, 1853.2221276796852, 3.782752131012401, 0.9679013050191952, 8], set: set_2
+2023-08-25 21:39:54.263 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [73.53435213823299, 0.1541520678200302, 1424.5437243651336, 2.9001681727365423, 0.9680880478271774, 7], set: set_2
+2023-08-25 21:39:55.136 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [38.31993090580185, 0.08028446063823703, 1161.7036407389053, 2.3634476617611644, 0.9683575059583343, 6], set: set_2
+2023-08-25 21:39:56.338 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [21.166235256183633, 0.04458487179693293, 1032.9903529399573, 2.114759102167276, 0.9694927363789565, 5], set: set_2
+2023-08-25 21:39:57.150 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [11.011886341096544, 0.02308132080147679, 1031.9972084539438, 2.1002662774650718, 0.9691720209707397, 4], set: set_2
+2023-08-25 21:40:00.279 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 21:40:05.643 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [30.867564655424665, 0.18750467625983852, 767.1796210922689, 4.106280940177018, 0.8801480023753152, 26], set: set_1
+2023-08-25 21:40:06.490 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [31.690337436475343, 0.18281304068652005, 786.7659907452693, 4.048655624912727, 0.8198342732794774, 27], set: set_1
+2023-08-25 21:40:07.450 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [31.690337436475343, 0.18281304068652005, 786.7659907452693, 4.048655624912727, 0.8198342732794774, 27], set: set_1
+2023-08-25 21:40:08.792 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [31.51605538759388, 0.08750973581885867, 782.9860566411204, 2.105977349048658, 0.9647646486704414, 25], set: set_1
+2023-08-25 21:40:10.195 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [31.690337436475343, 0.18281304068652005, 786.7659907452693, 4.048655624912727, 0.8198342732794774, 27], set: set_1
+2023-08-25 21:40:12.513 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [33.03254087732962, 0.0827595535421773, 797.0073274627513, 1.9386916525204272, 0.9667530193779896, 23], set: set_1
+2023-08-25 21:40:13.613 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [33.887955355029966, 0.10349567843933882, 822.1550086528317, 2.4563990293281113, 0.9746915090302042, 24], set: set_1
+2023-08-25 21:40:14.482 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [36.1173154227443, 0.08462126135745897, 817.9791579157636, 1.792076496965142, 0.9317125525578343, 21], set: set_1
+2023-08-25 21:40:15.668 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [35.33915578712368, 0.09107170602499368, 829.2312985788452, 2.1075521253999536, 0.9643027965516022, 22], set: set_1
+2023-08-25 21:40:21.484 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 23:21:54.052 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [74.75982543797393, 0.16290357668828992, 1176.1304075837122, 2.495484228235598, 0.9700300082397311, 17], set: set_1
+2023-08-25 23:21:55.432 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [89.59693420886803, 0.19434737302928104, 1289.37540024923, 2.721406008536463, 0.9709019830845508, 16], set: set_1
+2023-08-25 23:21:57.125 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [111.89720737878068, 0.24170921784415572, 1485.8661364818806, 3.124415656362883, 0.971647168415404, 15], set: set_1
+2023-08-25 23:21:58.489 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [140.36930466603354, 0.3062175333716611, 1764.2950644913071, 3.7505862656791717, 0.9717015933529155, 14], set: set_1
+2023-08-25 23:22:02.007 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [6.0105856008983185, 0.012592889988572692, 1129.375826011686, 2.295733782549858, 0.968174473018597, 3], set: set_2
+2023-08-25 23:22:10.360 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 23:23:06.318 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 23:23:15.502 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [41.885267737434035, 0.09667047840636035, 878.915538075692, 1.963822082981822, 0.964518672045418, 20], set: set_2
+2023-08-25 23:23:16.495 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [49.9449181435331, 0.11246683103115572, 958.8827711212243, 2.1001119929980545, 0.9688506856241761, 19], set: set_2
+2023-08-25 23:23:17.734 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [54.783766008889586, 0.12098997029093105, 992.6236149896782, 2.1345085268298587, 0.9711071450252434, 18], set: set_2
+2023-08-25 23:23:19.737 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [74.75982543797393, 0.16290357668828992, 1176.1304075837122, 2.495484228235598, 0.9700300082397311, 17], set: set_2
+2023-08-25 23:23:41.360 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 23:25:36.647 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [89.59693420886803, 0.19434737302928104, 1289.37540024923, 2.721406008536463, 0.9709019830845508, 16], set: set_2
+2023-08-25 23:25:55.426 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [111.89720737878068, 0.24170921784415572, 1485.8661364818806, 3.124415656362883, 0.971647168415404, 15], set: set_2
+2023-08-25 23:29:29.921 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 23:30:55.380 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 23:31:10.583 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [41.885267737434035, 0.09667047840636035, 878.915538075692, 1.963822082981822, 0.964518672045418, 20], set: set_2
+2023-08-25 23:31:11.426 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [49.9449181435331, 0.11246683103115572, 958.8827711212243, 2.1001119929980545, 0.9688506856241761, 19], set: set_2
+2023-08-25 23:31:12.047 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [54.783766008889586, 0.12098997029093105, 992.6236149896782, 2.1345085268298587, 0.9711071450252434, 18], set: set_2
+2023-08-25 23:31:13.003 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [74.75982543797393, 0.16290357668828992, 1176.1304075837122, 2.495484228235598, 0.9700300082397311, 17], set: set_2
+2023-08-25 23:31:13.877 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [89.59693420886803, 0.19434737302928104, 1289.37540024923, 2.721406008536463, 0.9709019830845508, 16], set: set_2
+2023-08-25 23:31:14.797 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [111.89720737878068, 0.24170921784415572, 1485.8661364818806, 3.124415656362883, 0.971647168415404, 15], set: set_2
+2023-08-25 23:31:15.848 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [140.36930466603354, 0.3062175333716611, 1764.2950644913071, 3.7505862656791717, 0.9717015933529155, 14], set: set_2
+2023-08-25 23:31:19.230 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 23:33:45.948 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [173.3424611975189, 0.3715170066251667, 2053.7538002226615, 4.284643686801579, 0.9697460420892441, 12], set: set_2
+2023-08-25 23:33:47.049 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [173.3424611975189, 0.3715170066251667, 2053.7538002226615, 4.284643686801579, 0.9697460420892441, 12], set: set_2
+2023-08-25 23:33:48.364 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Unselected Points, clicked data: [173.3424611975189, 0.3715170066251667, 2053.7538002226615, 4.284643686801579, 0.9697460420892441, 12], set: set_2
+2023-08-25 23:33:49.293 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [173.3424611975189, 0.3715170066251667, 2053.7538002226615, 4.284643686801579, 0.9697460420892441, 12], set: set_2
+2023-08-25 23:37:56.605 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 22WHA0433
+2023-08-25 23:41:01.766 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 23:41:16.455 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 23:47:30.824 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 23:47:31.309 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 23:47:31.391 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 23:47:59.052 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-08-25 23:54:10.418 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file

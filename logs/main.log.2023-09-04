@@ -1,0 +1,64 @@
+2023-09-04 13:09:04.206 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-04 13:09:18.768 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-04 13:09:23.666 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-04 13:09:23.910 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-04 13:09:27.002 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-09-04 13:09:27.010 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-09-04 13:09:29.517 -- ip: 127.0.0.1, operation: Handle raw file, msg: Close
+2023-09-04 13:09:31.886 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-09-04 13:09:31.907 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-09-04 13:10:20.463 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: 0609TestCalcParams, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\0609TestCalcParams.calc
+2023-09-04 13:10:20.463 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH03-XA, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH03-XA.irra
+2023-09-04 13:16:31.667 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-09-04 13:16:31.728 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 13:16:52.552 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-04 14:27:27.983 -- ip: 127.0.0.1, operation: Open file, msg: Open raw file
+2023-09-04 14:27:28.003 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
+2023-09-04 14:29:02.048 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: 0609TestCalcParams, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\0609TestCalcParams.calc
+2023-09-04 14:29:02.070 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH03-XA, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH03-XA.irra
+2023-09-04 14:29:49.330 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-09-04 14:29:49.421 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 14:30:27.018 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-04 14:47:37.687 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-09-04 14:47:37.782 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 15:05:51.735 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 15:16:39.710 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-09-04 15:16:41.163 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-09-04 15:16:42.149 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-09-04 15:16:43.231 -- ip: 127.0.0.1, operation: Handle raw file, msg: Click a point in the raw chart
+2023-09-04 15:39:29.950 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-09-04 15:39:29.993 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 15:39:37.060 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 15:54:30.624 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-09-04 15:54:36.257 -- ip: 127.0.0.1, operation: Visit, msg: Visit journal ranking html
+2023-09-04 16:40:26.328 -- ip: 127.0.0.1, operation: Open file, msg: Open calc.age file
+2023-09-04 16:42:33.718 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-09-04 16:42:43.602 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-04 16:42:51.877 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-04 16:43:02.436 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-04 16:43:06.314 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-04 16:45:47.216 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: 19WHA0106
+2023-09-04 16:53:33.728 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-04 16:53:38.573 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-04 16:53:52.472 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-04 16:53:57.082 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-04 16:54:09.034 -- ip: 127.0.0.1, operation: Open file, msg: Open new file
+2023-09-04 16:54:16.981 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-04 16:54:23.450 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-04 17:06:13.387 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-04 17:06:42.584 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-04 17:06:47.056 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-04 17:06:48.642 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-04 17:07:07.927 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-04 17:07:12.165 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-04 17:07:47.073 -- ip: 127.0.0.1, operation: Click btn, msg: Update handsontable, sample name: SAMPLE NAME, btn id: 6
+2023-09-04 17:07:51.712 -- ip: 127.0.0.1, operation: Click btn, msg: Recalculation, sample name: SAMPLE NAME
+2023-09-04 17:19:31.105 -- ip: 127.0.0.1, operation: Handle param project, msg: Change calc params projects, param name: 0609TestCalcParams, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\0609TestCalcParams.calc
+2023-09-04 17:19:31.111 -- ip: 127.0.0.1, operation: Handle param project, msg: Change irra params projects, param name: WH03-XA, param server path: C:\Users\Young\OneDrive\PycharmProjects\v1_web_arar\static\settings\WH03-XA.irra
+2023-09-04 17:19:35.458 -- ip: 127.0.0.1, operation: Handle raw file, msg: Start to calculate intercepts
+2023-09-04 17:19:35.552 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 17:19:43.807 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 17:19:45.044 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 17:19:46.865 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 17:19:48.478 -- ip: 127.0.0.1, operation: Handle raw file, msg: Change correct blank method
+2023-09-04 17:20:08.515 -- ip: 127.0.0.1, operation: Handle raw file, msg: Open raw file filter
