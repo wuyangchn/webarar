@@ -37,3 +37,5 @@
 2023-10-27 13:17:08.191 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.7737199956729663, 0.0023241910101946574, 312.2045762867727, 0.7790289779598711, 0.8306657977947767, 10], set: set_1
 2023-10-27 13:17:08.868 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.7330550435158321, 0.0026818594274781683, 312.02022889611544, 0.7798812240025282, 0.6831972971202698, 11], set: set_1
 2023-10-27 13:17:10.613 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [1.733674256428193, 0.0058815575125305015, 324.9400614787479, 0.779033236894009, 0.706669915017989, 7], set: set_1
+2023-10-27 13:27:53.380 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-27 13:31:18.788 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
