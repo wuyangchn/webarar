@@ -27,3 +27,13 @@
 2023-10-27 13:11:33.523 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
 2023-10-27 13:11:36.748 -- ip: 127.0.0.1, operation: Handle param project, msg: Show calculation param project names: ['ArAr']
 2023-10-27 13:11:49.400 -- ip: 127.0.0.1, operation: Open file, msg: Open arr file
+2023-10-27 13:16:54.226 -- ip: 127.0.0.1, operation: Visit, msg: Visit home html
+2023-10-27 13:16:56.827 -- ip: 127.0.0.1, operation: Open file, msg: Open last file
+2023-10-27 13:17:01.710 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [0.6461187683687912, 0.004457528888381128, 344.4933170634454, 1.096291983247663, 0.4612781853959625, 2], set: set_1
+2023-10-27 13:17:03.077 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 1, clicked data: [1.4411309521953586, 0.005643885672970863, 338.46614583450673, 0.9955912931818923, 0.7510872727989676, 3], set: set_1
+2023-10-27 13:17:04.483 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [1.3020610412511366, 0.004796745932569215, 319.3308400530018, 0.7883153195669366, 0.6700950934774854, 8], set: set_1
+2023-10-27 13:17:05.254 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [1.1693566251569925, 0.004025644729141174, 317.5137530378847, 0.7853848549572121, 0.7185077151909574, 9], set: set_1
+2023-10-27 13:17:07.434 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.8491080479920926, 0.0035155623280306606, 313.7128235471912, 0.8308730367862437, 0.6396239019172949, 14], set: set_1
+2023-10-27 13:17:08.191 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.7737199956729663, 0.0023241910101946574, 312.2045762867727, 0.7790289779598711, 0.8306657977947767, 10], set: set_1
+2023-10-27 13:17:08.868 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [0.7330550435158321, 0.0026818594274781683, 312.02022889611544, 0.7798812240025282, 0.6831972971202698, 11], set: set_1
+2023-10-27 13:17:10.613 -- ip: 127.0.0.1, operation: Click btn, msg: Click a point, series name: Points Set 2, clicked data: [1.733674256428193, 0.0058815575125305015, 324.9400614787479, 0.779033236894009, 0.706669915017989, 7], set: set_1
