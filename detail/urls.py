@@ -1,0 +1,10 @@
+from django.contrib import admin
+from django.urls import path, include
+from . import views
+
+urlpatterns = [
+    path('', views.detail, name="detail_view"),
+    path('oven/log', views.lov_view, name="lov_view"),
+    path('oven/log/reading', views.experiment_log, name="experiment_log"),
+    path('oven/log/updating', views.updating_log, name="update_log"),
+]
