@@ -2,18 +2,18 @@
 # lcoal database
 
 # 关闭Debug, 使用nginx部署静态文件
-# DEBUG = False
-#
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'webarar',
-#         'HOST': '127.0.0.1',
-#         'PORT': 3306,
-#         'USER': 'root',
-#         'PASSWORD': 'password'
-#     }
-# }
+DEBUG = False
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'webarar',
+        'HOST': '127.0.0.1',
+        'PORT': 3306,
+        'USER': 'root',
+        'PASSWORD': 'password'
+    }
+}
 
 
 # SECURITY安全设置 - 支持http时建议开启
