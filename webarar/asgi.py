@@ -1,5 +1,5 @@
 """
-ASGI config for v1_web_arar project.
+ASGI config for webarar project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'v1_web_arar.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webarar.settings')
 
 application = get_asgi_application()

@@ -7,7 +7,7 @@ from home import models
 from django.shortcuts import render, redirect
 
 from programs import file_funcs, http_funcs, log_funcs
-from v1_web_arar import settings
+from webarar import settings
 
 # Create your views here.
 

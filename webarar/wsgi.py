@@ -1,5 +1,5 @@
 """
-WSGI config for v1_web_arar project.
+WSGI config for webarar project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'v1_web_arar.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webarar.settings')
 
 application = get_wsgi_application()

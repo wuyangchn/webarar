@@ -16,7 +16,7 @@ import sys
 import msoffcrypto
 
 from re import findall
-from v1_web_arar import settings
+from webarar import settings
 from . import calc_funcs, basic_funcs, samples, styles, smp_funcs
 
 
