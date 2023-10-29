@@ -700,9 +700,11 @@ def err_wtd_mean(a0: list, e0: list, sf: int = 1, adjust_error: bool = True):
         else:
             k1 = pow(1 / sum(wt), 0.5)  # ArArCALC实际是利用加权平均计算总40r/39k，再计算年龄
         k2 = n
+        k4 = k3 * (n - 1)
+        k5 = distributions.chi2.sf(k4, n - 1)
         # k4, k5 = get_chi_square(a0, [k0] * n)
         # print(f'wtd_mean value: {k0} ± {k1}, dp = {k2}, MSWD = {k3}, Chi-square = {k4}, p-value = {k5}')
-        return k0, k1, k2, k3
+        return k0, k1, k2, k3, k4, k5
     except Exception:
         print(traceback.format_exc())
         return None, None, None, None
@@ -717,7 +719,7 @@ def wtd_york2_regression(x: list, sx: list, y: list, sy: list, ri: list, sf: int
     :param ri: relative coefficient of errors of x and y
     :param sf: factor of error, default = 1, meaning inputted errors are in 1 sigma
     :return: Intercept | Error | slope | Error | MSWD | Convergence | Number of Iterations | error magnification | other
-     b, sb, a, sa, mswd, dF, Di, k, r2
+     b, sb, a, sa, mswd, dF, Di, k, r2, chi_square, p_value
     """
     conv_tol = kwargs.pop('convergence', 0.001)
     iter_num = kwargs.pop('iteration', 100)
@@ -782,6 +784,8 @@ def wtd_york2_regression(x: list, sx: list, y: list, sy: list, ri: list, sf: int
     ssreg = sum(reg)  # regression sum of square
     sstotal = ssreg + ssresid  # total sum of squares
     r2 = ssreg / sstotal if sstotal != 0 else 1  # r2 = ssreg / sstotal
+    chi_square = mswd * (n - 2)
+    p_value = distributions.chi2.sf(chi_square, n - 2)
 
     # print('----------------------------------------------------------------')
     # print('截距>>>' + str(b) + '  ' + '误差>>>' + str(seb))
@@ -792,7 +796,7 @@ def wtd_york2_regression(x: list, sx: list, y: list, sy: list, ri: list, sf: int
     # print('Error Magnification>>>' + str(k))
     # print('----------------------------------------------------------------')
 
-    return b, seb, m, sem, mswd, abs(m - last_m), Di, k, r2
+    return b, seb, m, sem, mswd, abs(m - last_m), Di, k, r2, chi_square, p_value
 
 
 def wtd_3D_regression(x: list, sx: list, y: list, sy: list, z: list, sz: list,
@@ -1097,10 +1101,12 @@ def wtd_3D_regression(x: list, sx: list, y: list, sy: list, z: list, sz: list,
     ssreg = sum(reg)  # regression sum of square
     sstotal = ssreg + ssresid  # total sum of squares
     R = ssreg / sstotal if sstotal != 0 else 1  # r2 = ssreg / sstotal
+    chi_square = mswd * (n - 3)
+    p_value = distributions.chi2.sf(chi_square, n - 3)
 
     # print(f"a = {a}, b = {b}, c = {c}, S = {S(a, b, c)}， Di = {Di}, MSWD = {mswd}, r2 = {R}")
 
-    return c, sc, a, sa, b, sb, S(a, b, c), mswd, R, abs(a - last_a), Di, k
+    return c, sc, a, sa, b, sb, S(a, b, c), mswd, R, abs(a - last_a), Di, k, chi_square, p_value
 
 
 def error_cor(sX: float, sY: float, sZ: float):
@@ -1734,6 +1740,7 @@ def get_chi_square(f_obs, f_exp):
     p = distributions.chi2.sf(chi, df)
     return chi, p
 
+# print(distributions.chi2.sf(0.703759706579149 * 6, 6))
 
 # print(get_chi_square([8, 10, 12, 11, 7], [10, 10, 10, 10, 10]))
 

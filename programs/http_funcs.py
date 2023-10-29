@@ -113,14 +113,20 @@ def get_device(request):
     """
     # print('请求相关的信息：', request.environ)  # environ里面有请求的所有信息
     # print('设备信息：', request.environ.get("HTTP_USER_AGENT"))  # 全部返回的是个字典
-    return request.environ.get("HTTP_USER_AGENT")
+    try:
+        return request.environ.get("HTTP_USER_AGENT")
+    except AttributeError:
+        return "This is ASGIRequest"
 
 
 def get_lang(request):
     """
     Get language setting of user browser
     """
-    return request.environ.get("HTTP_ACCEPT_LANGUAGE")
+    try:
+        return request.environ.get("HTTP_ACCEPT_LANGUAGE")
+    except AttributeError:
+        return "This is ASGIRequest"
 
 
 def is_ajax(request):
