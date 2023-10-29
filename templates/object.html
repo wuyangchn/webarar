@@ -855,24 +855,24 @@
     });
     chart.getZr().on('mousemove', function (params) {
         if (text_set1_ondragging) {
-            let pos = chart.convertFromPixel({xAxisIndex: 0, yAxisIndex: 0}, [params.event.zrX, params.event.zrY]);
+            let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX, params.event.zrY]);
             chart.setOption({series: [{id: 'Text for Set 1', data: [pos]}], animation: false});
         }
         if (text_set2_ondragging) {
-            let pos = chart.convertFromPixel({xAxisIndex: 0, yAxisIndex: 0}, [params.event.zrX, params.event.zrY]);
+            let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX, params.event.zrY]);
             chart.setOption({series: [{id: 'Text for Set 2', data: [pos]}], animation: false});
         }
     });
     chart.getZr().on('mouseup', function (params) {
         if (text_set1_ondragging) {
-            let pos = chart.convertFromPixel({xAxisIndex: 0, yAxisIndex: 0}, [params.event.zrX, params.event.zrY]);
+            let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX, params.event.zrY]);
             let diff = {};
             diff[getCurrentTableId()] = {'text1': {'pos': pos}};
             sendDiff(diff);
             text_set1_ondragging = false;
         }
         if (text_set2_ondragging) {
-            let pos = chart.convertFromPixel({xAxisIndex: 0, yAxisIndex: 0}, [params.event.zrX, params.event.zrY]);
+            let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX, params.event.zrY]);
             let diff = {};
             diff[getCurrentTableId()] = {'text2': {'pos': pos}};
             sendDiff(diff);

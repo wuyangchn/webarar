@@ -2223,47 +2223,8 @@ function applySettingDialog() {
         figure.text2.show = $("#axis-setting-in-dialog :input[name='showText2']").is(':checked');
         figure.title.show = $("#axis-setting-in-dialog :input[name='showTitle']").is(':checked');
         figure.label.show = $("#axis-setting-in-dialog :input[name='showLabel']").is(':checked');
-        let pos_pixel_1, pos_pixel_2;
-        // Convert position of texts from scale to pixel
-        $.each(option.series, function (index, item) {
-            if (item.name === 'Text for Set 1') {
-                pos_pixel_1 = chart.convertToPixel({xAxisIndex: 0, yAxisIndex: 0}, item.data[0])
-            }
-            else if (item.name === 'Text for Set 2') {
-                pos_pixel_2 = chart.convertToPixel({xAxisIndex: 0, yAxisIndex: 0}, item.data[0])
-            }
-        });
-        // Apply scale changes and then convert text position to scale from pixel
-        chart.setOption({
-            xAxis: {max: figure.xaxis.max, min: figure.xaxis.min},
-            yAxis: {max: figure.yaxis.max, min: figure.yaxis.min}
-        });
-        $.each(option.series, function (index, item) {
-            if (item.name.includes('Points') || item.name.includes('Spectra')) {item.label.show = figure.label.show}
-            else if (item.name === 'Text for Set 1') {
-                item.data = [chart.convertFromPixel({xAxisIndex: 0, yAxisIndex: 0}, pos_pixel_1)];
-                item.label.show = figure.text1.show; item.symbol = figure.text1.show?'circle':'none';
-            }
-            else if (item.name === 'Text for Set 2') {
-                item.data = [chart.convertFromPixel({xAxisIndex: 0, yAxisIndex: 0}, pos_pixel_2)];
-                item.label.show = figure.text2.show; item.symbol = figure.text2.show?'circle':'none';
-            }
-        });
-        option = {
-            title: {show: figure.title.show},
-            xAxis: {
-                // max: xMax, min: xMin,
-                axisTick: {inside: figure.xaxis.ticks_inside},
-                splitLine: {show: figure.xaxis.show_splitline}
-            },
-            yAxis: {
-                // max: yMax, min: yMin,
-                axisTick: {inside: figure.yaxis.ticks_inside},
-                splitLine: {show: figure.yaxis.show_splitline}
-            },
-            series: option.series,
-        };
-        chart.setOption(option);
+        showPage(getCurrentTableId());
+        return;
     }
     if (current_component==='figure-9-axis-setting'){
         figure.xaxis.max = $("#figure-9-axis-setting :input[name='xMax']").val();
@@ -2606,6 +2567,9 @@ function getIsochronEchart(chart, figure_id, animation) {
             {
                 splitLine: {show: false}, axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
             },
+            {
+                id: 'xaxis_for_text', type: 'value', show: false, min: 0, max: 100, position: 'bottom',
+            },
         ],
         yAxis: [
             {
@@ -2629,6 +2593,25 @@ function getIsochronEchart(chart, figure_id, animation) {
             },
             {
                 splitLine: {show: false}, axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
+            },
+            {
+                id: 'yaxis_for_text', type: 'value', show: false, min: 0, max: 100, position: 'left',
+            },
+            {
+                id: 'special_yaixs', type: 'value',
+                splitLine: {show: false}, axisLine: {show: false, onZero: false},
+                position: 'left', min: figure.yaxis.min, max: figure.yaxis.max,
+                interval: (figure_id === 'figure_2'?298.56:figure_id === 'figure_3'?0.0033:figure.yaxis.max) - figure.yaxis.min,
+                axisTick: {show: false, inside: true},
+                axisLabel: {
+                    formatter : (value, index) => {
+                        if (figure_id !== 'figure_2' && figure_id !== 'figure_3') {
+                            return "";
+                        }
+                        return index === 1?"\u21E6Atmospheric argon ratio":"";
+                    },
+                    show: figure.label.show, inside: true
+                },
             },
         ],
         series: [
@@ -2683,8 +2666,10 @@ function getIsochronEchart(chart, figure_id, animation) {
                     },
                 },
             {
-                id: 'Text for Set 1', name: 'Text for Set 1', type: 'scatter', symbol: 'circle',
-                data: [figure.text1.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
+                id: 'Text for Set 1', name: 'Text for Set 1', yAxisIndex: 2, xAxisIndex: 2,
+                type: 'scatter', symbol: 'circle',
+                data: [figure.text1.pos],
+                encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
                     show: figure.text1.show, position: 'inside', color: figure.text1.color,
                     fontSize: figure.text1.font_size, fontFamily: figure.text1.font_family,
@@ -2693,8 +2678,10 @@ function getIsochronEchart(chart, figure_id, animation) {
                     },
                 },
             {
-                id: 'Text for Set 2', name: 'Text for Set 2', type: 'scatter', symbol: 'circle',
-                data: [figure.text2.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
+                id: 'Text for Set 2', name: 'Text for Set 2', yAxisIndex: 2, xAxisIndex: 2,
+                type: 'scatter', symbol: 'circle',
+                data: [figure.text2.pos],
+                encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
                     show: figure.text2.show, position: 'inside', color: figure.text2.color,
                     fontSize: figure.text2.font_size, fontFamily: figure.text2.font_family,
@@ -2836,7 +2823,9 @@ function getSpectraEchart(chart, figure_id, animation) {
                     },
                 zlevel: 9,
             },
-            {splitLine: {show: false}, axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}}},],
+            {splitLine: {show: false}, axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}}},
+            {id: 'xaxis_for_text', type: 'value', show: false, min: 0, max: 100, position: 'bottom',},
+        ],
         yAxis: [
             {
                 name: figure.yaxis.title.text, type: 'value', nameLocation: 'middle', nameGap: 50,
@@ -2853,7 +2842,9 @@ function getSpectraEchart(chart, figure_id, animation) {
                     },
                 zlevel: 9,
             },
-            {splitLine: {show: false}, axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}}},],
+            {splitLine: {show: false}, axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}}},
+            {id: 'yaxis_for_text', type: 'value', show: false, min: 0, max: 100, position: 'bottom',},
+        ],
         series: [
             {name: 'Spectra Line 1', type: 'line', color: figure.line1.color, encode: {x: 0, y: 1}, data: figure.data,
                 seriesLayoutBy: 'row', symbolSize: 0, z: 2, triggerLineEvent: true,
@@ -2927,7 +2918,8 @@ function getSpectraEchart(chart, figure_id, animation) {
                     distance: figure.line10.label.distance, offset: figure.line10.label.offset, color: figure.line10.label.color},
                 },
             {
-                id: 'Text for Set 1', name: 'Text for Set 1', type: 'scatter', symbol: 'circle', z: 5,
+                id: 'Text for Set 1', name: 'Text for Set 1', yAxisIndex: 2, xAxisIndex: 2,
+                type: 'scatter', symbol: 'circle', z: 5,
                 data: [figure.text1.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
                     show: figure.text1.show, position: 'inside', color: figure.text1.color,
@@ -2937,7 +2929,8 @@ function getSpectraEchart(chart, figure_id, animation) {
                     },
                 },
             {
-                id: 'Text for Set 2', name: 'Text for Set 2', type: 'scatter', symbol: 'circle', z: 5,
+                id: 'Text for Set 2', name: 'Text for Set 2', yAxisIndex: 2, xAxisIndex: 2,
+                type: 'scatter', symbol: 'circle', z: 5,
                 data: [figure.text2.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
                     show: figure.text2.show, position: 'inside', color: figure.text2.color,
