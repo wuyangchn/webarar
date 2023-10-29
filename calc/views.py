@@ -185,10 +185,10 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         auto_replot = self.body['auto_replot']
         sample = self.sample
         components_backup = copy.deepcopy(smp_funcs.get_components(sample))
-        log_funcs.set_info_log(
-            self.ip, '003', 'info',
-            f'Click a point, series name: {series_name}, clicked data: {clicked_data}, '
-            f'set: {current_set}')
+        # log_funcs.set_info_log(
+        #     self.ip, '003', 'info',
+        #     f'Click a point, series name: {series_name}, clicked data: {clicked_data}, '
+        #     f'set: {current_set}')
         data_index = clicked_data[-1] - 1  # Isochron plot data label starts from 1, not 0
         if series_name == "Unselected Points":
             if current_set == 'set_1':
@@ -216,6 +216,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # Update isochron table data
         smp_funcs.get_component_byid(sample, '7').data = basic_funcs.setTableData(
             sample.SequenceName, sample.SequenceValue, sample.IsochronMark, *sample.IsochronValues)
+        time_middle = time.time()
         if auto_replot:
             smp_funcs.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)  # Replot after clicking points
         http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
@@ -226,7 +227,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         res.update({'marks': sample.IsochronMark})
 
         time_end = time.time()
-        print('time cost', time_end - time_start, 's')
+        print(f'time cost: {time_end - time_start}s = {time_middle-time_start} + {time_end-time_middle}')
 
         return JsonResponse({'res': basic_funcs.getJsonDumps(res)})
 

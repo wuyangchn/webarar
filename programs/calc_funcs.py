@@ -1128,12 +1128,15 @@ def error_cor(sX: float, sY: float, sZ: float):
 '---------------------------'
 
 
-def intercept_average(a0: list, a1: list = []):
+def intercept_average(a0: list, a1=None):
     """
     :param a0: known_y's
+    :param a1:
     :return: intercept | standard error | relative error | r2 | MSWD | other params | errors of other params |
              euqation | m_ssresid
     """
+    if a1 is None:
+        a1 = []
     k0 = sum(a0) / len(a0)
 
     # calculate Y values base on the fitted formula

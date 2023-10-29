@@ -1289,14 +1289,12 @@ def reset_text_position(sample: samples.Sample, only_figure: str = None):
         if only_figure is not None and figure_id != only_figure:
             continue
         figure = get_component_byid(sample, figure_id)
-        xmin, xmax = getattr(figure.xaxis, 'min', 0), getattr(figure.xaxis, 'max', 100)
-        ymin, ymax = getattr(figure.yaxis, 'min', 0), getattr(figure.yaxis, 'max', 100)
         text_1 = get_plot_set(figure, 'Text for Set 1')
         if text_1 is not None:
-            setattr(text_1, 'pos', [0.2 * xmax + 0.8 * xmin, 0.4 * ymax + 0.6 * ymin])
+            setattr(text_1, 'pos', [20, 30])
         text_2 = get_plot_set(figure, 'Text for Set 2')
         if text_2 is not None:
-            setattr(text_2, 'pos', [0.7 * xmax + 0.3 * xmin, 0.4 * ymax + 0.6 * ymin])
+            setattr(text_2, 'pos', [70, 60])
 
 
 def set_plot_style(sample: samples.Sample):
