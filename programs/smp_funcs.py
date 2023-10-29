@@ -723,15 +723,13 @@ def get_plateau_results(sample: samples.Sample, sequence_index: list, ar40rar39k
     if len(sequence_index) >= 2 and age != []:
         wmf = calc_funcs.err_wtd_mean(*f_values)
         wmage = calc_age(*wmf[0:2], sample)
-        chi_squared, p_value = calc_funcs.get_chi_square(age[0], [wmage[0]] * len(age[0]))
     else:
         wmf = [0, 0, len(sequence_index), 0, 0, 0]
         wmage = [0, 0, 0, 0]
-        chi_squared, p_value = None, None
     text = f't = {wmage[0]:.2f} ± {wmage[1]:.2f} | {wmage[2]:.2f} | {wmage[3]:.2f} Ma\n' \
            f'WMF = {wmf[0]:.2f} ± {wmf[1]:.2f}, n = {wmf[2]}\n' \
            f'MSWD = {wmf[3]:.2f}, ∑{{sup|39}}Ar = {sum_ar39k:.2f}%\n' \
-           f'χ{{sup|2}} = {chi_squared:.2f}, p = {p_value:.2f}'
+           f'χ{{sup|2}} = {wmf[4]:.2f}, p = {wmf[5]:.2f}'
     return age, plot_data, wmf[0:4], wmage, text
 
 
@@ -907,14 +905,16 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
                 initial_ratio_text = f"({{sup|40}}Ar/{{sup|38}}Ar){{sub|Cl}}"
             text = f't = {age[0]:.2f} ± {age[1]:.2f} | {age[2]:.2f} | {age[3]:.2f} Ma\n' \
                    f'{initial_ratio_text} = {initial[0]:.2f} ± {initial[1]:.2f}\n' \
-                   f'MSWD = {york_res[4]:.2f}, R{{sup|2}} = {york_res[8]:.4f}'
+                   f'MSWD = {york_res[4]:.2f}, R{{sup|2}} = {york_res[8]:.4f}\n' \
+                   f'χ{{sup|2}} = {york_res[9]:.2f}, p = {york_res[10]:.2f}'
             if isClplot and (figure_type == 2 or figure_type == 3):
                 f_values = calc_funcs.list_rcpl(*data[0:2], isRelative=False) if figure_type == 2 else data[2:4]
                 wmf = calc_funcs.err_wtd_mean(*f_values)
                 wmage = calc_age(*wmf[0:2], sample)
                 text = text + "\n\n" + \
                        f'WMF = {wmf[0]:.2f} ± {wmf[1]:.2f}, MSWD = {wmf[3]:.2f}\n' \
-                       f't = {wmage[0]:.2f} ± {wmage[1]:.2f} | {wmage[2]:.2f} | {wmage[3]:.2f} Ma'
+                       f't = {wmage[0]:.2f} ± {wmage[1]:.2f} | {wmage[2]:.2f} | {wmage[3]:.2f} Ma\n' \
+                       f'χ{{sup|2}} = {wmf[4]:.2f}, p = {wmf[5]:.2f}'
         return york_res[:9], initial, f_value, age, text
 
     isochron_dict = {
@@ -969,7 +969,7 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
                     P = 0
                 figure.set1.info = [k, calc_age(f, sf, sample), [ar38ar36, ar40ar36, P]]
             except:
-                figure.set1.info = [[0] * 12, [0] * 4, [0, 0, 0]]
+                figure.set1.info = [[0] * 14, [0] * 4, [0, 0, 0]]
             try:
                 k = calc_funcs.wtd_3D_regression(*set2_data[:9])
                 ar38ar36 = sample.TotalParam[4][0]
@@ -985,7 +985,7 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
                     P = 0
                 figure.set2.info = [k, calc_age(f, sf, sample), [ar38ar36, ar40ar36, P]]
             except:
-                figure.set2.info = [[0] * 12, [0] * 4, [0, 0, 0]]
+                figure.set2.info = [[0] * 14, [0] * 4, [0, 0, 0]]
             try:
                 k = calc_funcs.wtd_3D_regression(*set3_data[:9])
                 ar38ar36 = sample.TotalParam[4][0]
@@ -1007,7 +1007,8 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
                 f"{abs(figure.set1.info[0][4]):.4f} y {'+' if figure.set1.info[0][0] > 0 else '-'} "
                 f"{abs(figure.set1.info[0][0]):.4f}",
                 "t = {0:.2f} ± {1:.2f} | {2:.2f} | {3:.2f}".format(*list(figure.set1.info[1])),
-                f"MSWD = {figure.set1.info[0][7]:.4f}, r2 = {figure.set1.info[0][8]:.4f}, Di = {figure.set1.info[0][10]}",
+                f"MSWD = {figure.set1.info[0][7]:.4f}, r2 = {figure.set1.info[0][8]:.4f}, Di = {figure.set1.info[0][10]}, "
+                f"χ2 = {figure.set1.info[0][12]:.2f}, p = {figure.set1.info[0][13]:.2f}",
                 f"<sup>40</sup>Ar/<sup>36</sup>Ar = {figure.set1.info[2][1]:.2f}",
                 f"if <sup>38</sup>Ar/<sup>36</sup>Ar = {figure.set1.info[2][0]}",
                 f"<sup>36</sup>Cl/<sup>38</sup>Cl productivity = {figure.set1.info[2][2]:.2f}", " ", " ",
@@ -1015,7 +1016,8 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
                 f"{abs(figure.set2.info[0][4]):.4f} y {'+' if figure.set2.info[0][0] > 0 else '-'} "
                 f"{abs(figure.set2.info[0][0]):.4f}",
                 "t = {0:.2f} ± {1:.2f} | {2:.2f} | {3:.2f}".format(*list(figure.set2.info[1])),
-                f"MSWD = {figure.set2.info[0][7]:.4f}, r2 = {figure.set2.info[0][8]:.4f}, Di = {figure.set2.info[0][10]}",
+                f"MSWD = {figure.set2.info[0][7]:.4f}, r2 = {figure.set2.info[0][8]:.4f}, Di = {figure.set2.info[0][10]}, "
+                f"χ2 = {figure.set2.info[0][12]:.2f}, p = {figure.set2.info[0][13]:.2f}",
                 f"<sup>40</sup>Ar/<sup>36</sup>Ar = {figure.set2.info[2][1]:.2f}",
                 f"if <sup>38</sup>Ar/<sup>36</sup>Ar = {figure.set2.info[2][0]}",
                 f"<sup>36</sup>Cl/<sup>38</sup>Cl productivity = {figure.set2.info[2][2]:.2f}",

@@ -13,22 +13,30 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'handsontable/handsontable.full.min.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'loading-indicator-dist/ladda-themeless.min.css' %}" rel="stylesheet" type="text/css">
-    <script src="{% static 'js/jquery-3.6.1.js' %}" type="text/javascript" charset="UTF-8"></script>
-    <script src="{% static 'js/fingerprintjs2-2.1.4.js' %}" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" type="text/javascript" charset="UTF-8"></script>
+{#    <script src="{% static 'js/jquery-3.6.1.js' %}" type="text/javascript" charset="UTF-8"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.4/fingerprint2.min.js" type="text/javascript"></script>
+{#    <script src="{% static 'js/fingerprintjs2-2.1.4.js' %}" type="text/javascript"></script>#}
     <script src="{% static 'loading-indicator-dist/spin.min.js' %}"></script>
     <script src="{% static 'loading-indicator-dist/ladda.min.js' %}"></script>
     <script src="{% static 'js/calc.main.js' %}?v=202301025" type="text/javascript"></script>
     <script src="{% static 'bootstrap-3.3.7-dist/js/bootstrap.min.js' %}" type="text/javascript" charset="UTF-8"></script>
-    <script src="{% static 'js/echarts.js' %}" type="text/javascript" charset="UTF-8"></script>
-    <script src="{% static 'js/echarts-gl.js' %}" type="text/javascript" charset="UTF-8"></script>  <!-- 3D plot -->
-    <script src="{% static 'handsontable/handsontable.full.min.js' %}" type="text/javascript" charset="UTF-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" type="text/javascript" charset="UTF-8"></script>
+{#    <script src="{% static 'js/echarts.js' %}" type="text/javascript" charset="UTF-8"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts-gl/2.0.8/echarts-gl.min.js" type="text/javascript" charset="UTF-8"></script>  <!-- 3D plot -->
+{#    <script src="{% static 'js/echarts-gl.js' %}" type="text/javascript" charset="UTF-8"></script>  <!-- 3D plot -->#}
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js" type="text/javascript" charset="UTF-8"></script>
+{#    <script src="{% static 'handsontable/handsontable.full.min.js' %}" type="text/javascript" charset="UTF-8"></script>#}
 
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="/static/bootstrap-table/bootstrap-table.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.1/bootstrap-table.min.css">
+{#    <link rel="stylesheet" href="/static/bootstrap-table/bootstrap-table.css">#}
     <!-- Latest compiled and minified JavaScript -->
-    <script src="{% static 'bootstrap-table/bootstrap-table.js'%}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.1/bootstrap-table.min.js"></script>
+{#    <script src="{% static 'bootstrap-table/bootstrap-table.js'%}"></script>#}
     <!-- Latest compiled and minified Locales -->
-    <script src="{% static 'bootstrap-table/bootstrap-table-zh-CN.js'%}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.1/locale/bootstrap-table-zh-CN.min.js"></script>
+{#    <script src="{% static 'bootstrap-table/bootstrap-table-zh-CN.js'%}"></script>#}
     <!-- Text-table module for displaying line fitting results -->
     <script src="{% static 'text-table/index.js'%}"></script>
 

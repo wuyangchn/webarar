@@ -176,6 +176,9 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         return JsonResponse(res)
 
     def click_points_update_figures(self, request, *args, **kwargs):
+        import time
+        time_start = time.time()
+
         series_name = self.body['series_name']
         clicked_data = self.body['clicked_data']
         current_set = self.body['current_set']
@@ -221,6 +224,10 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         if '7' in res.keys():
             res.pop('7')
         res.update({'marks': sample.IsochronMark})
+
+        time_end = time.time()
+        print('time cost', time_end - time_start, 's')
+
         return JsonResponse({'res': basic_funcs.getJsonDumps(res)})
 
     def update_handsontable(self, request, *args, **kwargs):
