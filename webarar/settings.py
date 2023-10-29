@@ -32,8 +32,6 @@ ALLOWED_HOSTS = [
     'www.webarar.com', 
     'www.webarar.net',
     '0.0.0.0:8000',
-    '47.113.224.63',  # aliyun
-    '123.60.40.191',  # huaweiyun
 ]
 
 # Application definition
@@ -96,7 +94,7 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': 3306,
         'USER': 'root',
-        'PASSWORD': 'password'
+        'PASSWORD': 'x7BtfR6Vm0AlVPRk'  # ubuntu server password
     }
 }
 
