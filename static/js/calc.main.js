@@ -1571,6 +1571,7 @@ function clickPoints(params) {
             'cache_key': cache_key,
             'user_uuid': localStorage.getItem('fingerprint'),
         }),
+        async: false,
         contentType:'application/json',
         success: function(response){
             let results =  JSON.parse(response.res);
