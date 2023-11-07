@@ -16,6 +16,9 @@
     <div style="float: left; margin-left: 50px">
 {#            <label for="text_area"></label><textarea class="container" style="height: 500px; width: 500px; float: left" id="text_area"></textarea>#}
         <div style="height: 800px; width: 400px; float: right; padding-left: 20px">
+            <div style="height: 30px">
+                <span id="time" style="font-size: 20px; font-weight: bold"></span>
+            </div>
             <label><input id="input_datetime" type="datetime-local" class="button" style="width: 200px"></label>
             <button onclick="getCurrentDatetime()">Get Current Datetime</button>
             <label><input id="input_temperature" type="number" class="button" style="width: 200px">Inside Temperature</label>
@@ -23,7 +26,7 @@
             <label><input id="filename" type="text" class="button" style="width: 200px">Filename</label>
             <button value="send" style="float: right" onclick="sendInputData()">Send</button>
             <label for="input_text_area"></label>
-            <textarea id="input_text_area" class="container" style="height: 630px" onchange="inputDataChanged()"></textarea>
+            <textarea id="input_text_area" class="container" style="height: 600px" onchange="inputDataChanged()"></textarea>
         </div>
     </div>
 </div>
@@ -32,15 +35,22 @@
 
     // 初始化文件选择框
     $('#file-input-text').val('');
+
+    setInterval("time()");
+
+    function time() {
+        let d = new Date();
+        document.getElementById("time").innerHTML=d.toUTCString();
+    }
     
     function getCurrentDatetime() {
         let currentdate = new Date();
-        let date = ("0" + currentdate.getDate()).slice(-2);
-        let hours = ("0" + currentdate.getHours()).slice(-2);
-        let minutes = ("0" + currentdate.getMinutes()).slice(-2);
-        let second = ("0" + currentdate.getSeconds()).slice(-2);
-        let datetime = "" + currentdate.getFullYear() + "-"
-            + (currentdate.getMonth()+1) + "-"
+        let date = ("0" + currentdate.getUTCDate()).slice(-2);
+        let hours = ("0" + currentdate.getUTCHours()).slice(-2);
+        let minutes = ("0" + currentdate.getUTCMinutes()).slice(-2);
+        let second = ("0" + currentdate.getUTCSeconds()).slice(-2);
+        let datetime = "" + currentdate.getUTCFullYear() + "-"
+            + (currentdate.getUTCMonth()+1) + "-"
             + date + "T"
             + hours + ":"
             + minutes + ":"
