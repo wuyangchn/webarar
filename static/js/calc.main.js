@@ -2495,14 +2495,14 @@ function renderAgeBarItem(param, api){
     const height = set.bar_height;  // Bar height, in px
     const interval = set.bar_interval;  // Bar height, in px
     const align = set.vertical_align;  // Bar height, in px
-    const x = api.value(0) - width / 2;
+    const base_height = interval>=0?interval:interval/2;
     // const y = (1 - api.value(2)) * (param.coordSys.height) + param.coordSys.y;
     const y = (n) => {
         switch (align) {
             case 'spread':
                 return (1 - n) * (param.coordSys.height - interval) + param.coordSys.y;
             case 'bottom':
-                return (param.coordSys.height) - (param.dataIndex + 1) * interval - param.dataIndex * height + param.coordSys.y;
+                return (param.coordSys.height) - (param.dataIndex + 1) * interval - (param.dataIndex + 1) * height + param.coordSys.y;
             default:
                 return (1 - n) * (param.coordSys.height - interval) + param.coordSys.y;
         }
@@ -2850,7 +2850,7 @@ function getSpectraEchart(chart, figure_id, animation) {
                 seriesLayoutBy: 'row', symbolSize: 0, z: 2, triggerLineEvent: true,
                 lineStyle: {width: figure.line1.line_width, type: figure.line1.line_type},
                 label: {
-                    show: figure.line1.label.show, formatter: (params) => (params.dataIndex%2===0?params.dataIndex/2+1:''),
+                    show: figure.label.show, formatter: (params) => (params.dataIndex%2===0?params.dataIndex/2+1:''),
                     position: figure.line1.label.position, distance: figure.line1.label.distance,
                     offset: figure.line1.label.offset, color: figure.line1.label.color},
                 },
@@ -2858,7 +2858,7 @@ function getSpectraEchart(chart, figure_id, animation) {
                 seriesLayoutBy: 'row', symbolSize: 0, z: 2, triggerLineEvent: true,
                 lineStyle: {width: figure.line2.line_width, type: figure.line2.line_type},
                 label: {
-                    show: figure.line2.label.show, formatter: (params) => (params.name), position: figure.line2.label.position,
+                    show: figure.label.show, formatter: (params) => (params.name), position: figure.line2.label.position,
                     distance: figure.line2.label.distance, offset: figure.line2.label.offset, color: figure.line2.label.color},
                 },
             {name: 'Set1 Line 1', type: 'line', color: figure.line3.color, encode: {x: 0, y: 1}, data: figure.set1.data,

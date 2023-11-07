@@ -2,3 +2,4 @@
 /webarar/local_settings.py
 .idea
 git
+/calc/calc_test.py
