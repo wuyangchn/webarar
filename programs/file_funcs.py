@@ -16,8 +16,12 @@ import sys
 import msoffcrypto
 
 from re import findall
-from webarar import settings
-from . import calc_funcs, basic_funcs, samples, styles, smp_funcs
+from programs import calc_funcs, basic_funcs, samples, styles, smp_funcs
+
+try:
+    from webarar.settings import SETTINGS_ROOT
+except ModuleNotFoundError:
+    SETTINGS_ROOT = ""
 
 
 def get_post_file(file, media_dir):
@@ -1741,7 +1745,7 @@ class CreateOriginGraph:
         # Age spectra plot
         graph = self.sample.AgeSpectraPlot
         gr = op.new_graph(lname='Age Spectra',
-                          template=os.path.join(settings.SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
+                          template=os.path.join(SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
         gl_1 = gr[0]
         pl_1 = gl_1.add_plot(age_spectra_wks, coly='B', colx='A', type='l')  # 'l'(Line Plot)
         pl_2 = gl_1.add_plot(age_spectra_wks, coly='C', colx='A', type='l')  # 'l'(Line Plot)
@@ -1759,7 +1763,7 @@ class CreateOriginGraph:
         # Normal Isochron plots
         graph = self.sample.NorIsochronPlot
         gr = op.new_graph(lname='Normal Isochron',
-                          template=os.path.join(settings.SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
+                          template=os.path.join(SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
         gl_1 = gr[0]
         pl_1 = gl_1.add_plot(isochron_set1_ws, colx='A', coly='C', type='s')  # 's'(Scatter Plot)
         pl_2 = gl_1.add_plot(isochron_set2_ws, colx='A', coly='C', type='s')  # 's'(Scatter Plot)
@@ -1783,7 +1787,7 @@ class CreateOriginGraph:
         # Inverse Isochron plots
         graph = self.sample.InvIsochronPlot
         gr = op.new_graph(lname='Inverse Isochron',
-                          template=os.path.join(settings.SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
+                          template=os.path.join(SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
         gl_1 = gr[0]
         pl_1 = gl_1.add_plot(isochron_set1_ws, colx='G', coly='I', type='s')  # 's'(Scatter Plot)
         pl_2 = gl_1.add_plot(isochron_set2_ws, colx='G', coly='I', type='s')  # 's'(Scatter Plot)
@@ -1804,7 +1808,7 @@ class CreateOriginGraph:
         # Cl correlation 1
         graph = self.sample.KClAr1IsochronPlot
         gr = op.new_graph(lname='Cl correlation 1',
-                          template=os.path.join(settings.SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
+                          template=os.path.join(SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
         gl_1 = gr[0]
         pl_1 = gl_1.add_plot(isochron_set1_ws, colx='M', coly='O', type='s')  # 's'(Scatter Plot)
         pl_2 = gl_1.add_plot(isochron_set2_ws, colx='M', coly='O', type='s')  # 's'(Scatter Plot)
@@ -1825,7 +1829,7 @@ class CreateOriginGraph:
         # Cl correlation 2
         graph = self.sample.KClAr2IsochronPlot
         gr = op.new_graph(lname='Cl correlation 2',
-                          template=os.path.join(settings.SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
+                          template=os.path.join(SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
         gl_1 = gr[0]
         pl_1 = gl_1.add_plot(isochron_set1_ws, colx='S', coly='U', type='s')  # 's'(Scatter Plot)
         pl_2 = gl_1.add_plot(isochron_set2_ws, colx='S', coly='U', type='s')  # 's'(Scatter Plot)
@@ -1846,7 +1850,7 @@ class CreateOriginGraph:
         # Cl correlation 3
         graph = self.sample.KClAr3IsochronPlot
         gr = op.new_graph(lname='Cl correlation 3',
-                          template=os.path.join(settings.SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
+                          template=os.path.join(SETTINGS_ROOT, 'OriginExportTemplate.otpu'))
         gl_1 = gr[0]
         pl_1 = gl_1.add_plot(isochron_set1_ws, colx='Y', coly='AA', type='s')  # 's'(Scatter Plot)
         pl_2 = gl_1.add_plot(isochron_set2_ws, colx='Y', coly='AA', type='s')  # 's'(Scatter Plot)
@@ -1887,7 +1891,7 @@ class CreatePDF:
         self.text = []
         self.frame = []
         self.axis_area = [138, 400, 360, 270]  # x0, y0, w, h
-        with open(os.path.join(settings.SETTINGS_ROOT, 'PDF_Template.txt'), 'rb') as f:
+        with open(os.path.join(SETTINGS_ROOT, 'PDF_Template.txt'), 'rb') as f:
             self.data_str: str = f.read().decode('utf-8')
         for key, value in kwargs.items():
             setattr(self, key, value)

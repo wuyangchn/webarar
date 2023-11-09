@@ -2,6 +2,7 @@ import traceback
 import uuid
 from programs import samples, calc_funcs, basic_funcs
 from math import exp, log
+from scipy.signal import find_peaks
 import copy
 import re
 
@@ -1070,7 +1071,7 @@ def recalc_agedistribution(sample: samples.Sample, **kwargs):
             k = getattr(sample.AgeDistributionPlot.set2, 'band_kernel', 'normal')
             t = getattr(sample.AgeDistributionPlot.set2, 'band_extend', False)
             a = getattr(sample.AgeDistributionPlot.set2, 'auto_width', 'Scott')
-            n = getattr(sample.AgeDistributionPlot.set2, 'band_points', 200)
+            n = getattr(sample.AgeDistributionPlot.set2, 'band_points', 1000)
             # print(f'h = {h}, k = {k}, a = {a}, n = {n}, extend = {t}')
             kda_data = calc_funcs.get_kde(
                 sample.ApparentAgeValues[2], h=h, k=k, n=n, a=a,
@@ -1081,7 +1082,11 @@ def recalc_agedistribution(sample: samples.Sample, **kwargs):
             setattr(sample.AgeDistributionPlot.set2, 'band_width', kda_data[1])
             setattr(sample.AgeDistributionPlot.set2, 'band_kernel', kda_data[2])
             setattr(sample.AgeDistributionPlot.set2, 'auto_width', kda_data[3])
+            # sorted_data = [i[0] for i in sorted(zipped_data, key=lambda x: x[1])]
             text = f'n = {len(sample.ApparentAgeValues[2])}'
+            peaks = find_peaks(kda_data[0][1])
+            for index, peak in enumerate(peaks[0].tolist()):
+                text = text + f'\nPeak {index}: {kda_data[0][0][peak]:.2f}'
             setattr(sample.AgeDistributionPlot.text1, 'text', text)
         except AttributeError:
             print(traceback.format_exc())
