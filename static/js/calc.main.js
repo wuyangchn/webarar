@@ -2507,8 +2507,8 @@ function renderAgeBarItem(param, api){
                 return (1 - n) * (param.coordSys.height - interval) + param.coordSys.y;
         }
     }
-    const letftop_point = api.coord([x, 0]);
-    const rightbottom_point = api.coord([x+width, 0]);
+    const letftop_point = api.coord([api.value(0)-api.value(1), 0]);
+    const rightbottom_point = api.coord([api.value(0)+api.value(1), 0]);
     if (rightbottom_point[0] < (param.coordSys.x + param.coordSys.width) && letftop_point[0] > param.coordSys.x) {
         return {
             type: 'rect', z2: 9,
@@ -3045,6 +3045,7 @@ function getAgeDistributionEchart(chart, figure_id, animation) {
                     },
             },
             {splitLine: {show: false}, axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}}},
+            {id: 'xaxis_for_text', type: 'value', show: false, min: 0, max: 100, position: 'bottom',},
         ],
         yAxis: [
             {
@@ -3070,6 +3071,7 @@ function getAgeDistributionEchart(chart, figure_id, animation) {
                 splitLine: {show: false}, axisTick: {show: false}, axisLabel: {show: false},
                 axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
             },
+            {id: 'yaxis_for_text', type: 'value', show: false, min: 0, max: 100, position: 'left',},
         ],
         series: [
             {
@@ -3103,8 +3105,9 @@ function getAgeDistributionEchart(chart, figure_id, animation) {
                 renderItem: renderAgeBarItem, label: {show: figure.set3.label.show, formatter: ''},
                 },
             {
-                id: 'Text for Set 1', name: 'Text for Set 1', type: 'scatter', symbol: 'circle',
-                data: [figure.text1.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
+                id: 'Text for Set 1', name: 'Text for Set 1', yAxisIndex: 2, xAxisIndex: 2,
+                type: 'scatter', symbol: 'circle', data: [figure.text1.pos],
+                encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
                     show: figure.text1.show, position: 'inside', color: figure.text1.color, fontSize: figure.text1.font_size,
                     fontFamily: figure.text1.font_family, fontWeight: figure.text1.font_weight, rich: rich_format,
