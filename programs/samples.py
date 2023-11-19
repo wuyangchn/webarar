@@ -86,7 +86,15 @@ TOTAL_PARAMS_HEADERS = [
     'Using Min Equation',
     # 'Recalibration', 'Using Std Age', 'Use Std Ratio',  # 112-115  to be completed
     '', '', '',  # 112-115
-    'Auto Plateau Method',   # 116
+    'Auto Plateau Method',   # 116 the index includes sequence name and unit
+    'Initial Ratio Model',   # 117
+    'Set1 initial Ratio',   # 118
+    '1\u03C3',   # 119
+    'Set2 initial Ratio',   # 120
+    '1\u03C3',   # 121
+    'Isotopic Errors',   # 122
+    'Parameter Errors',   # 123
+    'Plot Errors',   # 124
 ]
 
 DEFAULT_PLOT_STYLES = {
@@ -626,7 +634,8 @@ class Sample:
         # self.__version = '20230709'  # add labels to isochron plots
         # self.__version = '20230724'  # change header
         # self.__version = '20230730'  # delete calcparams attribute
-        self.__version = '20230827'  # using merge smp to update arr version
+        # self.__version = '20230827'  # using merge smp to update arr version
+        self.__version = '20231116'  # change smp parameters
 
     @property
     def ArrVersion(self):

@@ -307,12 +307,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             elif btn_id == '8':  # 总参数
                 data = _strToBool(_normalize_data(data, 120, 2), list(range(101, 114)))
                 sample.TotalParam = data
-                sample.AgeSpectraPlot.initial_params.update({
-                    'useInputInitial': [
-                        sample.TotalParam[0][0], sample.TotalParam[1][0] * sample.TotalParam[0][0] / 100,
-                        sample.TotalParam[0][0], sample.TotalParam[1][0] * sample.TotalParam[0][0] / 100
-                    ]
-                })
             smp_funcs.update_table_data(sample)  # Update data of tables after changes of a table
             if btn_id == '7':
                 # Re-calculate isochron and plateau data, and replot.
@@ -499,23 +493,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 return JsonResponse({'r2': res[3], 'line_data': line_data, 'sey': res[8]})
         return JsonResponse({'r2': 'None', 'line_data': [], 'sey': 'None'})
 
-    def change_initial_ratio_for_plateaus(self, request, *args, **kwargs):
-        initial_params = self.body['initial_params']
-        sample = self.sample
-        # backup for later comparision
-        components_backup = copy.deepcopy(smp_funcs.get_components(sample))
-        log_funcs.set_info_log(
-            self.ip, '003', 'info', f'Update calc params, sample name: {self.sample.Info.sample.name}')
-        if sample.AgeSpectraPlot.initial_params == initial_params:
-            return JsonResponse({'status': False})
-        else:
-            sample.AgeSpectraPlot.initial_params.update(initial_params)
-            smp_funcs.recalculate(sample, re_plot=True, isIsochron=False, isInit=False, isPlateau=True)  # Replot plateau after changes of initial ratio
-            http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
-            res = smp_funcs.get_diff_smp(backup=components_backup, smp=smp_funcs.get_components(sample))
-            # print(f"Diff after change initial ratio: {res}")
-            return JsonResponse({'status': True, 'changed_components': basic_funcs.getJsonDumps(res)})
-
     def set_params(self, request, *args, **kwargs):
         def remove_none(old_params, new_params, rows, length):
             res = [[]] * length
@@ -574,9 +551,11 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             sample.TotalParam[67:71] = remove_none(sample.TotalParam[67:71], params[0:4], n, 71-67)
             sample.TotalParam[58:67] = remove_none(sample.TotalParam[58:67], params[4:13], n, 67-58)
             sample.TotalParam[97:100] = remove_none(sample.TotalParam[97:100], params[13:16], n, 100-97)
+            sample.TotalParam[115:120] = remove_none(sample.TotalParam[115:120], params[16:21], n, 120-115)
+            sample.TotalParam[120:123] = remove_none(sample.TotalParam[120:123], params[21:24], n, 123-120)
             sample.TotalParam[100:114] = remove_none(
                 sample.TotalParam[100:114],
-                [['Linear', 'Exponential', 'Power'][params[16:19].index(True)], *params[19:32]], n, 114-100)
+                [['Linear', 'Exponential', 'Power'][params[24:27].index(True)], *params[27:]], n, 114-100)
         else:
             return JsonResponse({'status': 'fail', 'msg': f'Unknown type of params : {type}'})
         smp_funcs.update_table_data(sample)  # Update data of tables after changes of calculation parameters
@@ -1109,7 +1088,8 @@ class ParamsSettingView(http_funcs.ArArView):
             if 'calc' in type.lower():
                 param = [*data[34:56], *data[71:97]]
             if 'smp' in type.lower():
-                param = [*data[67:71], *data[58:67], *data[97:100], *basic_funcs.getMethodFittingLawByStr(data[100]), *data[101:114]]
+                param = [*data[67:71], *data[58:67], *data[97:100], *data[115:123],
+                         *basic_funcs.getMethodFittingLawByStr(data[100]), *data[101:114]]
             if not param:
                 return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n'})
             return JsonResponse({'status': 'success', 'param': param})

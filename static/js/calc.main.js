@@ -3,6 +3,9 @@ const rich_format = {
     sub: {verticalAlign: "bottom",fontSize: 10, fontFamily: 'Microsoft Sans Serif', fontWeight: 'bold'},
     sup: {verticalAlign: "top", fontSize: 10, fontFamily: 'Microsoft Sans Serif', fontWeight: 'bold'},
 };
+function test() {
+    alert('test');
+}
 // Basic functions
 // https://stackoverflow.com/questions/5620516/how-to-get-text-bold-in-alert-or-confirm-box, Eyni Kave's answer
 function toUnicodeVariant(str, variant, flags='') {
@@ -244,6 +247,7 @@ function paramsRadioChanged(flag) {
         inputs.removeAttr('border-color');
         inputs.attr('readOnly', false);
     }
+    if (flag === 'smp'){initialRatioSelectChanged()}
 }
 function createSmChart(container, option) {
     let chart = echarts.init(container, null, {renderer: 'svg'});
@@ -305,14 +309,15 @@ function showParamProject(ele, param_type) {
                     });
                 }
                 if (param_type === "smp") {
-                    let calcInput = document.getElementsByClassName('smp-params');
-                    let calcCheckBox = document.getElementsByClassName('smp-check-box');
-                    $.each(calcInput, function (index, each) {
+                    let smpInput = document.getElementsByClassName('smp-params');
+                    let smpCheckBox = document.getElementsByClassName('smp-check-box');
+                    $.each(smpInput, function (index, each) {
                         each.value=res.param[index];
                     });
-                    $.each(calcCheckBox, function (index, each) {
-                        each.checked=res.param[index+calcInput.length];
+                    $.each(smpCheckBox, function (index, each) {
+                        each.checked=res.param[index+smpInput.length];
                     });
+                    initialRatioSelectChanged();
                 }
             } else {alert(res.msg);}
         }
@@ -649,7 +654,7 @@ function getParamsByObjectName(type) {
     $.each(checkBoxes, function (index, each) {
         params.push(each.checked);
     });
-    console.log(params);
+    // console.log(params);
     return params;
 }
 function getLineData(allData, sequence, isotopes, type) {
@@ -1366,36 +1371,6 @@ function dragOverHandler(ev) {
   // Prevent default behavior (Prevent file from being opened)
   ev.preventDefault();
 }
-function applyCalcParams() {
-    let initial_params = sampleComponents['figure_1'].initial_params;
-    initial_params.useNormalInitial = $("input[id='useNormalInitial']").prop("checked");
-    initial_params.useInverseInitial = $("input[id='useInverseInitial']").prop("checked");
-    initial_params.useOtherInitial = $("input[id='useOtherInitial']").prop("checked");
-    let inputs = [];
-    $("input[name='useInputInitial']").each(function (index, item) {
-        inputs.push(parseFloat($(this).val()))
-    })
-    initial_params.useInputInitial = inputs;
-    showPage(getCurrentTableId());
-    $.ajax({
-        url: url_change_initial_ratio_for_plateaus,
-        type: 'POST',
-        data: JSON.stringify({
-            'cache_key': cache_key,
-            'initial_params': initial_params
-        }),
-        contentType:'application/json',
-        success: function(res){
-            if (res.status === true) {
-                let changed_components = JSON.parse(res.changed_components);
-                // console.log(changed_components);
-                sampleComponents = assignDiff(sampleComponents, changed_components);
-                showPage(getCurrentTableId());
-                setConsoleText('Calc params changed, recalculation has been completed');
-            } else {setConsoleText('Params not changed')}
-        }
-    });
-}
 function extendData(data) {
     // 补充数据形式以匹配表格大小
     let res = JSON.parse(JSON.stringify(data));
@@ -1547,14 +1522,11 @@ function showLoadingMessage(message, time, bgcolor){
             $('#promptModal').remove();
         });
 }
-function clickEditCalcParams() {
-    let initial_params = sampleComponents['figure_1'].initial_params;
-    $("input[id='useNormalInitial']").prop('checked', initial_params.useNormalInitial);
-    $("input[id='useInverseInitial']").prop('checked', initial_params.useInverseInitial);
-    $("input[id='useOtherInitial']").prop('checked', initial_params.useOtherInitial);
-    $("input[name='useInputInitial']").each(function (index, item) {
-        $(this).val(initial_params.useInputInitial[index]);
-    });
+function initialRatioSelectChanged() {
+    let inputs = $('.input-initial-ratio');
+    let disabled = $('#initialRatioSelect').val()!=='2';
+    inputs.prop('disabled', disabled);
+    inputs.css('background-color', disabled?'#eee':'#fff');
 }
 function clickPoints(params) {
     let current_set = ['set_1', 'set_2'][isochronLine1Btn.checked ? 0 : 1];
@@ -1594,7 +1566,6 @@ function getSetById(figure_id, set_id) {
 }
 function apply3DSetting() {
     let current_component = $('.setting-dialog:visible').attr('id');
-    let option = chart.getOption();
     let figure = sampleComponents[getCurrentTableId()];
     if (current_component==='3Daxis-setting-in-dialog'){
         let xMax = document.getElementsByName('3d_xMax')[0].value;
@@ -1609,49 +1580,8 @@ function apply3DSetting() {
         figure.yaxis.min = yMin;
         figure.zaxis.max = zMax;
         figure.zaxis.min = zMin;
-        chart_3D.setOption({
-            xAxis3D: {max: xMax, min: xMin}, yAxis3D: {max: yMax, min: yMin}, zAxis3D: {max: zMax, min: zMin},
-            series: [
-                {
-                    name: 'Unselected Surface', type: 'surface', wireframe: {show: false},
-                    equation: {
-                        x: {step: (xMax - xMin) / 50, max: xMax, min: xMin,},
-                        y: {step: (yMax - yMin) / 50, max: yMax, min: yMin,},
-                        z: (x, y)=>{
-                            let z = figure.set3.info[0] + figure.set3.info[1] * x + figure.set3.info[2] * y;
-                            return z > zMax || z < zMin ? '-' : z;
-                        }
-                    }
-                },
-                {
-                    name: 'Set 1 Surface', type: 'surface', wireframe: {show: false},
-                    equation: {
-                        x: {step: (xMax - xMin) / 50, max: xMax, min: xMin,},
-                        y: {step: (yMax - yMin) / 50, max: yMax, min: yMin,},
-                        z: (x, y)=>{
-                            let z = figure.set1.info[0] + figure.set1.info[1] * x + figure.set1.info[2] * y;
-                            return z > zMax || z < zMin ? '-' : z;
-                        }
-                    }
-                },
-                {
-                    name: 'Set 2 Surface', type: 'surface', wireframe: {show: false},
-                    equation: {
-                        x: {step: (xMax - xMin) / 50, max: xMax, min: xMin,},
-                        y: {step: (yMax - yMin) / 50, max: yMax, min: yMin,},
-                        z: (x, y)=>{
-                            let z = figure.set2.info[0] + figure.set2.info[1] * x + figure.set2.info[2] * y;
-                            return z > zMax || z < zMin ? '-' : z;
-                        }
-                    }
-                },
-            ]
-        });
+        showPage(getCurrentTableId());
     }
-    // chart_3D = get3DEchart(chart_3D, getCurrentTableId(), false)
-    // chart_3D.setOption(option);
-    // option = chart_3D.getOption();
-    // updateStyles(option, getCurrentTableId());
 }
 function clickSaveTable() {
     let table_data;
@@ -1714,6 +1644,12 @@ function clickSetSmpParams() {
     // 显示目前用的参数（第一行）
     showParamProject(undefined, "smp");
     $('#editSmpParams').modal('show');
+    // let initial_params = sampleComponents['figure_1'].initial_params;
+    // $('#initialRatioSelect').val(initial_params.useInverseInitial?'0':initial_params.useNormalInitial?'1':'2');
+    // $('.input-initial-ratio').each(function (index, item) {
+    //     $(this).val(initial_params.useInputInitial[index]);
+    // });
+    // initialSelectChanged();
 }
 function clickRecalc() {
     let checked_options = [];
@@ -2697,6 +2633,73 @@ function getIsochronEchart(chart, figure_id, animation) {
     return chart
 }
 function get3DEchart(chart, figure_id, animation) {
+    let planerPoints = (xmin, xmax, ymin, ymax, zmin, zmax, a, b ,c) => {
+        // console.log(xmin, xmax, ymin, ymax, zmin, zmax, a, b, c);
+        let p = (f1, f2, f3) => {
+            if (f1 === undefined) {f1 = (f3 - b * f2 - c) / a}
+            if (f2 === undefined) {f2 = (f3 - a * f1 - c) / b}
+            if (f3 === undefined) {f3 = a * f1 + b * f2 + c}
+            return [Number(f1), Number(f2), Number(f3)]
+        }
+        let xnum = 200;
+        let ynum = 200;
+        let znum = 200;
+        let res = [];
+        for (let i=0;i<=xnum;i++){
+            for (let j=0;j<=ynum;j++){
+                res = res.concat([p(xmin + (xmax - xmin) / xnum * i, ymin + (ymax - ymin) / ynum * j, undefined)])
+            }
+        }
+        // for (let i=0;i<=xnum;i++){
+        //     for (let j=0;j<=znum;j++){
+        //         res = res.concat([p(xmin + (xmax - xmin) / xnum * i, undefined, zmin + (zmax - zmin) / znum * j)])
+        //     }
+        // }
+        // let res = [
+        //     p(xmin, ymin, undefined), p(xmin, ymax, undefined),
+        //     p(xmax, ymin, undefined), p(xmax, ymax, undefined),
+        //     p(xmin, undefined, zmin), p(xmin, undefined, zmax),
+        //     p(xmax, undefined, zmin), p(xmax, undefined, zmax),
+        //     p(undefined, ymin, zmin), p(undefined, ymin, zmax),
+        //     p(undefined, ymax, zmin), p(undefined, ymax, zmax),
+        // ];
+        // console.log(res);
+        // xxx = xxx.slice(0, 3)
+        // console.log(xxx);
+        // let xxx = res.filter(point => point[0] <= xmax && point[0] >= xmin && point[1] <= ymax && point[1] >= ymin && point[2] <= zmax && point[2] >= zmin);
+        let xxx = res.map((point, index) => {
+            if (point[2] > zmax){
+                return [point[0], point[1], '-']
+            }
+            if (point[2] < zmin){
+                return [point[0], point[1], '-']
+            }
+            // if (point[2] < zmin){
+            //     return [
+            //         (b * b * point[0] - a * b * point[1] - a * (c - zmin)) / (a * b * b + a * a),
+            //         (a * a * point[1] - a * b * point[0] - b * (c - zmin)) / (a * a + b * b),
+            //         zmin]
+            // }
+            return point
+        });
+        // let minx=100000, maxx=0.00000001, miny=100000, maxy=0.00000001, minz=100000, maxz=0.00000001;
+        // $.each(xxx, (index, point) => {
+        //     minx = Math.min(point[0], minx);
+        //     maxx = Math.max(point[0], maxx);
+        //     miny = Math.min(point[1], miny);
+        //     maxy = Math.max(point[1], maxy);
+        //     minz = Math.min(point[2], minz);
+        //     maxz = Math.max(point[2], maxz);
+        // })
+        // let yyy = res.filter(point => point[0]===minx || point[0]===maxx || point[1]===miny || point[1]===maxy || point[2]===minz || point[2]===maxz)
+        // console.log(res);
+        // console.log(xxx);
+        // console.log(yyy);
+        return xxx;
+        // return res;
+        // return yyy;
+        // return res.slice(0, 4);
+    }
     let figure = sampleComponents[figure_id];
     let option = {
         title: {
@@ -2710,7 +2713,7 @@ function get3DEchart(chart, figure_id, animation) {
         tooltip: {axisPointer: {type: 'none'}, confine: true, trigger: 'axis',
             formatter: (params) => (tooltipText)},
         legend: {top: 0},
-        grid3D: {},
+        grid3D: {show: true},
         xAxis3D: {
             name: figure.xaxis.title.text, type: 'value', max: figure.xaxis.max, min: figure.xaxis.min,
             nameTextStyle: {
@@ -2734,7 +2737,8 @@ function get3DEchart(chart, figure_id, animation) {
         },
         series: [
             {
-                name: 'Unselected Points', type: 'scatter3D', color: figure.set3.color, symbolSize: figure.set3.symbol_size, z: 2,
+                name: 'Unselected Points', type: 'scatter3D', color: figure.set3.color,
+                symbolSize: figure.set3.symbol_size, z: 2, coordinateSystemstring: 'cartesian3D',
                 data: getIsochronData(figure.data, figure.set3.data, 9), encode: {x: 0, y: 2, z: 4},
                 itemStyle: {borderColor: figure.set3.border_color, borderWidth: figure.set3.border_width, opacity: figure.set3.opacity},
             },
@@ -2749,34 +2753,61 @@ function get3DEchart(chart, figure_id, animation) {
                 itemStyle: {borderColor: figure.set2.border_color, borderWidth: figure.set2.border_width, opacity: figure.set2.opacity},
             },
             {
-                name: 'Unselected Surface', type: 'surface', wireframe: {show: true},
-                equation: {
-                    x: {step: (figure.xaxis.max - figure.xaxis.min) / 100, max: figure.xaxis.max, min: figure.xaxis.min,},
-                    y: {step: (figure.yaxis.max - figure.yaxis.min) / 100, max: figure.yaxis.max, min: figure.yaxis.min,},
-                    z: (x, y)=>{
-                        let z = figure.set3.info[0][0] + figure.set3.info[0][2] * x + figure.set3.info[0][4] * y;
-                        return z > figure.zaxis.max || z < figure.zaxis.min ? '-' : z;
-                    }}
+                name: 'Unselected Surface', type: 'surface', wireframe: {show: false}, itemStyle: {opacity: 1},
+                data: planerPoints(
+                    figure.xaxis.min, figure.xaxis.max, figure.yaxis.min, figure.yaxis.max,
+                    figure.zaxis.min, figure.zaxis.max,
+                    figure.set3.info[0][2], figure.set3.info[0][4], figure.set3.info[0][0]
+                ),
+                // equation: {
+                //     x: {step: (figure.xaxis.max - figure.xaxis.min) / 100, max: figure.xaxis.max, min: figure.xaxis.min,},
+                //     y: {step: (figure.yaxis.max - figure.yaxis.min) / 100, max: figure.yaxis.max, min: figure.yaxis.min,},
+                //     z: (x, y)=>{
+                //         let z = figure.set3.info[0][0] + figure.set3.info[0][2] * x + figure.set3.info[0][4] * y;
+                //         return z > figure.zaxis.max || z < figure.zaxis.min ? '-' : z;
+                //     }}
             },
             {
-                name: 'Set 1 Surface', type: 'surface', wireframe: {show: true},
-                equation: {
-                    x: {step: (figure.xaxis.max - figure.xaxis.min) / 100, max: figure.xaxis.max, min: figure.xaxis.min,},
-                    y: {step: (figure.yaxis.max - figure.yaxis.min) / 100, max: figure.yaxis.max, min: figure.yaxis.min,},
-                    z: (x, y)=>{
-                        let z = figure.set1.info[0][0] + figure.set1.info[0][2] * x + figure.set1.info[0][4] * y;
-                        return z > figure.zaxis.max || z < figure.zaxis.min ? '-' : z;
-                    }}
+                name: 'Set 1 Surface', type: 'surface', wireframe: {show: false}, itemStyle: {opacity: 1},
+                data: planerPoints(
+                    figure.xaxis.min, figure.xaxis.max, figure.yaxis.min, figure.yaxis.max,
+                    figure.zaxis.min, figure.zaxis.max,
+                    figure.set1.info[0][2], figure.set1.info[0][4], figure.set1.info[0][0]
+                ),
+                // data: [
+                //     [figure.xaxis.min, figure.yaxis.min, figure.set1.info[0][0] + figure.set1.info[0][2] * figure.xaxis.min + figure.set1.info[0][4] * figure.yaxis.min],
+                //     [figure.xaxis.max, figure.yaxis.min, figure.set1.info[0][0] + figure.set1.info[0][2] * figure.xaxis.max + figure.set1.info[0][4] * figure.yaxis.min],
+                //     [figure.xaxis.min, figure.yaxis.max, figure.set1.info[0][0] + figure.set1.info[0][2] * figure.xaxis.min + figure.set1.info[0][4] * figure.yaxis.max],
+                //     [figure.xaxis.max, figure.yaxis.max, figure.set1.info[0][0] + figure.set1.info[0][2] * figure.xaxis.max + figure.set1.info[0][4] * figure.yaxis.max],
+                // ],
+                // equation: {
+                //     x: {
+                //         step: (figure.xaxis.max - figure.xaxis.min) / 100,
+                //         max: figure.xaxis.max, min: figure.xaxis.min,
+                //     },
+                //     y: {
+                //         step: (figure.yaxis.max - figure.yaxis.min) / 100,
+                //         max: figure.yaxis.max, min: figure.yaxis.min,
+                //     },
+                //     z: (x, y)=>{
+                //         let z = figure.set1.info[0][0] + figure.set1.info[0][2] * x + figure.set1.info[0][4] * y;
+                //         return z > figure.zaxis.max || z < figure.zaxis.min ? '-' : z;
+                //     }}
             },
             {
-                name: 'Set 2 Surface', type: 'surface', wireframe: {show: true},
-                equation: {
-                    x: {step: (figure.xaxis.max - figure.xaxis.min) / 100, max: figure.xaxis.max, min: figure.xaxis.min,},
-                    y: {step: (figure.yaxis.max - figure.yaxis.min) / 100, max: figure.yaxis.max, min: figure.yaxis.min,},
-                    z: (x, y)=>{
-                        let z = figure.set2.info[0][0] + figure.set2.info[0][2] * x + figure.set2.info[0][4] * y;
-                        return z > figure.zaxis.max || z < figure.zaxis.min ? '-' : z;
-                    }}
+                name: 'Set 2 Surface', type: 'surface', wireframe: {show: false}, itemStyle: {opacity: 1},
+                data: planerPoints(
+                    figure.xaxis.min, figure.xaxis.max, figure.yaxis.min, figure.yaxis.max,
+                    figure.zaxis.min, figure.zaxis.max,
+                    figure.set2.info[0][2], figure.set2.info[0][4], figure.set2.info[0][0]
+                ),
+                // equation: {
+                //     x: {step: (figure.xaxis.max - figure.xaxis.min) / 100, max: figure.xaxis.max, min: figure.xaxis.min,},
+                //     y: {step: (figure.yaxis.max - figure.yaxis.min) / 100, max: figure.yaxis.max, min: figure.yaxis.min,},
+                //     z: (x, y)=>{
+                //         let z = figure.set2.info[0][0] + figure.set2.info[0][2] * x + figure.set2.info[0][4] * y;
+                //         return z > figure.zaxis.max || z < figure.zaxis.min ? '-' : z;
+                //     }}
             },
         ],
     }
@@ -2889,30 +2920,46 @@ function getSpectraEchart(chart, figure_id, animation) {
                     show: figure.line6.label.show, formatter: (params) => (''), position: figure.line6.label.position,
                     distance: figure.line6.label.distance, offset: figure.line6.label.offset, color: figure.line6.label.color},
                 },
-            {name: 'Set4 Line 1', type: 'line', color: figure.line7.color, encode: {x: 0, y: 1}, data: figure.set4.data,
+            {
+                name: 'Set4 Line 1', type: 'line', color: figure.line7.color,
+                encode: {x: 0, y: 1}, data: figure.set4.data,
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
-                lineStyle: {width: figure.line7.line_width, type: figure.line7.line_type},
+                lineStyle: {
+                    width: 0, // figure.line7.line_width,
+                    type: figure.line7.line_type},
                 label: {
                     show: figure.line7.label.show, formatter: (params) => (''), position: figure.line7.label.position,
                     distance: figure.line7.label.distance, offset: figure.line7.label.offset, color: figure.line7.label.color},
                 },
-            {name: 'Set4 Line 2', type: 'line', color: figure.line8.color, encode: {x: 0, y: 2}, data: figure.set4.data,
+            {
+                name: 'Set4 Line 2', type: 'line', color: figure.line8.color,
+                encode: {x: 0, y: 2}, data: figure.set4.data,
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
-                lineStyle: {width: figure.line8.line_width, type: figure.line8.line_type},
+                lineStyle: {
+                    width: 0, // figure.line8.line_width,
+                    type: figure.line8.line_type},
                 label: {
                     show: figure.line8.label.show, formatter: (params) => (''), position: figure.line8.label.position,
                     distance: figure.line8.label.distance, offset: figure.line8.label.offset, color: figure.line8.label.color},
                 },
-            {name: 'Set5 Line 1', type: 'line', color: figure.line9.color, encode: {x: 0, y: 1}, data: figure.set5.data,
+            {
+                name: 'Set5 Line 1', type: 'line', color: figure.line9.color,
+                encode: {x: 0, y: 1}, data: figure.set5.data,
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
-                lineStyle: {width: figure.line9.line_width, type: figure.line9.line_type},
+                lineStyle: {
+                    width: 0, // figure.line9.line_width,
+                    type: figure.line9.line_type},
                 label: {
                     show: figure.line9.label.show, formatter: (params) => (''), position: figure.line9.label.position,
                     distance: figure.line9.label.distance, offset: figure.line9.label.offset, color: figure.line9.label.color},
                 },
-            {name: 'Set5 Line 2', type: 'line', color: figure.line10.color, encode: {x: 0, y: 2}, data: figure.set5.data,
+            {
+                name: 'Set5 Line 2', type: 'line', color: figure.line10.color,
+                encode: {x: 0, y: 2}, data: figure.set5.data,
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
-                lineStyle: {width: figure.line10.line_width, type: figure.line10.line_type},
+                lineStyle: {
+                    width: 0, // figure.line10.line_width,
+                    type: figure.line10.line_type},
                 label: {
                     show: figure.line10.label.show, formatter: (params) => (''), position: figure.line10.label.position,
                     distance: figure.line10.label.distance, offset: figure.line10.label.offset, color: figure.line10.label.color},

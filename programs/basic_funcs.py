@@ -153,6 +153,8 @@ def getIsochronSetData(total_data: list, set1_index: list, set2_index: list, uns
     for each in total_data:
         for i in none_index:
             each.pop(i)
+    set1_index.sort()
+    set2_index.sort()
     for col in total_data:
         unslected.append([col[i] for i in unselected_index if i < len(col)])
         set_1.append([col[i] for i in set1_index if i < len(col)])

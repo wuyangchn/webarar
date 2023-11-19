@@ -3,12 +3,16 @@
 {% block content %}
 
 <script>
+    // load initialization functions
     $(document).ready(function(){
+        // show confirmation dialog when clicking other navigators
         for (let id of ['a-nav-main', 'a-nav-calc', 'a-nav-doc', 'a-nav-ref']) {
             document.getElementById(id).onclick = function () {
                 return confirm(toUnicodeVariant("Confirm close...\nAre you sure you want to continue?", 'bs'));
             }
         }
+        // show information page
+        showPage("0");
     });
 </script>
 <div class="container-fluid" style="height: 800px">
@@ -417,7 +421,6 @@
             <button title="Change calculation params" type="button" class="btn btn-default" onclick="clickSetCalcParams()">Calc Params</button>
             <button title="Change other calculation settings" type="button" class="btn btn-default" onclick="clickSetSmpParams()">Smp Params</button>
             <button title="Open recalculation modal" type="button" class="btn btn-default" data-toggle="modal" data-target="#recalculationModal">Recalculate</button>
-            <button title="Change initial air ratio used to correct atmospheric argon" type="button" class="btn btn-default" data-toggle="modal" data-target="#editCalcParamsModal" onclick="clickEditCalcParams()">Settings</button>
             <button title="Change styles of plots" type="button" class="btn btn-default" onclick="clickEditFigureStyle()">Styles</button>
             <button title="Copy current figure to clipboard" type="button" class="btn btn-default" onclick="saveChart(false)">Copy</button>
 {#            <button title="Export current figure as a Vector Graphics file" type="button" class="btn btn-default" onclick="saveChart(true)">SVG</button>#}
@@ -461,7 +464,7 @@
                     <div style="text-align: center">
                         <label>
                             <input type="checkbox" value="" checked hidden>
-                            Attention: Recalculation will not be applied automatically, please click recalculate after params changes
+                            Attention: Recalculation will not be applied automatically, please click recalculate after parameter changes
                         </label>
                         <button type="button" class="btn btn-primary" value="Apply" data-dismiss="modal" onclick="readParams('irra')">Apply</button>
                         <button type="button" class="btn btn-primary" value="Close" data-dismiss="modal" onclick="">Close</button>
@@ -529,6 +532,7 @@
                                 <input type="radio" name="smpParamsRadio" id="smpParamsRadio1" value="option1" onchange="paramsRadioChanged('smp')" checked>
                                 Use an Calculation Project
                             </label>
+                            <label for="smpProjectName"></label>
                             <select class="form-control" id="smpProjectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px; padding: 6px 12px;">
                                 {% for each in allSmpNames %}
                                     <option>{{ each }}</option>
@@ -559,41 +563,6 @@
                 </div>
             </div><!-- /.modal-content -->
         </div>
-    </div>
-    <div class="modal fade" id="editCalcParamsModal" data-keyboard="true" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">Air-correction parameters for age plateaus</h4>
-                </div>
-                <form id="calcParamsForm" method="post" enctype="multipart/form-data">
-                    <div class="modal-body modal-div">
-                        <p>Air-correction has been already conducted using default initial values (usually used
-                            298.56 ± 0.31). Parameters in this page is set to re-correcte air for age plateaus
-                            based on initial values ontained from isochrons</p>
-                        <div class="radio">
-                            <label><input type="radio" name="useInitialRadio" id="useInverseInitial" value="inverse">Use Inverse Isochron Initial Value</label>
-                        </div>
-                        <div class="radio">
-                            <label><input type="radio" name="useInitialRadio" id="useNormalInitial" value="normal">Use Normal Isochron Initial Value</label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="useInitialRadio" id="useOtherInitial" value="other">Use Input Initial Value<br>
-                                <input type="number" name="useInputInitial" style="width: 100px; margin: 2px 0 2px 0"> ±
-                                <input type="number" name="useInputInitial" style="width: 100px; margin: 2px 0 2px 0"> Set 1<br>
-                                <input type="number" name="useInputInitial" style="width: 100px; margin: 2px 0 2px 0"> ±
-                                <input type="number" name="useInputInitial" style="width: 100px; margin: 2px 0 2px 0"> Set 2
-                            </label>
-                        </div>
-                    </div>
-                </form>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" value="Apply" onclick="applyCalcParams()">Apply</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal -->
     </div>
     <div class="modal fade" id="inputExportChoiceModal" data-keyboard="true" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
@@ -896,8 +865,6 @@
     $("#inputExportChoiceModal").on("shown.bs.modal", async function () {
         exportSmp(url_export_arr, false);
     });
-
-    showPage("0");
 
     // 生成浏览器指纹
     if (window.requestIdleCallback) {
