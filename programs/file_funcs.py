@@ -57,6 +57,8 @@ def open_arr_file(filepath, samplename: str = ''):
     # Check arr version
     # Attention: recalculation will not be applied automatically
     sample = check_arr_version(sample)
+    # reset smp
+    smp_funcs.re_set_smp(sample)
     smp_funcs.update_table_data(sample)
     return sample
 
@@ -115,6 +117,7 @@ def open_age_xls(filepath: str, samplename: str = ''):
             -999, -999, -999, -999, -999, -999, -999, -999, -999, -999,  # 90-99
             -999, -999, -999, -999, -999, -999, -999, -999, -999, -999,  # 100-109
             -999, -999, -999, -999, -1,  # 110-114
+            -999, -999, -999, -999, -999, -999, -999, -999,  # 115-122
         ]
     elif calc_version == '24.0':
         sequence_name_index = [1]
@@ -150,6 +153,7 @@ def open_age_xls(filepath: str, samplename: str = ''):
             -999, -999, -999, -999, -999, -999, -999, -999, -999, -999,  # 90-99
             -999, -999, -999, -999, -999, -999, -999, -999, -999, -999,  # 100-99909
             -999, -999, -999, -999, -1,  # 110-114
+            -999, -999, -999, -999, -999, -999, -999, -999,  # 115-122
         ]
     else:
         raise ValueError('.age version error!')
@@ -332,6 +336,17 @@ def open_age_xls(filepath: str, samplename: str = ''):
                 degas_values[i] = [0] * len(degas_values[i])
 
         _set_list_zero(*[i * 2 + 1 for i in range(0, int(len(degas_values) / 2 - 1))])
+
+    # initial ratio and error display
+    total_param[115] = ['0'] * np
+    total_param[116] = [298.56] * np
+    total_param[117] = [0.31] * np
+    total_param[118] = [298.56] * np
+    total_param[119] = [0.31] * np
+    total_param[120] = [1] * np
+    total_param[121] = [1] * np
+    total_param[122] = [1] * np
+
 
     # Change K/Ca to Ca/K
     if data[108][2] == 'K/Ca' and calc_version == '24.0' or data[110][2] == 'K/Ca' and calc_version == '24.0':
@@ -634,12 +649,6 @@ def create_sample_from_calc(content: list):
     sample.SelectedSequence2 = [i for i in range(len(sample.IsochronMark)) if sample.IsochronMark[i] == 2]
     sample.UnselectedSequence = [i for i in range(len(sample.IsochronMark)) if
                                  i not in sample.SelectedSequence1 + sample.SelectedSequence2]
-    sample.AgeSpectraPlot.initial_params.update({
-        'useInputInitial': [
-            sample.TotalParam[0][0], sample.TotalParam[1][0] * sample.TotalParam[0][0] / 100,
-            sample.TotalParam[0][0], sample.TotalParam[1][0] * sample.TotalParam[0][0] / 100
-        ]
-    })
     try:
         # Re-calculating ratio and replot after reading age or full files
         smp_funcs.recalculate(sample, re_calc_ratio=True, re_plot=True, re_plot_style=True)

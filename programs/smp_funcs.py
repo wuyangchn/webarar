@@ -10,7 +10,7 @@ import re
 # smp operation
 def initial(sample: samples.Sample):
     # 已更新 2023/7/4
-    sample.TotalParam = [[]] * 115
+    sample.TotalParam = [[]] * 123
     sample.BlankIntercept = [[]] * 10
     sample.SampleIntercept = [[]] * 10
     sample.PublishValues = [[]] * 11
@@ -25,6 +25,17 @@ def initial(sample: samples.Sample):
         setattr(sample, 'Doi', str(uuid.uuid4().hex))
 
     # Info
+    results_named_tuple = (
+        'fp', 'sfp1', 'sfp2', 'sfp3', 'fpwsmd', 'fpchisq', 'fppv',
+        'fn', 'sfn1', 'sfn2', 'sfn3', 'fnwsmd', 'fnchisq', 'fnpv',
+        'fi', 'sfi1', 'sfi2', 'sfi3', 'fiwsmd', 'fichisq', 'fipv',
+        'ft', 'sft1', 'sft2', 'sft3', 'ftwsmd', 'ftchisq', 'ftpv',
+        'tp', 'stp1', 'stp2', 'stp3',
+        'tn', 'stn1', 'stn2', 'stn3',
+        'ti', 'sti1', 'sti2', 'sti3',
+        'tt', 'stt1', 'stt2', 'stt3',
+        'df', 'fAr',
+    )
     result_tuple_name = (
         "plateau_f", "s_plateau_f", "inverse_f", "s_inverse_f", "normal_f", "s_normal_f",
         "plateau_age", "s_plateau_age", "plateau_mswd", "plateau_chisq", "plateau_pvalue",
@@ -32,8 +43,8 @@ def initial(sample: samples.Sample):
         "normal_age", "s_normal_age", "normal_mswd", "normal_chisq", "normal_pvalue",
     )
     from collections import namedtuple
-    result_set_1 = dict((name, None) for name in result_tuple_name)
-    result_set_2 = dict((name, None) for name in result_tuple_name)
+    result_set_1 = dict((name, None) for name in results_named_tuple)
+    result_set_2 = dict((name, None) for name in results_named_tuple)
     # result_set_2 = basic_funcs.namedtuple("Results", result_tuple_name)
     setattr(sample, 'Info', samples.Info(
         id='0', name='info', attr_name='Info',
@@ -91,12 +102,6 @@ def initial(sample: samples.Sample):
     ))
 
     initial_plot_styles(sample)
-    setattr(
-        sample.AgeSpectraPlot, 'initial_params', {
-            'useInverseInitial': True, 'useNormalInitial': False, 'useOtherInitial': False,
-            'useInputInitial': [298.56, 0, 298.56, 0]
-        }
-    )
 
     return sample
 
@@ -132,6 +137,7 @@ def initial_plot_styles(sample: samples.Sample, except_attrs: list = []):
 def re_set_smp(sample: samples.Sample):
     std = initial(samples.Sample())
     get_merged_smp(sample, std)
+    return sample
 
 
 def update_plot_from_dict(plot, attrs: dict):
@@ -585,109 +591,16 @@ def calc_ratio(sample: samples.Sample):
     isochron_6 = calc_funcs.get_3D_isochron(*ar36acl, *ar38acl, *ar39k, *ar40ar)  # Points on the plot will be more disperse than the above
     sample.IsochronValues[30:39] = isochron_6
 
-    # a = [
-    #         [i - sum(ar36acl[0]) / len(ar36acl[0]) for i in ar36acl[0]],
-    #         [i - sum(ar38acl[0]) / len(ar38acl[0]) for i in ar38acl[0]],
-    #         [i - sum(ar40ar[0]) / len(ar40ar[0]) for i in ar40ar[0]],
-    # ]  # centralization
-    # a_transposed = basic_funcs.getTransposed(a)
-    # cov = basic_funcs.getProducted(a, a_transposed, len(ar40ar[0]) - 1)
-    # print(f"cov = {cov}")
 
-    # np = min([len(ar36acl[0]), len(ar38acl[0]), len(ar39k[0]), len(ar40ar[0])])  # number of points plotted
-    # # === Cl parameters ===
-    # ar40ar36trap = sample.TotalParam[0:2]
-    # ar38ar36trap = sample.TotalParam[4:6]
-    # decay_const = sample.TotalParam[46:48]
-    # cl36_cl38_p = sample.TotalParam[56:58]
-    # stand_time_year = sample.TotalParam[32]
-    # decay_const[1] = [
-    #     decay_const[0][i] * decay_const[1][i] / 100 for i in range(len(decay_const[0]))]  # convert to absolute error
-    # cl36_cl38_p[1] = [
-    #     cl36_cl38_p[0][i] * cl36_cl38_p[1][i] / 100 for i in range(len(cl36_cl38_p[0]))]  # convert to absolute error
-    # PQ = [cl36_cl38_p[0][i] * (1-exp(-1*decay_const[0][i]*stand_time_year[i])) for i in range(len(cl36_cl38_p[0]))]
-    # print(f"PQ = {PQ}")
-    # print(f"PQ_max = {max(PQ)}, PQ_min = {min(PQ)}, average = {sum(PQ) / len(PQ)}")
-    # a = [PQ[i] * 298.56 / (0.1885 * PQ[i] - 1) for i in range(len(PQ))]
-    # print(f"a = {a}")
-    # print(f"a_max = {max(a)}, a_min = {min(a)}, average = {sum(a) / len(a)}")
+    # Turner 1988 3D cake mix plots
+    # ar40 = sample.CorrectedValues[8:10]  # ar40 = atm + r + k
+    # ar36a = sample.DegasValues[0:2]  # ar36a
+    # isochron_6 = calc_funcs.get_3D_isochron(*ar39k, *ar38cl, *ar40, *ar36a)
+    # sample.IsochronValues[30:39] = isochron_6
+
+    # Note that the difference between Turner 3D plots and our 3D plots.
 
 
-    # === Calculation ===
-    # v3 = [cl36_cl38_p[0][i] * (1 - exp(-1 * decay_const[0][i] * stand_time_year[i])) for i in
-    #       range(len(stand_time_year))]
-    # s3 = [pow((cl36_cl38_p[1][i] * (1 - exp(-1 * decay_const[0][i] * stand_time_year[i]))) ** 2 +
-    #           (cl36_cl38_p[0][i] * stand_time_year[i] * (exp(-1 * decay_const[0][i] * stand_time_year[i])) *
-    #            decay_const[1][i]) ** 2, 0.5) for i in range(len(stand_time_year))]
-    # sQ = [calc_funcs.error_div((1, 0), (v3[i], s3[i])) for i in range(len(s3))]
-    # Q = [1 / v3[i] for i in range(len(v3))]
-    # x1 = [(ar40ar[0][i] + ar36acl[0][i]) / (Q[i] * ar39k[0][i]) for i in range(np)]
-    # x2 = [ar36acl[0][i] / (Q[i] * ar39k[0][i]) for i in range(np)]
-    # x3 = [(ar38acl[0][i] - Q[i] * ar36acl[0][i]) / (Q[i] * ar39k[0][i]) for i in range(np)]
-    # x4 = v3
-    # y = [ar40ar[0][i] / ar39k[0][i] for i in range(np)]
-    # === Isochron data ===
-    # isochron_7 = [x1, [0] * np, x2, [0] * np, x3, [0] * np, x4, [0] * np, y, [0] * np]
-    # sample.IsochronValues[37:47] = isochron_7
-    # Q = [(1 - exp(-1 * decay_const[0][i] * stand_time_year[i])) for i in range(len(stand_time_year))]
-    # sQ = [pow((cl36_cl38_p[0][i] * stand_time_year[i] * (exp(-1 * decay_const[0][i] * stand_time_year[i])) *
-    #            decay_const[1][i]) ** 2, 0.5) for i in range(len(stand_time_year))]
-    #
-    # y = [ar40ar[0][i] / ar39k[0][i] if ar39k[0][i] !=0 else 0 for i in range(np)]
-    # x1 = [ar36acl[0][i] / ar39k[0][i] if ar39k[0][i] !=0 else 0 for i in range(np)]
-    # x2 = [ar38acl[0][i] / ar39k[0][i] if ar39k[0][i] !=0 else 0 for i in range(np)]
-
-    # _1, _2, _3 = basic_funcs.getIsochronSetData([x1, x2, x3, x4, y], sample.SelectedSequence1, sample.SelectedSequence2, sample.UnselectedSequence)
-    # with open('all_data.txt', 'w+') as f:
-    #     for i in basic_funcs.getTransposedArry(_1):
-    #         a = '  '.join([str(j) for j in i]) + '\n'
-    #         f.writelines([a])
-    #
-    # with open('set_2_data.txt', 'w+') as f:
-    #     for i in basic_funcs.getTransposedArry(_2):
-    #         a = '  '.join([str(j) for j in i]) + '\n'
-    #         f.writelines([a])
-    #
-    # with open('set_3_data.txt', 'w+') as f:
-    #     for i in basic_funcs.getTransposedArry(_3):
-    #         a = '  '.join([str(j) for j in i]) + '\n'
-    #         f.writelines([a])
-
-    # === Isochron data ===
-    # isochron_7 = [x1, [0] * np, x2, [0] * np, y, [0] * np]
-    # sample.IsochronValues[37:43] = isochron_7
-    #
-    # total_data = [y, x1, x2, Q]
-    # with open('second_all_data.txt', 'w+') as f:
-    #     for i in basic_funcs.getTransposedArry([x1, x2, Q, y]):
-    #         a = '  '.join([str(j) for j in i]) + '\n'
-    #         f.writelines([a])
-    # print('========================== Total Data ================================')
-    # r1, p, r2, f = calc_funcs.intercept_Cl_correlation(*total_data)
-    # print(calc_age(f, 0, sample))
-    # print('======================== End Total Data ==============================')
-    # set1, set2, set3 = basic_funcs.getIsochronSetData(total_data, sample.SelectedSequence1, sample.SelectedSequence2, sample.UnselectedSequence)
-    # print('========================== Set 1 ================================')
-    # try:
-    #     r1, p, r2, f = calc_funcs.intercept_Cl_correlation(*set1)
-    #     print(calc_age(f, 0, sample))
-    # except:
-    #     pass
-    # print('======================== End Set1 ==============================')
-    # print('========================== Set 2 ================================')
-    # try:
-    #     r1, p, r2, f = calc_funcs.intercept_Cl_correlation(*set2)
-    #     print(calc_age(f, 0, sample))
-    # except:
-    #     pass
-    # print('======================== End Set2 ==============================')
-    # print('========================== Set 3 ================================')
-    # try:
-    #     r1, p, r2, f = calc_funcs.intercept_Cl_correlation(*set3)
-    #     print(calc_age(f, 0, sample))
-    # except:
-    #     pass
-    # print('======================== End Set3 ==============================')
 
 
 def get_plateau_results(sample: samples.Sample, sequence_index: list, ar40rar39k: list = None,
@@ -736,14 +649,18 @@ def get_plateau_results(sample: samples.Sample, sequence_index: list, ar40rar39k
 
 def recalc_plateaus(sample: samples.Sample, **kwargs):
     try:
-        if sample.AgeSpectraPlot.initial_params['useNormalInitial']:
+        initialRatioModel = sample.TotalParam[115][0]
+        if initialRatioModel == '1':  # using ratio from normal isochron
             r_1, sr_1 = sample.NorIsochronPlot.set1.info[1]
             r_2, sr_2 = sample.NorIsochronPlot.set2.info[1]
-        elif sample.AgeSpectraPlot.initial_params['useInverseInitial']:
+        elif initialRatioModel == '0':  # using ratio from inverse isochron
             r_1, sr_1 = sample.InvIsochronPlot.set1.info[1]
             r_2, sr_2 = sample.InvIsochronPlot.set2.info[1]
+        elif initialRatioModel == '2':  # using input ratio
+            r_1, sr_1 = sample.TotalParam[116][0], sample.TotalParam[117][0]
+            r_2, sr_2 = sample.TotalParam[118][0], sample.TotalParam[119][0]
         else:
-            [r_1, sr_1, r_2, sr_2] = sample.AgeSpectraPlot.initial_params['useInputInitial']
+            raise IndexError
     except Exception as e:
         r_1 = r_2 = 298.56
         sr_1 = sr_2 = 0.31
@@ -796,9 +713,15 @@ def recalc_plateaus(sample: samples.Sample, **kwargs):
     sample.AgeSpectraPlot.set2.data = basic_funcs.getTransposed(set2_data)
 
     # record results
-    get_component_byid(sample=sample, comp_id="0").results.set1["plateau_mswd"] = set1_wmf[-1]
-    get_component_byid(sample=sample, comp_id="0").results.set1["plateau_chisq"] = set1_wmf[-1]
-    get_component_byid(sample=sample, comp_id="0").results.set1["plateau_pvalue"] = set1_wmf[-1]
+    # sample.Info.results.set1.update({
+    #     'fpmswd': set1_wmf[-1]
+    # })
+    # ["fpmswd"] = set1_wmf[-1]
+    sample.Info.results.set1["fpchisq"] = set1_wmf[-1]
+    sample.Info.results.set1["fppv"] = set1_wmf[-1]
+    sample.Info.results.set2["fpmswd"] = set1_wmf[-1]
+    sample.Info.results.set2["fpchisq"] = set1_wmf[-1]
+    sample.Info.results.set2["fppv"] = set1_wmf[-1]
 
     #"""3D corrected plateaus"""
     # 3D ratio, 36Ar(a+cl)/40Ar(a+r), 38Ar(a+cl)/40Ar(a+r), 39Ar(k)/40Ar(a+r),
@@ -907,7 +830,8 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
             text = f't = {age[0]:.2f} ± {age[1]:.2f} | {age[2]:.2f} | {age[3]:.2f} Ma\n' \
                    f'{initial_ratio_text} = {initial[0]:.2f} ± {initial[1]:.2f}\n' \
                    f'MSWD = {york_res[4]:.2f}, R{{sup|2}} = {york_res[8]:.4f}\n' \
-                   f'χ{{sup|2}} = {york_res[9]:.2f}, p = {york_res[10]:.2f}'
+                   f'χ{{sup|2}} = {york_res[9]:.2f}, p = {york_res[10]:.2f}\n' \
+                   f'avg error = {york_res[11]:.4f}%'
             if isClplot and (figure_type == 2 or figure_type == 3):
                 f_values = calc_funcs.list_rcpl(*data[0:2], isRelative=False) if figure_type == 2 else data[2:4]
                 wmf = calc_funcs.err_wtd_mean(*f_values)
@@ -958,7 +882,9 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
             try:
                 k = calc_funcs.wtd_3D_regression(*set1_data[:9])
                 ar38ar36 = sample.TotalParam[4][0]
+                sar38ar36 = sample.TotalParam[5][0] * sample.TotalParam[4][0] / 100
                 ar40ar36 = (k[2] + k[4] * ar38ar36) * -1 / k[0]
+                sar40ar36 = calc_funcs.error_div(((k[2] + k[4] * ar38ar36) * -1, calc_funcs.error_add(k[3], calc_funcs.error_mul((k[4], k[5]), (ar38ar36, sar38ar36)))), (k[0], k[1]))
                 f = 1 / k[0]
                 sf = calc_funcs.error_div((1, 0), (k[0], k[1]))
                 try:
@@ -968,13 +894,16 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
                 except:
                     print(traceback.format_exc())
                     P = 0
-                figure.set1.info = [k, calc_age(f, sf, sample), [ar38ar36, ar40ar36, P]]
+                figure.set1.info = [k, calc_age(f, sf, sample), [ar38ar36, sar38ar36, ar40ar36, sar40ar36, P]]
             except:
-                figure.set1.info = [[0] * 14, [0] * 4, [0, 0, 0]]
+                print(traceback.format_exc())
+                figure.set1.info = [[0] * 15, [0] * 4, [0, 0, 0, 0, 0]]
             try:
                 k = calc_funcs.wtd_3D_regression(*set2_data[:9])
                 ar38ar36 = sample.TotalParam[4][0]
+                sar38ar36 = sample.TotalParam[5][0] * sample.TotalParam[4][0] / 100
                 ar40ar36 = (k[2] + k[4] * ar38ar36) * -1 / k[0]
+                sar40ar36 = calc_funcs.error_div(((k[2] + k[4] * ar38ar36) * -1, calc_funcs.error_add(k[3], calc_funcs.error_mul((k[4], k[5]), (ar38ar36, sar38ar36)))), (k[0], k[1]))
                 f = 1 / k[0]
                 sf = calc_funcs.error_div((1, 0), (k[0], k[1]))
                 try:
@@ -984,13 +913,15 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
                 except:
                     print(traceback.format_exc())
                     P = 0
-                figure.set2.info = [k, calc_age(f, sf, sample), [ar38ar36, ar40ar36, P]]
+                figure.set2.info = [k, calc_age(f, sf, sample), [ar38ar36, sar38ar36, ar40ar36, sar40ar36, P]]
             except:
-                figure.set2.info = [[0] * 14, [0] * 4, [0, 0, 0]]
+                figure.set2.info = [[0] * 15, [0] * 4, [0, 0, 0, 0, 0]]
             try:
                 k = calc_funcs.wtd_3D_regression(*set3_data[:9])
                 ar38ar36 = sample.TotalParam[4][0]
+                sar38ar36 = sample.TotalParam[5][0] * sample.TotalParam[4][0] / 100
                 ar40ar36 = (k[2] + k[4] * ar38ar36) * -1 / k[0]
+                sar40ar36 = calc_funcs.error_div(((k[2] + k[4] * ar38ar36) * -1, calc_funcs.error_add(k[3], calc_funcs.error_mul((k[4], k[5]), (ar38ar36, sar38ar36)))), (k[0], k[1]))
                 f = 1 / k[0]
                 sf = calc_funcs.error_div((1, 0), (k[0], k[1]))
                 try:
@@ -1000,17 +931,17 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
                 except:
                     print(traceback.format_exc())
                     P = 0
-                figure.set3.info = [k, calc_age(f, sf, sample), [ar38ar36, ar40ar36, P]]
+                figure.set3.info = [k, calc_age(f, sf, sample), [ar38ar36, sar38ar36, ar40ar36, sar40ar36, P]]
             except:
-                figure.set3.info = [[0] * 12, [0] * 4, [0, 0, 0]]
+                figure.set3.info = [[0] * 12, [0] * 4, [0, 0, 0, 0, 0]]
             rightside_text = [
                 f"z = {figure.set1.info[0][2]:.4f} x {'+' if figure.set1.info[0][4] > 0 else '-'} "
                 f"{abs(figure.set1.info[0][4]):.4f} y {'+' if figure.set1.info[0][0] > 0 else '-'} "
                 f"{abs(figure.set1.info[0][0]):.4f}",
                 "t = {0:.2f} ± {1:.2f} | {2:.2f} | {3:.2f}".format(*list(figure.set1.info[1])),
                 f"MSWD = {figure.set1.info[0][7]:.4f}, r2 = {figure.set1.info[0][8]:.4f}, Di = {figure.set1.info[0][10]}, "
-                f"χ2 = {figure.set1.info[0][12]:.2f}, p = {figure.set1.info[0][13]:.2f}",
-                f"<sup>40</sup>Ar/<sup>36</sup>Ar = {figure.set1.info[2][1]:.2f}",
+                f"χ2 = {figure.set1.info[0][12]:.2f}, p = {figure.set1.info[0][13]:.2f}, avg. error = {figure.set1.info[0][14]:.4f}%",
+                f"<sup>40</sup>Ar/<sup>36</sup>Ar = {figure.set1.info[2][2]:.2f} ± {figure.set1.info[2][3]:.2f}",
                 f"if <sup>38</sup>Ar/<sup>36</sup>Ar = {figure.set1.info[2][0]}",
                 f"<sup>36</sup>Cl/<sup>38</sup>Cl productivity = {figure.set1.info[2][2]:.2f}", " ", " ",
                 f"z = {figure.set2.info[0][2]:.4f} x {'+' if figure.set2.info[0][4] > 0 else '-'} "
@@ -1018,12 +949,12 @@ def recalc_isochrons(sample: samples.Sample, **kwargs):
                 f"{abs(figure.set2.info[0][0]):.4f}",
                 "t = {0:.2f} ± {1:.2f} | {2:.2f} | {3:.2f}".format(*list(figure.set2.info[1])),
                 f"MSWD = {figure.set2.info[0][7]:.4f}, r2 = {figure.set2.info[0][8]:.4f}, Di = {figure.set2.info[0][10]}, "
-                f"χ2 = {figure.set2.info[0][12]:.2f}, p = {figure.set2.info[0][13]:.2f}",
-                f"<sup>40</sup>Ar/<sup>36</sup>Ar = {figure.set2.info[2][1]:.2f}",
+                f"χ2 = {figure.set2.info[0][12]:.2f}, p = {figure.set2.info[0][13]:.2f}, avg. error = {figure.set2.info[0][14]:.4f}%",
+                f"<sup>40</sup>Ar/<sup>36</sup>Ar = {figure.set2.info[2][2]:.2f} ± {figure.set2.info[2][3]:.2f}",
                 f"if <sup>38</sup>Ar/<sup>36</sup>Ar = {figure.set2.info[2][0]}",
                 f"<sup>36</sup>Cl/<sup>38</sup>Cl productivity = {figure.set2.info[2][2]:.2f}",
                 f"Unselected", f"Age = {figure.set3.info[1][0]:.2f} ± {figure.set3.info[1][1]:.2f}",
-                f"<sup>40</sup>Ar/<sup>36</sup>Ar = {figure.set3.info[2][1]:.2f}",
+                f"<sup>40</sup>Ar/<sup>36</sup>Ar = {figure.set3.info[2][2]:.2f} ± {figure.set3.info[2][3]:.2f}",
                 f"if <sup>38</sup>Ar/<sup>36</sup>Ar = {figure.set3.info[2][0]}",
             ]
             setattr(figure, 'rightside_text', rightside_text)

@@ -730,8 +730,8 @@ def wtd_york2_regression(x: list, sx: list, y: list, sy: list, ri: list, sf: int
     wX = [1 / sXi ** 2 if sXi != 0 else 1 for sXi in sX]  # Weights of X
     wY = [1 / sYi ** 2 if sYi != 0 else 1 for sYi in sY]  # Weights of Y
     Z = lambda m, b: list(map(lambda wXi, wYi, Ri:
-                              (wXi * wYi) / (m ** 2 * wYi + wXi - 2 * m * Ri * (wXi * wYi) ** 0.5), wX, wY,
-                              R))  # Weights of S
+                              (wXi * wYi) / (m ** 2 * wYi + wXi - 2 * m * Ri * (wXi * wYi) ** 0.5),
+                              wX, wY, R))  # Weights of S
     mX = lambda m, b: sum(list(map(lambda Zi, Xi: Zi * Xi, Z(m, b), X))) / sum(Z(m, b))  # Weighted mean of X
     mY = lambda m, b: sum(list(map(lambda Zi, Yi: Zi * Yi, Z(m, b), Y))) / sum(Z(m, b))  # Weighted mean of Y
     # Equation to minimize
@@ -787,6 +787,10 @@ def wtd_york2_regression(x: list, sx: list, y: list, sy: list, ri: list, sf: int
     chi_square = mswd * (n - 2)
     p_value = distributions.chi2.sf(chi_square, n - 2)
 
+    # average error of S
+    err_s = lambda m, b: list(map(lambda Zi, Yi, Xi: (1 / Zi) ** 1./2. / abs(Yi - m * Xi - b), Z(m, b), Y, X))
+    avg_err_s = sum(err_s(m, b)) / len(X) * 100
+
     # print('----------------------------------------------------------------')
     # print('截距>>>' + str(b) + '  ' + '误差>>>' + str(seb))
     # print('斜率>>>' + str(m) + '  ' + '误差>>>' + str(sem))
@@ -796,7 +800,7 @@ def wtd_york2_regression(x: list, sx: list, y: list, sy: list, ri: list, sf: int
     # print('Error Magnification>>>' + str(k))
     # print('----------------------------------------------------------------')
 
-    return b, seb, m, sem, mswd, abs(m - last_m), Di, k, r2, chi_square, p_value
+    return b, seb, m, sem, mswd, abs(m - last_m), Di, k, r2, chi_square, p_value, avg_err_s
 
 
 def wtd_3D_regression(x: list, sx: list, y: list, sy: list, z: list, sz: list,
@@ -1104,9 +1108,14 @@ def wtd_3D_regression(x: list, sx: list, y: list, sy: list, z: list, sz: list,
     chi_square = mswd * (n - 3)
     p_value = distributions.chi2.sf(chi_square, n - 3)
 
+    # relative error of S
+    err_s = lambda a, b, c: [(1 / W(a, b)[i]) ** 1./2. / abs(a * x[i] + b * y[i] + c - z[i]) for i in range(n)]
+    avg_err_s = sum(err_s(a, b, c)) / len(x) * 100
+    print(f"Average relative error of S = {avg_err_s}%")
+
     # print(f"a = {a}, b = {b}, c = {c}, S = {S(a, b, c)}， Di = {Di}, MSWD = {mswd}, r2 = {R}")
 
-    return c, sc, a, sa, b, sb, S(a, b, c), mswd, R, abs(a - last_a), Di, k, chi_square, p_value
+    return c, sc, a, sa, b, sb, S(a, b, c), mswd, R, abs(a - last_a), Di, k, chi_square, p_value, avg_err_s
 
 
 def error_cor(sX: float, sY: float, sZ: float):
