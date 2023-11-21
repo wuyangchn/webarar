@@ -88,7 +88,12 @@
                 <div class="thumbnail">
                     <div class="caption">
                         <h3>Irradiation Params</h3>
-                        <p></p><br>
+                        <p style="font-size: small">
+                            - Irradiation time<br>
+                            - Correction factors<br>
+                            - ...<br>
+                            <br>
+                        </p><br>
                         <p>
                             <a href="{% url 'params_views' 'show_irra' %}" class="btn btn-primary" role="button">Edit</a>
                         </p>
@@ -99,7 +104,12 @@
                 <div class="thumbnail">
                     <div class="caption">
                         <h3>Calculation Params</h3>
-                        <p></p><br>
+                        <p style="font-size: small">
+                            - Decay constants<br>
+                            - Decay Activities<br>
+                            - Isotopic mass<br>
+                            - ...<br>
+                        </p><br>
                         <p>
                             <a href="{% url 'params_views' 'show_calc' %}" class="btn btn-primary" role="button">Edit</a>
                         </p>
@@ -109,8 +119,13 @@
             <div class="col-sm-6 col-md-4">
                 <div class="thumbnail">
                     <div class="caption">
-                        <h3>Others</h3>
-                        <p></p><br>
+                        <h3>Sample Params</h3>
+                        <p style="font-size: small">
+                            - J value<br>
+                            - MDF<br>
+                            - Calculation option<br>
+                            - ...<br>
+                        </p><br>
                         <p>
                             <a href="{% url 'params_views' 'show_smp' %}" class="btn btn-primary" role="button">Edit</a>
                         </p>

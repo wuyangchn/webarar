@@ -11,7 +11,7 @@
         });
         $(document).ready(function(){
             $('#file-btn-import-blank').click(function(){$('#file-input-import-blank').click()});
-            $('#file-input-import-blank').change(function(){import_blank()});
+            $('#file-input-import-blank').change(function(){importBlank()});
         });
     </script>
 
@@ -83,25 +83,6 @@
         </div><!-- /.modal -->
     </div>
 
-    <!-- 模态框（Modal）本底数据显示界面 -->
-    <div class="modal fade" id="modal-blank-info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog" style="width: 1000px">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="modal-blank-info-title">title</h4>
-                </div>
-                <div class="modal-body">
-                    <h4><span id="experiment-time"></span></h4>
-                    <table class="table table-bordered" id="table-blank-info"></table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal -->
-    </div>
-
     <!-- 模态框( Modal ) 设置-->
     <div class="modal" id="modal-settings" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="overflow: auto">
         <!-- /.modal 本底对应阶段 -->
@@ -144,7 +125,7 @@
                         <div class="text: center" style="display: inline">
                             <button type="button" class="btn btn-primary" onclick="getAverageofBlanks()">Average()</button>
                             <button type="button" class="btn btn-primary" onclick="getInterpolatedBlank()">Interpolate()</button>
-                            <button type="button" class="btn btn-primary" onclick="addNewBlank()">Add to list</button>
+                            <button type="button" class="btn btn-primary" onclick="addNewBlankButtonClicked()">Add to list</button>
                             <button id="file-btn-import-blank" type="button" class="btn btn-primary" disabled>Import from (to be completed)</button>
                             <form id="form-import-blank-file" enctype="multipart/form-data">
                                 <label><input type="file" style="display: none" id="file-input-import-blank" name="blank_file" accept=".xls"></label>
@@ -428,13 +409,32 @@
                 <div class="modal-footer">
                     <br>
                     <div class="pull-right">
-                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-calc-params')">Last</button>
+                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-sample-params')">Last</button>
                         <a id="btn-Close-5" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
                         <button type="button" class="btn btn-primary" value="Submit" onclick="submitRawData()">Submit</button>
                     </div>
                 </div>
             </div><!-- /.modal-content -->
         </div>
+    </div>
+
+    <!-- 模态框（Modal）本底数据显示界面 -->
+    <div class="modal fade" id="modal-blank-info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="modal-blank-info-title">title</h4>
+                </div>
+                <div class="modal-body">
+                    <h4><span id="experiment-time"></span></h4>
+                    <table class="table table-bordered" id="table-blank-info"></table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
     </div>
 
     <div class="sr-only">
@@ -451,7 +451,7 @@
         let sequenceContainer = document.getElementById('sequenceContainer');
         // 创建图形, 初始化echarts实例
         let chartBig = echarts.init(document.getElementById('figure-big'), null, {renderer: 'svg'});
-        chartBig.setOption(getExtrapolateEchartsOption());
+        chartBig.setOption(getExtrapolateDefaultOption());
         chartBig.setOption({
             title: {text: `${myRawData.sequenceName[current_page-1]} Ar36`},
             toolbox: {feature: {dataView: {show: true, readOnly: true}, saveAsImage: { show: true }}},

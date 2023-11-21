@@ -123,26 +123,31 @@ function toUnicodeVariant(str, variant, flags='') {
     return result
 }
 // extrapolate-functions
-function addBlanktoInput(item) {
-    let input = $("#inputBlankSequences");
-    let separator = input.val().includes(';') ? ';' : ' ';
-    let current_items = input.val().split(separator);
-    current_items.indexOf(item) === -1 ? input.val(input.val() + item + ';') : input.val(input.val().replace(item + ';', ''));
-}
 function addNametoBlankList(name) {
     let li = document.createElement('li');
     li.className = "list-group-item";
     li.innerText = name;
-    li.onclick = function () {addBlanktoInput(name);}
+    li.onclick = function () {
+        let input = $("#inputBlankSequences");
+        let addName = (item) => {input.val(input.val() + item + ';')};
+        let removeName = (item) => {input.val(input.val().replace(item + ';', ''))};
+        input.val().includes(name)?removeName(name):addName(name);
+    }
     document.getElementById('listGroupBlankName').appendChild(li);
     let btn_show = document.createElement('button');
     btn_show.type = 'button';
     btn_show.className = "list-group-item";
     btn_show.innerText = "...";
-    btn_show.onclick = function (event){showBlank(name)}
+    btn_show.onclick = function (event){
+        $('#modal-blank-info-title').text(name);
+        let tableContents = getBlankInfo(name);
+        $('#experiment-time').text(tableContents[0].time);
+        $('#table-blank-info').bootstrapTable('load', tableContents);
+        $('#modal-blank-info').modal('show');
+    };
     document.getElementById('listGroupBlankBtn').appendChild(btn_show);
 }
-function addNewBlank() {
+function addNewBlankButtonClicked() {
     let newBlankName = $('#outputBlankSequences').val();
     $('#outputBlankSequences').val('');
     $('#inputBlankSequences').val('');
@@ -155,10 +160,7 @@ function addNewBlank() {
     updateSequenceTable();
     corrBlankMethodChanged();
 }
-function blankSeleChanged(id) {
-    console.log(id);
-}
-function raw_files_changed() {
+function rawFilesChanged() {
     let table = $('#raw_file_list');
     if ($('#file-input-1').val() === '') {return}
     let formData = new FormData(document.getElementById("rawFileForm"));
@@ -177,7 +179,7 @@ function raw_files_changed() {
             $.each(files, function (index, file) {
                 data.push({
                     'file_name': file.name, 'file_path': file.path, 'filter': file.filter,
-                    'operation': '<button type="button" class="btn btn-danger" onclick="remove_raw_file(id)" ' +
+                    'operation': '<button type="button" class="btn btn-danger" onclick="removeRawFile(id)" ' +
                         'id="btn-raw-file-' + data.length +'">Remove</button>'
                 });
             })
@@ -186,18 +188,18 @@ function raw_files_changed() {
         }
     })
 }
-function remove_raw_file(unique_id) {
+function removeRawFile(unique_id) {
     let table = $('#raw_file_list');
     let data = table.bootstrapTable('getData');
     data.splice(Number(unique_id.slice(13)), 1);
     for (let i=Number(unique_id.slice(13));i<data.length;i++) {
-        data[i].operation = '<button type="button" class="btn btn-danger" onclick="remove_raw_file(id)" ' +
+        data[i].operation = '<button type="button" class="btn btn-danger" onclick="removeRawFile(id)" ' +
             'id="btn-raw-file-' + i +'">Remove</button>'
     }
     table.bootstrapTable('load', data);
     $('#raw-file-table-input').val(JSON.stringify({'files': table.bootstrapTable('getData')}))
 }
-function import_blank() {
+function importBlank() {
     if ($('#file-input-import-blank').val() === '') {return}
     let formData = new FormData(document.getElementById("form-import-blank-file"));
     $.ajax({
@@ -205,8 +207,8 @@ function import_blank() {
         type: 'POST',
         data: formData,
         // async : true,
-        processData : false, // 告诉jQuery不要去处理发送的数据
-        contentType : false, // 告诉jQuery不要去设置Content-Type请求头
+        processData : false,
+        contentType : false,
         mimeType: "multipart/form-data",
         success: function(res){
             $('#file-input-import-blank').val('');
@@ -232,26 +234,11 @@ function import_blank() {
         }
     })
 }
-function paramsRadioChanged(flag) {
-    // flag = 'irra', 'calc', 'smp'
-    let inputs = $(`#${flag}ParamsInputForm`).find($('input'));
-    if ($(`#${flag}ParamsRadio1`).is(':checked')) {
-        showParamProject(document.getElementById(`${flag}ProjectName`));
-        $(`#${flag}ParamsInputForm`).find($('select,input[type="checkbox"],input[type="radio"]')).attr('disabled', true);
-        inputs.css('background-color', '#eee');
-        inputs.css('border-color', '#ccc');
-        inputs.attr('readOnly', true);
-    } else {
-        $(`#${flag}ParamsInputForm`).find($('select,input[type="checkbox"],input[type="radio"]')).attr('disabled', false);
-        inputs.css('background-color', '#fff');
-        inputs.removeAttr('border-color');
-        inputs.attr('readOnly', false);
-    }
-    if (flag === 'smp'){initialRatioSelectChanged()}
-}
+
+
 function createSmChart(container, option) {
     let chart = echarts.init(container, null, {renderer: 'svg'});
-    chart.setOption(getExtrapolateEchartsOption());
+    chart.setOption(getExtrapolateDefaultOption());
     chart.setOption(option);
     chart.setOption({
         title: {left: '5%', top:'5%', textStyle: {fontSize: 12, fontWeight: 'normal'}}, legend: {show: false},
@@ -430,7 +417,9 @@ function editParams(flag) {
                 $('#modal-submit').modal('hide');
                 $('#modal-delete').modal('hide');
                 $('#modal-save').modal('hide');
-                initialInput();
+                // initialize input
+                $('#modal-submit').find($('input:not(:empty)')).val('');
+                $('#modal-save').find($('input:not(:empty)')).val('');
             }
         }
     })
@@ -584,7 +573,6 @@ function getInterpolatedBlank() {
         showModalDialog('modal-dialog-blank');
     });
 }
-
 function getBlankInfo(item) {
     // blank sequence name
     let n = myRawData.blank.name.indexOf(item);
@@ -603,7 +591,7 @@ function getCurrentIsotope() {
         }
     }
 }
-function getExtrapolateEchartsOption(){
+function getExtrapolateDefaultOption(){
     return {
         title: {text: '', subtext: '', left: 'center',
             textStyle: { fontSize: 18, fontWeight: 'bold',}},
@@ -644,7 +632,7 @@ function getExtrapolateEchartsOption(){
     };
 }
 function getParamsByObjectName(type) {
-    // type = 'irra' or 'calc' or 'smp
+    // type = 'irra' or 'calc' or 'smp'
     let params = [];
     let inputs = document.getElementsByClassName(`${type}-params`);
     let checkBoxes = document.getElementsByClassName(`${type}-check-box`);
@@ -667,32 +655,8 @@ function getScatterData(allData, sequence, isotopes) {
         return []
     }
 }
-function initialInput() {
-    $('#modal-submit').find($('input:not(:empty)')).val('');
-    $('#modal-save').find($('input:not(:empty)')).val('');
-}
-function initialRawFilesList() {
-    $('#raw_file_list').bootstrapTable(
-        {
-            clickToSelect: false,                //是否启用点击选中行
-            uniqueId: "id",                     //每一行的唯一标识，一般为主键列
-            columns: [
-                {field: 'checked', checkbox: true, width: 20, formatter: function () {return true}},
-                {field: 'id', title: 'Sequence', width: 20,
-                    formatter: function (value, row, index) {
-                        return index + 1
-                    }
-                },
-                {field: 'file_name', title: 'File name', width: 20, },
-                {field: 'file_path', title: 'File path', width: 200, },
-                {field: 'filter', title: 'Filter', width: 100, },
-                {field: 'operation', title: 'Operation', width: 50, }
-            ]
-        }
-    );
-}
 function initialTable(blankNameList) {
-    // 加载表格
+    // initialize sequence table
     $('#table-sequences').bootstrapTable(
         {
             clickToSelect: false,                //是否启用点击选中行
@@ -727,6 +691,9 @@ function initialTable(blankNameList) {
             {field: 'r2', title: 'R2', width: 150,},
         ]
     })
+}
+function blankSeleChanged(id) {
+    console.log(id);
 }
 function irradiationCyclesChanged(num) {
     let container = document.getElementById('irradtionTimeContainer');
@@ -804,13 +771,6 @@ function setSmChartClickListen(smCharts, bigChart) {
             {data: smCharts[0].getOption().series[4].data},
             {data: smCharts[0].getOption().series[5].data},
         ]});
-}
-function showBlank(item) {
-    $('#modal-blank-info-title').text(item);
-    let tableContents = getBlankInfo(item);
-    $('#experiment-time').text(tableContents[0].time);
-    $('#table-blank-info').bootstrapTable('load', tableContents);
-    $('#modal-blank-info').modal('show');
 }
 function showModal(id) {
     $('.modal:visible').modal('hide');
@@ -1018,6 +978,23 @@ function updateSequenceTable() {
     }
     $('#table-sequences').bootstrapTable('load', tableData);
 }
+function paramsRadioChanged(flag) {
+    // flag = 'irra', 'calc', 'smp'
+    let inputs = $(`#${flag}ParamsInputForm`).find($('input'));
+    if ($(`#${flag}ParamsRadio1`).is(':checked')) {
+        showParamProject(document.getElementById(`${flag}ProjectName`));
+        $(`#${flag}ParamsInputForm`).find($('select,input[type="checkbox"],input[type="radio"]')).attr('disabled', true);
+        inputs.css('background-color', '#eee');
+        inputs.css('border-color', '#ccc');
+        inputs.attr('readOnly', true);
+    } else {
+        $(`#${flag}ParamsInputForm`).find($('select,input[type="checkbox"],input[type="radio"]')).attr('disabled', false);
+        inputs.css('background-color', '#fff');
+        inputs.removeAttr('border-color');
+        inputs.attr('readOnly', false);
+    }
+    if (flag === 'smp'){initialRatioSelectChanged()}
+}
 
 // packaging a function to create echart instance (to be completed)
 // function getEchart(dom, option) {
@@ -1076,7 +1053,7 @@ function getLinkedChart(mainDiv, ...divs) {
     let chartMain = echarts.init(document.getElementById(mainDiv), null, {renderer: 'svg'});
     let chartSmall = divs.map((div, index)=>{
         let chart = echarts.init(document.getElementById(div), null, {renderer: 'svg'});
-        chart.setOption(getExtrapolateEchartsOption());
+        chart.setOption(getExtrapolateDefaultOption());
         chart.setOption({
             title: {left: '5%', top:'5%', textStyle: {fontSize: 12, fontWeight: 'normal'}}, legend: {show: false},
             graphic: [{
@@ -1184,7 +1161,7 @@ function getLinkedChart(mainDiv, ...divs) {
         smallChartClicked(chartIndex, chartSmall[chartIndex])
 
     }
-    chartMain.setOption(getExtrapolateEchartsOption());
+    chartMain.setOption(getExtrapolateDefaultOption());
     // Listen click on small charts
     $.each(chartSmall, (index, chart)=>{
         chart.getZr().on('click', function(event) {

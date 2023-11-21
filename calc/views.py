@@ -1015,20 +1015,21 @@ class RawFileView(http_funcs.ArArView):
         cycle = [irradiation[i] + 'D' + str(duration[i]) for i in range(len(irradiation))]
         sample.TotalParam = basic_funcs.getTransposed(
             [[
-                *irra_params[0:26],
+                *irra_params[0:26],  # 0-25
                 int(irra_params[28]),  # cycle count
                 'S'.join(cycle),
                 irra_params[-3], sum(duration), irradiation[-1], 'Experiment Time',  # 28-31
                 'Stand years', '',  # 32-33
-                *calc_params[0:22],
-                *irra_params[26:28],  # Cl36/38 productivities ratio
-                *smp_params[4:13],  # standard samples name, age, ...
-                *smp_params[0:4],  # J, sJ, MDF, sMDF
-                *calc_params[22:48],
-                *smp_params[13:16],  # fitting method, convergence, iteration
-                ['Linear', 'Exponential', 'Power'][smp_params[16:19].index(True)],
-                *smp_params[19:32],
-                'Auto Plateau Method',  #
+                *calc_params[0:22],  # 34-55
+                *irra_params[26:28],  # 56-57  Cl36/38 productivities ratio
+                *smp_params[4:13],  # 58-66  standard samples name, age, ...
+                *smp_params[0:4],  # 67-70 J, sJ, MDF, sMDF
+                *calc_params[22:48],  # 71-96
+                *smp_params[13:16],  # 97-99 fitting method, convergence, iteration
+                ['Linear', 'Exponential', 'Power'][smp_params[24:27].index(True)],  # 100
+                *smp_params[27:40],  # 101-113
+                'Auto Plateau Method',  # 114
+                *smp_params[16:24],  # 115-122
             ]] * len(interceptData))
         sample.TotalParam[31] = ["-".join(re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", item)[0]) for item in experimentTime]
         np = len(sample.SequenceName)

@@ -78,7 +78,7 @@
                             </label><a class="btn" href="" download>Download a sample file (pending)</a>
                         </div>
                         <div class="form-group">
-                            <input type="file" id="file-input-1" name="raw_file" multiple="multiple" accept="application/vnd.ms-excel, .ahd" onchange="raw_files_changed()">
+                            <input type="file" id="file-input-1" name="raw_file" multiple="multiple" accept="application/vnd.ms-excel, .ahd" onchange="rawFilesChanged()">
                         </div>
 
                         <div style="">
@@ -137,7 +137,25 @@
         let pages = $(".raw-file-filter-page");
         let max_page = pages.length;
         let current_page = 1;
-        initialRawFilesList();
+        // initialize raw file List
+        $('#raw_file_list').bootstrapTable(
+            {
+                clickToSelect: false,                //是否启用点击选中行
+                uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                columns: [
+                    {field: 'checked', checkbox: true, width: 20, formatter: function () {return true}},
+                    {field: 'id', title: 'Sequence', width: 20,
+                        formatter: function (value, row, index) {
+                            return index + 1
+                        }
+                    },
+                    {field: 'file_name', title: 'File name', width: 20, },
+                    {field: 'file_path', title: 'File path', width: 200, },
+                    {field: 'filter', title: 'Filter', width: 100, },
+                    {field: 'operation', title: 'Operation', width: 50, }
+                ]
+            }
+        );
     </script>
 
 {% endblock %}
