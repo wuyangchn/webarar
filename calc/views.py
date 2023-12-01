@@ -10,8 +10,9 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 
 from . import models
-from programs import styles, file_funcs, samples, http_funcs, smp_funcs, calc_funcs, basic_funcs, log_funcs
+from programs import styles, file_funcs, samples, http_funcs, smp_funcs, calc_funcs, basic_funcs, log_funcs, smp, files
 from django.core.cache import cache
+
 
 # Create your views here.
 class CalcHtmlView(http_funcs.ArArView):
@@ -67,7 +68,9 @@ class CalcHtmlView(http_funcs.ArArView):
         try:
             web_file_path, sample_name, extension = \
                 file_funcs.get_post_file(request.FILES.get('age_file'), settings.UPLOAD_ROOT)
-            sample = file_funcs.open_age_xls(web_file_path)
+            # sample = file_funcs.open_age_xls(web_file_path)
+            file = files.ArArCalcFile(file_path=web_file_path, sample_name=sample_name).open()
+            sample = smp.create_sample_from_df(file.get_content(), file.get_smp_info())
         except (Exception, BaseException) as e:
             print(traceback.format_exc())
             return render(request, 'calc.html', {
