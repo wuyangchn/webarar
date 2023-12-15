@@ -9,9 +9,18 @@
 #
 #
 """
-from . import *
 
-pd.options.mode.chained_assignment = None  # default='warn'
+import uuid
+import pandas as pd
+import numpy as np
+import copy
+
+from . import (sample as samples, basic)
+
+Sample = samples.Sample
+Info = samples.Info
+Table = samples.Table
+Plot = samples.Plot
 
 plateau_res_keys = [
     'F', 'sF', 'Num', 'MSWD', 'Chisq', 'Pvalue', 'age', 's1', 's2', 's3', 'Ar39',

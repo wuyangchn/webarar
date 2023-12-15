@@ -67,7 +67,7 @@ def check_version(sample: smp.Sample):
     -------
 
     """
-    if sample.ArrVersion != smp.VERSION:
+    if sample.version != smp.VERSION:
         smp.initial.re_set_smp(sample)
     return sample
 

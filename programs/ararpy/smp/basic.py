@@ -10,8 +10,18 @@
 #
 """
 # === Internal imports ===
-# from programs.ararpy import calc
-from . import *
+
+import traceback
+import pandas as pd
+import numpy as np
+import copy
+from .. import calc
+from .sample import Sample, Info, Table, Plot
+
+Set = Plot.Set
+Label = Plot.Label
+Axis = Plot.Axis
+Text = Plot.Text
 
 pd.options.mode.chained_assignment = None  # default='warn'
 

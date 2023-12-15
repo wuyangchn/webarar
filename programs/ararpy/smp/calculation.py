@@ -10,21 +10,11 @@
 # ArArPy.smp.smp_funcs
 #
 """
-# === Internal imports ===
-from . import *
-# from programs.ararpy.smp import sample
-# from programs.ararpy.smp import plots, basic, style, table, corr, initial
 
-# === External imports ===
-# # import traceback
-# from programs import samples
-#
-#
-# Sample = samples.Sample
-# Info = samples.Info
-# Table = samples.Table
-# Plot = samples.Plot
-# Set = samples.Plot.Set
+from . import (
+    basic, corr, initial, plots, style, table
+)
+from .sample import Sample
 
 
 def recalculate(

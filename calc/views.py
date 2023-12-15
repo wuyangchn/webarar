@@ -205,29 +205,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         #     f'Click a point, series name: {series_name}, clicked data: {clicked_data}, '
         #     f'set: {current_set}')
         data_index = clicked_data[-1] - 1  # Isochron plot data label starts from 1, not 0
-        if series_name == "Unselected Points":
-            if current_set == 'set_1':
-                sample.SelectedSequence1.append(data_index)
-            elif current_set == 'set_2':
-                sample.SelectedSequence2.append(data_index)
-            sample.UnselectedSequence.remove(data_index)
-        elif series_name == "Points Set 1":
-            if current_set == 'set_1':
-                sample.UnselectedSequence.append(data_index)
-                sample.SelectedSequence1.remove(data_index)
-            elif current_set == 'set_2':
-                sample.SelectedSequence2.append(data_index)
-                sample.SelectedSequence1.remove(data_index)
-        elif series_name == "Points Set 2":
-            if current_set == 'set_2':
-                sample.UnselectedSequence.append(data_index)
-                sample.SelectedSequence2.remove(data_index)
-            elif current_set == 'set_1':
-                sample.SelectedSequence1.append(data_index)
-                sample.SelectedSequence2.remove(data_index)
-        sample.IsochronMark = [
-            1 if i in sample.SelectedSequence1 else 2 if i in sample.SelectedSequence2 else '' for i in
-            range(len(sample.IsochronValues[2]))]
+        sample.set_selection(data_index, [1, 2][current_set == "set_2"])
         time_middle = time.time()
         if auto_replot:
             # Re-plot after clicking points
