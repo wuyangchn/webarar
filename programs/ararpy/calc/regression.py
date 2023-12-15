@@ -40,7 +40,9 @@ def york2(x: list, sx: list, y: list, sy: list, ri: list, f: int = 1,
     b, seb, m, sem, mswd, abs(m - last_m), Di, k, r2, chi_square, p_value, avg_err_s
     """
     data = np.array([x, sx, y, sy, ri])
-    data = data[:, ~(np.isnan(data) | np.isinf(data)).any(axis=0)]
+    data = data[:, np.where(
+        np.logical_or(data == np.inf, pd.isna(data)), False, True).all(axis=0)].astype(np.float64)
+    x, sx, y, sy, ri = data
     n = data.shape[-1]
     X, sX, Y, sY, R = data
     # change to 1 sigma
@@ -102,7 +104,6 @@ def york2(x: list, sx: list, y: list, sy: list, ri: list, f: int = 1,
     r2 = ssreg / sstotal if sstotal != 0 else np.inf  # r2 = ssreg / sstotal
     chi_square = mswd * (n - 2)
     p_value = distributions.chi2.sf(chi_square, n - 2)
-
     # average error of S
     err_s = lambda m, b: list(map(lambda Zi, Yi, Xi: (1 / Zi) ** 1./2. / abs(Yi - m * Xi - b), Z(m, b), y, x))
     avg_err_s = sum(err_s(m, b)) / len(x) * 100

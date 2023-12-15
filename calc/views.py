@@ -251,7 +251,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             if len(data) == 0:
                 return JsonResponse({})
 
-            ap.smp.table.update_handsontable(sample, data, btn_id)
+            sample.update_table(data, btn_id)
 
             if btn_id == '7':
                 # Re-calculate isochron and plateau data, and replot.
