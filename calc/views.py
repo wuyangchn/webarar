@@ -239,72 +239,25 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             ap.smp.basic.update_plot_from_dict(sample.Info, data)
         else:
 
-            def _get_max_row(a: list):
-                res = 0
+            def remove_empty(a: list):
+                index = 0
                 for i in range(len(a)):
-                    if not ap.calc.arr.is_empty(a[i]):
-                        res = i
-                return res
+                    if not ap.calc.arr.is_empty(a[-(i + 1)]):
+                        index = len(a) - i
+                        break
+                return ap.calc.arr.transpose(a[:index])
 
-            def _normalize_data(a, cols, start_col=0):
-                if len(a) >= cols:
-                    return a[start_col:cols]
-                else:
-                    return a[start_col:] + [[''] * len(a[0])] * (cols - len(a))
-
-            def _strToBool(cols):
-                bools_dict = {
-                    'true': True, 'false': False, '1': True, '0': False, 'none': False,
-                }
-                return [bools_dict.get(str(col).lower(), False) for col in cols]
-
-            max_col = max([len(i) for i in data])
-            max_row = _get_max_row(data)
-            data = ap.calc.arr.partial(
-                ap.calc.arr.transpose(data), list(range(0, max_row + 1)), list(range(max_col)))
+            data = remove_empty(data)
             if len(data) == 0:
                 return JsonResponse({})
-            sample.SequenceName = data[0]
-            sample.SequenceValue = data[1]
-            if btn_id == '1':  # 样品值
-                data = _normalize_data(data, 12, 2)
-                sample.SampleIntercept = data
-            elif btn_id == '2':  # 本底值
-                data = _normalize_data(data, 12, 2)
-                sample.BlankIntercept = data
-            elif btn_id == '3':  # 校正值
-                data = _normalize_data(data, 12, 2)
-                sample.CorrectedValues = data
-            elif btn_id == '4':  #
-                data = _normalize_data(data, 34, 2)
-                sample.DegasValues = data
-            elif btn_id == '5':  # 发行表
-                data = _normalize_data(data, 13, 2)
-                sample.PublishValues = data
-            elif btn_id == '6':  # 年龄谱
-                data = _normalize_data(data, 10, 2)
-                sample.ApparentAgeValues = data
-            elif btn_id == '7':  # 等时线
-                sample.IsochronMark = data[2]
-                data = _normalize_data(data, 42, 3)
-                sample.IsochronValues = data
-                sample.SelectedSequence1 = [
-                    i for i in range(len(sample.IsochronMark)) if sample.IsochronMark[i] == 1]
-                sample.SelectedSequence2 = [
-                    i for i in range(len(sample.IsochronMark)) if sample.IsochronMark[i] == 2]
-                sample.UnselectedSequence = [
-                    i for i in range(len(sample.IsochronMark)) if
-                    i not in sample.SelectedSequence1 + sample.SelectedSequence2]
-            elif btn_id == '8':  # 总参数
-                data = _normalize_data(data, 125, 2)
-                data[103: 115] = [_strToBool(i) for i in data[103: 115]]
-                sample.TotalParam = data
-            ap.smp.table.update_table_data(sample)  # Update data of tables after changes of a table
+
+            ap.smp.table.update_handsontable(sample, data, btn_id)
+
             if btn_id == '7':
                 # Re-calculate isochron and plateau data, and replot.
                 # Re-calculation will not be applied automatically when other tables were changed
-                ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True,
-                               isPlateau=True)  # Change isochron mark
+                ap.recalculate(
+                    sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
 
         http_funcs.create_cache(sample, self.cache_key)  # Update cache
         res = ap.smp.basic.get_diff_smp(components_backup, ap.smp.basic.get_components(sample))
