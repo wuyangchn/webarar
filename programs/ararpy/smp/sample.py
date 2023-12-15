@@ -609,14 +609,7 @@ class Sample:
 
     def __init__(self, **kwargs):
 
-        # self.Info = {
-        #     'sample': {'name': 'SAMPLE NAME', 'material': 'MATERIAL', 'location': 'LOCATION'},
-        #     'researcher': {'name': 'RESEARCHER', 'addr': 'ADDRESS'},
-        #     'laboratory': {'name': 'LABORATORY', 'info': 'INFORMATION', 'analyst': 'ANALYST'},
-        #     'results': {'plateauAge': [], 'plateauF': [], 'totalF': [], 'totalAge': [],
-        #                 'isochronAge': [], 'isochronF': [], 'J': []}
-        # }
-        self.Doi = None
+        self.Doi = ""
         self.Info = Info()
 
         self.SequenceName = []
@@ -679,12 +672,8 @@ class Sample:
         self.__version = '20231116'  # change smp parameters
 
     @property
-    def ArrVersion(self):
+    def version(self):
         return self.__version
-
-    @ArrVersion.setter
-    def ArrVersion(self, value):
-        self.__version = value
 
 
 class Table:
@@ -885,3 +874,10 @@ class Info:
         self.type = type
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+
+class Basic:
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+

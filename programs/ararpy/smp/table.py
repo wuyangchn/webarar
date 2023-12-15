@@ -9,20 +9,11 @@
 #
 #
 """
-# === Internal imports ===
-# from programs.ararpy import calc
-from . import *
-# from programs.ararpy.smp import basic
+from .. import calc
+from . import (sample as samples, basic)
 
-# === External imports ===
-# from programs import samples
-#
-#
-# Sample = samples.Sample
-# Info = samples.Info
-# Table = samples.Table
-# Plot = samples.Plot
-# Set = samples.Plot.Set
+Sample = samples.Sample
+Table = samples.Table
 
 
 # Table functions

@@ -1,17 +1,8 @@
 
-import traceback
-import uuid
-import pandas as pd
-import numpy as np
-import copy
-import re
-from math import exp
-from scipy.signal import find_peaks
-import time
-
-
-from .. import calc
-from . import sample as samples
+from . import (
+    sample as samples, consts, basic, corr, initial,
+    plots, style, table, calculation
+)
 
 Sample = samples.Sample
 Info = samples.Info
@@ -24,4 +15,3 @@ Text = samples.Plot.Text
 
 VERSION = samples.VERSION
 
-from . import consts, basic, corr, initial, plots, style, table, calculation

@@ -10,24 +10,22 @@
 #
 """
 
-# === Internal imports ===
-# from programs.ararpy.smp import sample
-# from programs.ararpy import calc
-from . import *
+import traceback
+import numpy as np
 
-# === External imports ===
-# import traceback
-# import numpy as np
-# import pandas as pd
-# from programs import calc_funcs, basic_funcs, samples, smp_funcs
-# from math import exp
-# from scipy.signal import find_peaks
-# import copy
-# import re
-# import time
+from scipy.signal import find_peaks
+import time
 
 
-pd.options.mode.chained_assignment = None  # default='warn'
+from .. import calc
+from .sample import Sample, Info, Table, Plot
+from . import basic, initial
+
+Set = Plot.Set
+Label = Plot.Label
+Axis = Plot.Axis
+Text = Plot.Text
+
 
 ISOCHRON_INDEX_DICT = {
     'figure_2': {'data_index': [0, 5], 'name': 'Normal Isochron', 'figure_type': 1},
@@ -297,7 +295,7 @@ def get_3D_results(data: list, sequence: list, sample: Sample):
         sf = calc.err.div((1, 0), (k[0], k[1]))
         try:
             PQ = -1 * k[4] / k[2]
-            Q = 1 - exp(-1 * sample.TotalParam[46][0] * sum(sample.TotalParam[32]) / len(sample.TotalParam[32]))
+            Q = 1 - np.exp(-1 * sample.TotalParam[46][0] * sum(sample.TotalParam[32]) / len(sample.TotalParam[32]))
             P = PQ / Q
         except:
             print(traceback.format_exc())
@@ -336,6 +334,36 @@ def reset_isochron_line_data(smp: Sample):
             except Exception:
                 # print(traceback.format_exc())
                 continue
+
+
+def set_selection(smp: Sample, index: int, mark: int):
+    """
+    Parameters
+    ----------
+    smp : sample instance
+    index : int, data point index
+    mark : int, 0 for unselected, 1 for set1, 2 for set2
+
+    Returns
+    -------
+
+    """
+    if mark not in [1, 2]:
+        raise ValueError(f"{mark = }, mark must be 1 or 2.")
+
+    def seq(_i): return [smp.UnselectedSequence, smp.SelectedSequence1, smp.SelectedSequence2][_i]
+
+    if index in seq(mark):
+        seq(mark).remove(index)
+        smp.UnselectedSequence.append(index)
+    else:
+        for i in [0, [0, 2, 1][mark]]:
+            if index in seq(i):
+                seq(i).remove(index)
+        seq(mark).append(index)
+    smp.IsochronMark = [
+        1 if i in smp.SelectedSequence1 else 2 if i in smp.SelectedSequence2 else '' for i in
+        range(len(smp.IsochronValues[2]))]
 
 
 # =======================
