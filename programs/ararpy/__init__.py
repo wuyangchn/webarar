@@ -71,3 +71,4 @@ Sample.iso_mark = lambda _smp: Basic(
 
 Sample.initial = smp.initial.initial
 Sample.set_selection = lambda _smp, _index, _mark: smp.plots.set_selection(_smp, _index, _mark)
+Sample.set_selection = lambda _smp, _data, _id: smp.table.update_handsontable(_smp, _data, _id)
