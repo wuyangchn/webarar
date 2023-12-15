@@ -122,6 +122,21 @@ function toUnicodeVariant(str, variant, flags='') {
     }
     return result
 }
+
+function myParse(myString) {
+    myString = myString.replace(/\bNaN\b/g, '"*isNaN*"').replace(/\bInfinity\b/g, '"*isInfinity*"');
+    // console.log(myString);
+    return JSON.parse(myString, function (key, value) {
+        if (value === "*isNaN*") {
+            return NaN;
+        }
+        if (value === "*isInfinity*") {
+            return Infinity;
+        }
+        return value;
+    });
+}
+
 // extrapolate-functions
 function addNametoBlankList(name) {
     let li = document.createElement('li');
@@ -212,7 +227,8 @@ function importBlank() {
         mimeType: "multipart/form-data",
         success: function(res){
             $('#file-input-import-blank').val('');
-            res = JSON.parse(res);
+            // res = JSON.parse(res);
+            res = myParse(res);
             let new_blank = res.new_blank;
             $.each(new_blank.name, function (index, item) {
                 myRawData.blank.name.push(new_blank.name[index]);
@@ -265,8 +281,6 @@ function showParamProject(ele, param_type) {
             }
         }
     }
-    console.log(name);
-    console.log(param_type);
     $.ajax({
         url: url_show_param_projects,
         type: 'POST',
@@ -322,6 +336,8 @@ function changeSubmitType() {
     }
 }
 function chartScatterClicked(params) {
+    let changeAll = document.getElementById("applySelectionToAll").checked;
+    let currentIsotope = getCurrentIsotope();
     $.ajax({
         url: url_raw_data_points_click,
         type: 'POST',
@@ -330,16 +346,29 @@ function chartScatterClicked(params) {
             'unselectedData': myRawData.unselectedData[current_page-1],
             'clickedData': params.data,
             'series': params.seriesName,
-            'isotope': getCurrentIsotope(),
-            'selectionForAll': document.getElementById("applySelectionToAll").checked,
+            'isotope': currentIsotope,
+            'selectionForAll': changeAll,
         }),
         contentType:'application/json',
         success: function(res){
-            myRawData.selectedData[current_page-1] = res.selectedData;
-            myRawData.unselectedData[current_page-1] = res.unselectedData;
-            myRawData.linesData[current_page-1] = res.linesData;
-            myRawData.linesResults[current_page-1] = res.linesResults;
-            updateChartData(smCharts, chartBig, myRawData.selectedData, myRawData.unselectedData, myRawData.linesData, myRawData.linesResults, current_page, false);
+            // myRawData.selectedData[current_page-1] = res.selectedData;
+            // myRawData.unselectedData[current_page-1] = res.unselectedData;
+            // myRawData.linesData[current_page-1] = res.linesData;
+            // myRawData.linesResults[current_page-1] = res.linesResults;
+            if (changeAll){
+                myRawData.selectedData[current_page-1] = myParse(res.selectedData);
+                myRawData.unselectedData[current_page-1] = myParse(res.unselectedData);
+                myRawData.linesData[current_page-1] = myParse(res.linesData);
+                myRawData.linesResults[current_page-1] = myParse(res.linesResults);
+            } else {
+                myRawData.selectedData[current_page-1] = myParse(res.selectedData);
+                myRawData.unselectedData[current_page-1] = myParse(res.unselectedData);
+                myRawData.linesData[current_page-1][currentIsotope] = myParse(res.linesData);
+                myRawData.linesResults[current_page-1][currentIsotope] = myParse(res.linesResults);
+            }
+            updateChartData(
+                smCharts, chartBig, myRawData.selectedData, myRawData.unselectedData,
+                myRawData.linesData, myRawData.linesResults, current_page, false);
             if (res.error !== ''){alert(res.error)}
         }
     })
@@ -541,7 +570,6 @@ function getInterpolatedBlank() {
             animation: false,
         })
         each.resize();
-        console.log(each);
     });
 
     $('#modal-dialog-interpolate-blank :button[name="apply"]').on('click', (event)=>{
@@ -1523,7 +1551,8 @@ function clickPoints(params) {
         async: false,
         contentType:'application/json',
         success: function(response){
-            let results =  JSON.parse(response.res);
+            let results = myParse(response.res);
+            // let results =  JSON.parse(response.res);
             sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {item[2]=results['marks'][index];return item});
             delete results['marks'];
             sampleComponents = assignDiff(sampleComponents, results);
@@ -1589,7 +1618,7 @@ function clickSaveTable() {
         }),
         contentType:'application/json',
         success: function(res){
-            let changed_components = JSON.parse(res.changed_components);
+            let changed_components = myParse(res.changed_components);
             assignDiff(sampleComponents, changed_components);
             if (getCurrentTableId() === "0"){$('#sample_name_title').text($('#inputName').val())}
             isochron_marks_changed = false;
@@ -1645,7 +1674,7 @@ function clickRecalc() {
         contentType:'application/json',
         success: function(response){
             if (response.status === 'success') {
-                let changed_components = JSON.parse(response.changed_components);
+                let changed_components = myParse(response.changed_components);
                 // console.log(changed_components);
                 sampleComponents = assignDiff(sampleComponents, changed_components);
                 showPage(getCurrentTableId());
@@ -1704,7 +1733,7 @@ function readParams(type) {
         contentType:'application/json',
         success: function(res){
             if (res.status === 'success'){
-                let changed_components = JSON.parse(res.changed_components);
+                let changed_components = myParse(res.changed_components);
                 // console.log(changed_components);
                 sampleComponents = assignDiff(sampleComponents, changed_components);
                 showPage(getCurrentTableId());
@@ -1780,7 +1809,7 @@ function showPage(table_id) {
             break
         case "figure_1": case "figure_2": case "figure_3": case "figure_4": case "figure_5": case "figure_6":
             showFigure();
-            setRightSideText(comp.rightside_text);
+            setRightSideText();
             chart.clear();
             if (table_id==="figure_1") {
                 chart = getSpectraEchart(chart, table_id, true);
@@ -1792,7 +1821,7 @@ function showPage(table_id) {
             break
         case "figure_7":
             showFigure();
-            setRightSideText(sampleComponents[table_id].rightside_text);
+            setRightSideText();
             figureContainer.hide();
             figure3DContainer.show();
             chart_3D.clear();
@@ -1846,7 +1875,67 @@ function setConsoleText(text) {
     document.getElementById('sample_name_console').innerText = sampleComponents['0'].sample.name;
     document.getElementById('page-title').innerText = sampleComponents['0'].sample.name;
 }
-function setRightSideText(text_list) {
+function setRightSideText() {
+    let figure = getCurrentTableId();
+    let text_list = [];
+    if (figure === 'figure_7') {
+        let iso_res = sampleComponents[0].results.isochron['figure_7'];
+        text_list = [
+            `z = ${iso_res[0]['m1'].toFixed(2)} x ${iso_res[0]['m2'] > 0?'+':'-'} 
+            ${Math.abs(iso_res[0]['m2']).toFixed(2)} y ${iso_res[0]['k'] > 0?'+':'-'} 
+            ${Math.abs(iso_res[0]['k']).toFixed(2)}`,
+            `t = ${iso_res[0]['age'].toFixed(2)} ± ${iso_res[0]['s1'].toFixed(2)} | ${iso_res[0]['s2'].toFixed(2)} | ${iso_res[0]['s3'].toFixed(2)}`,
+            `MSWD = ${iso_res[0]['MSWD'].toFixed(2)}, r2 = ${iso_res[0]['R2'].toFixed(2)}, Di = ${iso_res[0]['iter']}, 
+            χ2 = ${iso_res[0]['Chisq'].toFixed(2)}, p = ${iso_res[0]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[0]['rs'].toFixed(2)}%`,
+            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[0]['initial'].toFixed(2)} ± ${iso_res[0]['sinitial'].toFixed(2)}`,
+            "", "", "", "",
+
+            `z = ${iso_res[1]['m1'].toFixed(2)} x ${iso_res[1]['m2'] > 0?'+':'-'} 
+            ${Math.abs(iso_res[1]['m2']).toFixed(2)} y ${iso_res[1]['k'] > 0?'+':'-'} 
+            ${Math.abs(iso_res[1]['k']).toFixed(2)}`,
+            `t = ${iso_res[1]['age'].toFixed(2)} ± ${iso_res[1]['s1'].toFixed(2)} | ${iso_res[1]['s2'].toFixed(2)} | ${iso_res[1]['s3'].toFixed(2)}`,
+            `MSWD = ${iso_res[1]['MSWD'].toFixed(2)}, r2 = ${iso_res[1]['R2'].toFixed(2)}, Di = ${iso_res[1]['iter']}, 
+            χ2 = ${iso_res[1]['Chisq'].toFixed(2)}, p = ${iso_res[1]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[1]['rs'].toFixed(2)}%`,
+            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[1]['initial'].toFixed(2)} ± ${iso_res[1]['sinitial'].toFixed(2)}`,
+            "", "",
+
+            `Unselected`, `Age = ${iso_res[2]['age'].toFixed(2)} ± ${iso_res[2]['s1'].toFixed(2)}`,
+            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[2]['initial'].toFixed(2)} ± ${iso_res[2]['sinitial'].toFixed(2)}`,
+            "",
+        ]
+    }
+    if (['figure_1', 'figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6'].includes(figure)) {
+        let nor_res_set1 = sampleComponents[0].results.isochron.figure_2[0];
+        let nor_res_set2 = sampleComponents[0].results.isochron.figure_2[1];
+        let inv_res_set1 = sampleComponents[0].results.isochron.figure_3[0];
+        let inv_res_set2 = sampleComponents[0].results.isochron.figure_3[1];
+        let plateau_set1 = sampleComponents[0].results.age_plateau[0];
+        let plateau_set2 = sampleComponents[0].results.age_plateau[1];
+        let total_age = sampleComponents[0].results.age_spectra;
+        let line_coeffs = sampleComponents[0].results.isochron[figure];
+        let line1, line2;
+        if (figure !== 'figure_1') {
+            line1 = `y = ${line_coeffs[0].k.toFixed(4)} + ${line_coeffs[0].m1.toFixed(4)}x`;
+            line2 = `y = ${line_coeffs[1].k.toFixed(4)} + ${line_coeffs[1].m1.toFixed(4)}x`;
+        } else {
+            line1 = "...";
+            line2 = "...";
+        }
+        text_list = [
+            `Normal Isochron`, `${nor_res_set1.age.toFixed(2)} ± ${nor_res_set1.s2.toFixed(2)}`,
+            `Inverse Isochron`, `${inv_res_set1.age.toFixed(2)} ± ${inv_res_set1.s2.toFixed(2)}`,
+            `Weighted Plateau`, `${plateau_set1.age.toFixed(2)} ± ${plateau_set1.s2.toFixed(2)}`,
+            `Regression Line`, line1,
+
+            `Normal Isochron`, `${nor_res_set2.age.toFixed(2)} ± ${nor_res_set2.s2.toFixed(2)}`,
+            `Inverse Isochron`, `${inv_res_set2.age.toFixed(2)} ± ${inv_res_set2.s2.toFixed(2)}`,
+            `Weighted Plateau`, `${plateau_set2.age.toFixed(2)} ± ${plateau_set2.s2.toFixed(2)}`,
+            `Regression Line`, line2,
+
+            `Total Age`, `${total_age.age.toFixed(2)} ± ${total_age.s2.toFixed(2)}`,
+        ];
+    }
+
     let text_containers = document.getElementsByClassName('right-info');
     for (let i=0;i<text_containers.length;i++){
         text_containers[i].innerHTML = text_list[i] === undefined?" ":text_list[i]
@@ -2435,6 +2524,7 @@ function renderAgeBarItem(param, api){
 }
 function getIsochronEchart(chart, figure_id, animation) {
     let figure = sampleComponents[figure_id];
+    let res = sampleComponents[0].results.isochron[figure_id];
     let option = {
         title: {
             show: figure.title.show, text: figure.title.text, left: 'center', top: '6%',
@@ -2584,10 +2674,18 @@ function getIsochronEchart(chart, figure_id, animation) {
                 data: [figure.text1.pos],
                 encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
-                    show: figure.text1.show, position: 'inside', color: figure.text1.color,
+                    show: figure.set1.data.length >=3 ? figure.text1.show : false,
+                    position: 'inside', color: figure.text1.color,
                     fontSize: figure.text1.font_size, fontFamily: figure.text1.font_family,
                     fontWeight: figure.text1.font_weight, rich: rich_format,
-                    formatter: figure.text1.text,
+                    // formatter: figure.text1.text,
+                    formatter: `
+                    t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma
+                    ${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = `+
+                    `${res[0]['initial'].toFixed(2)} ± ${res[0]['sinitial'].toFixed(2)}
+                    MSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}
+                    χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}
+                    avg error = ${res[0]['rs'].toFixed(4)}%`
                     },
                 },
             {
@@ -2596,10 +2694,17 @@ function getIsochronEchart(chart, figure_id, animation) {
                 data: [figure.text2.pos],
                 encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
-                    show: figure.text2.show, position: 'inside', color: figure.text2.color,
+                    show: figure.set2.data.length >=3 ? figure.text2.show : false,
+                    position: 'inside', color: figure.text2.color,
                     fontSize: figure.text2.font_size, fontFamily: figure.text2.font_family,
                     fontWeight: figure.text2.font_weight, rich: rich_format,
-                    formatter: figure.text2.text,
+                    formatter: `
+                    t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma
+                    ${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = `+
+                    `${res[1]['initial'].toFixed(2)} ± ${res[1]['sinitial'].toFixed(2)}
+                    MSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}
+                    χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}
+                    avg error = ${res[1]['rs'].toFixed(4)}%`
                     },
                 },
         ],
@@ -2611,7 +2716,6 @@ function getIsochronEchart(chart, figure_id, animation) {
 }
 function get3DEchart(chart, figure_id, animation) {
     let planerPoints = (xmin, xmax, ymin, ymax, zmin, zmax, a, b ,c) => {
-        // console.log(xmin, xmax, ymin, ymax, zmin, zmax, a, b, c);
         let p = (f1, f2, f3) => {
             if (f1 === undefined) {f1 = (f3 - b * f2 - c) / a}
             if (f2 === undefined) {f2 = (f3 - a * f1 - c) / b}
@@ -2669,15 +2773,10 @@ function get3DEchart(chart, figure_id, animation) {
         //     maxz = Math.max(point[2], maxz);
         // })
         // let yyy = res.filter(point => point[0]===minx || point[0]===maxx || point[1]===miny || point[1]===maxy || point[2]===minz || point[2]===maxz)
-        // console.log(res);
-        // console.log(xxx);
-        // console.log(yyy);
         return xxx;
-        // return res;
-        // return yyy;
-        // return res.slice(0, 4);
     }
     let figure = sampleComponents[figure_id];
+    let regres = sampleComponents[0].results.isochron.figure_7;
     let option = {
         title: {
             show: figure.title.show, text: figure.title.text, left: 'center', top: '6%',
@@ -2734,57 +2833,24 @@ function get3DEchart(chart, figure_id, animation) {
                 data: planerPoints(
                     figure.xaxis.min, figure.xaxis.max, figure.yaxis.min, figure.yaxis.max,
                     figure.zaxis.min, figure.zaxis.max,
-                    figure.set3.info[0][2], figure.set3.info[0][4], figure.set3.info[0][0]
+                    regres[2]['m1'], regres[2]['m2'], regres[2]['k'],
                 ),
-                // equation: {
-                //     x: {step: (figure.xaxis.max - figure.xaxis.min) / 100, max: figure.xaxis.max, min: figure.xaxis.min,},
-                //     y: {step: (figure.yaxis.max - figure.yaxis.min) / 100, max: figure.yaxis.max, min: figure.yaxis.min,},
-                //     z: (x, y)=>{
-                //         let z = figure.set3.info[0][0] + figure.set3.info[0][2] * x + figure.set3.info[0][4] * y;
-                //         return z > figure.zaxis.max || z < figure.zaxis.min ? '-' : z;
-                //     }}
             },
             {
                 name: 'Set 1 Surface', type: 'surface', wireframe: {show: false}, itemStyle: {opacity: 1},
                 data: planerPoints(
                     figure.xaxis.min, figure.xaxis.max, figure.yaxis.min, figure.yaxis.max,
                     figure.zaxis.min, figure.zaxis.max,
-                    figure.set1.info[0][2], figure.set1.info[0][4], figure.set1.info[0][0]
+                    regres[0]['m1'], regres[0]['m2'], regres[0]['k'],
                 ),
-                // data: [
-                //     [figure.xaxis.min, figure.yaxis.min, figure.set1.info[0][0] + figure.set1.info[0][2] * figure.xaxis.min + figure.set1.info[0][4] * figure.yaxis.min],
-                //     [figure.xaxis.max, figure.yaxis.min, figure.set1.info[0][0] + figure.set1.info[0][2] * figure.xaxis.max + figure.set1.info[0][4] * figure.yaxis.min],
-                //     [figure.xaxis.min, figure.yaxis.max, figure.set1.info[0][0] + figure.set1.info[0][2] * figure.xaxis.min + figure.set1.info[0][4] * figure.yaxis.max],
-                //     [figure.xaxis.max, figure.yaxis.max, figure.set1.info[0][0] + figure.set1.info[0][2] * figure.xaxis.max + figure.set1.info[0][4] * figure.yaxis.max],
-                // ],
-                // equation: {
-                //     x: {
-                //         step: (figure.xaxis.max - figure.xaxis.min) / 100,
-                //         max: figure.xaxis.max, min: figure.xaxis.min,
-                //     },
-                //     y: {
-                //         step: (figure.yaxis.max - figure.yaxis.min) / 100,
-                //         max: figure.yaxis.max, min: figure.yaxis.min,
-                //     },
-                //     z: (x, y)=>{
-                //         let z = figure.set1.info[0][0] + figure.set1.info[0][2] * x + figure.set1.info[0][4] * y;
-                //         return z > figure.zaxis.max || z < figure.zaxis.min ? '-' : z;
-                //     }}
             },
             {
                 name: 'Set 2 Surface', type: 'surface', wireframe: {show: false}, itemStyle: {opacity: 1},
                 data: planerPoints(
                     figure.xaxis.min, figure.xaxis.max, figure.yaxis.min, figure.yaxis.max,
                     figure.zaxis.min, figure.zaxis.max,
-                    figure.set2.info[0][2], figure.set2.info[0][4], figure.set2.info[0][0]
+                    regres[1]['m1'], regres[1]['m2'], regres[1]['k'],
                 ),
-                // equation: {
-                //     x: {step: (figure.xaxis.max - figure.xaxis.min) / 100, max: figure.xaxis.max, min: figure.xaxis.min,},
-                //     y: {step: (figure.yaxis.max - figure.yaxis.min) / 100, max: figure.yaxis.max, min: figure.yaxis.min,},
-                //     z: (x, y)=>{
-                //         let z = figure.set2.info[0][0] + figure.set2.info[0][2] * x + figure.set2.info[0][4] * y;
-                //         return z > figure.zaxis.max || z < figure.zaxis.min ? '-' : z;
-                //     }}
             },
         ],
     }
@@ -2793,6 +2859,7 @@ function get3DEchart(chart, figure_id, animation) {
 }
 function getSpectraEchart(chart, figure_id, animation) {
     let figure = sampleComponents[figure_id];
+    let res = sampleComponents[0].results.age_plateau
     let option = {
         title: {
             show: figure.title.show, text: figure.title.text, left: 'center', top: '6%',
@@ -2946,10 +3013,16 @@ function getSpectraEchart(chart, figure_id, animation) {
                 type: 'scatter', symbol: 'circle', z: 5,
                 data: [figure.text1.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
-                    show: figure.text1.show, position: 'inside', color: figure.text1.color,
+                    show: figure.set1.data.length >= 3 ? figure.text1.show : false,
+                    position: 'inside', color: figure.text1.color,
                     fontSize: figure.text1.font_size, fontFamily: figure.text1.font_family,
                     fontWeight: figure.text1.font_weight, rich: rich_format,
-                    formatter: figure.text1.text,
+                    // formatter: figure.text1.text,
+                    formatter: `
+                        t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma
+                        WMF = ${res[0]['F'].toFixed(2)} ± ${res[0]['sF'].toFixed(2)}, n = ${res[0]['Num']}
+                        MSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%
+                        χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`
                     },
                 },
             {
@@ -2957,10 +3030,18 @@ function getSpectraEchart(chart, figure_id, animation) {
                 type: 'scatter', symbol: 'circle', z: 5,
                 data: [figure.text2.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
-                    show: figure.text2.show, position: 'inside', color: figure.text2.color,
+                    show: figure.set2.data.length >= 3 ? figure.text2.show : false,
+                    position: 'inside', color: figure.text2.color,
                     fontSize: figure.text2.font_size, fontFamily: figure.text2.font_family,
                     fontWeight: figure.text2.font_weight, rich: rich_format,
-                    formatter: figure.text2.text,
+                    // formatter: figure.text2.text,
+                    formatter: `
+                        t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma
+                        WMF = ${res[1]['F'].toFixed(2)} ± ${res[1]['sF'].toFixed(2)}, n = ${res[1]['Num']}
+                        MSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%
+                        χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
+                        // avg error = ${res[1]['rs'].toFixed(4)}%
+                        // ${res[1]['initial'].toFixed(2)} ± ${res[1]['sinitial'].toFixed(2)}
                     },
                 },
         ],

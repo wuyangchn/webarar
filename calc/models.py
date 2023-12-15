@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class CalcRecord(models.Model):
     id = models.BigAutoField(primary_key=True)
     # 新建者的ip地址

@@ -9,8 +9,11 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.conf import settings
 
+import time
 from . import models
-from programs import styles, file_funcs, samples, http_funcs, smp_funcs, calc_funcs, basic_funcs, log_funcs, smp, files
+from programs import http_funcs, log_funcs
+import programs.ararpy as ap
+# import ararpy as ap
 from django.core.cache import cache
 
 
@@ -19,6 +22,7 @@ class CalcHtmlView(http_funcs.ArArView):
     """
     Views on calc.html, responses to command of opening files based on flags.
     """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.dispatch_post_method_name = [
@@ -40,8 +44,9 @@ class CalcHtmlView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '001', 'info', 'Open arr file')
         try:
             web_file_path, file_name, extension = \
-                file_funcs.get_post_file(request.FILES.get('arr_file'), settings.UPLOAD_ROOT)
-            sample = file_funcs.open_arr_file(web_file_path)
+                ap.files.basic.upload(request.FILES.get('arr_file'), settings.UPLOAD_ROOT)
+            # sample = file_funcs.open_arr_file(web_file_path)
+            sample = ap.files.arr_file.to_sample(web_file_path)
         except (Exception, BaseException) as e:
             return render(request, 'calc.html', {
                 'title': 'alert', 'type': 'Error', 'message': 'Fail to open the arr file\n' + str(e)
@@ -53,9 +58,10 @@ class CalcHtmlView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '001', 'info', 'Open calc.full file')
         try:
             web_file_path, file_name, extension = \
-                file_funcs.get_post_file(request.FILES.get('full_xls_file'), settings.UPLOAD_ROOT)
+                ap.files.basic.upload(request.FILES.get('full_xls_file'), settings.UPLOAD_ROOT)
             file_name = file_name if '.full' not in file_name else file_name.split('.full')[0]
-            sample = file_funcs.open_full_xls(web_file_path, samplename=file_name)
+            sample = ap.files.calc_file.full_to_sample(file_path=web_file_path, sample_name=file_name)
+            # sample = file_funcs.open_full_xls(web_file_path, sample_name=file_name)
         except (Exception, BaseException) as e:
             return render(request, 'calc.html', {
                 'title': 'alert', 'type': 'Error', 'message': 'Fail to open the xls file\n' + str(e)
@@ -67,10 +73,14 @@ class CalcHtmlView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '001', 'info', 'Open calc.age file')
         try:
             web_file_path, sample_name, extension = \
-                file_funcs.get_post_file(request.FILES.get('age_file'), settings.UPLOAD_ROOT)
+                ap.files.basic.upload(request.FILES.get('age_file'), settings.UPLOAD_ROOT)
             # sample = file_funcs.open_age_xls(web_file_path)
-            file = files.ArArCalcFile(file_path=web_file_path, sample_name=sample_name).open()
-            sample = smp.create_sample_from_df(file.get_content(), file.get_smp_info())
+            sample = ap.files.calc_file.to_sample(file_path=web_file_path, sample_name=sample_name)
+            try:
+                # Re-calculating ratio and plot after reading age or full files
+                ap.recalculate(sample, re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
+            except Exception as e:
+                print(f'Error in setting plot: {traceback.format_exc()}')
         except (Exception, BaseException) as e:
             print(traceback.format_exc())
             return render(request, 'calc.html', {
@@ -85,9 +95,9 @@ class CalcHtmlView(http_funcs.ArArView):
 
     def open_new_file(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '001', 'info', 'Open new file')
-        sample = samples.Sample()
+        sample = ap.smp.Sample()
         # initial settings
-        smp_funcs.initial(sample)
+        ap.smp.initial.initial(sample)
         return http_funcs.open_object_file(request, sample, web_file_path='')
 
     def open_multi_files(self, request, *args, **kwargs):
@@ -98,7 +108,8 @@ class CalcHtmlView(http_funcs.ArArView):
         for i in range(length):
             file = request.FILES.get(str(i))
             try:
-                web_file_path, file_name, suffix = file_funcs.get_post_file(file, settings.UPLOAD_ROOT)
+                web_file_path, file_name, suffix = ap.files.basic.upload(
+                    file, settings.UPLOAD_ROOT)
             except (Exception, BaseException) as e:
                 msg = msg + f"{file} is not supported. "
                 continue
@@ -108,12 +119,13 @@ class CalcHtmlView(http_funcs.ArArView):
         contents = []
         for key, file in files.items():
             handler = {
-                '.arr': file_funcs.open_arr_file, '.xls': file_funcs.open_full_xls,
-                '.age': file_funcs.open_age_xls
+                # '.arr': file_funcs.open_arr_file, '.xls': file_funcs.open_full_xls,
+                '.arr': ap.files.arr_file.to_sample, '.xls': ap.files.calc_file.full_to_sample,
+                '.age': ap.files.calc_file.to_sample
             }.get(file['suffix'], None)
             try:
                 if handler:
-                    sample = handler(file['path'], file['name'])
+                    sample = handler(file['path'], **{'file_name': file['name']})
                 else:
                     raise TypeError(f"File type {file['suffix']} is not supported: {file['name']}")
             except Exception:
@@ -150,12 +162,12 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
     def update_sample_photo(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '003', 'info', 'Update sample photo')
         file = request.FILES.get('picture')
-        file_funcs.get_post_file(file, os.path.join(settings.STATICFILES_DIRS[0], 'upload'))
+        ap.files.basic.upload(file, os.path.join(settings.STATICFILES_DIRS[0], 'upload'))
         return JsonResponse({'picture': settings.STATIC_URL + 'upload/' + file.name})
 
     def get_auto_scale(self, request, *args, **kwargs):
         figure_id = self.body['figure_id']
-        xscale, yscale = smp_funcs.reset_plot_scale(sample=self.sample, only_figure=figure_id)
+        xscale, yscale = ap.smp.style.reset_plot_scale(smp=self.sample, only_figure=figure_id)
         return JsonResponse({
             'status': 'success', 'xMin': xscale[0], 'xMax': xscale[1], 'xInterval': xscale[2],
             'yMin': yscale[0], 'yMax': yscale[1], 'yInterval': yscale[2]
@@ -165,21 +177,20 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         diff = dict(self.body['diff'])
         # print(f"Difference: {diff}")
         for figure_id, attrs in diff.items():
-            smp_funcs.update_plot_from_dict(
-                smp_funcs.get_component_byid(self.sample, figure_id), attrs)
+            ap.smp.basic.update_plot_from_dict(
+                ap.smp.basic.get_component_byid(self.sample, figure_id), attrs)
         # Backup after changes are applied
-        components_backup = copy.deepcopy(smp_funcs.get_components(self.sample))
+        components_backup = copy.deepcopy(ap.smp.basic.get_components(self.sample))
         # Do something for some purpose
         if 'figure_9' in diff.keys() and not all(
                 [i not in diff.get('figure_9').keys() for i in ['set1', 'set2', 'set3']]):
             # Histogram plot, replot is required
-            smp_funcs.recalc_agedistribution(self.sample)
-        res = smp_funcs.get_diff_smp(backup=components_backup, smp=smp_funcs.get_components(self.sample))
+            ap.smp.plots.recalc_agedistribution(self.sample)
+        res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(self.sample))
         http_funcs.create_cache(self.sample, self.cache_key)  # Update cache
         return JsonResponse(res)
 
     def click_points_update_figures(self, request, *args, **kwargs):
-        import time
         time_start = time.time()
 
         series_name = self.body['series_name']
@@ -187,7 +198,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         current_set = self.body['current_set']
         auto_replot = self.body['auto_replot']
         sample = self.sample
-        components_backup = copy.deepcopy(smp_funcs.get_components(sample))
+
+        components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
         # log_funcs.set_info_log(
         #     self.ip, '003', 'info',
         #     f'Click a point, series name: {series_name}, clicked data: {clicked_data}, '
@@ -216,23 +228,22 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         sample.IsochronMark = [
             1 if i in sample.SelectedSequence1 else 2 if i in sample.SelectedSequence2 else '' for i in
             range(len(sample.IsochronValues[2]))]
-        # Update isochron table data
-        smp_funcs.get_component_byid(sample, '7').data = basic_funcs.setTableData(
-            sample.SequenceName, sample.SequenceValue, sample.IsochronMark, *sample.IsochronValues)
         time_middle = time.time()
         if auto_replot:
-            smp_funcs.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)  # Replot after clicking points
+            # Re-plot after clicking points
+            ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
         http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
         # Response are changes in sample.Components, in this way we can decrease the size of response.
-        res = smp_funcs.get_diff_smp(backup=components_backup, smp=smp_funcs.get_components(sample))
-        if '7' in res.keys():
-            res.pop('7')
+        res = ap.smp.basic.get_diff_smp(
+            backup=components_backup, smp=ap.smp.basic.get_components(sample))
         res.update({'marks': sample.IsochronMark})
+        # Update isochron table data, changes in isotope table is not required to transfer
+        ap.smp.table.update_table_data(sample, only_table='7')
 
         time_end = time.time()
-        print(f'time cost: {time_end - time_start}s = {time_middle-time_start} + {time_end-time_middle}')
+        print(f'time cost: {time_end - time_start}s = {time_middle - time_start} + {time_end - time_middle}')
 
-        return JsonResponse({'res': basic_funcs.getJsonDumps(res)})
+        return JsonResponse({'res': ap.files.json.dumps(res)})
 
     def update_handsontable(self, request, *args, **kwargs):
         btn_id = str(self.body['btn_id'])
@@ -240,20 +251,20 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         data = self.body['data']
         sample = self.sample
         log_funcs.set_info_log(
-            self.ip, '003', 'info', f'Update handsontable, sample name: {sample.Info.sample.name}, '
-            f'btn id: {btn_id}'
+            self.ip, '003', 'info',
+            f'Update handsontable, sample name: {sample.Info.sample.name}, btn id: {btn_id}'
         )
         # backup for later comparision
-        components_backup = copy.deepcopy(smp_funcs.get_components(sample))
+        components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
         if btn_id == '0':  # 实验信息
             # sample.Info.__dict__.update(data)
-            smp_funcs.update_plot_from_dict(sample.Info, data)
+            ap.smp.basic.update_plot_from_dict(sample.Info, data)
         else:
 
             def _get_max_row(a: list):
                 res = 0
                 for i in range(len(a)):
-                    if not basic_funcs.thisListIsEmpty(a[i]):
+                    if not ap.calc.arr.is_empty(a[i]):
                         res = i
                 return res
 
@@ -261,20 +272,18 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 if len(a) >= cols:
                     return a[start_col:cols]
                 else:
-                    return a[start_col:]+ [[''] * len(a[0])] * (cols - len(a))
+                    return a[start_col:] + [[''] * len(a[0])] * (cols - len(a))
 
-            def _strToBool(a, cols):
-                bools = [True, False, '']
-                strs = ['True', 'False', '']
-                for col in cols:
-                    a[col] = [bools[strs.index(item.capitalize())] if isinstance(item, str) else item for item in
-                              a[col]]
-                return a
+            def _strToBool(cols):
+                bools_dict = {
+                    'true': True, 'false': False, '1': True, '0': False, 'none': False,
+                }
+                return [bools_dict.get(str(col).lower(), False) for col in cols]
 
             max_col = max([len(i) for i in data])
             max_row = _get_max_row(data)
-            data = basic_funcs.getPartialArry(
-                basic_funcs.getTransposed(data), 0, max_row + 1, *[i for i in range(max_col)])
+            data = ap.calc.arr.partial(
+                ap.calc.arr.transpose(data), list(range(0, max_row + 1)), list(range(max_col)))
             if len(data) == 0:
                 return JsonResponse({})
             sample.SequenceName = data[0]
@@ -306,27 +315,30 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 sample.SelectedSequence2 = [
                     i for i in range(len(sample.IsochronMark)) if sample.IsochronMark[i] == 2]
                 sample.UnselectedSequence = [
-                    i for i in range(len(sample.IsochronMark)) if i not in sample.SelectedSequence1 + sample.SelectedSequence2]
+                    i for i in range(len(sample.IsochronMark)) if
+                    i not in sample.SelectedSequence1 + sample.SelectedSequence2]
             elif btn_id == '8':  # 总参数
-                data = _strToBool(_normalize_data(data, 120, 2), list(range(101, 114)))
+                data = _normalize_data(data, 125, 2)
+                data[103: 115] = [_strToBool(i) for i in data[103: 115]]
                 sample.TotalParam = data
-            smp_funcs.update_table_data(sample)  # Update data of tables after changes of a table
+            ap.smp.table.update_table_data(sample)  # Update data of tables after changes of a table
             if btn_id == '7':
                 # Re-calculate isochron and plateau data, and replot.
                 # Re-calculation will not be applied automatically when other tables were changed
-                smp_funcs.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)  # Change isochron mark
+                ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True,
+                               isPlateau=True)  # Change isochron mark
 
         http_funcs.create_cache(sample, self.cache_key)  # Update cache
-        res = smp_funcs.get_diff_smp(components_backup, smp_funcs.get_components(sample))
-        return JsonResponse({'changed_components': basic_funcs.getJsonDumps(res)})
+        res = ap.smp.basic.get_diff_smp(components_backup, ap.smp.basic.get_components(sample))
+        return JsonResponse({'changed_components': ap.files.json.dumps(res)})
 
     def export_arr(self, request, *args, **kwargs):
         sample = self.sample
-        export_name = file_funcs.save_webarar_file(settings.DOWNLOAD_ROOT, sample)
+        export_name = ap.files.arr_file.save(settings.DOWNLOAD_ROOT, sample)
         export_href = '/' + settings.DOWNLOAD_URL + export_name
         log_funcs.set_info_log(self.ip, '003', 'info',
-                          f'Success to export webarar file (.arr), sample name: {sample.Info.sample.name}, '
-                          f'export href: {export_href}')
+                               f'Success to export webarar file (.arr), sample name: {sample.Info.sample.name}, '
+                               f'export href: {export_href}')
         return JsonResponse({'status': 'success', 'href': export_href})
 
     def export_xls(self, request, *args, **kwargs):
@@ -338,8 +350,9 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             'font_color': '#000000', 'align': 'left',
             'top': 1, 'left': 1, 'right': 1, 'bottom': 1  # border width
         }
-        a = file_funcs.WritingWorkbook(
-            filepath=export_filepath, style=default_style, template_filepath=template_filepath, sample=self.sample)
+        a = ap.files.export.WritingWorkbook(
+            filepath=export_filepath, style=default_style,
+            template_filepath=template_filepath, sample=self.sample)
         res = a.get_xls()
         export_href = '/' + settings.DOWNLOAD_URL + f"{self.sample.Info.sample.name}_export.xlsx"
         if res:
@@ -349,28 +362,28 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             return JsonResponse({'status': 'success', 'href': export_href})
         else:
             log_funcs.set_info_log(self.ip, '003', 'info',
-                 f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}')
+                                   f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}')
             return JsonResponse({'status': 'fail', 'msg': res})
 
     def export_opju(self, request, *args, **kwargs):
         name = f"{self.sample.Info.sample.name}_export"
         export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{name}.opju")
-        a = file_funcs.CreateOriginGraph(
+        a = ap.files.export.CreateOriginGraph(
             name=name, export_filepath=export_filepath, sample=self.sample,
-            spectra_data=basic_funcs.getTransposed(self.sample.AgeSpectraPlot.data),
-            set1_spectra_data=basic_funcs.getTransposed(self.sample.AgeSpectraPlot.set1.data),
-            set2_spectra_data=basic_funcs.getTransposed(self.sample.AgeSpectraPlot.set2.data),
+            spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.data),
+            set1_spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.set1.data),
+            set2_spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.set2.data),
             isochron_data=self.sample.IsochronValues,
-            isochron_lines_data=basic_funcs.getTransposed(self.sample.NorIsochronPlot.line1.data) +
-            basic_funcs.getTransposed(self.sample.NorIsochronPlot.line2.data) +
-            basic_funcs.getTransposed(self.sample.InvIsochronPlot.line1.data) +
-            basic_funcs.getTransposed(self.sample.InvIsochronPlot.line2.data) +
-            basic_funcs.getTransposed(self.sample.KClAr1IsochronPlot.line1.data) +
-            basic_funcs.getTransposed(self.sample.KClAr1IsochronPlot.line2.data) +
-            basic_funcs.getTransposed(self.sample.KClAr2IsochronPlot.line1.data) +
-            basic_funcs.getTransposed(self.sample.KClAr2IsochronPlot.line2.data) +
-            basic_funcs.getTransposed(self.sample.KClAr3IsochronPlot.line1.data) +
-            basic_funcs.getTransposed(self.sample.KClAr3IsochronPlot.line2.data),
+            isochron_lines_data=ap.calc.arr.transpose(self.sample.NorIsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.NorIsochronPlot.line2.data) +
+                                ap.calc.arr.transpose(self.sample.InvIsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.InvIsochronPlot.line2.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr1IsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr1IsochronPlot.line2.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr2IsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr2IsochronPlot.line2.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr3IsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr3IsochronPlot.line2.data),
         )
         try:
             res = a.get_graphs()
@@ -383,15 +396,15 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         else:
             export_href = '/' + settings.DOWNLOAD_URL + f"{name}.opju"
             log_funcs.set_info_log(self.ip, '003', 'info', f'Success to export origin file (.opju), '
-                                                      f'sample name: {self.sample.Info.sample.name}, '
-                                                      f'export href: {export_href}')
+                                                           f'sample name: {self.sample.Info.sample.name}, '
+                                                           f'export href: {export_href}')
             return JsonResponse({'status': 'success', 'href': export_href})
 
     def export_pdf(self, request, *args, **kwargs):
 
         figure_id = str(self.body.get('figure_id'))
         merged_pdf = bool(self.body.get('merged_pdf'))
-        figure = smp_funcs.get_component_byid(self.sample, figure_id)
+        figure = ap.smp.basic.get_component_byid(self.sample, figure_id)
 
         name = f"{self.sample.Info.sample.name}_{figure.name}"
         export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{name}.pdf")
@@ -402,43 +415,43 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         # Do something for PDF BODY
         if not merged_pdf:
-            file_funcs.CreatePDF(
+            ap.files.export.CreatePDF(
                 name=f"{self.sample.Info.sample.name}_export",
                 export_filepath=export_filepath,
                 sample=self.sample,
                 figure=figure,
             ).get_pdf()
         else:
-            pdf1 = file_funcs.CreatePDF(
+            pdf1 = ap.files.export.CreatePDF(
                 name=f"{self.sample.Info.sample.name}_export",
                 export_filepath=export_filepath,
                 sample=self.sample,
-                figure=smp_funcs.get_component_byid(self.sample, 'figure_1'),
+                figure=ap.smp.basic.get_component_byid(self.sample, 'figure_1'),
                 axis_area=[60, 400, 200, 160]
             ).get_contents()
 
-            pdf2 = file_funcs.CreatePDF(
+            pdf2 = ap.files.export.CreatePDF(
                 name=f"{self.sample.Info.sample.name}_export",
                 export_filepath=export_filepath,
                 sample=self.sample,
-                figure=smp_funcs.get_component_byid(self.sample, 'figure_2'),
+                figure=ap.smp.basic.get_component_byid(self.sample, 'figure_2'),
                 axis_area=[320, 400, 200, 160]
             ).get_contents()
 
-            pdf3 = file_funcs.CreatePDF(
+            pdf3 = ap.files.export.CreatePDF(
                 name=f"{self.sample.Info.sample.name}_export",
                 export_filepath=export_filepath,
                 sample=self.sample,
-                figure=samples.Plot(name='Merged'),
-                component=pdf1['component']+pdf2['component'],
-                text=pdf1['text']+pdf2['text'],
-                frame=pdf1['frame']+pdf2['frame']
+                figure=ap.smp.Plot(name='Merged'),
+                component=pdf1['component'] + pdf2['component'],
+                text=pdf1['text'] + pdf2['text'],
+                frame=pdf1['frame'] + pdf2['frame']
             )
             pdf3.set_info()
             pdf3.set_replace()
             pdf3.toBetys()
             pdf3.save()
-            
+
         export_href = '/' + settings.DOWNLOAD_URL + f"{name}.pdf"
 
         return JsonResponse({'status': 'success', 'href': export_href})
@@ -466,23 +479,29 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         x, adjusted_time = [], []
         year, month, day, hour, min, second = re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", data[0][0])[0]
         for each in data[0]:
-            x.append(calc_funcs.get_datetime(
+            x.append(ap.calc.basic.get_datetime(
                 *re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", each)[0],
                 base=[int(year), int(month), int(day), int(hour), int(min)]
             ))
         for each in adjusted_x:
-            adjusted_time.append(calc_funcs.get_datetime(
+            adjusted_time.append(ap.calc.basic.get_datetime(
                 *re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", each)[0],
                 base=[int(year), int(month), int(day), int(hour), int(min)]
             ))
         y = data[1]
         handler = {
-            'linear': calc_funcs.intercept_linest,
-            'average': calc_funcs.intercept_average,
-            'quadratic': calc_funcs.intercept_quadratic,
-            'polynomial': calc_funcs.intercept_polynomial,
-            'power': calc_funcs.intercept_power,
-            'exponential': calc_funcs.intercept_exponential,
+            # 'linear': calc_funcs.intercept_linest,
+            # 'average': calc_funcs.intercept_average,
+            # 'quadratic': calc_funcs.intercept_quadratic,
+            # 'polynomial': calc_funcs.intercept_polynomial,
+            # 'power': calc_funcs.intercept_power,
+            # 'exponential': calc_funcs.intercept_exponential,
+            'linear': ap.calc.regression.linest,
+            'average': ap.calc.regression.average,
+            'quadratic': ap.calc.regression.quadratic,
+            'polynomial': ap.calc.regression.polynomial,
+            'power': ap.calc.regression.power,
+            'exponential': ap.calc.regression.exponential,
         }
         if method in handler.keys():
             try:
@@ -505,25 +524,26 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 else:
                     res[index] = [item] * rows
             return res
+
         params = list(self.body['params'])
         type = str(self.body['type'])  # type = 'irra', or 'calc', or 'smp'
         sample = self.sample
         log_funcs.set_info_log(
             self.ip, '003', 'info', f'Set params, sample name: {self.sample.Info.sample.name}')
         # backup for later comparision
-        components_backup = copy.deepcopy(smp_funcs.get_components(sample))
+        components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
         # 检查arr版本
         # sample = file_funcs.check_arr_version(sample)
         n = len(sample.SequenceName)
         # Do something to set params
         if type == 'calc':
-            sample.TotalParam[34:56] = remove_none(sample.TotalParam[34:56], params[0:22], n, 56-34)
-            sample.TotalParam[71:97] = remove_none(sample.TotalParam[71:97], params[22:48], n, 97-71)
+            sample.TotalParam[34:56] = remove_none(sample.TotalParam[34:56], params[0:22], n, 56 - 34)
+            sample.TotalParam[71:97] = remove_none(sample.TotalParam[71:97], params[22:48], n, 97 - 71)
         elif type == 'irra':
-
-            sample.TotalParam[0:20] = remove_none(sample.TotalParam[0:20], params[0:20], n, 20-0)
-            sample.TotalParam[56:58] = remove_none(sample.TotalParam[56:58], params[20:22], n, 57-55)  # Cl36/38 productivity
-            sample.TotalParam[20:27] = remove_none(sample.TotalParam[20:27], params[22:29], n, 27-20)
+            sample.TotalParam[0:20] = remove_none(sample.TotalParam[0:20], params[0:20], n, 20 - 0)
+            sample.TotalParam[56:58] = remove_none(sample.TotalParam[56:58], params[20:22], n,
+                                                   57 - 55)  # Cl36/38 productivity
+            sample.TotalParam[20:27] = remove_none(sample.TotalParam[20:27], params[22:29], n, 27 - 20)
             # sample.TotalParam[26] = [params[26]] * n
             irradiation_time = []
             duration = []
@@ -543,93 +563,100 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 sample.TotalParam[30] = [a + '-' + b + '-' + c] * n
             try:
                 stand_time_second = [
-                    calc_funcs.get_datetime(*sample.TotalParam[31][i].split('-')) - calc_funcs.get_datetime(
+                    ap.calc.basic.get_datetime(*sample.TotalParam[31][i].split('-')) - ap.calc.basic.get_datetime(
                         *sample.TotalParam[30][i].split('-')) for i in range(n)]
             except Exception as e:
-                print(f'Error in calculate standing duration: {traceback.format_exc()}')
+                # print(f'Error in calculate standing duration: {traceback.format_exc()}')
+                pass
             else:
                 sample.TotalParam[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
 
         elif type == 'smp':
-            sample.TotalParam[67:71] = remove_none(sample.TotalParam[67:71], params[0:4], n, 71-67)
-            sample.TotalParam[58:67] = remove_none(sample.TotalParam[58:67], params[4:13], n, 67-58)
-            sample.TotalParam[97:100] = remove_none(sample.TotalParam[97:100], params[13:16], n, 100-97)
-            sample.TotalParam[115:120] = remove_none(sample.TotalParam[115:120], params[16:21], n, 120-115)
-            sample.TotalParam[120:123] = remove_none(sample.TotalParam[120:123], params[21:24], n, 123-120)
+            sample.TotalParam[67:71] = remove_none(sample.TotalParam[67:71], params[0:4], n, 71 - 67)
+            sample.TotalParam[58:67] = remove_none(sample.TotalParam[58:67], params[4:13], n, 67 - 58)
+            sample.TotalParam[97:100] = remove_none(sample.TotalParam[97:100], params[13:16], n, 100 - 97)
+            sample.TotalParam[115:120] = remove_none(sample.TotalParam[115:120], params[16:21], n, 120 - 115)
+            sample.TotalParam[120:123] = remove_none(sample.TotalParam[120:123], params[21:24], n, 123 - 120)
             sample.TotalParam[100:114] = remove_none(
                 sample.TotalParam[100:114],
-                [['Linear', 'Exponential', 'Power'][params[24:27].index(True)], *params[27:]], n, 114-100)
+                [['Linear', 'Exponential', 'Power'][params[24:27].index(True)], *params[27:]], n, 114 - 100)
         else:
             return JsonResponse({'status': 'fail', 'msg': f'Unknown type of params : {type}'})
-        smp_funcs.update_table_data(sample)  # Update data of tables after changes of calculation parameters
+        ap.smp.table.update_table_data(sample)  # Update data of tables after changes of calculation parameters
         # update cache
         http_funcs.create_cache(sample, self.cache_key)
-        res = smp_funcs.get_diff_smp(backup=components_backup, smp=smp_funcs.get_components(sample))
+        res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
         # print(f"Diff after reset_calc_params: {res}")
-        return JsonResponse({'status': 'success', 'msg': 'Successfully!', 'changed_components': basic_funcs.getJsonDumps(res)})
+        return JsonResponse(
+            {'status': 'success', 'msg': 'Successfully!', 'changed_components': ap.files.json.dumps(res)})
 
     def recalculation(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '003', 'info', f'Recalculation, sample name: {self.sample.Info.sample.name}')
         sample = self.sample
         checked_options = self.body['checked_options']
         # backup for later comparision
-        components_backup = copy.deepcopy(smp_funcs.get_components(sample))
+        components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
         try:
-            sample = smp_funcs.recalculate(sample, *checked_options)  # Re-calculating based on selected options
+            # Re-calculating based on selected options
+            sample = ap.recalculate(sample, *checked_options)
         except Exception as e:
             print(traceback.format_exc())
             return JsonResponse({'status': 'fail', 'msg': f'Error in recalculating: {e}'})
-        smp_funcs.update_table_data(sample)  # Update data of tables after re-calculation
+        ap.smp.table.update_table_data(sample)  # Update data of tables after re-calculation
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
-        res = smp_funcs.get_diff_smp(backup=components_backup, smp=smp_funcs.get_components(sample))
-        # print(f"Diff after recalculation: {res}")
+        res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
+        print(f"Diff after recalculation: {res}")
         return JsonResponse({
             'status': 'success', 'msg': "Success to recalculate",
-            'changed_components': basic_funcs.getJsonDumps(res)
+            'changed_components': ap.files.json.dumps(res)
         })
 
-    def calc_change_irra_projects(self, request, *args, **kwargs):
-        try:
-            name = self.body['name']
-            param_file = models.IrraParams.objects.get(name=name).file_path
-            param = file_funcs.read_setting_file(param_file)
-            log_funcs.set_info_log(self.ip, '003', 'info',
-                              f'Change irra params projects, sample name: {self.sample.Info.sample.name}, '
-                              f'param name: {name}, param server path: {param_file}')
-            return JsonResponse({'status': 'success', 'param': param})
-        except KeyError:
-            sample = self.sample
-            data = basic_funcs.getTransposed(sample.TotalParam)[0]
-            param = [*data[0:27], *basic_funcs.getIrradiationDatetimeByStr(data[27]), data[28], '', '']
-            log_funcs.set_info_log(self.ip, '003', 'info',
-                              f'Irra param project is not found in database, using params in total param values, '
-                              f'sample name: {self.sample.Info.sample.name}')
-            return JsonResponse({'status': 'success', 'param': param})
-        except Exception as e:
-            log_funcs.set_info_log(self.ip, '003', 'info', f'Fail to change irra params projects')
-            return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database' + str(e)})
-
-    def calc_change_calc_projects(self, request, *args, **kwargs):
-        try:
-            name = self.body['name']
-            param_file = models.CalcParams.objects.get(name=name).file_path
-            param = file_funcs.read_setting_file(param_file)
-            log_funcs.set_info_log(self.ip, '003', 'info',
-                              f'Change calc params projects, sample name: {self.sample.Info.sample.name}, '
-                              f'param name: {name}, param server path: {param_file}')
-            return JsonResponse({'status': 'success', 'param': param})
-        except KeyError:
-            sample = self.sample
-            data = basic_funcs.getTransposed(sample.TotalParam)[0]
-            param = [*data[34:100], *basic_funcs.getMethodFittingLawByStr(data[100]), *data[101:114]]
-            log_funcs.set_info_log(self.ip, '003', 'info',
-                              f'Calc param project is not found in database, using params in total param values, '
-                              f'sample name: {self.sample.Info.sample.name}')
-            return JsonResponse({'status': 'success', 'param': param})
-        except Exception as e:
-            log_funcs.set_info_log(self.ip, '003', 'info', f'Fail to change calc params projects')
-            return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database. ' + str(e)})
+    # def calc_change_irra_projects(self, request, *args, **kwargs):
+    #     try:
+    #         name = self.body['name']
+    #         param_file = models.IrraParams.objects.get(name=name).file_path
+    #         param = ap.files.basic.read(param_file)
+    #         log_funcs.set_info_log(
+    #             self.ip, '003', 'info',
+    #             f'Change irra params projects, sample name: {self.sample.Info.sample.name}, '
+    #             f'param name: {name}, param server path: {param_file}')
+    #         return JsonResponse({'status': 'success', 'param': param})
+    #     except KeyError:
+    #         sample = self.sample
+    #         data = ap.calc.arr.transpose(sample.TotalParam)[0]
+    #         param = [*data[0:27], *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
+    #         log_funcs.set_info_log(
+    #             self.ip, '003', 'info',
+    #             f'Irra param project is not found in database, using params in total param values, '
+    #             f'sample name: {self.sample.Info.sample.name}')
+    #         return JsonResponse({'status': 'success', 'param': param})
+    #     except Exception as e:
+    #         log_funcs.set_info_log(self.ip, '003', 'info', f'Fail to change irra params projects')
+    #         return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database' + str(e)})
+    #
+    # def calc_change_calc_projects(self, request, *args, **kwargs):
+    #     try:
+    #         name = self.body['name']
+    #         param_file = models.CalcParams.objects.get(name=name).file_path
+    #         param = ap.files.basic.read(param_file)
+    #         log_funcs.set_info_log(
+    #             self.ip, '003', 'info',
+    #             f'Change calc params projects, sample name: {self.sample.Info.sample.name}, '
+    #             f'param name: {name}, param server path: {param_file}')
+    #         return JsonResponse({'status': 'success', 'param': param})
+    #     except KeyError:
+    #         sample = self.sample
+    #         data = ap.calc.arr.transpose(sample.TotalParam)[0]
+    #         param = [*data[34:100], *ap.calc.corr.get_method_fitting_law_by_name(data[100]), *data[101:114]]
+    #         log_funcs.set_info_log(
+    #             self.ip, '003', 'info',
+    #             f'Calc param project is not found in database, using params in total param values, '
+    #             f'sample name: {self.sample.Info.sample.name}')
+    #         return JsonResponse({'status': 'success', 'param': param})
+    #     except Exception as e:
+    #         log_funcs.set_info_log(self.ip, '003', 'info', f'Fail to change calc params projects')
+    #         return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database. ' + str(e)})
 
     def flag_not_matched(self, request, *args, **kwargs):
         # Show calc.html when the received flag doesn't exist.
@@ -660,7 +687,8 @@ class RawFileView(http_funcs.ArArView):
         filter = request.POST.get('fileOptionsRadios')
         for file in request.FILES.getlist('raw_file'):
             try:
-                web_file_path, file_name, suffix = file_funcs.get_post_file(file, settings.UPLOAD_ROOT)
+                web_file_path, file_name, suffix = ap.files.basic.upload(
+                    file, settings.UPLOAD_ROOT)
             except Exception:
                 continue
             else:
@@ -675,11 +703,11 @@ class RawFileView(http_funcs.ArArView):
         step_list = []
         sequenceName = []
         for file in files:
-            each_list = file_funcs.open_raw_file(file['file_path'], file['filter'])
+            each_list = ap.files.raw.open_file(file['file_path'], file['filter'])
             if not each_list:  # Wrong files
                 return redirect('calc_view')
             step_list = step_list + each_list
-            sequenceName = sequenceName + [file['file_name'] + "-" + str(i+1) for i in range(len(each_list))]
+            sequenceName = sequenceName + [file['file_name'] + "-" + str(i + 1) for i in range(len(each_list))]
 
         def _get_experiment_time(time_str):
             k1 = time_str.split(' ')
@@ -712,9 +740,12 @@ class RawFileView(http_funcs.ArArView):
             sequenceLabel = [i[0][3] for i in step_list]
             isBlank = [_is_blank(i[0][2]) for i in step_list]
 
-        res = [file_funcs.get_lines_data(i) for i in selectedData]
-        linesData = [i[0] for i in res]
-        linesResults = [i[1] for i in res]
+        # res = [[ap.calc.raw_funcs.get_raw_data_regression_results(j) for j in i] for i in selectedData]
+        linesData, linesResults = [], []
+        for i in range(len(step_list)):
+            res = [ap.calc.raw_funcs.get_raw_data_regression_results(selectedData[i][j]) for j in range(5)]
+            linesData.append([i[0] for i in res])
+            linesResults.append([i[1] for i in res])
         fitMethod = [[0 for j in range(5)] for i in range(len(linesResults))]
 
         raw_data = {
@@ -727,13 +758,14 @@ class RawFileView(http_funcs.ArArView):
         allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
 
         return render(request, 'extrapolate.html', {
-            'data': json.dumps(raw_data, cls=basic_funcs.MyEncoder, indent=4),
+            'data': ap.files.json.dumps(raw_data),
             'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
         })
 
     def import_blank_file(self, request, *args, **kwargs):
         file = request.FILES.get('blank_file')
-        web_file_path, file_name, suffix = file_funcs.get_post_file(file, settings.UPLOAD_ROOT)
+        web_file_path, file_name, suffix = ap.files.basic.upload(
+            file, settings.UPLOAD_ROOT)
         new_blank_sequence = {
             'name': ['Test'],
             'experimentTime': ["2024-6-9-18-40-22"],
@@ -745,62 +777,65 @@ class RawFileView(http_funcs.ArArView):
         }
         return JsonResponse({"new_blank": new_blank_sequence})
 
-    def raw_files_submit(self, request, *args, **kwargs): # 之前的打开单个文件的submit
-        web_file_path, file_name, _ = file_funcs.get_post_file(request.FILES.get('raw_file'), settings.UPLOAD_ROOT)
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Start to submit raw file, file name: {file_name}, '
-                                                  f'server file path: {web_file_path}')
-
-        step_list = file_funcs.open_raw_file(web_file_path)
-
-        def _get_experiment_time(time_str):
-            k1 = time_str.split(' ')
-            [month, day, year] = k1[0].split('/')
-            [hour, min, second] = k1[2].split(':')
-            if 'pm' in time_str.capitalize():
-                hour = int(hour) + 12
-            return "-".join([year, month, day, str(hour), min, second])
-
-        def _is_blank(label: str):
-            return True if label.capitalize() in ['Blk', 'B', 'Blank'] else False
-
-        selectedData = [[[]]]
-        unselectedData = [[[]]]
-        experimentTime = []
-        sequenceLabel = []
-        isBlank = []
-        sequenceName = []
-        if step_list:
-            selectedData = [[
-                [[j[1], j[6]] for j in i[1:]],  # Ar36
-                [[j[1], j[5]] for j in i[1:]],  # Ar37
-                [[j[1], j[4]] for j in i[1:]],  # Ar38
-                [[j[1], j[3]] for j in i[1:]],  # Ar39
-                [[j[1], j[2]] for j in i[1:]]] for i in step_list]  # Ar40
-            unselectedData = [[[], [], [], [], []] for i in step_list]
-            experimentTime = [_get_experiment_time(i[0][1]) for i in step_list]
-            sequenceLabel = [i[0][3] for i in step_list]
-            isBlank = [_is_blank(i[0][2]) for i in step_list]
-            sequenceName = [file_name + "-" + str(i+1) for i in range(len(step_list))]
-
-        res = [file_funcs.get_lines_data(i) for i in selectedData]
-        linesData = [i[0] for i in res]
-        linesResults = [i[1] for i in res]
-        fitMethod = [[0 for j in range(5)] for i in range(len(linesResults))]
-        # 写入缓存
-        raw_data = {
-            'selectedData': selectedData, 'unselectedData': unselectedData, 'linesData': linesData,
-            'linesResults': linesResults, 'fitMethod': fitMethod, 'sequenceLabel': sequenceLabel,
-            'experimentTime': experimentTime, 'sequenceName': sequenceName, 'isBlank': isBlank
-        }
-        allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
-        allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
-        allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
-
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Success to submit raw file')
-        return render(request, 'extrapolate.html', {
-            'data': json.dumps(raw_data),
-            'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
-        })
+    #
+    # def raw_files_submit(self, request, *args, **kwargs):  # 之前的打开单个文件的submit
+    #     web_file_path, file_name, _ = ap.files.basic.upload(
+    #         request.FILES.get('raw_file'), settings.UPLOAD_ROOT)
+    #     log_funcs.set_info_log(self.ip, '004', 'info', f'Start to submit raw file, file name: {file_name}, '
+    #                                                    f'server file path: {web_file_path}')
+    #
+    #     step_list = ap.files.raw.open_file(web_file_path)
+    #
+    #     def _get_experiment_time(time_str):
+    #         k1 = time_str.split(' ')
+    #         [month, day, year] = k1[0].split('/')
+    #         [hour, min, second] = k1[2].split(':')
+    #         if 'pm' in time_str.capitalize():
+    #             hour = int(hour) + 12
+    #         return "-".join([year, month, day, str(hour), min, second])
+    #
+    #     def _is_blank(label: str):
+    #         return True if label.capitalize() in ['Blk', 'B', 'Blank'] else False
+    #
+    #     selectedData = [[[]]]
+    #     unselectedData = [[[]]]
+    #     experimentTime = []
+    #     sequenceLabel = []
+    #     isBlank = []
+    #     sequenceName = []
+    #     if step_list:
+    #         selectedData = [[
+    #             [[j[1], j[6]] for j in i[1:]],  # Ar36
+    #             [[j[1], j[5]] for j in i[1:]],  # Ar37
+    #             [[j[1], j[4]] for j in i[1:]],  # Ar38
+    #             [[j[1], j[3]] for j in i[1:]],  # Ar39
+    #             [[j[1], j[2]] for j in i[1:]]] for i in step_list]  # Ar40
+    #         unselectedData = [[[], [], [], [], []] for i in step_list]
+    #         experimentTime = [_get_experiment_time(i[0][1]) for i in step_list]
+    #         sequenceLabel = [i[0][3] for i in step_list]
+    #         isBlank = [_is_blank(i[0][2]) for i in step_list]
+    #         sequenceName = [file_name + "-" + str(i + 1) for i in range(len(step_list))]
+    #
+    #     # res = [ap.calc.regression.get_lines_data(i) for i in selectedData]
+    #     res = [ap.calc.raw_funcs.get_lines_data(i) for i in selectedData]
+    #     linesData = [i[0] for i in res]
+    #     linesResults = [i[1] for i in res]
+    #     fitMethod = [[0 for j in range(5)] for i in range(len(linesResults))]
+    #     # 写入缓存
+    #     raw_data = {
+    #         'selectedData': selectedData, 'unselectedData': unselectedData, 'linesData': linesData,
+    #         'linesResults': linesResults, 'fitMethod': fitMethod, 'sequenceLabel': sequenceLabel,
+    #         'experimentTime': experimentTime, 'sequenceName': sequenceName, 'isBlank': isBlank
+    #     }
+    #     allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
+    #     allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
+    #     allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
+    #
+    #     log_funcs.set_info_log(self.ip, '004', 'info', f'Success to submit raw file')
+    #     return render(request, 'extrapolate.html', {
+    #         'data': json.dumps(raw_data),
+    #         'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
+    #     })
 
     def close(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Close')
@@ -888,6 +923,8 @@ class RawFileView(http_funcs.ArArView):
         return JsonResponse({'blankIndex': blank})
 
     def calc_raw_chart_clicked(self, request, *args, **kwargs):
+        start = time.time()
+
         selectedData = self.body['selectedData']
         unselectedData = self.body['unselectedData']
         clickedData = self.body['clickedData']
@@ -928,27 +965,55 @@ class RawFileView(http_funcs.ArArView):
                 return False
             return True
 
+        linesData, linesResults = [], []
         if selectionForAll:
             for i in range(5):
                 if not _change_list(_isotope=i):
                     selectedData = copy.deepcopy(selectedData_backup)
                     unselectedData = copy.deepcopy(unselectedData_backup)
                     error = '选择点不能少于4个'
-                    log_funcs.set_info_log(self.ip, '004', 'info', f'Operation is prohibited, the number of selected points will be lesser than 4')
+                    log_funcs.set_info_log(
+                        self.ip, '004', 'info',
+                        f'Operation is prohibited, the number of selected points '
+                        f'will be lesser than 4')
+                    linesData.append([])
+                    linesResults.append([])
                     break
+                k = ap.calc.raw_funcs.get_raw_data_regression_results(
+                    selectedData[i], unselectedData[i])
+                linesData.append(k[0])
+                linesResults.append(k[1])
+            # linesData, linesResults = ap.calc.raw_funcs.get_lines_data(selectedData)
         else:
             if not _change_list(_isotope=isotope):
                 selectedData = copy.deepcopy(selectedData_backup)
                 unselectedData = copy.deepcopy(unselectedData_backup)
                 error = '选择点不能少于4个'
-                log_funcs.set_info_log(self.ip, '004', 'info',
-                                  f'Operation is prohibited, the number of selected points will be lesser than 4')
-        linesData, linesResults = file_funcs.get_lines_data(selectedData)
+                log_funcs.set_info_log(
+                    self.ip, '004', 'info',
+                    f'Operation is prohibited, the number of selected points will '
+                    f'be lesser than 4')
+            else:
+                linesData, linesResults = \
+                    ap.calc.raw_funcs.get_raw_data_regression_results(
+                        selectedData[isotope], unselectedData[isotope])
+            # k = ap.calc.raw_funcs.get_lines_data(selectedData, only_isotope=isotope)
+            # linesData, linesResults = k[0][isotope], k[1][isotope]
+        # linesData, linesResults = ap.calc.regression.get_lines_data(selectedData)
+
+        # return JsonResponse({
+        #     'selectedData': selectedData,
+        #     'unselectedData': unselectedData,
+        #     'linesData': linesData,
+        #     'linesResults': linesResults,
+        #     'error': error})
+
+        print(f"Raw data processing costs {time.time() - start} s")
         return JsonResponse({
-            'selectedData': selectedData,
-            'unselectedData': unselectedData,
-            'linesData': linesData,
-            'linesResults': linesResults,
+            'selectedData': ap.files.json.dumps(selectedData),
+            'unselectedData': ap.files.json.dumps(unselectedData),
+            'linesData': ap.files.json.dumps(linesData),
+            'linesResults': ap.files.json.dumps(linesResults),
             'error': error})
 
     def calc_raw_average_blanks(self, request, *args, **kwargs):
@@ -960,7 +1025,8 @@ class RawFileView(http_funcs.ArArView):
         newBlank = []
         for i in range(5):
             _intercept = sum([j[i]['intercept'] for j in blanks]) / len(blanks)
-            _err = calc_funcs.error_div((_intercept, calc_funcs.error_add(*[j[i]['absolute err'] for j in blanks])), (len(blanks), 0))
+            _err = ap.calc.err.div(
+                (_intercept, ap.calc.err.add(*[j[i]['absolute err'] for j in blanks])), (len(blanks), 0))
             _relative_err = _err / _intercept * 100
             isotope = {
                 'isotope': ["Ar36", "Ar37", "Ar38", "Ar39", "Ar40"][i],
@@ -968,7 +1034,6 @@ class RawFileView(http_funcs.ArArView):
             }
             newBlank.append(isotope)
         return JsonResponse({'newBlank': newBlank})
-
 
     def calc_raw_submit(self, request, *args, **kwargs):
         """
@@ -983,9 +1048,9 @@ class RawFileView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Start to submit raw file')
 
         # 创建sample
-        sample = samples.Sample()
+        sample = ap.smp.Sample()
         # Initial values
-        smp_funcs.initial(sample)
+        ap.smp.initial.initial(sample)
         # experimental time, unknown and blank intercepts
         unknown_intercept, blank_intercept = [], []
         experimentTime = []
@@ -995,28 +1060,30 @@ class RawFileView(http_funcs.ArArView):
             blank_intercept.append(row['blankData'])
             sample.SequenceName.append(row['unknown'])
             sample.SequenceValue.append(row['label'])
-        sample.SampleIntercept = basic_funcs.getTransposed(unknown_intercept)
-        sample.BlankIntercept = basic_funcs.getTransposed(blank_intercept)
+        sample.SampleIntercept = ap.calc.arr.transpose(unknown_intercept)
+        sample.BlankIntercept = ap.calc.arr.transpose(blank_intercept)
         # sample info
         info = {
             'sample': {'name': sampleInfo[0], 'material': sampleInfo[1], 'location': sampleInfo[2]},
             'researcher': {'name': sampleInfo[3]},
             'laboratory': {'name': sampleInfo[4], 'info': sampleInfo[5], 'analyst': sampleInfo[6]}
         }
-        smp_funcs.update_plot_from_dict(sample.Info, info)
+        ap.smp.basic.update_plot_from_dict(sample.Info, info)
         # Params
         calc_params = calculationParams['param']
         irra_params = irradiationParams['param']
         smp_params = sampleParams['param']
         irradiation = [item for index, item in enumerate(irra_params[29:-3]) if index % 2 == 0]
+
         def repleceString(text):
             for char in ['T', ':']:
                 text = text.replace(char, '-')
             return text
+
         irradiation = [repleceString(each) for each in irradiation]
         duration = [item for index, item in enumerate(irra_params[29:-3]) if index % 2 == 1]
         cycle = [irradiation[i] + 'D' + str(duration[i]) for i in range(len(irradiation))]
-        sample.TotalParam = basic_funcs.getTransposed(
+        sample.TotalParam = ap.calc.arr.transpose(
             [[
                 *irra_params[0:26],  # 0-25
                 int(irra_params[28]),  # cycle count
@@ -1034,17 +1101,19 @@ class RawFileView(http_funcs.ArArView):
                 'Auto Plateau Method',  # 114
                 *smp_params[16:24],  # 115-122
             ]] * len(interceptData))
-        sample.TotalParam[31] = ["-".join(re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", item)[0]) for item in experimentTime]
+        sample.TotalParam[31] = ["-".join(re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", item)[0]) for item in
+                                 experimentTime]
         np = len(sample.SequenceName)
         stand_time_second = [
-            calc_funcs.get_datetime(*sample.TotalParam[31][i].split('-')) - calc_funcs.get_datetime(*sample.TotalParam[30][i].split('-')) for i in range(np)]
+            ap.calc.basic.get_datetime(*sample.TotalParam[31][i].split('-')) - ap.calc.basic.get_datetime(
+                *sample.TotalParam[30][i].split('-')) for i in range(np)]
         sample.TotalParam[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
 
         sample.UnselectedSequence = list(range(np))
         sample.SelectedSequence1 = []
         sample.SelectedSequence2 = []
-        smp_funcs.recalculate(sample, *[True]*12)  # Calculation after submitting row data
-        smp_funcs.update_table_data(sample)  # Update table after submittion row data and calculation
+        ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
+        ap.smp.table.update_table_data(sample)  # Update table after submittion row data and calculation
         # update cache
         cache_key = http_funcs.create_cache(sample)
         # write mysql
@@ -1081,23 +1150,28 @@ class ParamsSettingView(http_funcs.ArArView):
         try:
             name = self.body['name']
             param_file = getattr(models, model_name).objects.get(name=name).file_path
-            param = file_funcs.read_setting_file(param_file)
+            param = ap.files.basic.read(param_file)
             return JsonResponse({'status': 'success', 'param': param})
         except KeyError:
             sample = self.sample
             param = []
-            data = basic_funcs.getTransposed(sample.TotalParam)[0]
-            if 'irra' in type.lower():
-                param = [*data[0:20], *data[56:58], *data[20:27], *basic_funcs.getIrradiationDatetimeByStr(data[27]), data[28], '', '']
-            if 'calc' in type.lower():
-                param = [*data[34:56], *data[71:97]]
-            if 'smp' in type.lower():
-                param = [*data[67:71], *data[58:67], *data[97:100], *data[115:123],
-                         *basic_funcs.getMethodFittingLawByStr(data[100]), *data[101:114]]
-            if not param:
-                return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n'})
+            try:
+                data = ap.calc.arr.transpose(sample.TotalParam)[0]
+                if 'irra' in type.lower():
+                    param = [*data[0:20], *data[56:58], *data[20:27],
+                             *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
+                if 'calc' in type.lower():
+                    param = [*data[34:56], *data[71:97]]
+                if 'smp' in type.lower():
+                    param = [*data[67:71], *data[58:67], *data[97:100], *data[115:123],
+                             *ap.calc.corr.get_method_fitting_law_by_name(data[100]), *data[101:114]]
+            except IndexError:
+                param = []
+            # if not param:
+            #     return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n'})
             return JsonResponse({'status': 'success', 'param': param})
         except Exception as e:
+            print(traceback.format_exc())
             return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n' + str(e)})
 
     def edit_param_object(self, request, *args, **kwargs):
@@ -1120,7 +1194,7 @@ class ParamsSettingView(http_funcs.ArArView):
                     self.ip, '005', 'info', f'Fail to create {type.lower()} project, duplicate name, name: {name}')
                 return JsonResponse({'status': 'fail', 'msg': 'duplicate name'})
             else:
-                path = file_funcs.save_setting_file(settings.SETTINGS_ROOT, name, type, params)
+                path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{type}"), params)
                 model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip)
                 log_funcs.set_info_log(
                     self.ip, '005', 'info',
@@ -1138,14 +1212,14 @@ class ParamsSettingView(http_funcs.ArArView):
                 return JsonResponse({'status': 'fail', 'msg': 'current project does not exist'})
             if pin == old.pin:
                 if flag == 'update':
-                    path = file_funcs.update_setting_file(old.file_path, params)
+                    path = ap.files.basic.write(old.file_path, params)
                     old.save()
                     log_funcs.set_info_log(
                         self.ip, '005', 'info',
                         f'Success to update the {type.lower()} project, name: {name}, path: {path}')
                     return JsonResponse({'status': 'success'})
                 elif flag == 'delete':
-                    if file_funcs.delete_setting_file(old.file_path):
+                    if ap.files.basic.delete(old.file_path):
                         old.delete()
                         log_funcs.set_info_log(
                             self.ip, '005', 'info',
@@ -1173,8 +1247,8 @@ def open_last_object(request):
             raise IndexError
     except (BaseException, Exception):
         # print('No file found in cache!')
-        sample = samples.Sample()
-        smp_funcs.initial(sample)
+        sample = ap.smp.Sample()
+        ap.smp.initial.initial(sample)
         return http_funcs.open_object_file(request, sample, web_file_path='')
     else:
         return http_funcs.open_object_file(request, sample, web_file_path='', cache_key=cache_key)

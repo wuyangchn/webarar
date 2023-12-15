@@ -759,6 +759,7 @@
     let tooltipText = '';
     let text_set1_ondragging = false;
     let text_set2_ondragging = false;
+    let offset = [0, 0];
     let current_figure = () => (sampleComponents[getCurrentTableId()]);
     let chart = echarts.init(document.getElementById('figure_container'), null, {renderer: 'svg'}); // svg渲染适合小数据，更清晰
     // 2023.7.24: svg渲染不支持3D图形
@@ -825,11 +826,11 @@
     chart.getZr().on('mousemove', function (params) {
         if (text_set1_ondragging) {
             let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX, params.event.zrY]);
-            chart.setOption({series: [{id: 'Text for Set 1', data: [pos]}], animation: false});
+            chart.setOption({series: [{id: 'Text for Set 1', data: [pos], animation: false}]});
         }
         if (text_set2_ondragging) {
             let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX, params.event.zrY]);
-            chart.setOption({series: [{id: 'Text for Set 2', data: [pos]}], animation: false});
+            chart.setOption({series: [{id: 'Text for Set 2', data: [pos], animation: false}]});
         }
     });
     chart.getZr().on('mouseup', function (params) {

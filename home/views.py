@@ -3,6 +3,9 @@ from django.shortcuts import render
 import json
 from . import models
 from programs import http_funcs, log_funcs
+import programs.ararpy as ap
+
+
 # Create your views here.
 def show(request):
     if http_funcs.is_ajax(request):
