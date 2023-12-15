@@ -6,82 +6,121 @@
 # @Email  : wuy@cug.edu.cn
 
 """
+# ==========================================
+# Copyright 2023 Yang
+# ararpy - smp - sample
+# ==========================================
+#
+#
+#
+
 Create a sample instance.
+
 """
 
 NEW_SAMPLE_INTERCEPT_HEADERS = [
-    'Sequence', '', '<sup>36</sup>Ar', '1\u03C3', '<sup>37</sup>Ar', '1\u03C3', '<sup>38</sup>Ar', '1\u03C3', '<sup>39</sup>Ar', '1\u03C3', '<sup>40</sup>Ar', '1\u03C3'
+    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
+    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
 ]
 NEW_BLANK_INTERCEPT_HEADERS = [
-    'Sequence', '', '<sup>36</sup>Ar', '1\u03C3', '<sup>37</sup>Ar', '1\u03C3', '<sup>38</sup>Ar', '1\u03C3', '<sup>39</sup>Ar', '1\u03C3', '<sup>40</sup>Ar', '1\u03C3'
+    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
+    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
 ]
 NEW_PARAMS_HEADERS = []
 
 SAMPLE_INTERCEPT_HEADERS = [
-    'Sequence', '', '<sup>36</sup>Ar', '1\u03C3', '<sup>37</sup>Ar', '1\u03C3', '<sup>38</sup>Ar', '1\u03C3', '<sup>39</sup>Ar', '1\u03C3', '<sup>40</sup>Ar', '1\u03C3'
+    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
+    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
 ]
 BLANK_INTERCEPT_HEADERS = [
-    'Sequence', '', '<sup>36</sup>Ar', '1\u03C3', '<sup>37</sup>Ar', '1\u03C3', '<sup>38</sup>Ar', '1\u03C3', '<sup>39</sup>Ar', '1\u03C3', '<sup>40</sup>Ar', '1\u03C3'
+    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
+    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
 ]
 
 CORRECTED_HEADERS = [
-    'Sequence', '', '<sup>36</sup>Ar', '1\u03C3', '<sup>37</sup>Ar', '1\u03C3', '<sup>38</sup>Ar', '1\u03C3', '<sup>39</sup>Ar', '1\u03C3', '<sup>40</sup>Ar', '1\u03C3'
+    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
+    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
 ]
 
 DEGAS_HEADERS = [
-    'Sequence', '',  # 0-2
-    '<sup>36</sup>Ar[a]', '1\u03C3', '<sup>36</sup>Ar[c]', '1\u03C3', '<sup>36</sup>Ar[Ca]', '1\u03C3', '<sup>36</sup>Ar[Cl]', '1\u03C3',  # 2-9
-    '<sup>37</sup>Ar[Ca]', '1\u03C3',  # 10-11
-    '<sup>38</sup>Ar[Cl]', '1\u03C3', '<sup>38</sup>Ar[a]', '1\u03C3', '<sup>38</sup>Ar[c]', '1\u03C3', '<sup>38</sup>Ar[K]', '1\u03C3', '<sup>38</sup>Ar[Ca]', '1\u03C3',  # 12-21
-    '<sup>39</sup>Ar[K]', '1\u03C3', '<sup>39</sup>Ar[Ca]', '1\u03C3',  # 22-25
-    '<sup>40</sup>Ar[r]', '1\u03C3', '<sup>40</sup>Ar[a]', '1\u03C3', '<sup>40</sup>Ar[c]', '1\u03C3', '<sup>40</sup>Ar[K]', '1\u03C3'  # 26-33
+    'Sequence', '',  # 0-1
+    '\u00B3\u2076Ar[a]', '1\u03C3', '\u00B3\u2076Ar[c]', '1\u03C3',  # 2-5
+    '\u00B3\u2076Ar[Ca]', '1\u03C3', '\u00B3\u2076Ar[Cl]', '1\u03C3',  # 6-9
+    '\u00B3\u2077Ar[Ca]', '1\u03C3', '\u00B3\u2078Ar[Cl]', '1\u03C3',  # 10-13
+    '\u00B3\u2078Ar[a]', '1\u03C3', '\u00B3\u2078Ar[c]', '1\u03C3',  # 14-17
+    '\u00B3\u2078Ar[K]', '1\u03C3', '\u00B3\u2078Ar[Ca]', '1\u03C3',  # 18-21
+    '\u00B3\u2079Ar[K]', '1\u03C3', '\u00B3\u2079Ar[Ca]', '1\u03C3',  # 22-25
+    '\u2074\u2070Ar[r]', '1\u03C3', '\u2074\u2070Ar[a]', '1\u03C3',  # 26-29
+    '\u2074\u2070Ar[c]', '1\u03C3', '\u2074\u2070Ar[K]', '1\u03C3'  # 29-32
 ]
 
 PUBLISH_TABLE_HEADERS = [
-    'Sequence', '', '<sup>36</sup>Ar[a]', '<sup>37</sup>Ar[Ca]', '<sup>38</sup>Ar[Cl]', '<sup>39</sup>Ar[K]', '<sup>40</sup>Ar[r]', 'Apparent Age', '1\u03C3', '40Arr%', '39ArK%', 'Ca/K', '1\u03C3'
+    'Sequence', '', '\u00B3\u2076Ar[a]', '\u00B3\u2077Ar[Ca]', '\u00B3\u2078Ar[Cl]',
+    '\u00B3\u2079Ar[K]', '\u2074\u2070Ar[r]', 'Apparent Age', '1\u03C3', '\u2074\u2070Arr%',
+    '\u00B3\u2079ArK%', 'Ca/K', '1\u03C3'
 ]
-SPECTRUM_TABLE_HEADERS = ['Sequence', '', '<sup>40</sup>Ar/<sup>39</sup>Ar', '1\u03C3', 'Apparent Age', '1\u03C3', '1\u03C3', '1\u03C3', '40Ar[r]%', '39Ar[K]%']
+SPECTRUM_TABLE_HEADERS = [
+    'Sequence', '', '\u2074\u2070Ar/\u00B3\u2079Ar', '1\u03C3', 'Apparent Age',
+    '1\u03C3', '1\u03C3', '1\u03C3', '\u2074\u2070Ar[r]%', '\u00B3\u2079Ar[K]%'
+]
 ISOCHRON_TABLE_HEADERS = [
     'Sequence', '', 'Mark',  # 0-2
-    '<sup>39</sup>Ar[K]/<sup>36</sup>Ar[a]', '1\u03C3', '<sup>40</sup>Ar[r+a]/<sup>36</sup>Ar[a]', '1\u03C3', 'ri', '',
-    '<sup>39</sup>Ar[K]/<sup>40</sup>Ar[r+a]', '1\u03C3', '<sup>36</sup>Ar[a]/<sup>40</sup>Ar[r+a]', '1\u03C3', 'ri', '',  # 3-14
-    '<sup>39</sup>Ar[K]/<sup>38</sup>Ar[Cl]', '1\u03C3', '<sup>40</sup>Ar[r+Cl]/<sup>38</sup>Ar[Cl]', '1\u03C3', 'ri', '',
-    '<sup>39</sup>Ar[K]/<sup>40</sup>Ar[r+Cl]', '1\u03C3', '<sup>38</sup>Ar[Cl]/<sup>40</sup>Ar[r+Cl]', '1\u03C3', 'ri', '',  # 15-26
-    '<sup>38</sup>Ar[Cl]/<sup>39</sup>Ar[K]', '1\u03C3', '<sup>40</sup>Ar[r+Cl]/<sup>39</sup>Ar[K]', '1\u03C3', 'ri', '',  # 27-32
-    '<sup>36</sup>Ar[a+Cl]/<sup>40</sup>Ar[r+a]', '1\u03C3', '<sup>38</sup>Ar[a+Cl]/<sup>40</sup>Ar[r+a]', '1\u03C3', '<sup>39</sup>Ar[K]/<sup>40</sup>Ar[r+a]', '1\u03C3',  # 33-39
-    'r1', 'r2', 'r3'
+    '\u00B3\u2079Ar[K]/\u00B3\u2076Ar[a]', '1\u03C3',  # 3-4
+    '\u2074\u2070Ar[r+a]/\u00B3\u2076Ar[a]', '1\u03C3', 'ri', '',  # 5-8
+    '\u00B3\u2079Ar[K]/\u2074\u2070Ar[r+a]', '1\u03C3',  # 9-10
+    '\u00B3\u2076Ar[a]/\u2074\u2070Ar[r+a]', '1\u03C3', 'ri', '',  # 11-14
+    '\u00B3\u2079Ar[K]/\u00B3\u2078Ar[Cl]', '1\u03C3',  # 15-16
+    '\u2074\u2070Ar[r+Cl]/\u00B3\u2078Ar[Cl]', '1\u03C3', 'ri', '',  # 17-20
+    '\u00B3\u2079Ar[K]/\u2074\u2070Ar[r+Cl]', '1\u03C3',  # 21-22
+    '\u00B3\u2078Ar[Cl]/\u2074\u2070Ar[r+Cl]', '1\u03C3', 'ri', '',  # 23-26
+    '\u00B3\u2078Ar[Cl]/\u00B3\u2079Ar[K]', '1\u03C3',  # 27-28
+    '\u2074\u2070Ar[r+Cl]/\u00B3\u2079Ar[K]', '1\u03C3', 'ri', '',  # 29-32
+    '\u00B3\u2076Ar[a+Cl]/\u2074\u2070Ar[r+a]', '1\u03C3',  # 33-34
+    '\u00B3\u2078Ar[a+Cl]/\u2074\u2070Ar[r+a]', '1\u03C3',  # 35-36
+    '\u00B3\u2079Ar[K]/\u2074\u2070Ar[r+a]', '1\u03C3',  # 37-38
+    'r1', 'r2', 'r3',  # 39-41
 ]
 TOTAL_PARAMS_HEADERS = [
     'Sequence', '',  # 0-1
-    '(<sup>40</sup>Ar/<sup>36</sup>Ar)t', '%1\u03C3', '(<sup>40</sup>Ar/<sup>36</sup>Ar)c', '%1\u03C3',  # 2-5
-    '(<sup>38</sup>Ar/<sup>36</sup>Ar)t', '%1\u03C3', '(<sup>38</sup>Ar/<sup>36</sup>Ar)c', '%1\u03C3',  # 6-9
-    '(<sup>39</sup>Ar/<sup>37</sup>Ar)Ca', '%1\u03C3', '(<sup>38</sup>Ar/<sup>37</sup>Ar)Ca', '%1\u03C3', '(<sup>36</sup>Ar/<sup>37</sup>Ar)Ca', '%1\u03C3',  # 10-15
-    '(<sup>40</sup>Ar/<sup>39</sup>Ar)K', '%1\u03C3', '(<sup>38</sup>Ar/<sup>39</sup>Ar)K', '%1\u03C3',  # 16-19
-    '(<sup>36</sup>Ar/<sup>38</sup>Ar)Cl', '%1\u03C3',  # 20-21
+    '(\u2074\u2070Ar/\u00B3\u2076Ar)t', '%1\u03C3',
+    '(\u2074\u2070Ar/\u00B3\u2076Ar)c', '%1\u03C3',  # 2-5
+    '(\u00B3\u2078Ar/\u00B3\u2076Ar)t', '%1\u03C3',
+    '(\u00B3\u2078Ar/\u00B3\u2076Ar)c', '%1\u03C3',  # 6-9
+    '(\u00B3\u2079Ar/\u00B3\u2077Ar)Ca', '%1\u03C3',
+    '(\u00B3\u2078Ar/\u00B3\u2077Ar)Ca', '%1\u03C3',
+    '(\u00B3\u2076Ar/\u00B3\u2077Ar)Ca', '%1\u03C3',  # 10-15
+    '(\u2074\u2070Ar/\u00B3\u2079Ar)K', '%1\u03C3',
+    '(\u00B3\u2078Ar/\u00B3\u2079Ar)K', '%1\u03C3',  # 16-19
+    '(\u00B3\u2076Ar/\u00B3\u2078Ar)Cl', '%1\u03C3',  # 20-21
     'K/Ca', '%1\u03C3', 'K/Cl', '%1\u03C3', 'Ca/Cl', '%1\u03C3',  # 22-27
     'Cycle Number', 'Irradiation Cycles',  # 28-29
     'Irradiation', 'duration', 'Irradiation Time', 'Experiment Time',  # 30-33
     'Storage Years', '',  # 34-35
-    'Decay Constant <sup>40</sup>K', '%1\u03C3',  # 36-37
-    'Decay Constant <sup>40</sup>K(EC)', '%1\u03C3',  # 38-39
-    'Decay Constant <sup>40</sup>K(\u03B2<sup>-</sup>)', '%1\u03C3',  # 40-41
-    'Decay Constant <sup>40</sup>K(\u03B2<sup>+</sup>)', '%1\u03C3',  # 42-43
-    'Decay Constant <sup>39</sup>Ar', '%1\u03C3',  # 44-45
-    'Decay Constant <sup>37</sup>Ar', '%1\u03C3',  # 46-47
-    'Decay Constant <sup>36</sup>Cl', '%1\u03C3',  # 48-49
-    'Decay Activity <sup>40</sup>K', '%1\u03C3',  # 50-51
-    'Decay Activity <sup>40</sup>K(EC)', '%1\u03C3',  # 52-53
-    'Decay Activity <sup>40</sup>K(\u03B2<sup>-</sup>)', '%1\u03C3',  # 54-55
-    'Decay Activity <sup>40</sup>K(\u03B2<sup>+</sup>)', '%1\u03C3',  # 56-57
-    '<sup>36</sup>Cl/<sup>38</sup>Cl Productivity', '%1\u03C3',  # 58-59
-    'Std Name', 'Std Age', '1\u03C3', '<sup>40</sup>Ar%', '1\u03C3', 'K%', '1\u03C3', '<sup>40</sup>Ar<sup>*</sup>/K', '1\u03C3',  # 60-68
+    'Decay Constant \u2074\u2070K', '%1\u03C3',  # 36-37
+    'Decay Constant \u2074\u2070K(EC)', '%1\u03C3',  # 38-39
+    'Decay Constant \u2074\u2070K(\u03B2<sup>-</sup>)', '%1\u03C3',  # 40-41
+    'Decay Constant \u2074\u2070K(\u03B2<sup>+</sup>)', '%1\u03C3',  # 42-43
+    'Decay Constant \u00B3\u2079Ar', '%1\u03C3',  # 44-45
+    'Decay Constant \u00B3\u2077Ar', '%1\u03C3',  # 46-47
+    'Decay Constant \u00B3\u2076Cl', '%1\u03C3',  # 48-49
+    'Decay Activity \u2074\u2070K', '%1\u03C3',  # 50-51
+    'Decay Activity \u2074\u2070K(EC)', '%1\u03C3',  # 52-53
+    'Decay Activity \u2074\u2070K(\u03B2<sup>-</sup>)', '%1\u03C3',  # 54-55
+    'Decay Activity \u2074\u2070K(\u03B2<sup>+</sup>)', '%1\u03C3',  # 56-57
+    '\u00B3\u2076Cl/\u00B3\u2078Cl Productivity', '%1\u03C3',  # 58-59
+    'Std Name', 'Std Age', '1\u03C3', '\u2074\u2070Ar%', '1\u03C3', 'K%', '1\u03C3',
+    '\u2074\u2070Ar<sup>*</sup>/K', '1\u03C3',  # 60-68
     'J', '%1\u03C3', 'MDF', '%1\u03C3',  # 69-72
-    'Mass <sup>36</sup>Ar', '%1\u03C3', 'Mass <sup>37</sup>Ar', '%1\u03C3', 'Mass <sup>38</sup>Ar', '%1\u03C3', 'Mass <sup>39</sup>Ar', '%1\u03C3', 'Mass <sup>40</sup>', '%1\u03C3',
-    'K Mass', '%1\u03C3',  # 73-84
-    'No', '%1\u03C3', 'Year', '%1\u03C3', '<sup>40</sup>K/K', '%1\u03C3', '<sup>35</sup>Cl/<sup>37</sup>Cl', '%1\u03C3', 'HCl/Cl', '%1\u03C3',  # 85-94
-    '<sup>40</sup>Ar/<sup>36</sup>Ar air', '%1\u03C3', '<sup>38</sup>Ar/<sup>36</sup>Ar air', '%1\u03C3',  # 95-98
+    'Mass \u00B3\u2076Ar', '%1\u03C3', 'Mass \u00B3\u2077Ar', '%1\u03C3',
+    'Mass \u00B3\u2078Ar', '%1\u03C3', 'Mass \u00B3\u2079Ar', '%1\u03C3',
+    'Mass \u2074\u2070', '%1\u03C3', 'K Mass', '%1\u03C3',  # 73-84
+    'No', '%1\u03C3', 'Year', '%1\u03C3', '\u2074\u2070K/K', '%1\u03C3',
+    '\u00B3\u2075/\u00B3\u2077Cl', '%1\u03C3', 'HCl/Cl', '%1\u03C3',  # 85-94
+    '\u2074\u2070Ar/\u00B3\u2076Ar air', '%1\u03C3',
+    '\u00B3\u2078Ar/\u00B3\u2076Ar air', '%1\u03C3',  # 95-98
     'Isochron Fitting', 'Convergence', 'Iteration', 'Discrimination',  # 99-102
-    'Not Zero', 'Corr Blank', 'Corr Discr', 'Corr <sup>37</sup>Ar Decay', 'Corr <sup>39</sup>Ar Decay',  # 103-107
+    'Not Zero', 'Corr Blank', 'Corr Discr', 'Corr \u00B3\u2077Ar Decay',
+    'Corr \u00B3\u2079Ar Decay',  # 103-107
     'Ca Degassing', 'K Degassing', 'Cl Degassing', 'Trap Degassing',  # 108-111
     'Using Min Equation',
     # 'Recalibration', 'Using Std Age', 'Use Std Ratio',  # 112-115  to be completed
@@ -562,6 +601,8 @@ DEFAULT_PLOT_STYLES = {
         }
     },
 }
+
+VERSION = '20231208'
 
 
 class Sample:

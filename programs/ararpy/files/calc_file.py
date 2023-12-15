@@ -1,4 +1,9 @@
+
 """
+# ==========================================
+# Copyright 2023 Yang
+# ararpy - files - calc_file
+# ==========================================
 
 Open age files from ArArCALC. It currently supports version: 25.2 and 24.0.
 Version 25.2 is preferred to 24.0 as containing more detailed parameters than 24.0.
@@ -15,7 +20,29 @@ import re
 from xlrd import open_workbook, biffh
 import os
 import msoffcrypto
-from programs.basic_funcs import get_datetime
+# from programs.ararpy.calc.basic import get_datetime
+# from programs.ararpy import smp, calc
+# from programs.ararpy.files import xls
+from ..files import xls
+from ..smp.initial import create_sample_from_df, create_sample_from_dict
+from ..calc.basic import get_datetime
+from ..calc import arr, err, isochron
+
+
+def to_sample(file_path: str, **kwargs):
+    """
+
+    Parameters
+    ----------
+    file_path
+
+    Returns
+    -------
+
+    """
+    file = ArArCalcFile(file_path=file_path, **kwargs).open()
+    sample = create_sample_from_df(file.get_content(), file.get_smp_info())
+    return sample
 
 
 def read_calc_file(file_path: str):
@@ -191,7 +218,6 @@ def open_252(data: pd.DataFrame, logs01: pd.DataFrame, logs02: pd.DataFrame):
     total_param = general_adjustment(
         total_param.copy(), logs02, get_data(data, [59, 58, 57, 60, 61]), data[63][0]
     )
-
     return [
         sample_values, blank_values, corrected_values, degas_values, publish_values,
         apparent_age_values, isochron_values, total_param, isochron_mark,
@@ -399,6 +425,178 @@ def general_adjustment(
     total_param[122] = 1
 
     return total_param
+
+
+def full_to_sample(file_path: str, sample_name: str = None):
+    """
+    Parameters
+    ----------
+    file_path
+    sample_name
+
+    Returns
+    -------
+
+    """
+    if sample_name is None:
+        sample_name = str(os.path.split(file_path)[-1]).split('.')[0]
+    content, sample_info = open_full_xls(file_path, sample_name)
+    sample = create_sample_from_dict(content=content, smp_info=sample_info)
+    return sample
+
+
+def open_full_xls(file_path: str, sample_name: str = ''):
+    """
+    filepath: absolute full path of input file
+    return sample instance
+    """
+    try:
+        res = xls.open_xls(file_path)
+    except (Exception, BaseException) as e:
+        return e
+    start_row = 5
+    rows_num = len(res['Sample Parameters']) - 5
+    for key, val in res.items():
+        res[key] = arr.transpose(val[:start_row + rows_num])
+        # 2倍误差改回1倍
+        for i in range(len(res[key])):
+            if res[key][i][2] in ['2s', '%2s', '± 2s']:
+                _temp = []
+                for j in range(rows_num):
+                    try:
+                        _temp.append(res[key][i][start_row + j] / 2)
+                    except TypeError:
+                        _temp.append('')
+                res[key][i][start_row: start_row + rows_num] = _temp
+    if res['Incremental Heating Summary'][13][2] == 'K/Ca':
+        _temp, _s = [], []
+        for j in range(rows_num):
+            try:
+                _temp.append(1 / res['Relative Abundances'][13][start_row + j])
+                _s.append(err.div((1, 0), (
+                    res['Relative Abundances'][13][start_row + j], res['Relative Abundances'][14][start_row + j])))
+            except TypeError:
+                _temp.append(None)
+                _s.append(None)
+        res['Incremental Heating Summary'][13][start_row: start_row + rows_num] = _temp
+        res['Incremental Heating Summary'][13][start_row: start_row + rows_num] = _s
+
+    # degas相对误差改为绝对误差
+    for i in range(len(res['Degassing Patterns'])):
+        if res['Degassing Patterns'][i][2] in ['%1s', '%2s']:
+            _temp = []
+            for j in range(rows_num):
+                try:
+                    _temp.append(res['Degassing Patterns'][i][start_row + j] * res['Degassing Patterns'][i - 1][
+                        start_row + j] / 100)
+                except TypeError:
+                    _temp.append('')
+            res['Degassing Patterns'][i][start_row: start_row + rows_num] = _temp
+    rows = list(range(start_row, rows_num))
+    sequence_name = arr.partial(res['Procedure Blanks'], rows, 1)
+    sequence_value = arr.partial(res['Procedure Blanks'], rows, 2)
+    blank_values = arr.partial(
+        res['Procedure Blanks'], rows, [3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    sample_values = arr.partial(
+        res['Intercept Values'], rows, [3, 4, 8, 9, 13, 14, 18, 19, 23, 24])
+    corrected_values = arr.partial(
+        res['Relative Abundances'], rows, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+    degas_values = arr.partial(
+        res['Degassing Patterns'], rows, [
+            4, 5, 6, 7, 8, 9, 10, 11,
+            12, 13,
+            22, 23, 14, 15, 16, 17, 18, 19, 20, 21,
+            24, 25, 26, 27,
+            28, 29, 30, 31, 32, 33, 34, 35])
+    publish_values = arr.partial(
+        res['Incremental Heating Summary'], rows, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+    apparent_age_values = arr.partial(
+        res['Relative Abundances'], rows, [14, 15, 16, 17, -1, -1, 18, 19])
+    isochron_values = [[np.nan] * len(rows)] * 39
+    isochron_values[0:5] = arr.partial(
+        res['Normal Isochron Table'], rows, [4, 5, 6, 7, 10])
+    isochron_values[6:11] = arr.partial(
+        res['Inverse Isochron Table'], rows, [4, 5, 6, 7, 10])
+    total_param = arr.partial(
+        res['Sample Parameters'], rows, [
+            # 1, 2,  # 0-1
+            -1, -1, -1, -1,  # 2-5
+            -1, -1, -1, -1,  # 6-9
+            -1, -1, -1, -1, -1, -1,  # 10-15
+            -1, -1, -1, -1,  # 16-19
+            -1, -1,  # 20-21
+            23, 24, -1, -1, -1, -1,  # 22-27
+            -1, -1,  # 28-29
+            22, -1, -1, -1,  # 30-33
+            -1, -1,  # 34-35
+            -1, -1,  # 36-37
+            -1, -1,  # 38-39
+            -1, -1,  # 40-41
+            -1, -1,  # 42-43
+            -1, -1,  # 44-45
+            -1, -1,  # 46-47
+            -1, -1,  # 48-49
+            -1, -1,  # 50-51
+            -1, -1,  # 52-53
+            -1, -1,  # 54-55
+            -1, -1,  # 56-57
+            -1, -1,  # 58-59
+            -1, -1, -1, -1, -1, -1, -1, -1, -1,  # 60-68
+            10, 11, 12, 13,  #
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  #
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  #
+            -1, -1, -1, -1,  #
+            -1, -1, -1, -1,  #
+            -1, -1, -1, -1, -1,  #
+            -1, -1, -1, -1,  #
+            -1, -1, -1, -1,  #
+            -1,  #
+        ])
+
+    month_convert = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+                     'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'}
+    experiment_start_time = []
+    for i in arr.transpose(
+            arr.partial(res['Sample Parameters'], rows, [18, 17, 16, 19, 20])):
+        _year = str(i[0]) if '.' not in str(i[0]) else str(i[0]).split('.')[0]
+        _month = str(month_convert[str(i[1]).capitalize()]) if str(i[1]).capitalize() in month_convert.keys() else str(
+            i[1]).capitalize()
+        _day = str(i[2]) if '.' not in str(i[2]) else str(i[2]).split('.')[0]
+        _hour = str(i[3]) if '.' not in str(i[3]) else str(i[3]).split('.')[0]
+        _min = str(i[4]) if '.' not in str(i[4]) else str(i[4]).split('.')[0]
+        experiment_start_time.append([_year, _month, _day, _hour, _min])
+
+    total_param[31] = ['-'.join(i) for i in experiment_start_time]
+    total_param[0:26] = arr.partial(
+        res['Irradiation Constants'], rows,
+        [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28])
+
+    isochron_values[11] = [''] * len(isochron_values[0])
+    isochron_values[17] = [''] * len(isochron_values[0])
+    isochron_values[23] = [''] * len(isochron_values[0])
+    isochron_values[12:17] = isochron.get_data(
+        degas_values[20], degas_values[21], degas_values[24], degas_values[25], degas_values[10], degas_values[11]
+    )  # 39/38, 40/38
+    isochron_values[18:23] = isochron.get_data(
+        degas_values[20], degas_values[21], degas_values[10], degas_values[11], degas_values[24], degas_values[25]
+    )  # 39/40, 38/40
+    isochron_values[24:29] = isochron.get_data(
+        degas_values[10], degas_values[11], degas_values[24], degas_values[25], degas_values[20], degas_values[21]
+    )  # 38/39, 40/39
+    isochron_mark = [1 if i == 'P' else '' for i in arr.partial(
+        res['Normal Isochron Table'], rows, 3)]
+
+    sample_info = {
+        'sample': {'name': sample_name, 'material': 'MATERIAL', 'location': 'LOCATION'},
+        'researcher': {'name': 'RESEARCHER', 'addr': 'ADDRESS'},
+        'laboratory': {'name': 'LABORATORY', 'addr': 'ADDRESS', 'analyst': 'ANALYST'}
+    }
+
+    res = [sample_values, blank_values, corrected_values, degas_values, publish_values,
+           apparent_age_values, isochron_values, total_param, [isochron_mark],
+           [sequence_name, sequence_value]]
+
+    return dict(zip(['smp', 'blk', 'cor', 'deg', 'pub', 'age', 'iso', 'pam', 'mak', 'seq'], res)), sample_info
 
 
 class ArArCalcFile:

@@ -32,8 +32,9 @@
             <label><input id="input_vacuum" type="number" class="button" style="width: 200px">Vacuum</label>
             <label><input id="filename" type="text" class="button" style="width: 200px">Filename</label>
             <button value="send" style="float: right" onclick="sendInputData()">Send</button>
+            <label><input id="check_remove_data" type="checkbox" class="button" style="margin-right: 10px">Relative heating time</label>
             <label for="input_text_area"></label>
-            <textarea id="input_text_area" class="container" style="height: 570px" onchange="inputDataChanged()"></textarea>
+            <textarea id="input_text_area" class="container" style="height: 545px" onchange="inputDataChanged()"></textarea>
         </div>
     </div>
 </div>
@@ -97,23 +98,51 @@
     function stopTimer() {
         clearInterval(timer_interval_id);
     }
+
+    function minusDataTime(s, d) {
+
+    }
+
+    function parseDate(str_date) {
+        return new Date(Date.parse(str_date));
+    }
+
+    function normalizeDataTime(data) {
+        let start = parseDate(data[0][0])
+        return data.map((str_data, index) => {
+            if (str_data[0] === undefined) {
+                return []
+            }
+            let ms = Number(parseDate('2023-01-01T00:00:00') - parseDate('1970-01-01T00:00:00')) +
+                Number(parseDate(str_data[0]) - start);
+            let current = new Date(ms);
+            return [current.toISOString().split('Z')[0], str_data[1]]
+            //return ['2023-01-01T00:09:02', str_data[1]]
+        });
+    }
     
     function inputDataChanged() {
         let inputtext = $("#input_text_area").val();
-        let inputdata = inputtext.split("\n").map((item, index) => {
-            if (item.length === 0) {
-                return []
-            } else {
-                return [item.split("Z;")[0], item.split(";")[1]]
-            }
+        let inputdata = inputtext.split("\n\n").map((mystring, _) => {
+            return mystring.split("\n").map((item, index) => {
+                if (item.length === 0) {
+                    return []
+                } else {
+                    return [item.split("Z;")[0], item.split(";")[1]]
+                }
+            })
         });
         oven_log_chart.setOption({
-            series: [{
-                id: 'Inside', name: 'Inside',
-                type: 'line', symbolSize: 6, z: 2, data: inputdata, silent: true,
-                lineStyle: {width: 1, type: 'solid'},
-                itemStyle: {borderColor: '#222', borderWidth: 2, opacity: 0.8},
-            }]
+            series: inputdata.map((data, index) => {
+                return {
+                    id: `Inside-${index}`, name: `Inside-${index}`,
+                    type: 'line', symbolSize: 6, z: 2, silent: true,
+                    data: $('#check_remove_data').is(':checked') ? normalizeDataTime(data) : data,
+                    lineStyle: {width: 1, type: 'solid'},
+                    itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
+                    label: {show: false, formatter: '{@[1]}'},
+                }
+            })
         });
         oven_log_chart.resize();
         $.ajax({
@@ -173,6 +202,13 @@
                     {#console.log("Multi files have been uploaded");#}
                     {#document.getElementById('text_area').textContent = res.text;#}
                     {#document.getElementById('text_area').textContent = res.data;#}
+                    let sp;
+                    for (let i=0; i < res.data[0].length; i++) {
+                        if (sp !== res.data[0][i][1]) {
+                            sp = res.data[0][i][1]
+                            console.log(res.data[0][i]);
+                        }
+                    }
                     oven_log_chart.setOption({
                         series: res.data.map((item, index) => {
                             return {
@@ -244,11 +280,16 @@
                     title: 'Show/Hide inside Temperature labels',
                     icon: 'path://M432.45,595.444c0,2.177-4.661,6.82-11.305,6.82c-6.475,0-11.306-4.567-11.306-6.82s4.852-6.812,11.306-6.812C427.841,588.632,432.452,593.191,432.45,595.444L432.45,595.444z M421.155,589.876c-3.009,0-5.448,2.495-5.448,5.572s2.439,5.572,5.448,5.572c3.01,0,5.449-2.495,5.449-5.572C426.604,592.371,424.165,589.876,421.155,589.876L421.155,589.876z M421.146,591.891c-1.916,0-3.47,1.589-3.47,3.549c0,1.959,1.554,3.548,3.47,3.548s3.469-1.589,3.469-3.548C424.614,593.479,423.062,591.891,421.146,591.891L421.146,591.891zM421.146,591.891',
                     onclick: function (){
-                        let show_label = oven_log_chart.getOption().series[2].label.show;
-                        oven_log_chart.setOption({
-                            series: {
-                                id: 'Inside', name: 'Inside',
-                                label: {show: !show_label},
+                        // let show_label = oven_log_chart.getOption().series[2].label.show;
+                        oven_log_chart.getOption().series.map((series, index) => {
+                            if (series.id.includes('Inside')) {
+                                oven_log_chart.setOption({
+                                    series: {
+                                        id: series.id, name: series.name,
+                                        //label: {show: !show_label},
+                                        label: {show: !series.label.show},
+                                    }
+                                })
                             }
                         })
                     }
@@ -269,7 +310,12 @@
         yAxis: [
             {
                 name: 'Temperature', type: 'value', nameLocation: 'middle', nameGap: 50,
-                min: 0, max: function (value) {
+                min: function (value) {
+                    let n = Math.ceil(value.min / 200)
+                    // n = n === value.max / 200? (n + 1) : n
+                    return (n - 1) * 200;
+                },
+                max: function (value) {
                     let n = Math.ceil(value.max / 200)
                     n = n === value.max / 200? (n + 1) : n
                     return n * 200;
@@ -310,13 +356,13 @@
                 lineStyle: {width: 1, type: 'solid'},
                 itemStyle: {borderColor: '#f5d68e', borderWidth: 2, opacity: 0.8},
             },
-            {
-                id: 'Inside', name: 'Inside', color: '#6176b7',
-                type: 'line', symbolSize: 6, z: 2,  silent: true,
-                label: {show: false, formatter: '{@[1]}'},
-                lineStyle: {width: 1, type: 'solid'},
-                itemStyle: {borderColor: '#6176b7', borderWidth: 2, opacity: 0.8},
-            },
+            //{
+            //    id: 'Inside', name: 'Inside', color: '#6176b7',
+            //    type: 'line', symbolSize: 6, z: 2,  silent: true,
+            //   label: {show: false, formatter: '{@[1]}'},
+            //    lineStyle: {width: 1, type: 'solid'},
+            //    itemStyle: {borderColor: '#6176b7', borderWidth: 2, opacity: 0.8},
+            //},
         ],
         animation: true,
         animationDuration: 500,

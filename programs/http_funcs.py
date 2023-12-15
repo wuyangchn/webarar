@@ -5,95 +5,9 @@ from django.core.cache import cache
 from django.shortcuts import render
 from django.views import View
 from calc import models
-from . import samples, basic_funcs, smp_funcs
+import programs.ararpy as ap
 
 DEFAULT_CACHE_TIMEOUT = 86400
-
-
-class ArArView(View):
-    """
-    This class is rewritten based on View and is used to dispatch requests from client side.
-
-    A request will first classified based on its method, including 'get', 'post' and others
-    (see detail in class attribution http_method_names of View class); For each method, a
-    function with the same name is required to handle it. Here I rewrite POST function,
-    because I usually need to use <flag> to identify some special requests.
-
-    In dispatch function, ajax requests are identified based on the flag value contained
-    in request body.
-
-    Some examples:
-        1. POST request from a form, will go to <post> function, and then be dispatched
-        according to the <flag> value, which is set as a hidden input;
-        2. POST request from Ajax need to contain a <flag> value to let it identified. Two
-        ways can be used, sending flag in url or body;
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        # Initialize
-        self.ip = ''
-        self.flag = ''
-        self.body = {}
-        self.cache_key = ''
-        self.sample = samples.Sample()
-
-        self.dispatch_post_method_name = [
-            # Add names in daughter classes
-        ]
-
-    def post(self, request, *args, **kwargs):
-        self.ip = get_ip(self.request)
-        # Finding a right function to response the request
-        self.flag = request.POST.get('flag').lower()
-        if self.flag in self.dispatch_post_method_name:
-            handler = getattr(self, self.flag, self.flag_not_matched)
-        else:
-            handler = self.flag_not_matched
-        print("post: %s" % handler.__name__)
-        return handler(request, *args, **kwargs)
-
-    def dispatch(self, request, *args, **kwargs):
-        self.ip = get_ip(self.request)
-        # Rewrite dispatch method to add special responses to ajax requests
-        handler = self.http_method_not_allowed  # Default
-
-        # Ajax request, formdata type content, flag is included in POST
-        try:
-            self.flag = request.POST.get('flag').lower()
-            handler = getattr(self, self.flag, self.flag_not_matched)
-        except (Exception, BaseException):
-            pass
-        else:
-            print("flag: %s" % handler.__name__)
-            return handler(request, *args, **kwargs)
-
-        # Ajax request, json type content, flag is included in body
-        try:
-            self.body = json.loads(request.body.decode('utf-8'))
-            self.cache_key = str(self.body['cache_key'])  # Key to obtain sample from cache
-            self.sample = pickle.loads(cache.get(self.cache_key, default=pickle.dumps(samples.Sample())))
-            touch_cache(self.cache_key)  # Update cache time
-        except KeyError:
-            print("No cache key in request body")
-        except (Exception, BaseException):
-            pass
-        if "flag" in kwargs.keys():
-            self.flag = kwargs['flag']
-            handler = getattr(self, self.flag, self.flag_not_matched)
-        elif is_ajax(request):
-            if "flag" in self.body.keys():
-                self.flag = str(self.body['flag']).lower()
-                handler = getattr(self, self.flag, self.flag_not_matched)
-        elif request.method.lower() in self.http_method_names:
-            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
-
-        print("flag: %s" % handler.__name__)
-        return handler(request, *args, **kwargs)
-
-    def flag_not_matched(self, request, *args, **kwargs):
-        print(f'flag_not_matched: {self.flag}')
-        pass
 
 
 def get_ip(request):
@@ -203,5 +117,92 @@ def open_object_file(request, sample, web_file_path, cache_key=''):
     return render(request, 'object.html', {
         'cache_key': json.dumps(cache_key),
         'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames,
-        'sampleComponents': basic_funcs.getJsonDumps(smp_funcs.get_components(sample)),
+        'sampleComponents': ap.files.json.dumps(ap.smp.basic.get_components(sample)),
     })
+
+
+class ArArView(View):
+    """
+    This class is rewritten based on View and is used to dispatch requests from client side.
+
+    A request will first classified based on its method, including 'get', 'post' and others
+    (see detail in class attribution http_method_names of View class); For each method, a
+    function with the same name is required to handle it. Here I rewrite POST function,
+    because I usually need to use <flag> to identify some special requests.
+
+    In dispatch function, ajax requests are identified based on the flag value contained
+    in request body.
+
+    Some examples:
+        1. POST request from a form, will go to <post> function, and then be dispatched
+        according to the <flag> value, which is set as a hidden input;
+        2. POST request from Ajax need to contain a <flag> value to let it identified. Two
+        ways can be used, sending flag in url or body;
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Initialize
+        self.ip = ''
+        self.flag = ''
+        self.body = {}
+        self.cache_key = ''
+        self.sample = ap.smp.Sample()
+
+        self.dispatch_post_method_name = [
+            # Add names in daughter classes
+        ]
+
+    def post(self, request, *args, **kwargs):
+        self.ip = get_ip(self.request)
+        # Finding a right function to response the request
+        self.flag = request.POST.get('flag').lower()
+        if self.flag in self.dispatch_post_method_name:
+            handler = getattr(self, self.flag, self.flag_not_matched)
+        else:
+            handler = self.flag_not_matched
+        print("post: %s" % handler.__name__)
+        return handler(request, *args, **kwargs)
+
+    def dispatch(self, request, *args, **kwargs):
+        self.ip = get_ip(self.request)
+        # Rewrite dispatch method to add special responses to ajax requests
+        handler = self.http_method_not_allowed  # Default
+
+        # Ajax request, formdata type content, flag is included in POST
+        try:
+            self.flag = request.POST.get('flag').lower()
+            handler = getattr(self, self.flag, self.flag_not_matched)
+        except (Exception, BaseException):
+            pass
+        else:
+            print("flag: %s" % handler.__name__)
+            return handler(request, *args, **kwargs)
+
+        # Ajax request, json type content, flag is included in body
+        try:
+            self.body = json.loads(request.body.decode('utf-8'))
+            self.cache_key = str(self.body['cache_key'])  # Key to obtain sample from cache
+            self.sample = pickle.loads(cache.get(self.cache_key, default=pickle.dumps(ap.smp.Sample())))
+            touch_cache(self.cache_key)  # Update cache time
+        except KeyError:
+            print("No cache key in request body")
+        except (Exception, BaseException):
+            pass
+        if "flag" in kwargs.keys():
+            self.flag = kwargs['flag']
+            handler = getattr(self, self.flag, self.flag_not_matched)
+        elif is_ajax(request):
+            if "flag" in self.body.keys():
+                self.flag = str(self.body['flag']).lower()
+                handler = getattr(self, self.flag, self.flag_not_matched)
+        elif request.method.lower() in self.http_method_names:
+            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+
+        print("flag: %s" % handler.__name__)
+        return handler(request, *args, **kwargs)
+
+    def flag_not_matched(self, request, *args, **kwargs):
+        print(f'flag_not_matched: {self.flag}')
+        pass
+

@@ -1,0 +1,361 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+"""
+# ==========================================
+# Copyright 2023 Yang
+# ararpy - smp - basic
+# ==========================================
+#
+#
+#
+"""
+# === Internal imports ===
+# from programs.ararpy import calc
+from . import *
+
+pd.options.mode.chained_assignment = None  # default='warn'
+
+
+# =======================
+# Calculate ages
+# =======================
+def calc_apparent_ages(smp: Sample):
+    """
+
+    Parameters
+    ----------
+    smp
+
+    Returns
+    -------
+
+    """
+    age = calc_age(smp=smp)
+    smp.ApparentAgeValues[2:6] = age
+    smp.PublishValues[5:7] = copy.deepcopy(age[0:2])
+
+
+def calc_age(ar40ar39=None, params: dict = None, smp: Sample = None, index: list = None):
+    """
+    40Ar/39Ar age calculation, two methods are supported: Min et al. (2000) or general equation.
+    Parameters
+    ----------
+    ar40ar39 : 2D DataFrame, Series, list
+    params : dict
+    smp : Sample instance
+    index:
+
+    Returns
+    -------
+
+    """
+    params_index_dict = {
+        34: 'L', 35: 'sL', 36: 'Le', 37: 'sLe', 38: 'Lb', 39: 'sLb', 48: 'A', 49: 'sA',
+        50: 'Ae', 51: 'sAe', 52: 'Ab', 53: 'sAb', 59: 't', 60: 'st', 67: 'J', 68: 'sJ',
+        81: 'W', 82: 'sW', 83: 'No', 84: 'sNo', 85: 'Y', 86: 'sY', 87: 'f', 88: 'sf', 110: 'Min'
+    }
+
+    if isinstance(ar40ar39, pd.Series):
+        ar40ar39 = [ar40ar39.tolist(), [0] * ar40ar39.size]
+    if isinstance(ar40ar39, pd.DataFrame):
+        ar40ar39 = ar40ar39.transpose().values.tolist()
+    if ar40ar39 is None and smp is not None:
+        ar40ar39 = smp.ApparentAgeValues[0:2]
+    if len(np.shape(ar40ar39)) == 1:
+        ar40ar39 = np.reshape(ar40ar39, (2, 1))
+    if index is None:
+        index = list(range(np.shape(ar40ar39)[-1]))
+
+    if smp is None and params is None:
+        raise ValueError(f"Parameters are required for calculating ages, or it is empty.")
+    if params is not None:
+        for key, val in params.items():
+            if not isinstance(val, list):
+                params[key] = list(val)
+    if smp is not None:
+        try:
+            params_from_smp = dict(zip(
+                list(params_index_dict.values()),
+                [[smp.TotalParam[i][j] for j in index] for i in params_index_dict.keys()]
+            ))
+        except Exception:
+            print(traceback.format_exc())
+            raise ValueError(f"Parameters cannot be found in the given sample object")
+        if params is not None:
+            params_from_smp.update(params)
+        params = params_from_smp
+
+    # check if using Min equation
+    params['Min'] = [i if isinstance(i, bool) else False for i in params['Min']]
+
+    idx1 = np.flatnonzero(np.where(params['Min'], True, False))  # True, using Min euqation
+    idx2 = np.flatnonzero(np.where(params['Min'], False, True))  # False
+    k1, k2 = [], []
+    if np.size(idx1) > 0:
+        k1 = calc.age.calc_age_min(
+            F=[ar40ar39[0][i] for i in idx1], sF=[ar40ar39[1][i] for i in idx1],
+            **dict(zip(params.keys(), [[val[i] for i in idx1] for val in params.values()])))
+    if np.size(idx2) > 0:
+        k2 = calc.age.calc_age_general(
+            F=[ar40ar39[0][i] for i in idx2], sF=[ar40ar39[1][i] for i in idx2],
+            **dict(zip(params.keys(), [[val[i] for i in idx2] for val in params.values()])))
+
+    # idx1 = params[params['Min'].astype(bool)].index
+    # idx2 = params[~params['Min'].astype(bool)].index  # The operators are: | for or, & for and, and ~ for not
+    # k1, k2 = [], []
+    # if idx1.size > 0:
+    #     k1 = calc.age.calc_age_min(
+    #         F=ar40ar39.take(idx1)[0], sF=ar40ar39.take(idx1)[1], **params.take(idx1).to_dict('list'))
+    # if idx2.size > 0:
+    #     k2 = calc.age.calc_age_general(
+    #         F=ar40ar39.take(idx2)[0], sF=ar40ar39.take(idx2)[1], **params.take(idx2).to_dict('list'))
+
+    columns = ['age', 's1', 's2', 's3']
+    ages = pd.concat([
+        pd.DataFrame([*k1], columns=idx1, index=columns),
+        pd.DataFrame([*k2], columns=idx2, index=columns)
+    ], axis=1).transpose().reset_index(drop=True)
+
+    if len(index) == 1:
+        return ages.transpose().squeeze().tolist()
+    else:
+        return ages.transpose().values.tolist()
+
+
+# =======================
+# Search components
+# =======================
+def get_content_dict(smp: Sample):
+    """
+
+    Parameters
+    ----------
+    smp
+
+    Returns
+    -------
+
+    """
+    return dict(zip(
+        ['smp', 'blk', 'cor', 'deg', 'pub', 'age', 'iso', 'pam', 'mak', 'seq'],
+        [smp.SampleIntercept, smp.BlankIntercept, smp.CorrectedValues, smp.DegasValues,
+         smp.PublishValues, smp.ApparentAgeValues, smp.IsochronValues, smp.TotalParam,
+         [smp.IsochronMark], [smp.SequenceName, smp.SequenceValue]]
+    ))
+
+
+def get_dict_from_obj(obj: (Sample, Info, Plot, Table, Set, Label, Axis, Text)):
+    """
+
+    Parameters
+    ----------
+    obj
+
+    Returns
+    -------
+
+    """
+    res = {}
+    for key, attr in obj.__dict__.items():
+        if not isinstance(attr, (Sample, Info, Plot, Table, Set, Label, Axis, Text)):
+            res.update({key: attr})
+        else:
+            res.update({key: get_dict_from_obj(attr)})
+    return res
+
+
+def get_components(smp: Sample):
+    """
+    Get updated sample.Components dict
+    Parameters
+    ----------
+    smp
+
+    Returns
+    -------
+
+    """
+    components_name = [
+        '0', '1', '2', '3', '4', '5', '6', '7', '8',
+        'figure_1', 'figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7', 'figure_8', 'figure_9',
+    ]
+    components = {}
+    for key in components_name:
+        comp = get_component_byid(smp, key)
+        components.update({key: comp})
+    return components
+
+
+def get_component_byid(smp: Sample, comp_id: str):
+    """
+    Get a component (Table or Plot) based on input id
+    Parameters
+    ----------
+    smp
+    comp_id
+
+    Returns
+    -------
+
+    """
+    for key, val in smp.__dict__.items():
+        if isinstance(val, (Plot, Table, Info)) and getattr(val, 'id') == comp_id:
+            return val
+
+
+def get_plot_set(plot: Plot, comp_id):
+    """
+    Get a Set, Text, Axis, Label of a sample instance based on given id
+    """
+    for v in [getattr(plot, k) for k in dir(plot)]:
+        if isinstance(v, Plot.BasicAttr) and v.id.lower() == comp_id.lower():
+            return v
+    return None
+
+
+# =======================
+# Update
+# =======================
+def update_plot_from_dict(plot, attrs: dict):
+    """
+    plot is a Sample.Plot instance, attrs should be a dict like {'xaxis': {'show_splitline': False}, 'yaxis': {...}}
+    """
+
+    def _do(plot, attrs: dict):
+        for k1, v1 in attrs.items():
+            if isinstance(v1, dict):
+                if hasattr(plot, k1):
+                    if isinstance(getattr(plot, k1), dict):
+                        setattr(plot, k1, v1)
+                    else:
+                        _do(getattr(plot, k1), v1)
+            else:
+                setattr(plot, k1, v1)
+
+    _do(plot=plot, attrs=attrs)
+    return plot
+
+
+# =======================
+# Merge sample instances
+# =======================
+def get_merged_smp(a: Sample, b: (Sample, dict)):
+    """ Comparing two sample instances a and b
+        This function is used to update sample instance to make sure JS can read properties it required.
+    Parameters
+    ----------
+    a : sample instance that has old attributes,
+    b : new sample instance that has some new attributes or a has similar but different name for this attribute
+
+    Returns
+    -------
+    None
+        return none, but a will be updated after calling this function
+
+            for example:
+                A = Sample(id = 'a', set1 = Set(id = 'set1', data = [], symbolSize = 10)),
+                B = Sample(id = 'b', set1 = Set(id = 'set1', data = [2023], symbol_size = 5, line_type = 'solid')),
+                after get_merged_smp(A, B), A will be Sample(id = 'a', 'set1' = Set(id = 'set1', data = [],
+                                                        symbol_size = 10, line_type = 'solid'))
+    """
+
+    def get_similar_name(_name: str):
+        res = []
+        for i in range(len(_name) + 1):
+            str_list = [i for i in _name]
+            str_list.insert(i, '_')
+            res.append(''.join(str_list))
+        for i in range(len(_name)):
+            str_list = [i for i in _name]
+            str_list[i] = str_list[i].capitalize()
+            res.append(''.join(str_list))
+        for i in range(len(_name)):
+            str_list = [i for i in _name]
+            if _name[i] in '-_':
+                str_list.pop(i)
+                res.append(''.join(str_list))
+        return res
+
+    if not isinstance(b, dict):
+        b = b.__dict__
+
+    for name, attr in b.items():
+        if hasattr(a, name):
+            if isinstance(attr, (Plot, Table, Info, Plot.BasicAttr)):
+                if not type(getattr(a, name)) == type(attr):
+                    setattr(a, name, type(attr)())
+                get_merged_smp(getattr(a, name), attr)
+            if isinstance(attr, dict) and isinstance(getattr(a, name), dict):
+                setattr(a, name, calc.basic.merge_dicts(getattr(a, name), attr))
+            if isinstance(attr, list) and isinstance(getattr(a, name), list):
+                if len(attr) > len(getattr(a, name)):
+                    setattr(a, name, getattr(a, name) + attr[len(getattr(a, name)):])
+            continue
+        else:
+            for xxx in get_similar_name(name):
+                for xx in get_similar_name(xxx):
+                    for x in get_similar_name(xx):
+                        if hasattr(a, x):
+                            # print(f'Has similar {name} = {x}: {getattr(a, x)}')
+                            setattr(a, name, getattr(a, x))
+                            break
+                    else:
+                        continue
+                    break
+                else:
+                    continue
+                break
+            if not hasattr(a, name):
+                setattr(a, name, attr)
+
+
+# =======================
+# Difference between two sample instances
+# =======================
+def get_diff_smp(backup: (dict, Sample), smp: (dict, Sample)):
+    """ Comparing two sample component dicts or sample instances, and return difference between them.
+    Parameters
+    ----------
+    backup : backup of sample.Components or sample before changed.
+    smp : sample.Components or sample after changed
+
+    Returns
+    -------
+    dict
+        dict of keys and values that have difference, iterate to a sepcial difference,
+
+            for example:
+                A = Sample(id = 'a', set1 = Set(id = 'set1', data = [])),
+                B = Sample(id = 'b', set1 = Set(id = 'set1', data = [2023])),
+                res = get_diff_smp(A, B) will be {'id': 'b', 'set1': {'data': [2023]}}
+
+    """
+    res = {}
+    if isinstance(backup, Sample) and isinstance(smp, Sample):
+        return get_diff_smp(backup.__dict__, smp.__dict__)
+    for name, attr in smp.items():
+        if name not in backup.keys() or not isinstance(backup[name], type(attr)):
+            res.update({name: attr})
+            continue
+        if isinstance(attr, dict):
+            # if name not in backup.keys():
+            #     res.update({name: attr})
+            #     continue
+            _res = get_diff_smp(backup[name], attr)
+            if _res != {}:
+                res.update({name: _res})
+            continue
+        if isinstance(attr, np.ndarray):
+            if not np.array_equal(attr, backup[name]):
+                res.update({name: attr})
+            continue
+        if isinstance(attr, (Plot, Table, Plot.Text, Plot.Axis, Plot.Set,
+                             Plot.Label, Plot.BasicAttr, Info)):
+            _res = get_diff_smp(backup[name].__dict__, attr.__dict__)
+            if _res != {}:
+                res.update({name: _res})
+            continue
+        if str(backup[name]) == str(attr) or backup[name] == attr:
+            continue
+        res.update({name: attr})
+    return res

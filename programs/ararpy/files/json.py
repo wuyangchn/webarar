@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+"""
+# ==========================================
+# Copyright 2023 Yang
+# ararpy - files - json
+# ==========================================
+#
+#
+#
+"""
+from ..smp import Sample, Info, Table, Plot
+
+import json
+import numpy as np
+import pandas as pd
+
+
+def dumps(a):
+    # return json.dumps(a, default=lambda o: o.__dict__ if hasattr(0, '__dict__') else o, sort_keys=True, indent=4)
+    return json.dumps(a, cls=MyEncoder, indent=4)
+
+
+def loads(a):
+    return json.loads(a)
+
+
+class MyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        # np.array
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        # pd.DataFrame
+        if isinstance(obj, pd.DataFrame):
+            print(obj)
+            raise ValueError(f"DataFrame objects found.")
+        # complex number
+        if isinstance(obj, complex):
+            return "complex number"
+        # numpy.int32
+        if isinstance(obj, np.int32):
+            return int(obj)
+        # sample instance
+        if isinstance(obj, (Sample, Info, Plot, Table, Plot.Text,
+                            Plot.Axis, Plot.Label, Plot.Set, Plot.BasicAttr)):
+            return obj.__dict__
+        if not isinstance(obj, (int, str, list, dict, tuple, float)):
+            print(f"Special type, {type(obj) = }, {obj = }")
+        return super(MyEncoder, self).default(obj)
