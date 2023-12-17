@@ -101,7 +101,7 @@ ArArPy can be installed via pip from PyPI.
     >>> print(f"{sample.results().isochron.inverse.set1.age = }")
     # sample.results().isochron.inverse.set1.age = 164.57644271385772
 
-## CLASSES
+## Classes
 
     Info
     Plot
