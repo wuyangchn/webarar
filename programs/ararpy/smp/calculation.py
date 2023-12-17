@@ -54,9 +54,9 @@ def recalculate(
     """
     if len(sample.UnselectedSequence) == len(sample.SelectedSequence1) == len(sample.SelectedSequence2) == 0:
         sample.UnselectedSequence = list(range(len(sample.SequenceName)))
-    print(f"{sample.UnselectedSequence = }")
-    print(f"{sample.SelectedSequence1 = }")
-    print(f"{sample.SelectedSequence2 = }")
+    # print(f"{sample.UnselectedSequence = }")
+    # print(f"{sample.SelectedSequence1 = }")
+    # print(f"{sample.SelectedSequence2 = }")
     # --- initializing ---
     if re_initial:  # 1
         initial.re_set_smp(sample)

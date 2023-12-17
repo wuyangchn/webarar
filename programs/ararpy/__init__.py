@@ -47,7 +47,7 @@ class ArArData(ArArBasic):
 
 """ information for ararpy """
 name = 'ararpy'
-version = '0.0.1.a1'
+version = '0.0.1.a3'
 __version__ = version
 full_version = version
 last_update = '2023-12-17'
@@ -66,10 +66,21 @@ Sample.researcher = lambda _smp: _smp.Info.researcher
 Sample.laboratory = lambda _smp: _smp.Info.laboratory
 
 Sample.results = lambda _smp: ArArBasic(
-    isochron=ArArBasic(**dict((key, ArArBasic(
-        **dict(({2: 'unselected', 0: 'set1', 1: 'set2'}[_key], ArArBasic(**_value))
-               for (_key, _value) in value.items())))
-                              for (key, value) in _smp.Info.results.isochron.items())),
+    isochron=ArArBasic(**dict(
+        (
+            {
+                'figure_2': 'normal', 'figure_3': 'inverse', 'figure_4': 'cl_1',
+                'figure_5': 'cl_2', 'figure_6': 'cl_3', 'figure_7': 'three_d'
+            }[key],
+            ArArBasic(
+                **dict(
+                    (
+                        {2: 'unselected', 0: 'set1', 1: 'set2'}[_key],
+                        ArArBasic(**_value)
+                    ) for (_key, _value) in value.items()
+                )
+            )
+        ) for (key, value) in _smp.Info.results.isochron.items())),
     age_plateau=ArArBasic(
         **dict(({2: 'unselected', 0: 'set1', 1: 'set2'}[key], ArArBasic(**value))
                for (key, value) in _smp.Info.results.age_plateau.items()))
@@ -137,13 +148,13 @@ Sample.calc_ratio = smp.corr.calc_ratio
 Sample.recalculate = lambda _smp, **kwargs: smp.calculation.recalculate(_smp, **kwargs)
 
 Sample.show_data = lambda _smp: \
-    f"Sample Name: {_smp.name()}" \
-    f"Doi: {_smp.doi()}" \
-    f"Corrected Values: \n{_smp.corrected().to_df()}" \
-    f"Parameters: \n{_smp.parameters().to_df()}" \
-    f"Isochron Values: \n{_smp.isochron().to_df()}" \
-    f"Apparent Ages: \n{_smp.apparent_ages().to_df()}" \
-    f"Publish Table: \n{_smp.publish().to_df()}"
+    f"Sample Name: \n\t{_smp.name()}\n" \
+    f"Doi: \n\t{_smp.doi()}\n" \
+    f"Corrected Values: \n\t{_smp.corrected().to_df()}\n" \
+    f"Parameters: \n\t{_smp.parameters().to_df()}\n" \
+    f"Isochron Values: \n\t{_smp.isochron().to_df()}\n" \
+    f"Apparent Ages: \n\t{_smp.apparent_ages().to_df()}\n" \
+    f"Publish Table: \n\t{_smp.publish().to_df()}\n"
 
 __tab = "\t"
 Sample.help = f"" \
@@ -154,7 +165,7 @@ Sample.help = f"" \
 
 
 def test():
-    example_dir = os.path.join(os.getcwd(), r'examples')
+    example_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), r'examples')
     print(f"Running: ararpy.test()")
     print(f"============= Open an example .arr file =============")
     file_path = os.path.join(example_dir, r'22WHA0433.arr')
