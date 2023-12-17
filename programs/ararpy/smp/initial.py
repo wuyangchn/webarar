@@ -112,7 +112,7 @@ def initial(smp: Sample):
     smp.IsochronValues = [[]] * 47
 
     # Doi
-    if not hasattr(smp, 'Doi') or getattr(smp, 'Doi') is None:
+    if not hasattr(smp, 'Doi') or getattr(smp, 'Doi') in (None, ""):
         setattr(smp, 'Doi', str(uuid.uuid4().hex))
 
     # Info
