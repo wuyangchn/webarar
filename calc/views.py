@@ -11,9 +11,7 @@ from django.conf import settings
 
 import time
 from . import models
-from programs import http_funcs, log_funcs
-# import programs.ararpy as ap
-import ararpy as ap
+from programs import http_funcs, log_funcs, ap
 from django.core.cache import cache
 
 

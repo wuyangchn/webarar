@@ -6,9 +6,7 @@ from django.http import JsonResponse
 from home import models
 from django.shortcuts import render, redirect
 
-# import programs.ararpy as ap
-import ararpy as ap
-from programs import http_funcs, log_funcs
+from programs import http_funcs, log_funcs, ap
 from webarar import settings
 
 # Create your views here.
