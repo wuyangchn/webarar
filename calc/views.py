@@ -12,8 +12,8 @@ from django.conf import settings
 import time
 from . import models
 from programs import http_funcs, log_funcs
-import programs.ararpy as ap
-# import ararpy as ap
+# import programs.ararpy as ap
+import ararpy as ap
 from django.core.cache import cache
 
 
@@ -46,7 +46,7 @@ class CalcHtmlView(http_funcs.ArArView):
             web_file_path, file_name, extension = \
                 ap.files.basic.upload(request.FILES.get('arr_file'), settings.UPLOAD_ROOT)
             # sample = file_funcs.open_arr_file(web_file_path)
-            sample = ap.files.arr_file.to_sample(web_file_path)
+            sample = ap.from_arr(web_file_path)
         except (Exception, BaseException) as e:
             return render(request, 'calc.html', {
                 'title': 'alert', 'type': 'Error', 'message': 'Fail to open the arr file\n' + str(e)
@@ -60,7 +60,7 @@ class CalcHtmlView(http_funcs.ArArView):
             web_file_path, file_name, extension = \
                 ap.files.basic.upload(request.FILES.get('full_xls_file'), settings.UPLOAD_ROOT)
             file_name = file_name if '.full' not in file_name else file_name.split('.full')[0]
-            sample = ap.files.calc_file.full_to_sample(file_path=web_file_path, sample_name=file_name)
+            sample = ap.from_full(file_path=web_file_path, sample_name=file_name)
             # sample = file_funcs.open_full_xls(web_file_path, sample_name=file_name)
         except (Exception, BaseException) as e:
             return render(request, 'calc.html', {
@@ -75,7 +75,7 @@ class CalcHtmlView(http_funcs.ArArView):
             web_file_path, sample_name, extension = \
                 ap.files.basic.upload(request.FILES.get('age_file'), settings.UPLOAD_ROOT)
             # sample = file_funcs.open_age_xls(web_file_path)
-            sample = ap.files.calc_file.to_sample(file_path=web_file_path, sample_name=sample_name)
+            sample = ap.from_age(file_path=web_file_path, sample_name=sample_name)
             try:
                 # Re-calculating ratio and plot after reading age or full files
                 sample.recalculate(re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
@@ -120,9 +120,7 @@ class CalcHtmlView(http_funcs.ArArView):
         contents = []
         for key, file in files.items():
             handler = {
-                # '.arr': file_funcs.open_arr_file, '.xls': file_funcs.open_full_xls,
-                '.arr': ap.files.arr_file.to_sample, '.xls': ap.files.calc_file.full_to_sample,
-                '.age': ap.files.calc_file.to_sample
+                '.arr': ap.from_arr, '.xls': ap.from_full, '.age': ap.from_age
             }.get(file['suffix'], None)
             try:
                 if handler:

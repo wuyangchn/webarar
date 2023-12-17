@@ -6,7 +6,8 @@ from django.http import JsonResponse
 from home import models
 from django.shortcuts import render, redirect
 
-import programs.ararpy as ap
+# import programs.ararpy as ap
+import ararpy as ap
 from programs import http_funcs, log_funcs
 from webarar import settings
 
