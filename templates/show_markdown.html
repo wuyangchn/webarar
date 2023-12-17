@@ -138,7 +138,8 @@ sample.parameters().to_df() =
 <span class="hljs-meta"># Index: []</span>
 </code></pre><h4 id="3-example-2-change-data-point-selection-and-recalculate-">3. <strong>Example 2： change data point selection and recalculate</strong></h4>
 <pre><code>&gt;&gt;&gt; import ararpy as ap
-&gt;&gt;&gt; example_dir = os.path.join(os.getcwd(), r'examples')
+&gt;&gt;&gt; import os
+&gt;&gt;&gt; example_dir = os.path.join(os.path.dirname(os.path.abspath(ap.__file__)), r'examples')
 &gt;&gt;&gt; file_path = os.path.join(example_dir, r'<span class="hljs-number">22</span>WHA0433.arr')
 &gt;&gt;&gt; sample = ap.from_arr(file_path)
 # normal isochron age
