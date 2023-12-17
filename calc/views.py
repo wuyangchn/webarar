@@ -78,7 +78,8 @@ class CalcHtmlView(http_funcs.ArArView):
             sample = ap.files.calc_file.to_sample(file_path=web_file_path, sample_name=sample_name)
             try:
                 # Re-calculating ratio and plot after reading age or full files
-                ap.recalculate(sample, re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
+                sample.recalculate(re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
+                # ap.recalculate(sample, re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
             except Exception as e:
                 print(f'Error in setting plot: {traceback.format_exc()}')
         except (Exception, BaseException) as e:
@@ -95,7 +96,7 @@ class CalcHtmlView(http_funcs.ArArView):
 
     def open_new_file(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '001', 'info', 'Open new file')
-        sample = ap.smp.Sample()
+        sample = ap.Sample()
         # initial settings
         ap.smp.initial.initial(sample)
         return http_funcs.open_object_file(request, sample, web_file_path='')
@@ -209,7 +210,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         time_middle = time.time()
         if auto_replot:
             # Re-plot after clicking points
-            ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
+            sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
+            # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
         http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
         # Response are changes in sample.Components, in this way we can decrease the size of response.
         res = ap.smp.basic.get_diff_smp(
@@ -256,8 +258,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             if btn_id == '7':
                 # Re-calculate isochron and plateau data, and replot.
                 # Re-calculation will not be applied automatically when other tables were changed
-                ap.recalculate(
-                    sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
+                sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
+                # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
 
         http_funcs.create_cache(sample, self.cache_key)  # Update cache
         res = ap.smp.basic.get_diff_smp(components_backup, ap.smp.basic.get_components(sample))
@@ -421,12 +423,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             ))
         y = data[1]
         handler = {
-            # 'linear': calc_funcs.intercept_linest,
-            # 'average': calc_funcs.intercept_average,
-            # 'quadratic': calc_funcs.intercept_quadratic,
-            # 'polynomial': calc_funcs.intercept_polynomial,
-            # 'power': calc_funcs.intercept_power,
-            # 'exponential': calc_funcs.intercept_exponential,
             'linear': ap.calc.regression.linest,
             'average': ap.calc.regression.average,
             'quadratic': ap.calc.regression.quadratic,
@@ -463,8 +459,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             self.ip, '003', 'info', f'Set params, sample name: {self.sample.Info.sample.name}')
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
-        # 检查arr版本
-        # sample = file_funcs.check_arr_version(sample)
         n = len(sample.SequenceName)
         # Do something to set params
         if type == 'calc':
@@ -529,7 +523,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
         try:
             # Re-calculating based on selected options
-            sample = ap.recalculate(sample, *checked_options)
+            sample.recalculate(*checked_options)
+            # sample = ap.recalculate(sample, *checked_options)
         except Exception as e:
             print(traceback.format_exc())
             return JsonResponse({'status': 'fail', 'msg': f'Error in recalculating: {e}'})
@@ -979,7 +974,7 @@ class RawFileView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Start to submit raw file')
 
         # 创建sample
-        sample = ap.smp.Sample()
+        sample = ap.Sample()
         # Initial values
         ap.smp.initial.initial(sample)
         # experimental time, unknown and blank intercepts
@@ -1043,7 +1038,8 @@ class RawFileView(http_funcs.ArArView):
         sample.UnselectedSequence = list(range(np))
         sample.SelectedSequence1 = []
         sample.SelectedSequence2 = []
-        ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
+        sample.recalculate(*[True] * 12)  # Calculation after submitting row data
+        # ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
         ap.smp.table.update_table_data(sample)  # Update table after submittion row data and calculation
         # update cache
         cache_key = http_funcs.create_cache(sample)
@@ -1178,7 +1174,7 @@ def open_last_object(request):
             raise IndexError
     except (BaseException, Exception):
         # print('No file found in cache!')
-        sample = ap.smp.Sample()
+        sample = ap.Sample()
         ap.smp.initial.initial(sample)
         return http_funcs.open_object_file(request, sample, web_file_path='')
     else:
