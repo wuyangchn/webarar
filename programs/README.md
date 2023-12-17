@@ -77,7 +77,8 @@ ArArPy can be installed via pip from PyPI.
 #### 3. **Example 2： change data point selection and recalculate**
 
     >>> import ararpy as ap 
-    >>> example_dir = os.path.join(os.getcwd(), r'examples')
+    >>> import os
+    >>> example_dir = os.path.join(os.path.dirname(os.path.abspath(ap.__file__)), r'examples')
     >>> file_path = os.path.join(example_dir, r'22WHA0433.arr')
     >>> sample = ap.from_arr(file_path)
     # normal isochron age
