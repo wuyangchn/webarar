@@ -5,8 +5,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 import traceback
-# import programs.ararpy as ap
-import ararpy as ap
+from programs import ap
 
 # Create your views here.
 

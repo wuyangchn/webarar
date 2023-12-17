@@ -1,7 +1,5 @@
 from django.shortcuts import render
 from programs import http_funcs
-# import programs.ararpy as ap
-import ararpy as ap
 # Create your views here.
 
 

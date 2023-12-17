@@ -5,8 +5,7 @@ from django.core.cache import cache
 from django.shortcuts import render
 from django.views import View
 from calc import models
-# import programs.ararpy as ap
-import ararpy as ap
+from . import ap
 
 DEFAULT_CACHE_TIMEOUT = 86400
 
