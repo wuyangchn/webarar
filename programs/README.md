@@ -10,7 +10,7 @@ pandas, os, scipy, pickle, xlrd, xlsxwriter, and json.
 ## Installing from PyPI
 ArArPy can be installed via pip from PyPI.
 
-    pip install pandas
+    pip install ararpy
 
 ## Testing
 #### 1. **Running the test function from a Python terminal**
