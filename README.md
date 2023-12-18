@@ -4,8 +4,7 @@
 ---
 ***Thank you for using WebArAr. As of December 17, 2023, this documentation provides 
 a short introduction to the features and functionalities available in the 
-initial release. However, I will be committed to enhancing and expandingit 
-to be better.***
+current release. However, it is planned to enhance and expand it to be better.***
 
 
 ## Content
