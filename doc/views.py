@@ -4,7 +4,7 @@ from programs import http_funcs
 
 
 def main_view(request):
-    print(http_funcs.get_lang(request))
+    # print(http_funcs.get_lang(request))
     return render(request, 'doc.html')
 
 
