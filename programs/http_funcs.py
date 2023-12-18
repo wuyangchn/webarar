@@ -146,6 +146,7 @@ class ArArView(View):
         self.ip = ''
         self.flag = ''
         self.body = {}
+        self.content = {}
         self.cache_key = ''
         self.sample = ap.smp.Sample()
 
@@ -188,6 +189,10 @@ class ArArView(View):
         except KeyError:
             print("No cache key in request body")
         except (Exception, BaseException):
+            pass
+        try:
+            self.content = self.body['content']
+        except KeyError:
             pass
         if "flag" in kwargs.keys():
             self.flag = kwargs['flag']

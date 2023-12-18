@@ -364,7 +364,7 @@ def wtd_3D_regression(x: list, sx: list, y: list, sy: list, z: list, sz: list, r
     # relative error of S
     err_s = lambda a, b, c: (1 / W(a, b)) ** .5 / abs(a * x + b * y + c - z)
     avg_err_s = np.mean(err_s(a, b, c)) * 100
-    print(f"Average relative error of S = {avg_err_s}%")
+    # print(f"Average relative error of S = {avg_err_s}%")
 
     # print(f"a = {a}, b = {b}, c = {c}, S = {S(a, b, c)}， Di = {Di}, MSWD = {mswd}, r2 = {R}")
 

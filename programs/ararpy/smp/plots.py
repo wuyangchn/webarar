@@ -14,7 +14,6 @@ import traceback
 import numpy as np
 
 from scipy.signal import find_peaks
-import time
 
 
 from .. import calc
@@ -55,7 +54,7 @@ def set_plot_data(sample: Sample, isInit: bool = True, isIsochron: bool = True,
     -------
 
     """
-    print(f"isInit: {isInit}, isIsochron: {isIsochron}, isPlateau: {isPlateau}")
+    # print(f"isInit: {isInit}, isIsochron: {isIsochron}, isPlateau: {isPlateau}")
 
     # Initialization, apply age spectra data and isochron plot data
     if isInit:
@@ -68,10 +67,8 @@ def set_plot_data(sample: Sample, isInit: bool = True, isIsochron: bool = True,
     # Recalculate isochron lines
     if isIsochron:
         try:
-            t1 = time.time()
-            recalc_isochrons(sample)
+            recalc_isochrons(sample, **kwargs)
             reset_isochron_line_data(sample)
-            print(f"recalc_isochrons time = {time.time() - t1}")
         except (Exception, BaseException):
             print(traceback.format_exc())
             pass
@@ -79,9 +76,7 @@ def set_plot_data(sample: Sample, isInit: bool = True, isIsochron: bool = True,
     # Recalculate plateaus
     if isPlateau:
         try:
-            t1 = time.time()
             recalc_plateaus(sample)
-            print(f"recalc_plateaus time = {time.time() - t1}")
         except (Exception, BaseException):
             print(traceback.format_exc())
             pass
@@ -183,7 +178,10 @@ def recalc_isochrons(sample: Sample, **kwargs):
     -------
 
     """
+    figures = kwargs.pop('figures', ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7', ])
     for key, val in ISOCHRON_INDEX_DICT.items():
+        if key not in figures:
+            continue
         figure = basic.get_component_byid(sample, key)
         figure.set3.data, figure.set1.data, figure.set2.data = \
             sample.UnselectedSequence, sample.SelectedSequence1, sample.SelectedSequence2
