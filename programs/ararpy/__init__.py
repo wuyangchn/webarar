@@ -146,14 +146,24 @@ Sample.corr_r = smp.corr.calc_degas_r
 Sample.calc_ratio = smp.corr.calc_ratio
 
 Sample.recalculate = lambda _smp, *args, **kwargs: smp.calculation.recalculate(_smp, *args, **kwargs)
-Sample.plot_age_plateau = lambda _smp: smp.calculation.recalculate(_smp, re_plot=True, isPlateau=True)
-Sample.plot_isochron = lambda _smp, **kwargs: smp.calculation.recalculate(_smp, re_plot=True, isIsochron=True, **kwargs)
-Sample.plot_normal = lambda _smp: smp.calculation.recalculate(_smp, re_plot=True, isIsochron=True, figures=['figure_2'])
-Sample.plot_inverse = lambda _smp: smp.calculation.recalculate(_smp, re_plot=True, isIsochron=True, figures=['figure_3'])
-Sample.plot_cl_1 = lambda _smp: smp.calculation.recalculate(_smp, re_plot=True, isIsochron=True, figures=['figure_4'])
-Sample.plot_cl_2 = lambda _smp: smp.calculation.recalculate(_smp, re_plot=True, isIsochron=True, figures=['figure_5'])
-Sample.plot_cl_3 = lambda _smp: smp.calculation.recalculate(_smp, re_plot=True, isIsochron=True, figures=['figure_6'])
-Sample.plot_3D = lambda _smp: smp.calculation.recalculate(_smp, re_plot=True, isIsochron=True, figures=['figure_7'])
+Sample.plot_init = lambda _smp: smp.calculation.recalculate(
+    _smp, re_plot=True, isIsochron=False, isInit=True, isPlateau=False)
+Sample.plot_isochron = lambda _smp, **kwargs: smp.calculation.recalculate(
+    _smp, re_plot=True, isIsochron=True, isInit=False, isPlateau=False, **kwargs)
+Sample.plot_age_plateau = lambda _smp: smp.calculation.recalculate(
+    _smp, re_plot=True, isIsochron=False, isInit=False, isPlateau=True)
+Sample.plot_normal = lambda _smp: smp.calculation.recalculate(
+    _smp, re_plot=True, isIsochron=True, isInit=False, isPlateau=False, figures=['figure_2'])
+Sample.plot_inverse = lambda _smp: smp.calculation.recalculate(
+    _smp, re_plot=True, isIsochron=True, isInit=False, isPlateau=False, figures=['figure_3'])
+Sample.plot_cl_1 = lambda _smp: smp.calculation.recalculate(
+    _smp, re_plot=True, isIsochron=True, isInit=False, isPlateau=False, figures=['figure_4'])
+Sample.plot_cl_2 = lambda _smp: smp.calculation.recalculate(
+    _smp, re_plot=True, isIsochron=True, isInit=False, isPlateau=False, figures=['figure_5'])
+Sample.plot_cl_3 = lambda _smp: smp.calculation.recalculate(
+    _smp, re_plot=True, isIsochron=True, isInit=False, isPlateau=False, figures=['figure_6'])
+Sample.plot_3D = lambda _smp: smp.calculation.recalculate(
+    _smp, re_plot=True, isIsochron=True, isInit=False, isPlateau=False, figures=['figure_7'])
 
 Sample.show_data = lambda _smp: \
     f"Sample Name: \n\t{_smp.name()}\n" \
