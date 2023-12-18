@@ -122,7 +122,6 @@ function toUnicodeVariant(str, variant, flags='') {
     }
     return result
 }
-
 function myParse(myString) {
     myString = myString.replace(/\bNaN\b/g, '"*isNaN*"').replace(/\bInfinity\b/g, '"*isInfinity*"');
     // console.log(myString);
@@ -135,6 +134,46 @@ function myParse(myString) {
         }
         return value;
     });
+}
+
+class AjaxRequest {
+    constructor(url, content, async) {
+        this.url = url;
+        this.content = content;
+        this.async = async;
+        this.__response = this.send()
+    }
+    send() {
+        let response;
+        $.ajax({
+            url: this.url,
+            type: 'POST',
+            data: JSON.stringify({
+                'content': this.content,
+                'cache_key': cache_key,
+                'user_uuid': localStorage.getItem('fingerprint'),
+            }),
+            async: this.async,
+            contentType:'application/json',
+            success: function(AjaxResults, textStatus, xhr){
+                response = AjaxResults;
+            }
+        });
+        return response;
+    }
+    // get
+    get response() {
+        return this.__response
+    }
+    get results() {
+        return this.__response.res
+    }
+    get massage() {
+        return this.__response.msg
+    }
+    get status() {
+        return this.__response.status
+    }
 }
 
 // extrapolate-functions
@@ -1536,28 +1575,53 @@ function initialRatioSelectChanged() {
 function clickPoints(params) {
     let current_set = ['set_1', 'set_2'][isochronLine1Btn.checked ? 0 : 1];
     let current_figure = getCurrentTableId();
-    // 下面这行先对数据进行json字符串转换，否则在ajax中直接用可能存在数据过长的问题
+    let first_figures, second_figures;
+    let all_figures = ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7'];
+    if (['figure_2', 'figure_3'].indexOf(current_figure) !== -1) {
+        first_figures = ['figure_2', 'figure_3'];
+    } else
+        first_figures = [current_figure];
+    second_figures = all_figures.filter(x => ! first_figures.includes(x));
+
+    // Get new results for the current figure
+    let response = new AjaxRequest(
+        url_click_points, {
+            'clicked_data': params.data, 'current_set': current_set,
+            'auto_replot': ! ctrlIsPressed, 'figures': first_figures,
+        }, false
+    )
+    if (response.status === 100) {
+        let results = myParse(response.results);
+        // let results =  JSON.parse(response.res);
+        sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {item[2]=results['marks'][index];return item});
+        delete results['marks'];
+        sampleComponents = assignDiff(sampleComponents, results);
+        showPage(current_figure);
+        setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5])
+    }
+
+    // Get new results for other figures
+    let content_2 = {
+        'checked_options': [], 'others': {'re_plot': true, 'isInit': false,
+        'isIsochron': true, 'isPlateau': true, 'figures': second_figures,}
+    };
     $.ajax({
-        url: url_click_points,
+        url: url_recalculation,
         type: 'POST',
         data: JSON.stringify({
-            'series_name': params.seriesName,
-            'clicked_data': params.data,
-            'current_set': current_set,
-            'auto_replot': ! ctrlIsPressed,  // Auto replot will be not applied when ctrl is pressed
+            'content': content_2,
             'cache_key': cache_key,
             'user_uuid': localStorage.getItem('fingerprint'),
         }),
-        async: false,
+        async: true,
         contentType:'application/json',
-        success: function(response){
-            let results = myParse(response.res);
-            // let results =  JSON.parse(response.res);
-            sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {item[2]=results['marks'][index];return item});
-            delete results['marks'];
-            sampleComponents = assignDiff(sampleComponents, results);
-            showPage(current_figure);
-            setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5])
+        success: function(AjaxResults, textStatus, xhr){
+            let response_2 = AjaxResults;
+            if (response_2.status === 100) {
+                let results = myParse(response_2.res);
+                sampleComponents = assignDiff(sampleComponents, results);
+                setRightSideText();
+            }
         }
     });
 }
@@ -1669,14 +1733,15 @@ function clickRecalc() {
         type: 'POST',
         data: JSON.stringify({
             'cache_key': cache_key,
-            'checked_options': checked_options,
+            // 'checked_options': checked_options,
+            'content': {'checked_options': checked_options,}
         }),
         contentType:'application/json',
         success: function(response){
-            if (response.status === 'success') {
-                let changed_components = myParse(response.changed_components);
+            if (response.status === 100) {
+                let results = myParse(response.res);
+                sampleComponents = assignDiff(sampleComponents, results);
                 // console.log(changed_components);
-                sampleComponents = assignDiff(sampleComponents, changed_components);
                 showPage(getCurrentTableId());
                 alert("Recalculating Successfully!");
                 setConsoleText('Recalculation has been applied successfully');

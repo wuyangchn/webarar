@@ -190,24 +190,21 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
     def click_points_update_figures(self, request, *args, **kwargs):
         time_start = time.time()
 
-        series_name = self.body['series_name']
-        clicked_data = self.body['clicked_data']
-        current_set = self.body['current_set']
-        auto_replot = self.body['auto_replot']
+        clicked_data = self.content['clicked_data']
+        current_set = self.content['current_set']
+        auto_replot = self.content['auto_replot']
+        figures = self.content.pop('figures', ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7', ])
         sample = self.sample
-
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
-        # log_funcs.set_info_log(
-        #     self.ip, '003', 'info',
-        #     f'Click a point, series name: {series_name}, clicked data: {clicked_data}, '
-        #     f'set: {current_set}')
+
         data_index = clicked_data[-1] - 1  # Isochron plot data label starts from 1, not 0
         sample.set_selection(data_index, [1, 2][current_set == "set_2"])
         time_middle = time.time()
         if auto_replot:
             # Re-plot after clicking points
-            sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
+            sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True, figures=figures)
             # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
+        time_middle2 = time.time()
         http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
         # Response are changes in sample.Components, in this way we can decrease the size of response.
         res = ap.smp.basic.get_diff_smp(
@@ -217,9 +214,9 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         ap.smp.table.update_table_data(sample, only_table='7')
 
         time_end = time.time()
-        print(f'time cost: {time_end - time_start}s = {time_middle - time_start} + {time_end - time_middle}')
+        print(f'time cost: {time_end - time_start}s = {time_middle - time_start} + {time_middle2 - time_middle} + {time_end - time_middle2}')
 
-        return JsonResponse({'res': ap.files.json.dumps(res)})
+        return JsonResponse({'res': ap.files.json.dumps(res), 'status': 100})
 
     def update_handsontable(self, request, *args, **kwargs):
         btn_id = str(self.body['btn_id'])
@@ -514,24 +511,24 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
     def recalculation(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '003', 'info', f'Recalculation, sample name: {self.sample.Info.sample.name}')
         sample = self.sample
-        checked_options = self.body['checked_options']
+        checked_options = self.content['checked_options']
+        others = self.content.pop('others', {})
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
         try:
             # Re-calculating based on selected options
-            sample.recalculate(*checked_options)
+            sample.recalculate(*checked_options, **others)
             # sample = ap.recalculate(sample, *checked_options)
         except Exception as e:
             print(traceback.format_exc())
-            return JsonResponse({'status': 'fail', 'msg': f'Error in recalculating: {e}'})
+            return JsonResponse({'status': 200, 'msg': f'Error in recalculating: {e}'})
         ap.smp.table.update_table_data(sample)  # Update data of tables after re-calculation
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
-        print(f"Diff after recalculation: {res}")
+        # print(f"Diff after recalculation: {res}")
         return JsonResponse({
-            'status': 'success', 'msg': "Success to recalculate",
-            'changed_components': ap.files.json.dumps(res)
+            'status': 100, 'msg': "Success to recalculate", 'res': ap.files.json.dumps(res)
         })
 
     # def calc_change_irra_projects(self, request, *args, **kwargs):
