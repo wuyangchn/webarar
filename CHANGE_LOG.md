@@ -2,6 +2,12 @@
 
 The version number of WebArAr is updated simultaneously with ArArPy.
 
+## to do
+
+* Raw data input
+* Error type selection 
+
+
 # 0.0.1a4 (updating)
 
 * Fixed typos in the readme document.

@@ -1,24 +1,30 @@
 
+*Thank you for using WebArAr. As of **December 17, 2023**, this documentation provides 
+a short introduction to the features and functionalities available in the 
+current release. However, it is planned to enhance and expand it to be better.*
+
 # WebArAr
 
----
-***Thank you for using WebArAr. As of December 17, 2023, this documentation provides 
-a short introduction to the features and functionalities available in the 
-current release. However, it is planned to enhance and expand it to be better.***
+WebArAr is a web-based application designed for <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data (based on [Django](https://www.djangoproject.com/)).
+
+* The backend functionalities are provided by [ArArPy](#ararpy). 
+* WebArAr provides an intuitive interface, forstering a user-friendly and interactive experience.
+
+Visit [WebArAr](https://www.webarar.net)
 
 
-## Content
+<!-- ## Content
 
-[Introduction](#Introduction)
+[Introduction](#introduction)
 
-[Features](#Features)
+[Features](#features)
 
-[ArArPy](#ArArPy)
+[ArArPy](#ararpy)
 
 
-## Introduction
+## Introduction -->
 
-WebArAr is a web-based application designed for the reduction and analysis 
+<!-- WebArAr is a web-based application designed for the reduction and analysis 
 of <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data for both beginners 
 and professionals. This platform provides researchers with a user-friendly 
 interface to input raw data, conduct various calculations to determine ages, 
@@ -36,14 +42,11 @@ to yield a simple and responsive interface. Apache Echarts
 such as age spectra and isochrone diagrams. 
 The data tables are created using Handsontable, a commercial software but free 
 for non-commercial purposes such as academic research 
-(https://github.com/handsontable/handsontable/). 
+(https://github.com/handsontable/handsontable/).  -->
 
-#### How to access WebArAr
 
-Visit [WebArAr](https://www.webarar.net) to explore the platform and start 
-your <sup>40</sup>Ar/<sup>39</sup>Ar dating data analysis.
 
-## Features
+# Features
 
 #### 1. **Interactive data input:**
    - Easily enter raw data from mass spectrometers through an interactive 
@@ -76,7 +79,46 @@ your <sup>40</sup>Ar/<sup>39</sup>Ar dating data analysis.
    - Acknowledges the variability of MSWD values and challenges the rigid 
    requirement for values to be close to 1.
 
-## ArArPy
+# Usage
+
+* Access the application at http://www.webarar.net.
+* (Optional) Install and launch WebArAr on your laptop for offline usage. See [Installation](#installation).
+* (Optional) Use ArArPy with a Python terminal. See [ArArPy](#ararpy).
+
+# Instruction
+
+* See [user manual](#).
+* See [video](#).
+
+# Installation
+
+The following instruction is for local usage. If you are planning to run WebArAr on a server computer instead, you can do much the same as mentioned below, but with some additional steps for a more stable application, such as replacing the built-in web server.
+
+#### 1. Install Python 3
+
+    (to be completed)
+   
+   
+
+#### 2. Install MySql
+
+    (to be completed)
+
+#### 3. Redis
+
+    (to be completed)
+
+#### 4. Download codes
+
+    (to be completed)
+
+#### 5. Run server
+
+    (to be completed)
+
+### 
+
+# ArArPy
 
 The main python code used in WebArAr is packaged as ArArPy and uploaded to PyPI.
 ArArPy includes all data processing steps, including reading data from local files, 
