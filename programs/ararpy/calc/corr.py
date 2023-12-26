@@ -9,6 +9,7 @@
 #
 #
 """
+import re
 import traceback
 
 from ..calc import arr, err
@@ -112,6 +113,23 @@ def discr(a0: list, e0: list, mdf: list, smdf: list, m: list, m40: list,
 
 def decay(a0: list, e0: list, t1: list, t2: list, t3: list, f: list, sf: list,
           unit: str = 'h', isRelative=True):
+    """
+    Parameters
+    ----------
+    a0
+    e0
+    t1 : [year, month, day, hour, min, (second)], test start time
+    t2
+    t3
+    f
+    sf
+    unit
+    isRelative
+
+    Returns
+    -------
+
+    """
     r0, r1 = [], []
     if isRelative:
         sf = [sf[i] * f[i] / 100 for i in range(len(sf))]
@@ -215,8 +233,7 @@ def get_irradiation_datetime_by_string(datetime_str: str):
     cycles = datetime_str.split('S')
     for cycle in cycles:
         [dt, hrs] = cycle.split('D')
-        [d, t1, t2] = dt.rsplit('-', 2)
-        res = res + [d+'T'+t1+':'+t2, float(hrs)]
+        res = res + [dt, float(hrs)]
     return res
 
 

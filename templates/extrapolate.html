@@ -134,6 +134,7 @@
                             <button id="file-btn-import-blank" type="button" class="btn btn-primary" hidden>Import from (to be completed)</button>
                             <form id="form-import-blank-file" enctype="multipart/form-data">
                                 <label><input type="file" style="display: none" id="file-input-import-blank" name="blank_file" accept=".xls"></label>
+                                <label><input type="text" style="display: none" id="file-input-cache-key" name="cache_key"></label>
                             </form>
                         </div>
                         <div class="row">
@@ -449,18 +450,18 @@
         </form>
     </div>
     <script type="text/javascript">
-        let myRawData2 = {{ raw_data | safe }};
+        let myRawData = {{ raw_data | safe }};
         let myRawCacheKey = {{ raw_cache_key | safe }};
-        console.log(myRawData2);
+        console.log(myRawData);
         let newSequencesList = [];
         let current_page = 1;
-        let max_page = myRawData2.sequence_num;
+        let max_page = myRawData.sequence_num;
         let sequenceContainer = document.getElementById('sequenceContainer');
         // 创建图形, 初始化echarts实例
         let chartBig = echarts.init(document.getElementById('figure-big'), null, {renderer: 'svg'});
         chartBig.setOption(getExtrapolateDefaultOption());
         chartBig.setOption({
-            title: {text: `${myRawData2.sequence[current_page-1].name} Ar36`},
+            title: {text: `${myRawData.sequence[current_page-1].name} Ar36`},
             toolbox: {feature: {dataView: {show: true, readOnly: true}, saveAsImage: { show: true }}},
             xAxis: {name: 'Time (s)', axisLabel: {show: true}, axisTick: {show: true, lineStyle: {width: 1, color: '#333'}}},
             yAxis: {name: 'Intensity (fA)', axisLabel: {show: true}, axisTick: {show: true}},

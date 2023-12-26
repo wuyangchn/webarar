@@ -212,10 +212,10 @@ function addNewBlankButtonClicked() {
         let option = document.createElement("option");
         option.value = name;
         option.innerText = name;
-        myRawData2.sequence.push(...newSequencesList.filter((v, _i) => v.name === name));
+        myRawData.sequence.push(...newSequencesList.filter((v, _i) => v.name === name));
     }
     $('#table-sequences').bootstrapTable('destroy');
-    initialTable(myRawData2.sequence.filter((v, i) => v.is_blank).map((v, i) => v.name));
+    initialTable(myRawData.sequence.filter((v, i) => v.is_blank).map((v, i) => v.name));
     updateSequenceTable();
     corrBlankMethodChanged();
 }
@@ -260,6 +260,7 @@ function removeRawFile(unique_id) {
 }
 function importBlank() {
     if ($('#file-input-import-blank').val() === '') {return}
+    $('#file-input-cache-key').val(myRawCacheKey);
     let formData = new FormData(document.getElementById("form-import-blank-file"));
     $.ajax({
         url: url_raw_import_blank_file,
@@ -274,10 +275,6 @@ function importBlank() {
             let new_sequences = myParse(myParse(res).new_sequences);
             newSequencesList.push(...new_sequences);
             $('#outputBlankSequences').val(new_sequences.map((v, i) => v.name).join(';'));
-            // $('#table-sequences').bootstrapTable('destroy');
-            // initialTable(myRawData2.sequence.filter((v, i) => v.is_blank).map((v, i) => v.name));
-            // updateSequenceTable();
-            // corrBlankMethodChanged();
         }
     })
 }
@@ -380,7 +377,7 @@ function chartScatterClicked(params) {
         contentType:'application/json',
         success: function(res){
             if (res.status === 100) {
-                myRawData2.sequence[current_page - 1] = myParse(res.sequence);
+                myRawData.sequence[current_page - 1] = myParse(res.sequence);
                 updateCharts(smCharts, chartBig, current_page-1, false);
             } else {alert(res.msg)}
         }
@@ -391,14 +388,14 @@ function corrBlankMethodChanged() {
         url: url_raw_corr_blank_method_changed,
         type: 'POST',
         data: JSON.stringify({
-            'isBlank': myRawData2.sequence.map((seq, index) => seq.is_blank && !seq.is_estimated),
+            'isBlank': myRawData.sequence.map((seq, index) => seq.is_blank && !seq.is_estimated),
             'corrBlankMethod': $('#corrBlankMethod').val()
         }),
         contentType:'application/json',
         success: function(res){
             let blank_name = [];
             for (let i=0;i<res.blankIndex.length;i++){
-                blank_name.push(res.blankIndex[i]!==-1?myRawData2.sequence[res.blankIndex[i]].name:'Interpolated Blank');
+                blank_name.push(res.blankIndex[i]!==-1?myRawData.sequence[res.blankIndex[i]].name:'Interpolated Blank');
             }
             $.each(blank_name, function (index, item) {
                 $('#blank-sele'+Number(index+1)).val(item);
@@ -470,12 +467,12 @@ function fitMethodChanged() {
     let sel = $('#fitMethod');
     if (document.getElementById("applyFitMethodToAll").checked) {
         for (let i in [0, 1, 2, 3, 4]) {
-            for (let j=0; j<myRawData2.sequence_num; j++) {
-                myRawData2.sequence[j].fitting_method[i] = sel.val();
+            for (let j=0; j<myRawData.sequence_num; j++) {
+                myRawData.sequence[j].fitting_method[i] = sel.val();
             }
         }
     }
-    myRawData2.sequence[current_page-1].fitting_method[getCurrentIsotope()] = sel.val();
+    myRawData.sequence[current_page-1].fitting_method[getCurrentIsotope()] = sel.val();
     sel.blur();  // This is to let select element ignore key operations after changes
                  // otherwise left/right arrow key will change page and also change fitting method.
 }
@@ -494,6 +491,7 @@ function getAverageofBlanks() {
         type: 'POST',
         data: JSON.stringify({
             'blanks': blanksInfos,
+            'cache_key': myRawCacheKey,
         }),
         contentType:'application/json',
         success: function(res){
@@ -523,7 +521,7 @@ function getInterpolatedBlank() {
     let charts = getLinkedChart('figure-main', 'figure-01', 'figure-02', 'figure-03', 'figure-04', 'figure-05');
     $.each(charts, function (index, each) {
         let scatter_data = [transpose(blank_data)[0], transpose(blank_data)[index===0?1:index]];
-        let datatime_list = myRawData2.sequence.map((v, i) => v.datetime);
+        let datatime_list = myRawData.sequence.map((v, i) => v.datetime);
         let line_results = {
             linear: getRegressionResults(scatter_data, 'linear', datatime_list),
             quadratic: getRegressionResults(scatter_data, 'quadratic', datatime_list),
@@ -586,7 +584,22 @@ function getInterpolatedBlank() {
             alert(`Results unavailable, please select another fitting method for Ar${['36', '37', '38', '39', '40'][isotope]}!`);
             return
         }
-        myRawData2['interpolated_blank'] = transpose(interpolated_blank);
+
+        interpolated_blank = transpose(interpolated_blank)
+
+        $.ajax({
+            url: url_raw_interpolated_blanks,
+            type: 'POST',
+            data: JSON.stringify({
+                'interpolated_blank': interpolated_blank,
+                'cache_key': myRawCacheKey,
+            }),
+            contentType:'application/json',
+            success: function(res){
+                myRawData['interpolated_blank'] = myParse(res.new_sequences);
+            }
+        });
+
         newSequencesList.push({
             "index": "undefined",
             "name": "Interpolated Blank",
@@ -615,7 +628,7 @@ function getInterpolatedBlank() {
 }
 function getBlankInfo(item) {
     // blank sequence name
-    let blank = myRawData2.sequence.filter((seq, index) => seq.name === item)[0];
+    let blank = myRawData.sequence.filter((seq, index) => seq.name === item)[0];
     return [
         blank.results[0][blank.fitting_method[0]], blank.results[1][blank.fitting_method[1]],
         blank.results[2][blank.fitting_method[2]], blank.results[3][blank.fitting_method[3]],
@@ -750,7 +763,7 @@ function irradiationCyclesChanged(num) {
     }
 }
 function isBlankLabelChanged() {
-    myRawData2.sequence[current_page-1].is_blank = $('#isBlank').is(':checked');
+    myRawData.sequence[current_page-1].is_blank = $('#isBlank').is(':checked');
 }
 function lastSequence() {
     if (current_page - 1 > 0){
@@ -765,34 +778,6 @@ function nextSequence() {
 function setSmChartClickListen(smCharts, bigChart) {
     for (let i=0;i<smCharts.length;i++) {
         smCharts[i].getZr().on('click', function(event) {
-            // // Setting big figure based on the clicked small figure
-            // let text = [
-            //     ['', 'Intercept', 'Standard error', 'Relative error', 'R2'],
-            //     ['Linear'].concat(myRawData2.sequence[current_page-1].results[i][0]),
-            //     ['Quadratic'].concat(myRawData2.sequence[current_page-1].results[i][1]),
-            //     ['Exponential'].concat(myRawData2.sequence[current_page-1].results[i][2]),
-            //     ['Power'].concat(myRawData2.sequence[current_page-1].results[i][3]),
-            //     ['Average'].concat(myRawData2.sequence[current_page-1].results[i][4]),
-            // ];
-            // bigChart.setOption({
-            //     title: {text: `${myRawData2.sequence[current_page-1].name} ${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][i]}`},
-            //     series: [
-            //         {id: 'FilledPoints', data: getSeriesById('FilledPoints', smCharts[i].getOption().series).data},
-            //         {id: 'UnfilledPoints', data: getSeriesById('UnfilledPoints', smCharts[i].getOption().series).data},
-            //         {id: 'LineRegression', data: getSeriesById('LineRegression', smCharts[i].getOption().series).data},
-            //         {id: 'QuadRegression',data: getSeriesById('QuadRegression', smCharts[i].getOption().series).data},
-            //         {id: 'ExpRegression', data: getSeriesById('ExpRegression', smCharts[i].getOption().series).data},
-            //         {id: 'PowRegression', data: getSeriesById('PowRegression', smCharts[i].getOption().series).data},
-            //         {id: 'Average', data: getSeriesById('Average', smCharts[i].getOption().series).data},
-            //     ],
-            //     graphic: [{
-            //         id: 'LinesResults', type: 'text', z: 0, left: "10%", top: "80%", draggable: true,
-            //         style: {text: text_table(text), font: '16px "", Consolas, monospace'},
-            //     }],
-            //     animation: false,
-            // });
-            // // 设置选择框
-            // $('#fitMethod').val(myRawData2.sequence[current_page-1].fitting_method[i]);
             // 设置小图颜色
             smCharts[i].setOption({
                 series: [
@@ -811,15 +796,6 @@ function setSmChartClickListen(smCharts, bigChart) {
     }
     smCharts[0].setOption({
         series: [{color: FILLED_POINTS_COLOR}, {itemStyle: {normal: {borderColor: FILLED_POINTS_COLOR}}}]});
-    // bigChart.setOption({
-    //     series: [
-    //         {data: smCharts[0].getOption().series[0].data},
-    //         {data: smCharts[0].getOption().series[1].data},
-    //         {data: smCharts[0].getOption().series[2].data},
-    //         {data: smCharts[0].getOption().series[3].data},
-    //         {data: smCharts[0].getOption().series[4].data},
-    //         {data: smCharts[0].getOption().series[5].data},
-    //     ]});
 }
 function showModal(id) {
     $('.modal:visible').modal('hide');
@@ -834,7 +810,7 @@ function showSequence(page) {
     for (let i=0;i<btns.length;i++){
         if (btns[i].innerText === page.toString()){
             btns[i].className = 'btn btn-primary';
-        } else if (myRawData2.sequence[i].is_blank) {
+        } else if (myRawData.sequence[i].is_blank) {
             btns[i].className = 'btn btn-grey btn-no-outline';
         } else {
             btns[i].className = 'btn btn-default btn-no-outline';
@@ -853,8 +829,8 @@ function showSequence(page) {
         $('#next_page').attr("disabled",false);
     }
     updateCharts(smCharts, chartBig, page-1, true);
-    $('#fitMethod').val(myRawData2.sequence[page-1].fitting_method[getCurrentIsotope()]);
-    $('#isBlank').prop("checked", myRawData2.sequence[page-1].is_blank);
+    $('#fitMethod').val(myRawData.sequence[page-1].fitting_method[getCurrentIsotope()]);
+    $('#isBlank').prop("checked", myRawData.sequence[page-1].is_blank);
     // console.log(chartBig.getOption());
 }
 function submitDelete() {
@@ -863,8 +839,8 @@ function submitDelete() {
 }
 function submitExtrapolate() {
 
-    let unknown_sequence = myRawData2.sequence.filter((seq, index) => !seq.is_blank);
-    let blank_sequence = myRawData2.sequence.filter((seq, index) => seq.is_blank);
+    let unknown_sequence = myRawData.sequence.filter((seq, index) => !seq.is_blank);
+    let blank_sequence = myRawData.sequence.filter((seq, index) => seq.is_blank);
     // 初始化表格+
     $('#table-sequences').bootstrapTable('destroy');
     initialTable(blank_sequence.map((seq, index) => seq.name));
@@ -896,38 +872,9 @@ function submitOrSave() {
 function submitRawData() {
     // Get boostraptable content
     let selectedSequences = $('#table-sequences').bootstrapTable('getSelections');
-    let interceptData = selectedSequences.map((each, index) => {
-        let sequence = myRawData2.sequence.filter((v, i) => v.name === each.unknown)[0];
+    selectedSequences.map((each, index) => {
         each['blank'] = $('#blank-sele'+each.id).find("option:selected").text();
-        each['experimentTime'] = sequence.datetime;
-        each['unknownData'] = [].concat(...sequence.results.map((isotope, _) => {
-            return isotope[sequence.fitting_method[_]].slice(0, 2);
-        }));
-        try {
-            if (each.blank !== "Interpolated Blank") {
-                let blank_sequence = myRawData2.sequence.filter((v, i) => v.name === each.blank)[0];
-                each['blankData'] = [].concat(...blank_sequence.results.map((isotope, _) => {
-                    return isotope[blank_sequence.fitting_method[_]].slice(0, 2);
-                }));
-            } else {
-                each['blankData'] = [].concat(...myRawData2.interpolated_blank[index].map((isotope, _) => {
-                    return [isotope[1], 0]
-                }))
-            }
-        } catch (e) {
-            if (!(e instanceof Error)) {
-                e = new Error(e);
-            }
-            return e;
-        }
-        return each;
-    });
-    for (let i=0; i<interceptData.length; i++ ) {
-        if (interceptData[i] instanceof Error) {
-            alert(`Error! The blank sequence name does not exists.\nSequence index = ${i}`);
-            return
-        }
-    }
+    })
     // Get params
     let irradiation_params = {};
     let calculation_params = {};
@@ -947,7 +894,6 @@ function submitRawData() {
     // Get sample info
     let sample_info = Array.prototype.map.call(
         document.getElementsByClassName('sample-info'), (each, index) => (each.value));
-    console.log(myRawData2);
     $.ajax({
         url: url_raw_submit,
         type: 'POST',
@@ -956,8 +902,7 @@ function submitRawData() {
             'calculationParams': calculation_params,
             'sampleParams': sample_params,
             'sampleInfo': sample_info,
-            'interceptData': interceptData,
-            'rawData': myRawData2,
+            'selectedSequences': selectedSequences,
             'cache_key': myRawCacheKey,
             'fingerprint': localStorage.getItem('fingerprint'),
         }),
@@ -991,11 +936,10 @@ function generateLinesData(func, xmin=0, xmax=200, num=20) {
 }
 function updateCharts(smCharts, bigChart, sequence_index, animation) {
     let [selected, unselected] = getSelectedData(
-        myRawData2.sequence[sequence_index].data, myRawData2.sequence[sequence_index].flag);
-    let coeff = myRawData2.sequence[sequence_index].coefficients;
+        myRawData.sequence[sequence_index].data, myRawData.sequence[sequence_index].flag);
+    let coeff = myRawData.sequence[sequence_index].coefficients;
     for (let i=0;i<smCharts.length;i++) {
         // smCharts length should be 5
-        // let xmax = myRawData2.sequence[sequence_index].data[myRawData2.sequence[sequence_index].data.length - 1][i * 2 + 1]
         let xmax = Math.max(...selected.map((value, index) => value[i * 2 + 1]).filter(value => !Number.isNaN(value)));
         let option = {
             series: [
@@ -1015,20 +959,18 @@ function updateCharts(smCharts, bigChart, sequence_index, animation) {
             animation: animation,
         };
         smCharts[i].setOption(option);
-        // let [xmin, xmax] = smCharts[i]._model._componentsMap.get('xAxis')[0].axis._extent;
-        // let [ymin, ymax] = smCharts[i]._model._componentsMap.get('yAxis')[0].axis._extent;
         if (smCharts[i].getOption().series[0].color === FILLED_POINTS_COLOR) {
             bigChart.setOption(option);
             let text = [
                 ['', 'Intercept', 'Standard error', 'Relative error', 'R2'],
-                ['Linear'].concat(myRawData2.sequence[sequence_index].results[i][0]),
-                ['Quadratic'].concat(myRawData2.sequence[sequence_index].results[i][1]),
-                ['Exponential'].concat(myRawData2.sequence[sequence_index].results[i][2]),
-                ['Power'].concat(myRawData2.sequence[sequence_index].results[i][3]),
-                ['Average'].concat(myRawData2.sequence[sequence_index].results[i][4]),
+                ['Linear'].concat(myRawData.sequence[sequence_index].results[i][0]),
+                ['Quadratic'].concat(myRawData.sequence[sequence_index].results[i][1]),
+                ['Exponential'].concat(myRawData.sequence[sequence_index].results[i][2]),
+                ['Power'].concat(myRawData.sequence[sequence_index].results[i][3]),
+                ['Average'].concat(myRawData.sequence[sequence_index].results[i][4]),
             ];
             bigChart.setOption({
-                title: {text: `${myRawData2.sequence[sequence_index].name} ${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][i]}`},
+                title: {text: `${myRawData.sequence[sequence_index].name} ${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][i]}`},
                 graphic: [{
                     id: 'LinesResults', type: 'text', z: 0, left: "10%", top: "80%", draggable: true,
                     style: {fill: '#FF0000', overflow: 'break', text: text_table(text), font: '16px "", Consolas, monospace'},
@@ -1039,7 +981,7 @@ function updateCharts(smCharts, bigChart, sequence_index, animation) {
 }
 function updateSequenceTable() {
     let tableData = [];
-    let unknown_sequence = myRawData2.sequence.filter((seq, index) => !seq.is_blank);
+    let unknown_sequence = myRawData.sequence.filter((seq, index) => !seq.is_blank);
     for (let i=0; i<unknown_sequence.length; i++){
         tableData.push({
             'id': i+1, 'unknown': unknown_sequence[i].name, 'label': unknown_sequence[i].type_str
@@ -1191,7 +1133,7 @@ function getLinkedChart(mainDiv, ...divs) {
             filledData.push(scatterValue);
         }
         let scatterData = [transpose(filledData)[params.encode.x[0]], transpose(filledData)[params.encode.y[0]]];
-        let datetime_list = myRawData2.sequence.map((v, i) => v.datetime);
+        let datetime_list = myRawData.sequence.map((v, i) => v.datetime);
         let lineResults = {
             linear: getRegressionResults(scatterData, 'linear', datetime_list),
             quadratic: getRegressionResults(scatterData, 'quadratic', datetime_list),

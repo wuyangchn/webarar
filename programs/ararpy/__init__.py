@@ -151,6 +151,7 @@ Sample.corr_cl = smp.corr.calc_degas_cl
 Sample.corr_atm = smp.corr.calc_degas_atm
 Sample.corr_r = smp.corr.calc_degas_r
 Sample.calc_ratio = smp.corr.calc_ratio
+Sample.set_params = smp.basic.set_params
 
 Sample.recalculate = lambda _smp, *args, **kwargs: smp.calculation.recalculate(_smp, *args, **kwargs)
 Sample.plot_init = lambda _smp: smp.calculation.recalculate(
@@ -205,8 +206,8 @@ RawData.get_results = lambda _raw, sequence_index, isotopic_index, method_index:
 RawData.do_regression = lambda _raw, sequence_index=None, isotopic_index=None, flag=None: \
     files.raw_file.do_regression(_raw, sequence_index, isotopic_index, flag)
 RawData.get_data_df = lambda _raw: files.raw_file.get_data_df(_raw)
-RawData.get_sequence = lambda _raw, index=None: _raw.sequence if index is None else _raw.sequence[index]
-RawData.to_sample = lambda _raw, mapping: files.raw_file.to_sample(mapping)
+RawData.get_sequence = lambda _raw, index=None, flag=None: files.raw_file.get_sequence(_raw, index, flag)
+RawData.to_sample = lambda _raw, mapping, *args: files.raw_file.to_sample(_raw, mapping, *args)
 Sequence.get_data_df = lambda _seq: pd.DataFrame(_seq.data)
 Sequence.get_flag_df = lambda _seq: pd.DataFrame(_seq.flag)
 

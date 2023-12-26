@@ -85,10 +85,10 @@ def corr_decay(sample: Sample):
     decay_corrected = [[]]*10
     try:
         irradiation_cycles = [list(filter(None, re.split(r'[DS]', each_step))) for each_step in sample.TotalParam[27]]
-        t1 = [i.split('-') for i in sample.TotalParam[31]]  # t1: experimental times
+        t1 = [re.findall(r"\d+", i) for i in sample.TotalParam[31]]  # t1: experimental times
         t2, t3 = [], []  # t2: irradiation times, t3: irradiation durations
         for each_step in irradiation_cycles:
-            t2.append([item.split('-') for i, item in enumerate(each_step) if i % 2 == 0])
+            t2.append([re.findall(r"\d+", item) for i, item in enumerate(each_step) if i % 2 == 0])
             t3.append([item for i, item in enumerate(each_step) if i % 2 == 1])
         decay_corrected[2:4] = calc.corr.decay(
             *sample.MassDiscrCorrected[2:4], t1, t2, t3, *sample.TotalParam[44:46], isRelative=True)
