@@ -188,8 +188,12 @@ STATICFILES_DIRS = [
 DOWNLOAD_URL = 'static/download/'
 DOWNLOAD_ROOT = os.path.join(STATIC_DIR, 'download')
 # 用户上传文件的服务器保存地址
-UPLOAD_URL = 'static/upload/'
-UPLOAD_ROOT = os.path.join(STATIC_DIR, 'upload')
+# 如果使用static目录所有用户可以尝试文件名下载上传的文件
+# UPLOAD_URL = 'static/upload/'
+# UPLOAD_ROOT = os.path.join(STATIC_DIR, 'upload')
+PRIVATE_DIR = os.path.join(BASE_DIR, 'private')
+UPLOAD_URL = 'private/upload/'
+UPLOAD_ROOT = os.path.join(PRIVATE_DIR, 'upload')
 # 设置文件地址
 SETTINGS_URL = 'static/settings/'
 SETTINGS_ROOT = os.path.join(STATIC_DIR, 'settings')

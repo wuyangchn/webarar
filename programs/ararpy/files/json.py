@@ -9,7 +9,7 @@
 #
 #
 """
-from ..smp import Sample, Info, Table, Plot
+from ..smp import Sample, Info, Table, Plot, RawData, Sequence
 
 import json
 import numpy as np
@@ -40,9 +40,14 @@ class MyEncoder(json.JSONEncoder):
         # numpy.int32
         if isinstance(obj, np.int32):
             return int(obj)
-        # sample instance
+        # sample or raw instance
         if isinstance(obj, (Sample, Info, Plot, Table, Plot.Text,
-                            Plot.Axis, Plot.Label, Plot.Set, Plot.BasicAttr)):
+                            Plot.Axis, Plot.Label, Plot.Set, Plot.BasicAttr,
+                            RawData, Sequence)):
+            if isinstance(obj, Sequence):
+                return dict(obj.__dict__, **{
+                    'is_blank': obj.is_blank, 'is_unknown': obj.is_unknown,
+                    'is_air': obj.is_air})
             return obj.__dict__
         if not isinstance(obj, (int, str, list, dict, tuple, float)):
             print(f"Special type, {type(obj) = }, {obj = }")

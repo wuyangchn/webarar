@@ -17,6 +17,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import distributions
 from scipy.optimize import fsolve
+import warnings
+warnings.simplefilter(action="ignore", category=RuntimeWarning)
 
 
 def york2(x: list, sx: list, y: list, sy: list, ri: list, f: int = 1,
@@ -62,7 +64,7 @@ def york2(x: list, sx: list, y: list, sy: list, ri: list, f: int = 1,
     temp_lst = linest(Y, X)
     if not temp_lst:
         return False
-    b, seb, m, sem = temp_lst[0], temp_lst[1], temp_lst[5][0], temp_lst[6][0]
+    b, seb, m, sem = temp_lst[5][0], temp_lst[6][0], temp_lst[5][1], temp_lst[6][1]
     b = mY(m, b) - m * mX(m, b)
     last_m = 1e10
     Di = 0  # Iteration number
@@ -208,7 +210,7 @@ def wtd_3D_regression(x: list, sx: list, y: list, sy: list, z: list, sz: list, r
     new_c = lambda a, b: mZ(a, b) - a * mX(a, b) - b * mY(a, b)
     # Initial values of a, b, and c from OLS
     linest_res = linest(z, x, y)
-    c, sc, k2, k3, k4, [a, b], [sa, sb] = linest_res[0:7]
+    c, sc, k2, k3, k4, [_, a, b], [_, sa, sb] = linest_res[0:7]
     c = new_c(a, b)
     k = 1  # Error magnification factor
     last_a = 1e10
@@ -433,8 +435,8 @@ def linest(a0: list, a1: list, *args):
     estimate_y = np.matmul(x, beta)
     resid = (estimate_y - y) ** 2
     reg = (estimate_y - np.mean(estimate_y)) ** 2
-    ssresid = sum(resid)
-    ssreg = sum(reg)
+    ssresid = resid.sum()
+    ssreg = reg.sum()
     sstotal = ssreg + ssresid
     df = m - n
     m_ssresid = ssresid / df
@@ -447,7 +449,7 @@ def linest(a0: list, a1: list, *args):
         args = [[1] * len(args[0]), *args]
         return [sum([beta[i] * args[i][j] for i in range(len(beta))]) for j in range(len(args[0]))]
 
-    return beta[0], se_beta[0], se_beta[0], r2, 'mswd', beta[1:], se_beta[1:], get_adjusted_y, m_ssresid
+    return beta[0], se_beta[0], se_beta[0], r2, 'mswd', beta, se_beta, get_adjusted_y, m_ssresid
 
 
 def average(a0: list, a1=None):
@@ -476,8 +478,8 @@ def average(a0: list, a1=None):
     k2 = k1 / k0 * 100 if k0 != 0 else 0  # relative standard error
     k3 = r2  # determination coefficient
     k4 = 'MSWD'
-    k5 = []
-    k6 = []
+    k5 = [k0]
+    k6 = [k1]
     k8 = m_ssresid
 
     def get_adjusted_y(x: list):
@@ -674,7 +676,7 @@ def quadratic(a0: list, a1: list):
     """
     # y = b + m1 * x + m2 * x ^ 2
     k = list(linest(a0, a1, [i ** 2 for i in a1]))
-    b, seb, rseb, r2, mswd, [m1, m2], [sem1, sem2] = k[0:7]
+    b, seb, rseb, r2, mswd, [b, m1, m2], [seb, sem1, sem2] = k[0:7]
 
     def get_adjusted_y(x: list):
         return [b + m1 * _x + m2 * _x ** 2 for _x in x]
@@ -693,10 +695,10 @@ def polynomial(a0: list, a1: list, degree: int = 5):
     """
     # y = b + m1 * x + m2 * x ^ 2 + ... + m[n] * x ^ n
     k = list(linest(a0, *[[j ** (i + 1) for j in a1] for i in range(degree)]))
-    b, seb, rseb, r2, mswd, m, sem = k[0:7]
+    b, seb, rseb, r2, mswd, [b, m], [seb, sem] = k[0:7]
 
     def get_adjusted_y(x: list):
-        return [b + sum([m[i] * _x ** (i + 1) for i in range(degree)]) for _x in x]
+        return [b + sum([m * _x ** (i + 1) for i in range(degree)]) for _x in x]
 
     k[7] = get_adjusted_y
 
@@ -712,7 +714,7 @@ def logest(a0: list, a1: list):
     # y = b * m ^ x, Microsoft Excel LOGEST function, ln(y) = ln(b) + ln(m) * x
     a0 = [np.log(i) for i in a0]  # ln(y)
     linest_res = linest(a0, a1)
-    b, seb, rseb, r2, mswd, [lnm], [selnm] = linest_res[0:7]
+    b, seb, rseb, r2, mswd, [b, lnm], [seb, selnm] = linest_res[0:7]
     b = np.exp(b)
     m = np.exp(lnm)
     sem = np.exp(lnm) * selnm
@@ -752,7 +754,7 @@ def power(a0: list, a1: list):
 
     def _get_abc(b):  # Return a, b, c given b based on linest regression
         f = linest(a0, [_x ** b for _x in a1])
-        return f[5][0], b, f[0]
+        return f[5][1], b, f[0]
 
     try:
         a, b, c = fsolve(func=_solve_pow, x0=np.array([1, 1, 1]))  # initial estimate
@@ -786,7 +788,7 @@ def power(a0: list, a1: list):
         raise IndexError
 
     f = linest(a0, [_x ** b for _x in a1])
-    a, sea, c, sec = f[5][0], f[6][0], f[0], f[1]
+    a, sea, c, sec = f[5][1], f[6][1], f[0], f[1]
 
     calculated_y = [_pow_func(i, a, b, c) for i in a1]
     resid = [(calculated_y[i] - a0[i]) ** 2 for i in range(len(a0))]
@@ -844,7 +846,7 @@ def exponential(a0: list, a1: list):
 
     def _get_ac(b):
         f = linest(a0, [b ** _x for _x in a1])
-        return f[5][0], b, f[0]
+        return f[5][1], b, f[0]
 
     try:
         a, b, c = fsolve(_solve_exp, np.array([1, 1, 1]))
@@ -879,7 +881,7 @@ def exponential(a0: list, a1: list):
         raise IndexError
 
     f = linest(a0, [b ** _x for _x in a1])
-    a, sea, c, sec = f[5][0], f[6][0], f[0], f[1]
+    a, sea, c, sec = f[5][1], f[6][1], f[0], f[1]
 
     calculated_y = [_exp_func(i, a, b, c) for i in a1]
     resid = [(calculated_y[i] - a0[i]) ** 2 for i in range(len(a0))]

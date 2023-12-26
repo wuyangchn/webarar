@@ -42,7 +42,12 @@
                             </div>
                             <div class="checkbox-inline">
                                 <label>Fitting method:
-                                    <select id="fitMethod" class="form-control" onchange="fitMethodChanged()">
+                                    <select id="fitMethod" class="form-control" onchange="fitMethodChanged()" onkeydown="function _ignoreKey(e) {
+                                        if(e.keyCode === 37 || e.keyCode === 39) { // left or right
+                                            e.preventDefault();
+                                            return false;
+                                        }
+                                    }">
                                         <option value="0">Linear</option>
                                         <option value="1">Quadratic</option>
                                         <option value="2">Power</option>
@@ -444,16 +449,17 @@
         </form>
     </div>
     <script type="text/javascript">
-        let myRawData = {{ data | safe }};
-        console.log(myRawData);
+        let myRawData2 = {{ raw_data | safe }};
+        let myRawCacheKey = {{ raw_cache_key | safe }};
+        console.log(myRawData2);
         let current_page = 1;
-        let max_page = myRawData.selectedData.length;
+        let max_page = myRawData2.sequence_num;
         let sequenceContainer = document.getElementById('sequenceContainer');
         // 创建图形, 初始化echarts实例
         let chartBig = echarts.init(document.getElementById('figure-big'), null, {renderer: 'svg'});
         chartBig.setOption(getExtrapolateDefaultOption());
         chartBig.setOption({
-            title: {text: `${myRawData.sequenceName[current_page-1]} Ar36`},
+            title: {text: `${myRawData2.sequence[current_page-1].name} Ar36`},
             toolbox: {feature: {dataView: {show: true, readOnly: true}, saveAsImage: { show: true }}},
             xAxis: {name: 'Time (s)', axisLabel: {show: true}, axisTick: {show: true, lineStyle: {width: 1, color: '#333'}}},
             yAxis: {name: 'Intensity (fA)', axisLabel: {show: true}, axisTick: {show: true}},
@@ -475,12 +481,11 @@
             title: {text: 'Ar40'},});
         let smCharts = [chartSm01, chartSm02, chartSm03, chartSm04, chartSm05]
         setSmChartClickListen(smCharts, chartBig);
-        // 大图鼠标响应事件
+        // 鼠标响应事件
         chartBig.on('click', 'series.scatter', function (params) {chartScatterClicked(params)});
         for (let i=0;i<smCharts.length;i++){
             smCharts[i].on('click', 'series.scatter', function (params) {chartScatterClicked(params)});
         }
-        console.log(chartBig);
         // 自适应大小
         function chartResize(){
             $.each(document.getElementsByClassName('echarts-dom'), (index, dom) => {
@@ -493,7 +498,6 @@
         window.onresize = function() {
             chartResize();
         };
-
         // modal与echarts配合可能有问题，在modal打开渲染之后才能有尺寸，https://blog.csdn.net/ardo_pass/article/details/78503892
         $('#modal-extrapolate').on('shown.bs.modal',function(){
             chartResize();
@@ -527,14 +531,14 @@
             $('#modal-extrapolate').modal('show');
             showSequence(1);
             // 键盘检测左右键
-            document.onkeydown = function (event) {
-                switch (event.code){
-                case 'ArrowLeft':
-                    lastSequence();
-                    break;
-                case 'ArrowRight':
-                    nextSequence();
-                    break;
+            document.onkeydown = function (e) {
+                switch (e.code){
+                    case 'ArrowLeft':  // or kedCode === 37, left
+                        lastSequence();
+                        break;
+                    case 'ArrowRight':  // or kedCode === 39, right
+                        nextSequence();
+                        break;
                 }
             }
             // 手动设置disable属性

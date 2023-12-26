@@ -5,10 +5,11 @@ import pickle
 import traceback
 import re
 
+from math import ceil
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.conf import settings
-
+import numpy as np
 import time
 from . import models
 from programs import http_funcs, log_funcs, ap
@@ -193,7 +194,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         clicked_data = self.content['clicked_data']
         current_set = self.content['current_set']
         auto_replot = self.content['auto_replot']
-        figures = self.content.pop('figures', ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7', ])
+        figures = self.content.pop('figures',
+                                   ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7', ])
         sample = self.sample
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
 
@@ -214,7 +216,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         ap.smp.table.update_table_data(sample, only_table='7')
 
         time_end = time.time()
-        print(f'time cost: {time_end - time_start}s = {time_middle - time_start} + {time_middle2 - time_middle} + {time_end - time_middle2}')
+        print(
+            f'time cost: {time_end - time_start}s = {time_middle - time_start} + {time_middle2 - time_middle} + {time_end - time_middle2}')
 
         return JsonResponse({'res': ap.files.json.dumps(res), 'status': 100})
 
@@ -402,6 +405,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         data = list(self.body.get('data'))
         method = str(self.body.get('method'))
         adjusted_x = list(self.body.get('x'))
+        print(f"{method = }")
+        print(f"{data = }")
         x, adjusted_time = [], []
         year, month, day, hour, min, second = re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", data[0][0])[0]
         for each in data[0]:
@@ -415,6 +420,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 base=[int(year), int(month), int(day), int(hour), int(min)]
             ))
         y = data[1]
+        x, y = zip(*sorted(zip(x, y), key=lambda _x: _x[0]))
         handler = {
             'linear': ap.calc.regression.linest,
             'average': ap.calc.regression.average,
@@ -582,6 +588,9 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         return open_last_object(request)
 
 
+""" For open raw files """
+
+
 class RawFileView(http_funcs.ArArView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -619,65 +628,20 @@ class RawFileView(http_funcs.ArArView):
 
     def submit(self, request, *args, **kwargs):
         files = json.loads(request.POST.get('raw-file-table'))['files']
-        step_list = []
-        sequenceName = []
-        for file in files:
-            each_list = ap.files.raw.open_file(file['file_path'], file['filter'])
-            if not each_list:  # Wrong files
-                return redirect('calc_view')
-            step_list = step_list + each_list
-            sequenceName = sequenceName + [file['file_name'] + "-" + str(i + 1) for i in range(len(each_list))]
-
-        def _get_experiment_time(time_str):
-            k1 = time_str.split(' ')
-            [month, day, year] = k1[0].split('/')
-            [hour, min, second] = k1[2].split(':')
-            if 'pm' in time_str.lower() and int(hour) < 12:
-                hour = int(hour) + 12
-            if 'am' in time_str.lower() and int(hour) >= 12:
-                hour = int(hour) - 12
-            return f'{year}-{month}-{day}T{hour}:{min}:{second}'
-
-        def _is_blank(label: str):
-            return True if label.capitalize() in ['Blk', 'B', 'Blank'] else False
-
-        selectedData = [[[]]]
-        unselectedData = [[[]]]
-        experimentTime = []
-        sequenceLabel = []
-        isBlank = []
-        if step_list:
-            selectedData = [[
-                [[j[9], j[10]] for j in i[1:]],  # Ar36
-                [[j[7], j[8]] for j in i[1:]],  # Ar37
-                [[j[5], j[6]] for j in i[1:]],  # Ar38
-                [[j[3], j[4]] for j in i[1:]],  # Ar39
-                [[j[1], j[2]] for j in i[1:]],  # Ar40
-            ] for i in step_list]
-            unselectedData = [[[], [], [], [], []] for i in step_list]
-            experimentTime = [_get_experiment_time(i[0][1]) for i in step_list]
-            sequenceLabel = [i[0][3] for i in step_list]
-            isBlank = [_is_blank(i[0][2]) for i in step_list]
-
-        # res = [[ap.calc.raw_funcs.get_raw_data_regression_results(j) for j in i] for i in selectedData]
-        linesData, linesResults = [], []
-        for i in range(len(step_list)):
-            res = [ap.calc.raw_funcs.get_raw_data_regression_results(selectedData[i][j]) for j in range(5)]
-            linesData.append([i[0] for i in res])
-            linesResults.append([i[1] for i in res])
-        fitMethod = [[0 for j in range(5)] for i in range(len(linesResults))]
-
-        raw_data = {
-            'selectedData': selectedData, 'unselectedData': unselectedData, 'linesData': linesData,
-            'linesResults': linesResults, 'fitMethod': fitMethod, 'sequenceLabel': sequenceLabel,
-            'experimentTime': experimentTime, 'sequenceName': sequenceName, 'isBlank': isBlank
-        }
+        raw = ap.files.raw_file.to_raw(file_path=[file['file_path'] for file in files])
+        # raw_data = raw.do_regression()
+        raw.do_regression()
         allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
         allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
         allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
 
+        # update cache
+        cache_key = http_funcs.create_cache(raw)
+
         return render(request, 'extrapolate.html', {
-            'data': ap.files.json.dumps(raw_data),
+            # 'data': ap.files.json.dumps(raw_data),
+            'raw_data': ap.files.json.dumps(raw),
+            'raw_cache_key': ap.files.json.dumps(cache_key),
             'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
         })
 
@@ -694,7 +658,18 @@ class RawFileView(http_funcs.ArArView):
             'Ar39': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
             'Ar40': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
         }
-        return JsonResponse({"new_blank": new_blank_sequence})
+        new_sequence = ap.Sequence(
+            index='undefined', name=f"from_{file_name}", data=None, fitting_method=[0, 0, 0, 0, 0],
+            datetime=new_blank_sequence['experimentTime'], type_str='blank', is_estimated=True,
+            results=[
+                new_blank_sequence['Ar36'],
+                new_blank_sequence['Ar37'],
+                new_blank_sequence['Ar38'],
+                new_blank_sequence['Ar39'],
+                new_blank_sequence['Ar40'],
+            ],
+        )
+        return JsonResponse({"new_sequence": ap.files.json.dumps(new_sequence)})
 
     #
     # def raw_files_submit(self, request, *args, **kwargs):  # 之前的打开单个文件的submit
@@ -843,97 +818,28 @@ class RawFileView(http_funcs.ArArView):
 
     def calc_raw_chart_clicked(self, request, *args, **kwargs):
         start = time.time()
-
-        selectedData = self.body['selectedData']
-        unselectedData = self.body['unselectedData']
-        clickedData = self.body['clickedData']
-        seriesName = self.body['series']
-        isotope = self.body['isotope']
         selectionForAll = self.body['selectionForAll']
+        sequence_index = self.body['sequence_index']
+        data_index = self.body['data_index']
+        isotopic_index = self.body['isotopic_index']
 
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Click a point in the raw chart')
-        # 备份数据
-        selectedData_backup = copy.deepcopy(selectedData)
-        unselectedData_backup = copy.deepcopy(unselectedData)
+        raw: ap.RawData = self.sample
+
+        status = not raw.sequence[sequence_index].flag[data_index][isotopic_index * 2 + 1]
+        isotopic_index = list(range(5)) if selectionForAll else [isotopic_index]
+        for _isotope in isotopic_index:
+            raw.sequence[sequence_index].flag[data_index][_isotope * 2 + 1] = status
+            raw.sequence[sequence_index].flag[data_index][_isotope * 2 + 2] = status
+
+        raw.do_regression(sequence_index=[sequence_index], isotopic_index=isotopic_index)
+
+        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw data in cache
         error = ''
-
-        def _change_list(_isotope):
-            _a = selectedData[isotope] + unselectedData[isotope]
-            _a.sort(key=lambda a0: a0[0])
-            _index = _a.index(clickedData)
-            _totalData = selectedData[_isotope] + unselectedData[_isotope]
-            _totalData.sort(key=lambda a0: a0[0])
-            _indexFilledPoints = _totalData[_index] in selectedData[_isotope]
-            if seriesName == 'Filled Points':
-                if _indexFilledPoints:
-                    selectedData[_isotope].remove(_totalData[_index])
-                    unselectedData[_isotope].append(_totalData[_index])
-                    selectedData[_isotope].sort(key=lambda a0: a0[0])
-                    unselectedData[_isotope].sort(key=lambda a0: a0[0])
-                else:
-                    pass
-            if seriesName == 'Unfilled Points':
-                if _indexFilledPoints:
-                    pass
-                else:
-                    unselectedData[_isotope].remove(_totalData[_index])
-                    selectedData[_isotope].append(_totalData[_index])
-                    unselectedData[_isotope].sort(key=lambda a0: a0[0])
-                    selectedData[_isotope].sort(key=lambda a0: a0[0])
-            if len(selectedData[_isotope]) < 4:
-                return False
-            return True
-
-        linesData, linesResults = [], []
-        if selectionForAll:
-            for i in range(5):
-                if not _change_list(_isotope=i):
-                    selectedData = copy.deepcopy(selectedData_backup)
-                    unselectedData = copy.deepcopy(unselectedData_backup)
-                    error = '选择点不能少于4个'
-                    log_funcs.set_info_log(
-                        self.ip, '004', 'info',
-                        f'Operation is prohibited, the number of selected points '
-                        f'will be lesser than 4')
-                    linesData.append([])
-                    linesResults.append([])
-                    break
-                k = ap.calc.raw_funcs.get_raw_data_regression_results(
-                    selectedData[i], unselectedData[i])
-                linesData.append(k[0])
-                linesResults.append(k[1])
-            # linesData, linesResults = ap.calc.raw_funcs.get_lines_data(selectedData)
-        else:
-            if not _change_list(_isotope=isotope):
-                selectedData = copy.deepcopy(selectedData_backup)
-                unselectedData = copy.deepcopy(unselectedData_backup)
-                error = '选择点不能少于4个'
-                log_funcs.set_info_log(
-                    self.ip, '004', 'info',
-                    f'Operation is prohibited, the number of selected points will '
-                    f'be lesser than 4')
-            else:
-                linesData, linesResults = \
-                    ap.calc.raw_funcs.get_raw_data_regression_results(
-                        selectedData[isotope], unselectedData[isotope])
-            # k = ap.calc.raw_funcs.get_lines_data(selectedData, only_isotope=isotope)
-            # linesData, linesResults = k[0][isotope], k[1][isotope]
-        # linesData, linesResults = ap.calc.regression.get_lines_data(selectedData)
-
-        # return JsonResponse({
-        #     'selectedData': selectedData,
-        #     'unselectedData': unselectedData,
-        #     'linesData': linesData,
-        #     'linesResults': linesResults,
-        #     'error': error})
-
-        print(f"Raw data processing costs {time.time() - start} s")
+        print(f"Time clicking raw data points: {time.time() - start}")
         return JsonResponse({
-            'selectedData': ap.files.json.dumps(selectedData),
-            'unselectedData': ap.files.json.dumps(unselectedData),
-            'linesData': ap.files.json.dumps(linesData),
-            'linesResults': ap.files.json.dumps(linesResults),
-            'error': error})
+            'sequence': ap.files.json.dumps(raw.sequence[sequence_index]),
+            'status': 100, 'msg': error,
+        })
 
     def calc_raw_average_blanks(self, request, *args, **kwargs):
         blanks = self.body['blanks']
@@ -942,6 +848,7 @@ class RawFileView(http_funcs.ArArView):
             f'Calculate average value of selected blanks, '
             f'the number of selected points will be lesser than 4')
         newBlank = []
+        results = []
         for i in range(5):
             _intercept = sum([j[i]['intercept'] for j in blanks]) / len(blanks)
             _err = ap.calc.err.div(
@@ -952,7 +859,12 @@ class RawFileView(http_funcs.ArArView):
                 'intercept': _intercept, 'absolute err': _err, 'relative err': _relative_err, 'r2': None, 'mswd': None
             }
             newBlank.append(isotope)
-        return JsonResponse({'newBlank': newBlank})
+            results.append([[_intercept, _err, _relative_err, np.nan]])
+        new_sequence = ap.Sequence(
+            index='undefined', name=f"average({', '.join([j[0]['name'] for j in blanks])})", data=None,
+            datetime='', type_str='blank', results=results, fitting_method=[0, 0, 0, 0, 0], is_estimated=True,
+        )
+        return JsonResponse({'newBlank': newBlank, 'new_sequence': ap.files.json.dumps(new_sequence)})
 
     def calc_raw_submit(self, request, *args, **kwargs):
         """
@@ -978,7 +890,8 @@ class RawFileView(http_funcs.ArArView):
             unknown_intercept.append(row['unknownData'])
             blank_intercept.append(row['blankData'])
             sample.SequenceName.append(row['unknown'])
-            sample.SequenceValue.append(row['label'])
+            # sample.SequenceValue.append(row['label'])
+            sample.SequenceValue.append('')
         sample.SampleIntercept = ap.calc.arr.transpose(unknown_intercept)
         sample.BlankIntercept = ap.calc.arr.transpose(blank_intercept)
         # sample info
