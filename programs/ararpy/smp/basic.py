@@ -227,11 +227,23 @@ def get_plot_set(plot: Plot, comp_id):
 # Update
 # =======================
 def update_plot_from_dict(plot, attrs: dict):
-    """
-    plot is a Sample.Plot instance, attrs should be a dict like {'xaxis': {'show_splitline': False}, 'yaxis': {...}}
+    """ Set instance based on the given attrs dictionary
+    Parameters
+    ----------
+    plot
+    attrs : dict
+        for example: update_plot_from_dict(sample.Info, info: dict), where info = {
+            'sample': {'name': 'name', 'material': 'material', 'location': 'location'},
+            'researcher': {'name': 'researcher'},
+            'laboratory': {'name': 'laboratory'}
+        }
+
+    Returns
+    -------
+
     """
 
-    def _do(plot, attrs: dict):
+    def _do(_plot, _attrs: dict):
         for k1, v1 in attrs.items():
             if isinstance(v1, dict):
                 if hasattr(plot, k1):
@@ -242,7 +254,7 @@ def update_plot_from_dict(plot, attrs: dict):
             else:
                 setattr(plot, k1, v1)
 
-    _do(plot=plot, attrs=attrs)
+    _do(_plot=plot, _attrs=attrs)
     return plot
 
 
