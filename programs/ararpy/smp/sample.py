@@ -994,5 +994,5 @@ class RawData:
     def get_sequence(self, index: Optional[Union[list, int, str]], flag: Optional[str]) -> Union[Sequence, List]:
         ...
 
-    def to_sample(self, mapping: Union[list, zip], *args) -> Sample:
+    def to_sample(self, mapping: List[dict]) -> Sample:
         ...

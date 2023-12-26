@@ -77,7 +77,7 @@ def concatenate(raws: List[RawData]):
                    sequence=sequence)
 
 
-def to_sample(raw: RawData, mapping: Union[zip, list]) -> Sample:
+def to_sample(raw: RawData, mapping: List[dict]) -> Sample:
     """
     Parameters
     ----------
@@ -132,37 +132,6 @@ def to_sample(raw: RawData, mapping: Union[zip, list]) -> Sample:
     return sample
 
 
-def set_data(raw: RawData, sequence_index: int, isotopic_index: int, data: List[List[float]]):
-    """
-    Parameters
-    ----------
-    raw
-    sequence_index
-    isotopic_index
-    data
-
-    Returns
-    -------
-
-    """
-    ...
-
-
-def get_data(raw: RawData, sequence_index: Optional[int], isotopic_index: Optional[int]) -> List[List[List[float]]]:
-    """
-    Parameters
-    ----------
-    raw
-    sequence_index
-    isotopic_index
-
-    Returns
-    -------
-
-    """
-    ...
-
-
 def get_sequence(raw: RawData, index: Optional[Union[list, int, str]], flag: Optional[str]):
     """
     Parameters
@@ -185,57 +154,6 @@ def get_sequence(raw: RawData, index: Optional[Union[list, int, str]], flag: Opt
         return arr.filter(raw.sequence, lambda seq: getattr(seq, flag) == index, unique=True, get=None)
 
 
-def set_flag(raw: RawData, sequence_index: int, isotopic_index: int, data: List[List[float]]):
-    """
-    Parameters
-    ----------
-    raw
-    sequence_index
-    isotopic_index
-    data
-
-    Returns
-    -------
-
-    """
-    # raw.flag[isotopic_index][sequence_index] = data
-    ...
-
-
-def get_flag(raw: RawData, sequence_index: Optional[int], isotopic_index: Optional[int]) -> List[List[float]]:
-    """
-    Parameters
-    ----------
-    raw
-    sequence_index
-    isotopic_index
-
-    Returns
-    -------
-
-    """
-    # return raw.flag[isotopic_index][sequence_index]
-    ...
-
-
-def get_result(raw: RawData, sequence_index: Optional[int], isotopic_index: Optional[int],
-               method_index: Optional[List[List[Union[int, str]]]]) -> List[List[float]]:
-    """
-    Parameters
-    ----------
-    raw
-    sequence_index
-    isotopic_index
-    method_index
-
-    Returns
-    -------
-
-    """
-    # return raw.results[isotopic_index][sequence_index][method_index]
-    ...
-
-
 def do_regression(raw: RawData, sequence_index: Optional[List], isotopic_index: Optional[List],
                   flag: Optional[List[List[float]]]):
     """
@@ -250,11 +168,7 @@ def do_regression(raw: RawData, sequence_index: Optional[List], isotopic_index: 
     -------
 
     """
-    # fitMethod = []
-    # linesData, linesResults = [], []
-    # selectedData, unselectedData = [], []
-    # experimentTime, sequenceLabel, isBlank = [], [], []
-    # sequenceName = []
+
     for sequence in raw.get_sequence(index=None, flag=None):
         if hasattr(sequence_index, '__getitem__') and sequence.index not in sequence_index:
             continue
@@ -279,37 +193,6 @@ def do_regression(raw: RawData, sequence_index: Optional[List], isotopic_index: 
             except TypeError:
                 sequence.results = [res[1]]
                 sequence.coefficients = [res[2]]
-
-        # linesData.append([_res[0] for _res in res])
-        # selectedData.append(selected)
-        # unselectedData.append(unselected)
-        # linesResults.append(sequence.results)
-        # fitMethod.append(sequence.fitting_method)
-        # experimentTime.append(sequence.datetime)
-        # sequenceLabel.append(sequence.type_str)
-        # isBlank.append(sequence.is_blank)
-        # sequenceName.append(sequence.name)
-
-    # raw_data = {
-    #     'selectedData': selectedData, 'unselectedData': unselectedData, 'linesData': linesData,
-    #     'linesResults': linesResults, 'fitMethod': fitMethod, 'sequenceLabel': sequenceLabel,
-    #     'experimentTime': experimentTime, 'sequenceName': sequenceName, 'isBlank': isBlank
-    # }
-    #
-    # return raw_data
-
-
-def get_data_df(raw: RawData):
-    """
-    Parameters
-    ----------
-    raw
-
-    Returns
-    -------
-
-    """
-    return pd.DataFrame(raw.data)
 
 
 """ Open raw data file """
