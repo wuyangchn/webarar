@@ -195,21 +195,10 @@ Sample.help = f"" \
 """ ============================================ """
 """ functions and attributions for RawData class """
 """ ============================================ """
-RawData.set_data = lambda _raw, sequence_index, isotopic_index, data: files.raw_file.set_data(
-    _raw, sequence_index, isotopic_index, data)
-RawData.get_data = lambda _raw, sequence_index, isotopic_index: files.raw_file.get_data(
-    _raw, sequence_index, isotopic_index)
-RawData.set_flag = lambda _raw, sequence_index, isotopic_index, flag: files.raw_file.set_flag(
-    _raw, sequence_index, isotopic_index, flag)
-RawData.get_flag = lambda _raw, sequence_index, isotopic_index: files.raw_file.get_flag(
-    _raw, sequence_index, isotopic_index)
-RawData.get_results = lambda _raw, sequence_index, isotopic_index, method_index: files.raw_file.get_result(
-    _raw, sequence_index, isotopic_index, method_index)
 RawData.do_regression = lambda _raw, sequence_index=None, isotopic_index=None, flag=None: \
     files.raw_file.do_regression(_raw, sequence_index, isotopic_index, flag)
-RawData.get_data_df = lambda _raw: files.raw_file.get_data_df(_raw)
 RawData.get_sequence = lambda _raw, index=None, flag=None: files.raw_file.get_sequence(_raw, index, flag)
-RawData.to_sample = lambda _raw, mapping, *args: files.raw_file.to_sample(_raw, mapping, *args)
+RawData.to_sample = lambda _raw, mapping: files.raw_file.to_sample(_raw, mapping)
 Sequence.get_data_df = lambda _seq: pd.DataFrame(_seq.data)
 Sequence.get_flag_df = lambda _seq: pd.DataFrame(_seq.flag)
 
