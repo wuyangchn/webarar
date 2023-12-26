@@ -197,7 +197,15 @@ Sample.help = f"" \
 """ ============================================ """
 RawData.do_regression = lambda _raw, sequence_index=None, isotopic_index=None, flag=None: \
     files.raw_file.do_regression(_raw, sequence_index, isotopic_index, flag)
-RawData.get_sequence = lambda _raw, index=None, flag=None: files.raw_file.get_sequence(_raw, index, flag)
+RawData.get_sequence = lambda _raw, index=None, flag=None, unique=True: \
+    files.raw_file.get_sequence(_raw, index, flag, unique=unique)
+""" 
+    a = raw.get_sequence(True, 'is_unknown', unique=False)  # get unknown sequence
+    print([_a.name for _a in a])
+"""
+RawData.get_unknown = lambda _raw: files.raw_file.get_sequence(_raw, True, 'is_unknown', unique=False)
+RawData.get_blank = lambda _raw: files.raw_file.get_sequence(_raw, True, 'is_blank', unique=False)
+RawData.get_air = lambda _raw: files.raw_file.get_sequence(_raw, True, 'is_air', unique=False)
 RawData.to_sample = lambda _raw, mapping: files.raw_file.to_sample(_raw, mapping)
 Sequence.get_data_df = lambda _seq: pd.DataFrame(_seq.data)
 Sequence.get_flag_df = lambda _seq: pd.DataFrame(_seq.flag)
