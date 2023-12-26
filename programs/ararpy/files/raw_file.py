@@ -11,6 +11,7 @@
 """
 import re
 from typing import List, Tuple, Dict, Union, Optional
+from types import MethodType
 import pandas as pd
 import traceback
 import os
@@ -46,6 +47,7 @@ def to_raw(file_path: Union[str, List[str]], **kwargs):
         file_name = str(os.path.split(file_path)[-1]).split('.')[0]
         raw = RawData(name=file_name, data=res['data'], isotopic_num=10, sequence_num=len(res['data']),
                       source=[file_path])
+
     return raw
 
 
@@ -70,6 +72,7 @@ def concatenate(raws: List[RawData]):
         name.append(seq.name)
         seq.index = index
         return seq
+
     source = [_source for _raw in raws for _source in _raw.source]
     sequence = [resort_sequence(seq, index) for index, seq in enumerate([i for _raw in raws for i in _raw.sequence])]
     sequence_num = len(sequence)
@@ -103,13 +106,13 @@ def to_sample(raw: RawData, mapping: List[dict]) -> Sample:
         row_unknown_intercept = []
         row_blank_intercept = []
 
-        unknown: Sequence = get_sequence(raw, row['unknown'], flag='name')
+        unknown: Sequence = raw.get_sequence(row['unknown'], flag='name')
         if row['blank'].lower() == "Interpolated Blank".lower():
             blank: Sequence = arr.filter(
                 raw.interpolated_blank, func=lambda seq: seq.datetime == unknown.datetime,
                 get=None, unique=True)
         else:
-            blank: Sequence = get_sequence(raw, row['blank'], flag='name')
+            blank: Sequence = raw.get_sequence(row['blank'], flag='name')
         for i in range(5):
             row_unknown_intercept = arr.multi_append(
                 row_unknown_intercept, *unknown.results[i][unknown.fitting_method[i]][:2])
@@ -132,13 +135,18 @@ def to_sample(raw: RawData, mapping: List[dict]) -> Sample:
     return sample
 
 
-def get_sequence(raw: RawData, index: Optional[Union[list, int, str]], flag: Optional[str]):
+def get_sequence(raw: RawData, index: Optional[Union[list, int, str, bool]],
+                 flag: Optional[str], unique: Optional[bool] = True):
     """
     Parameters
     ----------
     raw
-    index
-    flag
+    index :
+        value
+    flag :
+        name of attribution to be matched of a sequence
+    unique : bool, if True, will return the first matched sequence,
+        False, return a list of all matched sequences
 
     Returns
     -------
@@ -148,10 +156,12 @@ def get_sequence(raw: RawData, index: Optional[Union[list, int, str]], flag: Opt
         return raw.sequence
     if isinstance(index, list):
         return [get_sequence(raw, i, flag) for i in index]
+    # judge boolean before int
+    if isinstance(index, (str, bool)) and flag is not None:
+        return arr.filter(raw.sequence, lambda seq: getattr(seq, flag)() == index if type(
+            getattr(seq, flag)) is MethodType else getattr(seq, flag) == index, unique=unique, get=None)
     if isinstance(index, int):
         return raw.sequence[index]
-    if isinstance(index, str) and flag is not None:
-        return arr.filter(raw.sequence, lambda seq: getattr(seq, flag) == index, unique=True, get=None)
 
 
 def do_regression(raw: RawData, sequence_index: Optional[List], isotopic_index: Optional[List],
@@ -175,7 +185,7 @@ def do_regression(raw: RawData, sequence_index: Optional[List], isotopic_index: 
         isotope: pd.DataFrame = sequence.get_data_df()
         selected: pd.DataFrame = isotope[sequence.get_flag_df()[list(range(1, 11))]]
         # unselected: pd.DataFrame = isotope[~sequence.get_flag_df()[list(range(1, 11))]]
-        selected: list = [selected[[isotopic_index*2 + 1, 2 * (isotopic_index + 1)]].dropna().values.tolist()
+        selected: list = [selected[[isotopic_index * 2 + 1, 2 * (isotopic_index + 1)]].dropna().values.tolist()
                           for isotopic_index in list(range(5))]
         # unselected: list = [unselected[[isotopic_index*2 + 1, 2 * (isotopic_index + 1)]].dropna().values.tolist()
         #                     for isotopic_index in list(range(5))]
@@ -286,12 +296,12 @@ def open_raw_ahd(filepath):
         for step_index in range(step_count):
             start_row = 15 + 5 * step_index
             step_list[0].append([
-                str(step_index+1),
-                float(value[start_row+4][0]), float(value[start_row+4][1]),
-                float(value[start_row+3][0]), float(value[start_row+3][1]),
-                float(value[start_row+2][0]), float(value[start_row+2][1]),
-                float(value[start_row+1][0]), float(value[start_row+1][1]),
-                float(value[start_row+0][0]), float(value[start_row+0][1]),
+                str(step_index + 1),
+                float(value[start_row + 4][0]), float(value[start_row + 4][1]),
+                float(value[start_row + 3][0]), float(value[start_row + 3][1]),
+                float(value[start_row + 2][0]), float(value[start_row + 2][1]),
+                float(value[start_row + 1][0]), float(value[start_row + 1][1]),
+                float(value[start_row + 0][0]), float(value[start_row + 0][1]),
             ])
     except Exception as e:
         print('Error in opening the original file: %s' % str(e))
