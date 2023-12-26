@@ -399,19 +399,19 @@ def general_adjustment(
             each_duration_min = each_date.split(' ')[0].split('.')[1]
             each_duration = int(each_duration_hour) + round(int(each_duration_min) / 60, 2)
             duration_hour.append(each_duration)
-            irradiation_end_time.append(f"{_year}-{_month}-{_day}-{_hour}-{_min}D{each_duration}")
-            last_time = [_year, _month, _day, _hour, _min]
+            irradiation_end_time.append(f"{_year}-{_month}-{_day}T{_hour}:{_min}D{each_duration}")
+            last_time = f"{_year}-{_month}-{_day}T{_hour}:{_min}"
 
     experimental_time: pd.DataFrame = experimental_time.apply(pd.to_numeric, errors='ignore', downcast='integer')
     experimental_time: pd.DataFrame = experimental_time.replace(to_replace=month_convert, regex=True)
-    total_param[31] = [f"{i[0]}-{i[1]}-{i[2]}T{i[3]}:{i[4]}Z" for i in experimental_time.values.tolist()]
+    total_param[31] = [f"{i[0]}-{i[1]}-{i[2]}T{i[3]}:{i[4]}" for i in experimental_time.values.tolist()]
     total_param[26] = len(irradiation_end_time)
     total_param[27] = 'S'.join(irradiation_end_time)
     total_param[29] = sum(duration_hour)
-    total_param[30] = '-'.join(last_time)
+    total_param[30] = last_time
 
     stand_time_second = [
-        get_datetime(*i) - get_datetime(*last_time) for i in experimental_time.values.tolist()]
+        get_datetime(*i) - get_datetime(*re.findall(r'\d+', last_time)) for i in experimental_time.values.tolist()]
     total_param[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
 
     # initial ratios & error display settings
@@ -564,9 +564,9 @@ def open_full_xls(file_path: str, sample_name: str = ''):
         _day = str(i[2]) if '.' not in str(i[2]) else str(i[2]).split('.')[0]
         _hour = str(i[3]) if '.' not in str(i[3]) else str(i[3]).split('.')[0]
         _min = str(i[4]) if '.' not in str(i[4]) else str(i[4]).split('.')[0]
-        experiment_start_time.append([_year, _month, _day, _hour, _min])
+        experiment_start_time.append(f"{_year}-{_month}-{_day}T{_hour}:{_min}")
 
-    total_param[31] = ['-'.join(i) for i in experiment_start_time]
+    total_param[31] = experiment_start_time
     total_param[0:26] = arr.partial(
         res['Irradiation Constants'], rows,
         [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28])

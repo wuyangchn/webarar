@@ -458,54 +458,12 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             self.ip, '003', 'info', f'Set params, sample name: {self.sample.Info.sample.name}')
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
-        n = len(sample.SequenceName)
-        # Do something to set params
-        if type == 'calc':
-            sample.TotalParam[34:56] = remove_none(sample.TotalParam[34:56], params[0:22], n, 56 - 34)
-            sample.TotalParam[71:97] = remove_none(sample.TotalParam[71:97], params[22:48], n, 97 - 71)
-        elif type == 'irra':
-            sample.TotalParam[0:20] = remove_none(sample.TotalParam[0:20], params[0:20], n, 20 - 0)
-            sample.TotalParam[56:58] = remove_none(sample.TotalParam[56:58], params[20:22], n,
-                                                   57 - 55)  # Cl36/38 productivity
-            sample.TotalParam[20:27] = remove_none(sample.TotalParam[20:27], params[22:29], n, 27 - 20)
-            # sample.TotalParam[26] = [params[26]] * n
-            irradiation_time = []
-            duration = []
-            if None not in params[29:-3] and '' not in params[29:-3]:
-                for i in range(len(params[29:-3])):
-                    if i % 2 == 0:
-                        [d, t] = params[29:-3][i].split('T')
-                        [t1, t2] = t.split(':')
-                        irradiation_time.append(d + '-' + t1 + '-' + t2 + 'D' + str(params[29:-3][i + 1]))
-                        duration.append(params[29:-3][i + 1])
-                sample.TotalParam[27] = ['S'.join(irradiation_time)] * n
-                sample.TotalParam[28] = [params[-3]] * n
-                sample.TotalParam[29] = [sum(duration)] * n
-            if params[-5] != '':
-                [a, b] = params[-5].split('T')
-                [b, c] = b.split(':')
-                sample.TotalParam[30] = [a + '-' + b + '-' + c] * n
-            try:
-                stand_time_second = [
-                    ap.calc.basic.get_datetime(*sample.TotalParam[31][i].split('-')) - ap.calc.basic.get_datetime(
-                        *sample.TotalParam[30][i].split('-')) for i in range(n)]
-            except Exception as e:
-                # print(f'Error in calculate standing duration: {traceback.format_exc()}')
-                pass
-            else:
-                sample.TotalParam[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
 
-        elif type == 'smp':
-            sample.TotalParam[67:71] = remove_none(sample.TotalParam[67:71], params[0:4], n, 71 - 67)
-            sample.TotalParam[58:67] = remove_none(sample.TotalParam[58:67], params[4:13], n, 67 - 58)
-            sample.TotalParam[97:100] = remove_none(sample.TotalParam[97:100], params[13:16], n, 100 - 97)
-            sample.TotalParam[115:120] = remove_none(sample.TotalParam[115:120], params[16:21], n, 120 - 115)
-            sample.TotalParam[120:123] = remove_none(sample.TotalParam[120:123], params[21:24], n, 123 - 120)
-            sample.TotalParam[100:114] = remove_none(
-                sample.TotalParam[100:114],
-                [['Linear', 'Exponential', 'Power'][params[24:27].index(True)], *params[27:]], n, 114 - 100)
-        else:
+        try:
+            sample.set_params(params, type)
+        except KeyError:
             return JsonResponse({'status': 'fail', 'msg': f'Unknown type of params : {type}'})
+
         ap.smp.table.update_table_data(sample)  # Update data of tables after changes of calculation parameters
         # update cache
         http_funcs.create_cache(sample, self.cache_key)
@@ -652,11 +610,13 @@ class RawFileView(http_funcs.ArArView):
 
     def import_blank_file(self, request, *args, **kwargs):
         file = request.FILES.get('blank_file')
+        cache_key = request.POST.get('cache_key')
+        raw: ap.RawData = pickle.loads(cache.get(cache_key, default=pickle.dumps(ap.RawData())))
         web_file_path, file_name, suffix = ap.files.basic.upload(
             file, settings.UPLOAD_ROOT)
         new_blank_sequence = {
             'name': ['Test'],
-            'experimentTime': ["2024-6-9-18-40-22"],
+            'experimentTime': ["2024-6-9T18:40:22"],
             'Ar36': [[0.4790974808856151, 0.011707830326843962, 2.443726129638994, 0.5894056663608368]],
             'Ar37': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
             'Ar38': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
@@ -674,6 +634,10 @@ class RawFileView(http_funcs.ArArView):
                 new_blank_sequence['Ar40'],
             ],
         )]
+
+        raw.sequence = ap.calc.arr.multi_append(raw.sequence, *new_sequences)
+        http_funcs.create_cache(raw, cache_key=cache_key)
+
         return JsonResponse({'new_sequences': ap.files.json.dumps(new_sequences), 'status': 100})
 
     def to_project_view(self, request, *args, **kwargs):
@@ -792,7 +756,38 @@ class RawFileView(http_funcs.ArArView):
             index='undefined', name=f"average({', '.join([j[0]['name'] for j in blanks])})", data=None,
             datetime='', type_str='blank', results=results, fitting_method=[0, 0, 0, 0, 0], is_estimated=True,
         )
+
+        raw: ap.RawData = self.sample
+        raw.sequence.append(new_sequence)
+        http_funcs.create_cache(raw, cache_key=self.cache_key)
+
         return JsonResponse({'newBlank': newBlank, 'new_sequence': ap.files.json.dumps(new_sequence)})
+
+    def calc_raw_interpolated_blanks(self, request, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        request
+        args
+        kwargs
+
+        Returns
+        -------
+
+        """
+
+        interpolated_blank = self.body['interpolated_blank']
+        raw: ap.RawData = self.sample
+        new_sequences = [ap.Sequence(
+            name="Interpolated Blank", results=[[[iso[1], 0, np.NaN, np.NaN]] for iso in row],
+            fitting_method=[0, 0, 0, 0, 0], index=index, datetime=row[0][0], type_str='blank',
+            is_estimated=True,
+        ) for index, row in enumerate(interpolated_blank)]
+        raw.interpolated_blank = new_sequences
+
+        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update cache
+
+        return JsonResponse({'new_sequences': ap.files.json.dumps(new_sequences)})
 
     def raw_data_submit(self, request, *args, **kwargs):  # old name: calc_raw_submit
         """
@@ -802,83 +797,31 @@ class RawFileView(http_funcs.ArArView):
         calculationParams = self.body['calculationParams']
         sampleParams = self.body['sampleParams']
         sampleInfo = self.body['sampleInfo']
-        interceptData = self.body['interceptData']
-        rawData = self.body['rawData']
+        selectedSequences = self.body['selectedSequences']
         fingerprint = self.body['fingerprint']
         log_funcs.set_info_log(self.ip, '004', 'info', f'Start to submit raw file')
 
-        raw = self.sample
-        raw.interpolated_blank = rawData['interpolated_blank']
-        raw.sequence = [ap.Sequence(**seq) for seq in rawData['sequence']]
+        raw: ap.RawData = self.sample
 
-        # 创建sample
-        sample = ap.Sample()
-        sample.RawData = raw
+        # create sample
+        sample = raw.to_sample(selectedSequences)
 
-        # Initial values
-        ap.smp.initial.initial(sample)
-        # experimental time, unknown and blank intercepts
-        unknown_intercept, blank_intercept = [], []
-        experimentTime = []
-        for row in interceptData:
-            experimentTime.append(row['experimentTime'])
-            unknown_intercept.append(row['unknownData'])
-            blank_intercept.append(row['blankData'])
-            sample.SequenceName.append(row['unknown'])
-            # sample.SequenceValue.append(row['label'])
-            sample.SequenceValue.append('')
-        sample.SampleIntercept = ap.calc.arr.transpose(unknown_intercept)
-        sample.BlankIntercept = ap.calc.arr.transpose(blank_intercept)
-        # sample info
         info = {
             'sample': {'name': sampleInfo[0], 'material': sampleInfo[1], 'location': sampleInfo[2]},
             'researcher': {'name': sampleInfo[3]},
             'laboratory': {'name': sampleInfo[4], 'info': sampleInfo[5], 'analyst': sampleInfo[6]}
         }
         ap.smp.basic.update_plot_from_dict(sample.Info, info)
-        # Params
-        calc_params = calculationParams['param']
-        irra_params = irradiationParams['param']
-        smp_params = sampleParams['param']
-        irradiation = [item for index, item in enumerate(irra_params[29:-3]) if index % 2 == 0]
 
-        def repleceString(text):
-            for char in ['T', ':']:
-                text = text.replace(char, '-')
-            return text
+        sample.TotalParam[31] = [raw.get_sequence(row['unknown'], flag='name').datetime for row in selectedSequences]
 
-        irradiation = [repleceString(each) for each in irradiation]
-        duration = [item for index, item in enumerate(irra_params[29:-3]) if index % 2 == 1]
-        cycle = [irradiation[i] + 'D' + str(duration[i]) for i in range(len(irradiation))]
-        sample.TotalParam = ap.calc.arr.transpose(
-            [[
-                *irra_params[0:26],  # 0-25
-                int(irra_params[28]),  # cycle count
-                'S'.join(cycle),
-                irra_params[-3], sum(duration), irradiation[-1], 'Experiment Time',  # 28-31
-                'Stand years', '',  # 32-33
-                *calc_params[0:22],  # 34-55
-                *irra_params[26:28],  # 56-57  Cl36/38 productivities ratio
-                *smp_params[4:13],  # 58-66  standard samples name, age, ...
-                *smp_params[0:4],  # 67-70 J, sJ, MDF, sMDF
-                *calc_params[22:48],  # 71-96
-                *smp_params[13:16],  # 97-99 fitting method, convergence, iteration
-                ['Linear', 'Exponential', 'Power'][smp_params[24:27].index(True)],  # 100
-                *smp_params[27:40],  # 101-113
-                'Auto Plateau Method',  # 114
-                *smp_params[16:24],  # 115-122
-            ]] * len(interceptData))
-        sample.TotalParam[31] = ["-".join(re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", item)[0]) for item in
-                                 experimentTime]
-        sequence_num = len(sample.SequenceName)
-        stand_time_second = [
-            ap.calc.basic.get_datetime(*sample.TotalParam[31][i].split('-')) - ap.calc.basic.get_datetime(
-                *sample.TotalParam[30][i].split('-')) for i in range(sequence_num)]
-        sample.TotalParam[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
+        try:
+            sample.set_params(irradiationParams['param'], 'irra')
+            sample.set_params(calculationParams['param'], 'calc')
+            sample.set_params(sampleParams['param'], 'smp')
+        except (BaseException, Exception):
+            print(traceback.format_exc())
 
-        sample.UnselectedSequence = list(range(sequence_num))
-        sample.SelectedSequence1 = []
-        sample.SelectedSequence2 = []
         sample.recalculate(*[True] * 12)  # Calculation after submitting row data
         # ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
         ap.smp.table.update_table_data(sample)  # Update table after submittion row data and calculation

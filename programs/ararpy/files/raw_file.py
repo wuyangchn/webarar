@@ -9,13 +9,14 @@
 #
 # 
 """
+import re
 from typing import List, Tuple, Dict, Union, Optional
 import pandas as pd
 import traceback
 import os
 from xlrd import open_workbook
-from ..smp import RawData, Sample, Sequence
-from ..calc import raw_funcs, arr
+from ..smp import RawData, Sample, Sequence, initial, table
+from ..calc import (raw_funcs, arr, basic as calc_basic)
 
 
 def to_raw(file_path: Union[str, List[str]], **kwargs):
@@ -81,13 +82,54 @@ def to_sample(raw: RawData, mapping: Union[zip, list]) -> Sample:
     Parameters
     ----------
     raw
-    mapping
+    mapping :
+        mapping is a list of dictionaries with two keys of blank and unknown,
+        for example, mapping = [
+            {'blank': blank_name, 'unknown': unknown_name_1},
+            ...,
+            {'blank': blank_name, 'unknown': unknown_name_1}
+        ]
 
     Returns
     -------
 
     """
-    ...
+    # 创建sample
+    sample = Sample()
+    sample.RawData = raw
+    initial.initial(sample)
+    unknown_intercept, blank_intercept = [], []
+    for row in mapping:
+        row_unknown_intercept = []
+        row_blank_intercept = []
+
+        unknown: Sequence = get_sequence(raw, row['unknown'], flag='name')
+        if row['blank'].lower() == "Interpolated Blank".lower():
+            blank: Sequence = arr.filter(
+                raw.interpolated_blank, func=lambda seq: seq.datetime == unknown.datetime,
+                get=None, unique=True)
+        else:
+            blank: Sequence = get_sequence(raw, row['blank'], flag='name')
+        for i in range(5):
+            row_unknown_intercept = arr.multi_append(
+                row_unknown_intercept, *unknown.results[i][unknown.fitting_method[i]][:2])
+            row_blank_intercept = arr.multi_append(
+                row_blank_intercept, *blank.results[i][unknown.fitting_method[i]][:2])
+
+        unknown_intercept.append(row_unknown_intercept)
+        blank_intercept.append(row_blank_intercept)
+        sample.SequenceName.append(unknown.name)
+        sample.SequenceValue.append('')
+
+    sample.SampleIntercept = arr.transpose(unknown_intercept)
+    sample.BlankIntercept = arr.transpose(blank_intercept)
+
+    sample.UnselectedSequence = list(range(len(sample.SequenceName)))
+    sample.SelectedSequence1 = []
+    sample.SelectedSequence2 = []
+    table.update_table_data(sample)  # Update table after submission row data and calculation
+
+    return sample
 
 
 def set_data(raw: RawData, sequence_index: int, isotopic_index: int, data: List[List[float]]):
@@ -119,6 +161,28 @@ def get_data(raw: RawData, sequence_index: Optional[int], isotopic_index: Option
 
     """
     ...
+
+
+def get_sequence(raw: RawData, index: Optional[Union[list, int, str]], flag: Optional[str]):
+    """
+    Parameters
+    ----------
+    raw
+    index
+    flag
+
+    Returns
+    -------
+
+    """
+    if index is None:
+        return raw.sequence
+    if isinstance(index, list):
+        return [get_sequence(raw, i, flag) for i in index]
+    if isinstance(index, int):
+        return raw.sequence[index]
+    if isinstance(index, str) and flag is not None:
+        return arr.filter(raw.sequence, lambda seq: getattr(seq, flag) == index, unique=True, get=None)
 
 
 def set_flag(raw: RawData, sequence_index: int, isotopic_index: int, data: List[List[float]]):
@@ -191,7 +255,7 @@ def do_regression(raw: RawData, sequence_index: Optional[List], isotopic_index: 
     # selectedData, unselectedData = [], []
     # experimentTime, sequenceLabel, isBlank = [], [], []
     # sequenceName = []
-    for sequence in raw.get_sequence(index=None):
+    for sequence in raw.get_sequence(index=None, flag=None):
         if hasattr(sequence_index, '__getitem__') and sequence.index not in sequence_index:
             continue
         isotope: pd.DataFrame = sequence.get_data_df()

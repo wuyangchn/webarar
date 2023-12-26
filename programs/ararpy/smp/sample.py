@@ -770,6 +770,8 @@ class Sample:
 
     def show_data(self): ...
 
+    def set_params(self, params: list, flag: str): ...
+
 
 class Table:
     def __init__(self, id='', name='Table', colcount=None, rowcount=None, header=None,
@@ -1025,8 +1027,8 @@ class RawData:
     def get_data_df(self):
         ...
 
-    def get_sequence(self, index: Optional[int]) -> Union[Sequence, List]:
+    def get_sequence(self, index: Optional[Union[list, int, str]], flag: Optional[str]) -> Union[Sequence, List]:
         ...
 
-    def to_sample(self, mapping: Union[list, zip]) -> Sample:
+    def to_sample(self, mapping: Union[list, zip], *args) -> Sample:
         ...

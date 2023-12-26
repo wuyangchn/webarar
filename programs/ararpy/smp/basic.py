@@ -369,3 +369,90 @@ def get_diff_smp(backup: (dict, Sample), smp: (dict, Sample)):
             continue
         res.update({name: attr})
     return res
+
+
+# =======================
+# Set parameters
+# =======================
+def set_params(smp: Sample, params: list, flag: str):
+    """
+    Parameters
+    ----------
+    smp
+    params
+    flag : str, 'calc', 'irra', or 'smp'
+
+    Returns
+    -------
+
+    """
+
+    def remove_none(old_params, new_params, rows, length):
+        res = [[]] * length
+        for index, item in enumerate(new_params):
+            if item is None:
+                res[index] = old_params[index]
+            else:
+                res[index] = [item] * rows
+        return res
+
+    n = len(smp.SequenceName)
+
+    if flag == 'calc':
+        smp.TotalParam[34:56] = remove_none(smp.TotalParam[34:56], params[0:22], n, 56 - 34)
+        smp.TotalParam[71:97] = remove_none(smp.TotalParam[71:97], params[22:48], n, 97 - 71)
+    elif flag == 'irra':
+        smp.TotalParam[0:20] = remove_none(smp.TotalParam[0:20], params[0:20], n, 20 - 0)
+        smp.TotalParam[56:58] = remove_none(smp.TotalParam[56:58], params[20:22], n, 57 - 55)  # Cl36/38 productivity
+        smp.TotalParam[20:27] = remove_none(smp.TotalParam[20:27], params[22:29], n, 27 - 20)
+        # smp.TotalParam[26] = [params[26]] * n
+        irradiation_time = []
+        duration = []
+        if None not in params[29:-3] and '' not in params[29:-3]:
+            for i in range(len(params[29:-3])):
+                if i % 2 == 0:
+                    # [d, t] = params[29:-3][i].split('T')
+                    # [t1, t2] = t.split(':')
+                    # irradiation_time.append(d + '-' + t1 + '-' + t2 + 'D' + str(params[29:-3][i + 1]))
+                    text = params[29:-3][i]
+                    print(text)
+                    for char in ['T', ':']:
+                        text = text.replace(char, '-')
+                    irradiation_time.append(params[29:-3][i] + 'D' + str(params[29:-3][i + 1]))
+                    duration.append(params[29:-3][i + 1])
+            smp.TotalParam[27] = ['S'.join(irradiation_time)] * n
+            smp.TotalParam[28] = [params[-3]] * n
+            smp.TotalParam[29] = [sum(duration)] * n
+        if params[-5] != '':
+            # [a, b] = params[-5].split('T')
+            # [b, c] = b.split(':')
+            # smp.TotalParam[30] = [a + '-' + b + '-' + c] * n
+            text = params[-5]
+            for char in ['T', ':']:
+                text = text.replace(char, '-')
+            # smp.TotalParam[30] = [text] * n
+            smp.TotalParam[30] = [params[-5]] * n
+        try:
+            stand_time_second = [
+                calc.basic.get_datetime(*smp.TotalParam[31][i].split('-')) - calc.basic.get_datetime(
+                    *smp.TotalParam[30][i].split('-')) for i in range(n)]
+        except Exception as e:
+            # print(f'Error in calculate standing duration: {traceback.format_exc()}')
+            pass
+        else:
+            smp.TotalParam[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
+
+    elif flag == 'smp':
+        smp.TotalParam[67:71] = remove_none(smp.TotalParam[67:71], params[0:4], n, 71 - 67)
+        smp.TotalParam[58:67] = remove_none(smp.TotalParam[58:67], params[4:13], n, 67 - 58)
+        smp.TotalParam[97:100] = remove_none(smp.TotalParam[97:100], params[13:16], n, 100 - 97)
+        smp.TotalParam[115:120] = remove_none(smp.TotalParam[115:120], params[16:21], n, 120 - 115)
+        smp.TotalParam[120:123] = remove_none(smp.TotalParam[120:123], params[21:24], n, 123 - 120)
+        smp.TotalParam[100:114] = remove_none(
+            smp.TotalParam[100:114],
+            [['Linear', 'Exponential', 'Power'][params[24:27].index(True)], *params[27:]], n, 114 - 100)
+    else:
+        raise KeyError(f"{flag = } is not supported. It must be 'calc' for Calc Params, "
+                       f"'irra' for Irradiation Params, or 'smp' for Sample Params.")
+    return smp
+

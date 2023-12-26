@@ -19,6 +19,8 @@ from ..calc import err
 import re
 import numpy as np
 from scipy.stats import distributions
+from types import MethodType
+from typing import Optional
 # import pandas as pd
 # import decimal
 # from math import exp, log, cos, acos, ceil, sqrt, atan, sin, gamma
@@ -317,6 +319,47 @@ def merge(*args):
             res.append(arg)
         else:
             res = res + arg
+    return res
+
+
+def multi_append(a, *args):
+    """
+    Parameters
+    ----------
+    a
+    args
+
+    Returns
+    -------
+
+    """
+    for arg in args:
+        a.append(arg)
+    return a
+
+
+def filter(a: list, func: MethodType, get: Optional[MethodType], unique: Optional[bool]):
+    """
+    Parameters
+    ----------
+    a
+    func
+    get
+    unique
+
+    Returns
+    -------
+
+    """
+    res = []
+    for i in a:
+        if func(i):
+            if type(get) is MethodType:
+                res.append(get(i))
+            else:
+                res.append(i)
+            if unique:
+                return res[0]
     return res
 
 
