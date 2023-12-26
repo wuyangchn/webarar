@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+from django.conf import settings
 from concurrent_log_handler import ConcurrentTimedRotatingFileHandler
 
 
@@ -46,3 +47,17 @@ def format_time(ct, datefmt=None):
         if default_msec_format:
             s = default_msec_format % (s, msecs)
     return s
+
+
+def log(*args):
+    """
+    Parameters
+    ----------
+    args
+
+    Returns
+    -------
+
+    """
+    if settings.DEBUG:
+        print(*args)

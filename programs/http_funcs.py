@@ -50,7 +50,7 @@ def is_ajax(request):
     return request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
 
 
-def create_cache(sample, cache_key=''):
+def create_cache(obj, cache_key=''):
     """
     Create (leave key default) or update cache (give key). This is used to link sample
     instance with cache key, which is an unique identifier for this object in the cache.
@@ -58,7 +58,7 @@ def create_cache(sample, cache_key=''):
     """
     if not cache_key:
         cache_key = create_cache_key()
-    cache_value = pickle.dumps(sample)
+    cache_value = pickle.dumps(obj)
     # cache_value = basic_funcs.getJsonDumps(sample)
     cache.set(cache_key, cache_value, timeout=DEFAULT_CACHE_TIMEOUT)
     return cache_key

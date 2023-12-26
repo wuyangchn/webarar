@@ -31,7 +31,7 @@ def get_raw_data_regression_results(points_data, unselected: list = None):
     """
     if unselected is None:
         unselected = []
-    linesData, linesResults = [], []
+    linesData, linesResults, regCoeffs = [], [], []
     x, y = transpose(points_data)
     un_x = transpose(unselected)[0] if is_twoD(unselected) else []
     reg_handler = [
@@ -44,25 +44,27 @@ def get_raw_data_regression_results(points_data, unselected: list = None):
             res = reg_handler[i](a0=y, a1=x)
             line_data = transpose([lines_x, res[7](lines_x)])
             line_results = res[0:4]
+            reg_coeffs = res[5]
             if np.isin(np.inf, line_data) or np.isin(np.nan, line_data):
                 raise ZeroDivisionError(f"Infinite value or nan value.")
             if abs(res[0] - min(y)) > 5 * (max(y) - min(y)):
                 raise ValueError
         except RuntimeError:
-            line_data, line_results = [], ['RuntimeError', np.nan, np.nan, np.nan]
+            line_data, line_results, reg_coeffs = [], ['RuntimeError', np.nan, np.nan, np.nan, ], []
         except np.linalg.LinAlgError:
-            line_data, line_results = [], ['MatrixError', np.nan, np.nan, np.nan]
+            line_data, line_results, reg_coeffs = [], ['MatrixError', np.nan, np.nan, np.nan, ], []
         except TypeError or IndexError:
-            line_data, line_results = [], ['NotEnoughPoints', np.nan, np.nan, np.nan]
+            line_data, line_results, reg_coeffs = [], ['NotEnoughPoints', np.nan, np.nan, np.nan, ], []
         except ZeroDivisionError:
-            line_data, line_results = [], [np.inf, np.nan, np.nan, np.nan]
+            line_data, line_results, reg_coeffs = [], [np.inf, np.nan, np.nan, np.nan, ], []
         except ValueError:
-            line_data, line_results = [], ['BadFitting', np.nan, np.nan, np.nan]
+            line_data, line_results, reg_coeffs = [], ['BadFitting', np.nan, np.nan, np.nan, ], []
         except:
-            line_data, line_results = [], [np.nan, np.nan, np.nan, np.nan]
+            line_data, line_results, reg_coeffs = [], [np.nan, np.nan, np.nan, np.nan, ], []
         linesData.append(line_data)
         linesResults.append(line_results)
-    return linesData, linesResults
+        regCoeffs.append(reg_coeffs)
+    return linesData, linesResults, regCoeffs
 
 #
 # def get_lines_data(sequenceData, only_isotope=None):

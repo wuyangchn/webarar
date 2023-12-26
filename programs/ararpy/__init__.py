@@ -15,14 +15,16 @@ import pandas as pd
 from . import calc, smp, files
 
 """ classes """
-Sample = smp.samples.Sample
-Info = smp.samples.Info
-Table = smp.samples.Table
-Plot = smp.samples.Plot
-Set = smp.samples.Plot.Set
-Label = smp.samples.Plot.Label
-Axis = smp.samples.Plot.Axis
-Text = smp.samples.Plot.Text
+Sample = smp.Sample
+Info = smp.Info
+Table = smp.Table
+Plot = smp.Plot
+Set = smp.Set
+Label = smp.Label
+Axis = smp.Axis
+Text = smp.Text
+RawData = smp.RawData
+Sequence = smp.Sequence
 
 
 class ArArBasic:
@@ -52,13 +54,18 @@ __version__ = version
 full_version = version
 last_update = '2023-12-17'
 
+
+""" ===================================== """
 """ functions and attributions for ararpy """
+""" ===================================== """
 from_arr = files.arr_file.to_sample
 from_age = files.calc_file.to_sample
 from_full = files.calc_file.full_to_sample
 from_empty = files.new_file.to_sample
 
-""" define functions and attributions for Sample class """
+""" =========================================== """
+""" functions and attributions for Sample class """
+""" =========================================== """
 Sample.name = lambda _smp: _smp.Info.sample.name
 Sample.doi = lambda _smp: _smp.Doi
 Sample.sample = lambda _smp: _smp.Info.sample
@@ -180,6 +187,28 @@ Sample.help = f"" \
               f"{__tab.join([func for func in dir(Sample) if callable(getattr(Sample, func)) and func.startswith('__')])}\n" \
               f"dunder-excluded methods:\n " \
               f"{__tab.join([func for func in dir(Sample) if callable(getattr(Sample, func)) and not func.startswith('__')])}\n"
+
+
+""" ============================================ """
+""" functions and attributions for RawData class """
+""" ============================================ """
+RawData.set_data = lambda _raw, sequence_index, isotopic_index, data: files.raw_file.set_data(
+    _raw, sequence_index, isotopic_index, data)
+RawData.get_data = lambda _raw, sequence_index, isotopic_index: files.raw_file.get_data(
+    _raw, sequence_index, isotopic_index)
+RawData.set_flag = lambda _raw, sequence_index, isotopic_index, flag: files.raw_file.set_flag(
+    _raw, sequence_index, isotopic_index, flag)
+RawData.get_flag = lambda _raw, sequence_index, isotopic_index: files.raw_file.get_flag(
+    _raw, sequence_index, isotopic_index)
+RawData.get_results = lambda _raw, sequence_index, isotopic_index, method_index: files.raw_file.get_result(
+    _raw, sequence_index, isotopic_index, method_index)
+RawData.do_regression = lambda _raw, sequence_index=None, isotopic_index=None, flag=None: \
+    files.raw_file.do_regression(_raw, sequence_index, isotopic_index, flag)
+RawData.get_data_df = lambda _raw: files.raw_file.get_data_df(_raw)
+RawData.get_sequence = lambda _raw, index=None: _raw.sequence if index is None else _raw.sequence[index]
+RawData.to_sample = lambda _raw, mapping: files.raw_file.to_sample(mapping)
+Sequence.get_data_df = lambda _seq: pd.DataFrame(_seq.data)
+Sequence.get_flag_df = lambda _seq: pd.DataFrame(_seq.flag)
 
 
 def test():

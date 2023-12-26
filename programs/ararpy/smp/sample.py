@@ -17,6 +17,7 @@
 Create a sample instance.
 
 """
+from typing import List, Tuple, Dict, Optional, Union
 
 NEW_SAMPLE_INTERCEPT_HEADERS = [
     'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
@@ -125,15 +126,15 @@ TOTAL_PARAMS_HEADERS = [
     'Using Min Equation',
     # 'Recalibration', 'Using Std Age', 'Use Std Ratio',  # 112-115  to be completed
     '', '', '',  # 112-115
-    'Auto Plateau Method',   # 116 the index includes sequence name and unit
-    'Initial Ratio Model',   # 117
-    'Set1 initial Ratio',   # 118
-    '1\u03C3',   # 119
-    'Set2 initial Ratio',   # 120
-    '1\u03C3',   # 121
-    'Isotopic Errors',   # 122
-    'Parameter Errors',   # 123
-    'Plot Errors',   # 124
+    'Auto Plateau Method',  # 116 the index includes sequence name and unit
+    'Initial Ratio Model',  # 117
+    'Set1 initial Ratio',  # 118
+    '1\u03C3',  # 119
+    'Set2 initial Ratio',  # 120
+    '1\u03C3',  # 121
+    'Isotopic Errors',  # 122
+    'Parameter Errors',  # 123
+    'Plot Errors',  # 124
 ]
 
 DEFAULT_PLOT_STYLES = {
@@ -141,70 +142,80 @@ DEFAULT_PLOT_STYLES = {
         'id': 'figure_1', 'name': 'Age Spectra', 'type': 'spectra', 'attr_name': 'AgeSpectraPlot',
         'rightside_text': [],
         'title': {'id': 'title', 'show': True, 'text': 'Age Spectra', 'position': 'center',
-                  'font_size': 18,  'color': '#333333', 'opacity': 1, 'type': 'text', 'font_weight': 'bolder',
-                  'font_family': 'Microsoft Sans Serif',},
+                  'font_size': 18, 'color': '#333333', 'opacity': 1, 'type': 'text', 'font_weight': 'bolder',
+                  'font_family': 'Microsoft Sans Serif', },
         'xaxis': {
-            'title': {'text': 'Cumulative {sup|39}Ar Released (%)', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': 'Cumulative {sup|39}Ar Released (%)', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'yaxis': {
-            'title': {'text': 'Apparent Age (Ma)', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': 'Apparent Age (Ma)', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
-        'set1': {'id': 'Points Set 1', 'type': 'set',},
-        'set2': {'id': 'Points Set 2', 'type': 'set',},
-        'set3': {'id': 'Points Set 3', 'type': 'set',},
-        'set4': {'id': 'Points Set 4', 'type': 'set',},
-        'set5': {'id': 'Points Set 5', 'type': 'set',},
+        'set1': {'id': 'Points Set 1', 'type': 'set', },
+        'set2': {'id': 'Points Set 2', 'type': 'set', },
+        'set3': {'id': 'Points Set 3', 'type': 'set', },
+        'set4': {'id': 'Points Set 4', 'type': 'set', },
+        'set5': {'id': 'Points Set 5', 'type': 'set', },
         'line1': {
             'id': 'Spectra Line 1', 'color': '#333333', 'line_type': 'solid',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'line2': {
             'id': 'Spectra Line 2', 'color': '#333333', 'line_type': 'solid',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'line3': {
             'id': 'Set1 Line 1', 'color': '#FF0000', 'line_type': 'solid',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'line4': {
             'id': 'Set1 Line 2', 'color': '#FF0000', 'line_type': 'solid',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'line5': {
             'id': 'Set2 Line 1', 'color': '#00B0F0', 'line_type': 'solid',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'line6': {
             'id': 'Set2 Line 2', 'color': '#00B0F0', 'line_type': 'solid',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'line7': {
             'id': 'Set4 Line 1', 'color': '#FF0000', 'line_type': 'dashed',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'line8': {
             'id': 'Set4 Line 2', 'color': '#FF0000', 'line_type': 'dashed',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'line9': {
             'id': 'Set5 Line 1', 'color': '#00B0F0', 'line_type': 'dashed',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'line10': {
             'id': 'Set5 Line 2', 'color': '#00B0F0', 'line_type': 'dashed',
             'line_width': 2, 'opacity': 1, 'symbol_size': 0, 'symbol': 'none', 'type': 'set',
-            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+            'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                      'color': '#252525'}
         },
         'text1': {
             'id': 'Text for Set 1', 'show': True, 'font_size': 16, 'color': '#FF0000', 'opacity': 1, 'type': 'text',
@@ -214,7 +225,8 @@ DEFAULT_PLOT_STYLES = {
             'id': 'Text for Set 2', 'show': True, 'font_size': 16, 'color': '#00B0F0', 'opacity': 1, 'type': 'text',
             'font_weight': 'bold', 'font_family': 'Microsoft Sans Serif',
         },
-        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                  'color': '#252525'}
     },
     'figure_2': {
         'id': 'figure_2', 'name': 'Normal Isochron', 'type': 'isochron', 'attr_name': 'NorIsochronPlot',
@@ -226,13 +238,13 @@ DEFAULT_PLOT_STYLES = {
         },
         'title': {'id': 'title', 'show': True, 'text': '', 'position': 'center',
                   'font_size': 18, 'color': '#333333', 'opacity': 1, 'type': 'text',
-                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif',},
+                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif', },
         'xaxis': {
-            'title': {'text': '{sup|39}Ar{sub|K} / {sup|36}Ar{sub|a}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|39}Ar{sub|K} / {sup|36}Ar{sub|a}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'yaxis': {
-            'title': {'text': '{sup|40}Ar{sup|*} / {sup|36}Ar{sub|a}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|40}Ar{sup|*} / {sup|36}Ar{sub|a}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'set1': {
@@ -270,20 +282,21 @@ DEFAULT_PLOT_STYLES = {
             'id': 'Text for Set 2', 'show': True, 'font_size': 16, 'color': '#00B0F0', 'opacity': 1, 'type': 'text',
             'font_weight': 'bold', 'font_family': 'Microsoft Sans Serif',
         },
-        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                  'color': '#252525'}
     },
     'figure_3': {
         'id': 'figure_3', 'name': 'Inverse Isochron', 'type': 'isochron', 'attr_name': 'InvIsochronPlot',
         'rightside_text': [],
         'title': {'id': 'title', 'show': True, 'text': '', 'position': 'center',
                   'font_size': 18, 'color': '#333333', 'opacity': 1, 'type': 'text',
-                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif',},
+                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif', },
         'xaxis': {
-            'title': {'text': '{sup|39}Ar{sub|K} / {sup|40}Ar{sup|*}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|39}Ar{sub|K} / {sup|40}Ar{sup|*}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'yaxis': {
-            'title': {'text': '{sup|36}Ar{sub|a} / {sup|40}Ar{sup|*}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|36}Ar{sub|a} / {sup|40}Ar{sup|*}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'ellipse': {
@@ -308,11 +321,11 @@ DEFAULT_PLOT_STYLES = {
         },
         'line1': {
             'id': 'Line for Set 1', 'type': 'set', 'color': '#FF0000', 'line_type': 'solid', 'line_width': 2,
-            'label': {'show': False, 'type': 'label',}
+            'label': {'show': False, 'type': 'label', }
         },
         'line2': {
             'id': 'Line for Set 2', 'type': 'set', 'color': '#00B0F0', 'line_type': 'solid', 'line_width': 2,
-            'label': {'show': False, 'type': 'label',}
+            'label': {'show': False, 'type': 'label', }
         },
         'errline': {
             'id': 'Error Lines', 'type': 'set', 'color': '#333333', 'line_type': 'solid', 'line_width': 2,
@@ -326,20 +339,21 @@ DEFAULT_PLOT_STYLES = {
             'id': 'Text for Set 2', 'show': True, 'font_size': 16, 'color': '#00B0F0', 'opacity': 1, 'type': 'text',
             'font_weight': 'bold', 'font_family': 'Microsoft Sans Serif',
         },
-        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                  'color': '#252525'}
     },
     'figure_4': {
         'id': 'figure_4', 'name': 'K-Cl-Ar 1', 'type': 'isochron', 'attr_name': 'KClAr1IsochronPlot',
         'rightside_text': [],
         'title': {'id': 'title', 'show': True, 'text': '', 'position': 'center',
                   'font_size': 18, 'color': '#333333', 'opacity': 1, 'type': 'text',
-                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif',},
+                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif', },
         'xaxis': {
-            'title': {'text': '{sup|39}Ar{sub|K} / {sup|38}Ar{sub|Cl}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|39}Ar{sub|K} / {sup|38}Ar{sub|Cl}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'yaxis': {
-            'title': {'text': '{sup|40}Ar{sup|*} / {sup|38}Ar{sub|Cl}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|40}Ar{sup|*} / {sup|38}Ar{sub|Cl}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'ellipse': {
@@ -382,20 +396,21 @@ DEFAULT_PLOT_STYLES = {
             'id': 'Text for Set 2', 'show': True, 'font_size': 16, 'color': '#00B0F0', 'opacity': 1, 'type': 'text',
             'font_weight': 'bold', 'font_family': 'Microsoft Sans Serif',
         },
-        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                  'color': '#252525'}
     },
     'figure_5': {
         'id': 'figure_5', 'name': 'K-Cl-Ar 2', 'type': 'isochron', 'attr_name': 'KClAr2IsochronPlot',
         'rightside_text': [],
         'title': {'id': 'title', 'show': True, 'text': '', 'position': 'center',
                   'font_size': 18, 'color': '#333333', 'opacity': 1, 'type': 'text',
-                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif',},
+                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif', },
         'xaxis': {
-            'title': {'text': '{sup|39}Ar{sub|K} / {sup|40}Ar{sup|*}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|39}Ar{sub|K} / {sup|40}Ar{sup|*}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'yaxis': {
-            'title': {'text': '{sup|38}Ar{sub|Cl} / {sup|40}Ar{sup|*}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|38}Ar{sub|Cl} / {sup|40}Ar{sup|*}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'ellipse': {
@@ -438,20 +453,21 @@ DEFAULT_PLOT_STYLES = {
             'id': 'Text for Set 2', 'show': True, 'font_size': 16, 'color': '#00B0F0', 'opacity': 1, 'type': 'text',
             'font_weight': 'bold', 'font_family': 'Microsoft Sans Serif',
         },
-        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                  'color': '#252525'}
     },
     'figure_6': {
         'id': 'figure_6', 'name': 'K-Cl-Ar 3', 'type': 'isochron', 'attr_name': 'KClAr3IsochronPlot',
         'rightside_text': [],
         'title': {'id': 'title', 'show': True, 'text': '', 'position': 'center',
                   'font_size': 18, 'color': '#333333', 'opacity': 1, 'type': 'text',
-                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif',},
+                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif', },
         'xaxis': {
-            'title': {'text': '{sup|38}Ar{sub|Cl} / {sup|39}Ar{sub|K}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|38}Ar{sub|Cl} / {sup|39}Ar{sub|K}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'yaxis': {
-            'title': {'text': '{sup|40}Ar{sup|*} / {sup|39}Ar{sub|K}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|40}Ar{sup|*} / {sup|39}Ar{sub|K}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'ellipse': {
@@ -494,24 +510,25 @@ DEFAULT_PLOT_STYLES = {
             'id': 'Text for Set 2', 'show': True, 'font_size': 16, 'color': '#00B0F0', 'opacity': 1, 'type': 'text',
             'font_weight': 'bold', 'font_family': 'Microsoft Sans Serif',
         },
-        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                  'color': '#252525'}
     },
     'figure_7': {
         'id': 'figure_7', 'name': '3D Isochron', 'type': 'isochron', 'attr_name': 'ThreeDIsochronPlot',
         'rightside_text': [],
         'title': {'id': 'title', 'show': True, 'text': '', 'position': 'center',
                   'font_size': 18, 'color': '#333333', 'opacity': 1, 'type': 'text',
-                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif',},
+                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif', },
         'xaxis': {
-            'title': {'text': '{sup|36}Ar{sub|a+Cl} / {sup|40}Ar{sub|a+r}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|36}Ar{sub|a+Cl} / {sup|40}Ar{sub|a+r}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'zaxis': {
-            'title': {'text': '{sup|39}Ar{sub|K} / {sup|40}Ar{sub|a+r}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|39}Ar{sub|K} / {sup|40}Ar{sub|a+r}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'yaxis': {
-            'title': {'text': '{sup|38}Ar{sub|a+Cl} / {sup|40}Ar{sub|a+r}', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|38}Ar{sub|a+Cl} / {sup|40}Ar{sub|a+r}', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'set1': {
@@ -537,36 +554,38 @@ DEFAULT_PLOT_STYLES = {
             'id': 'Text for Set 2', 'show': True, 'font_size': 16, 'color': '#00B0F0', 'opacity': 1, 'type': 'text',
             'font_weight': 'bold', 'font_family': 'Microsoft Sans Serif',
         },
-        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                  'color': '#252525'}
     },
     'figure_8': {
         'id': 'figure_8', 'name': 'Degas Pattern', 'type': 'plot', 'attr_name': 'DegasPatternPlot',
         'rightside_text': [],
         'title': {'id': 'title', 'show': True, 'text': '', 'position': 'center',
                   'font_size': 18, 'color': '#333333', 'opacity': 1, 'type': 'text',
-                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif',},
+                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif', },
         'xaxis': {
-            'title': {'text': 'Step', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': 'Step', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'yaxis': {
-            'title': {'text': 'Argon isotopes (%)', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': 'Argon isotopes (%)', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
-        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top', 'color': '#252525'}
+        'label': {'id': '', 'type': 'label', 'show': False, 'distance': 5, 'offset': [10, 0], 'position': 'top',
+                  'color': '#252525'}
     },
     'figure_9': {
         'id': 'figure_9', 'name': 'Age Distribution', 'type': 'plot', 'attr_name': 'AgeDistributionPlot',
         'rightside_text': [],
         'title': {'id': 'title', 'show': True, 'text': '', 'position': 'center',
                   'font_size': 18, 'color': '#333333', 'opacity': 1, 'type': 'text',
-                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif',},
+                  'font_weight': 'bolder', 'font_family': 'Microsoft Sans Serif', },
         'xaxis': {
-            'title': {'text': '{sup|40}Ar / {sup|39}Ar Age', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': '{sup|40}Ar / {sup|39}Ar Age', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'yaxis': {
-            'title': {'text': 'Count', 'type': 'text',}, 'type': 'axis',
+            'title': {'text': 'Count', 'type': 'text', }, 'type': 'axis',
             'min': 0, 'max': 100, 'show_splitline': False, 'ticks_inside': False, 'split_number': 5, 'interval': 10,
         },
         'set1': {
@@ -608,7 +627,6 @@ VERSION = '20231208'
 class Sample:
 
     def __init__(self, **kwargs):
-
         self.Doi = ""
         self.help = ""
         self.Info = Info()
@@ -677,63 +695,83 @@ class Sample:
         return self.__version
 
     def name(self): ...
+
     def doi(self): ...
+
     def sample(self): ...
+
     def researcher(self): ...
+
     def laboratory(self): ...
+
     def results(self): ...
+
     def sequence(self): ...
-    def recalculate(self): ...
+
+    def recalculate(self, *args): ...
 
     def plot_age_plateau(self): ...
+
     def plot_isochron(self): ...
+
     def plot_normal(self): ...
+
     def plot_inverse(self): ...
+
     def plot_cl_1(self): ...
+
     def plot_cl_2(self): ...
+
     def plot_cl_3(self): ...
+
     def plot_3D(self): ...
 
     def initial(self): ...
+
     def set_selection(self): ...
+
     def update_table(self): ...
 
     def unknown(self): ...
+
     def blank(self): ...
+
     def parameters(self): ...
+
     def corrected(self): ...
+
     def degas(self): ...
+
     def isochron(self): ...
+
     def apparent_ages(self): ...
+
     def publish(self): ...
 
     def corr_blank(self): ...
+
     def corr_massdiscr(self): ...
+
     def corr_decay(self): ...
+
     def corr_ca(self): ...
+
     def corr_k(self): ...
+
     def corr_cl(self): ...
+
     def corr_atm(self): ...
+
     def corr_r(self): ...
+
     def calc_ratio(self): ...
 
     def show_data(self): ...
 
 
 class Table:
-    def __init__(
-            self,
-            id='',
-            name='Table',
-            colcount=None,
-            rowcount=None,
-            header=None,
-            data=None,
-            coltypes=None,
-            textindexs=None,
-            numericindexs=None,
-            **kwargs
-    ):
+    def __init__(self, id='', name='Table', colcount=None, rowcount=None, header=None,
+                 data=None, coltypes=None, textindexs=None, numericindexs=None, **kwargs):
         if header is None:
             header = ['']
         if data is None:
@@ -765,15 +803,7 @@ class Table:
 
 
 class Plot:
-    def __init__(
-            self,
-            id='',
-            type='',
-            name='',
-            data=None,
-            info=None,
-            **kwargs
-    ):
+    def __init__(self, id='', type='', name='', data=None, info=None, **kwargs):
         if data is None:
             data = []
         self.id = id
@@ -785,13 +815,7 @@ class Plot:
             setattr(self, k, v)
 
     class BasicAttr:
-        def __init__(
-                self,
-                enabled=True,
-                id='',
-                type='',
-                info=None,
-        ):
+        def __init__(self, enabled=True, id='', type='', info=None, ):
             self.enabled = enabled
             self.id = id
             self.type = type
@@ -806,15 +830,8 @@ class Plot:
             return self
 
     class Axis(BasicAttr):
-        def __init__(
-                self,
-                id='',
-                title=None,
-                min=0,
-                max=100,
-                show_splitline=False,
-                **kwargs
-        ):
+        def __init__(self, id='', title=None, min=0, max=100, show_splitline=False,
+                     **kwargs):
             super().__init__(id=id, type='Axis')
             self.title = title
             self.min = min
@@ -824,18 +841,9 @@ class Plot:
                 setattr(self, k, v)
 
     class Text(BasicAttr):
-        def __init__(
-                self,
-                id='',
-                text='',
-                show=True,
-                color=None,
-                font_size=8,
-                font_family=None,
-                font_weight=None,  # bold, normal
-                pos=None,
-                **kwargs
-        ):
+        def __init__(self, id='', text='', show=True, color=None, font_size=8,
+                     font_family=None, font_weight=None,  # bold, normal
+                     pos=None, **kwargs):
             super().__init__(id=id, type='Text')
             if pos is None:
                 pos = [0, 0]
@@ -850,16 +858,8 @@ class Plot:
                 setattr(self, k, v)
 
     class Label(BasicAttr):
-        def __init__(
-                self,
-                id='',
-                show=False,
-                color=None,
-                position=None,
-                distance=None,
-                offset=None,
-                **kwargs
-        ):
+        def __init__(self, id='', show=False, color=None, position=None, distance=None,
+                     offset=None, **kwargs):
             super().__init__(id=id, type='Label')
             if offset is None:
                 offset = [10, 0]
@@ -872,22 +872,9 @@ class Plot:
                 setattr(self, k, v)
 
     class Set(BasicAttr):
-        def __init__(
-                self,
-                id='',
-                label=None,
-                info=None,
-                color=None,
-                border_color=None,
-                border_width=None,
-                line_width=None,
-                line_type=None,
-                opacity=None,
-                index=None,
-                data=None,
-                symbol_size=None,
-                **kwargs
-        ):
+        def __init__(self, id='', label=None, info=None, color=None, border_color=None,
+                     border_width=None, line_width=None, line_type=None, opacity=None,
+                     index=None, data=None, symbol_size=None, **kwargs):
             super().__init__(id=id, type='Set', info=info)
             if data is None:
                 data = []
@@ -906,15 +893,134 @@ class Plot:
 
 
 class Info:
-    def __init__(
-            self,
-            id='',
-            name='',
-            type='Info',
-            **kwargs
-    ):
+    def __init__(self, id='', name='', type='Info', **kwargs):
         self.id = id
         self.name = name
         self.type = type
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+
+class Sequence:
+    def __init__(self, index=None, data=None, flag=None, name=None, datetime=None,
+                 type_str=None, results=None, coefficients=None, fitting_method=None,
+                 is_estimated=False, **kwargs):
+        self.index = index
+        self.name = name
+        self.datetime = datetime
+        self.data = data
+        if flag is None and data is not None:
+            flag = [[j if i == 0 else True for i, j in enumerate(_m)] for _m in data]
+        self.flag = flag
+        self.type_str = type_str
+        if results is None:
+            results = []
+        if fitting_method is None:
+            fitting_method = []
+        if coefficients is None:
+            coefficients = []
+        self.results = results
+        self.coefficients = coefficients
+        self.fitting_method = fitting_method
+        self.is_estimated = is_estimated
+
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+        self.__as_type(self.type_str)
+
+    def as_type(self, type_str):
+        if str(type_str).lower() in ["blk", "b", "blank"]:
+            self.type_str = "blank"
+        if str(type_str).lower() in ["unknown", "sample"]:
+            self.type_str = "unknown"
+        if str(type_str).lower() in ["a", "air"]:
+            self.type_str = "air"
+
+    __as_type = as_type
+
+    @property
+    def is_blank(self): return self.type_str == "blank"
+
+    @property
+    def is_unknown(self): return self.type_str != "blank" and self.type_str != "air"
+
+    @property
+    def is_air(self): return self.type_str == "air"
+
+    def as_blank(self): return self.as_type("blank")
+    def as_unknown(self): return self.as_type("unknown")
+    def as_air(self): return self.as_type("air")
+    def get_data_df(self): ...
+    def get_flag_df(self): ...
+
+
+class RawData:
+    def __init__(self, id='', name='', type='raw', data=None, sequence_num=0,
+                 isotopic_num=10, source=None, **kwargs):
+        """
+        Parameters
+        ----------
+        id
+        name : file name
+        type : raw
+        data :
+            list or data frame. [[x_ar36, y_ar36, x_ar37, y_ar37, ...], [ ... ]
+        kwargs
+        """
+
+        self.id = id
+        self.name = name
+        self.type = type
+        self.source = source
+        self.isotopic_num = isotopic_num
+        self.sequence_num = sequence_num
+        if data is not None:
+            self.sequence: List[Sequence] = [
+                Sequence(index=index, name=f"{self.name}-{index}", data=item[1:],
+                         datetime=self.__get_experiment_time(item[0][1]),
+                         type_str=item[0][2], fitting_method=[0] * 5)
+                for index, item in enumerate(data)]
+        else:
+            self.sequence: List[Sequence] = []
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    def __get_experiment_time(self, time_str):
+        k1 = time_str.split(' ')
+        [month, day, year] = k1[0].split('/')
+        [hour, min, second] = k1[2].split(':')
+        if 'pm' in time_str.lower() and int(hour) < 12:
+            hour = int(hour) + 12
+        if 'am' in time_str.lower() and int(hour) >= 12:
+            hour = int(hour) - 12
+        return f'{year}-{month}-{day}T{hour}:{min}:{second}'
+
+    def set_data(self, sequence_index: int, isotopic_index: int, data: List[List[float]]):
+        ...
+
+    def get_data(self, sequence_index: Optional[int], isotopic_index: Optional[int]) -> List[List[List[float]]]:
+        ...
+
+    def set_flag(self, sequence_index: int, isotopic_index: int, data: List[List[float]]):
+        ...
+
+    def get_flag(self, sequence_index: Optional[int], isotopic_index: Optional[int]) -> List[List[float]]:
+        ...
+
+    def get_result(self, sequence_index: Optional[int], isotopic_index: Optional[int],
+                   method_index: Optional[List[List[Union[int, str]]]]) -> List[List[float]]:
+        ...
+
+    def do_regression(self, sequence_index: Optional[List], isotopic_index: Optional[List],
+                      flag: Optional[List[List[float]]]):
+        ...
+
+    def get_data_df(self):
+        ...
+
+    def get_sequence(self, index: Optional[int]) -> Union[Sequence, List]:
+        ...
+
+    def to_sample(self, mapping: Union[list, zip]) -> Sample:
+        ...
