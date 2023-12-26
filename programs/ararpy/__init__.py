@@ -153,6 +153,8 @@ Sample.corr_r = smp.corr.calc_degas_r
 Sample.calc_ratio = smp.corr.calc_ratio
 Sample.set_params = smp.basic.set_params
 
+Sample.set_info = lambda _smp, info: smp.basic.update_plot_from_dict(_smp.Info, info)
+
 Sample.recalculate = lambda _smp, *args, **kwargs: smp.calculation.recalculate(_smp, *args, **kwargs)
 Sample.plot_init = lambda _smp: smp.calculation.recalculate(
     _smp, re_plot=True, isIsochron=False, isInit=True, isPlateau=False)

@@ -811,7 +811,7 @@ class RawFileView(http_funcs.ArArView):
             'researcher': {'name': sampleInfo[3]},
             'laboratory': {'name': sampleInfo[4], 'info': sampleInfo[5], 'analyst': sampleInfo[6]}
         }
-        ap.smp.basic.update_plot_from_dict(sample.Info, info)
+        sample.set_info(info=info)
 
         sample.TotalParam[31] = [raw.get_sequence(row['unknown'], flag='name').datetime for row in selectedSequences]
 
