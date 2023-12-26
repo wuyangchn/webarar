@@ -91,7 +91,7 @@ class CalcHtmlView(http_funcs.ArArView):
 
     def open_current_file(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '001', 'info', 'Open last file')
-        return open_last_object(request)
+        return http_funcs.open_last_object(request)
 
     def open_new_file(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '001', 'info', 'Open new file')
@@ -155,7 +155,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
     def get(self, request, *args, **kwargs):
         # Visiting /calc/object
         log_funcs.set_info_log(self.ip, '003', 'info', f'GET /calc/object')
-        return open_last_object(request)
+        return http_funcs.open_last_object(request)
 
     def update_sample_photo(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '003', 'info', 'Update sample photo')
@@ -585,7 +585,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
     def flag_not_matched(self, request, *args, **kwargs):
         # Show calc.html when the received flag doesn't exist.
-        return open_last_object(request)
+        return http_funcs.open_last_object(request)
 
 
 """ For open raw files """
@@ -596,9 +596,9 @@ class RawFileView(http_funcs.ArArView):
         super().__init__(**kwargs)
         self.dispatch_post_method_name = [
             "submit",
-            "close",
-            "upload_raw_project",
-            'raw_files_submit',
+            'close',
+            'to_project_view',
+            'raw_data_submit',
         ]
 
     def get(self, request, *args, **kwargs):
@@ -610,6 +610,10 @@ class RawFileView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Flag is not matched')
         return redirect('calc_view')
 
+    def close(self, request, *args, **kwargs):
+        log_funcs.set_info_log(self.ip, '004', 'info', f'Close')
+        return redirect('calc_view')
+
     def raw_files_changed(self, request, *args, **kwargs):
         files = []
         filter = request.POST.get('fileOptionsRadios')
@@ -617,7 +621,7 @@ class RawFileView(http_funcs.ArArView):
             try:
                 web_file_path, file_name, suffix = ap.files.basic.upload(
                     file, settings.UPLOAD_ROOT)
-            except Exception:
+            except (Exception, BaseException):
                 continue
             else:
                 files.append({
@@ -628,9 +632,10 @@ class RawFileView(http_funcs.ArArView):
 
     def submit(self, request, *args, **kwargs):
         files = json.loads(request.POST.get('raw-file-table'))['files']
+
         raw = ap.files.raw_file.to_raw(file_path=[file['file_path'] for file in files])
-        # raw_data = raw.do_regression()
         raw.do_regression()
+
         allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
         allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
         allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
@@ -658,7 +663,7 @@ class RawFileView(http_funcs.ArArView):
             'Ar39': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
             'Ar40': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
         }
-        new_sequence = ap.Sequence(
+        new_sequences = [ap.Sequence(
             index='undefined', name=f"from_{file_name}", data=None, fitting_method=[0, 0, 0, 0, 0],
             datetime=new_blank_sequence['experimentTime'], type_str='blank', is_estimated=True,
             results=[
@@ -668,92 +673,13 @@ class RawFileView(http_funcs.ArArView):
                 new_blank_sequence['Ar39'],
                 new_blank_sequence['Ar40'],
             ],
-        )
-        return JsonResponse({"new_sequence": ap.files.json.dumps(new_sequence)})
+        )]
+        return JsonResponse({'new_sequences': ap.files.json.dumps(new_sequences), 'status': 100})
 
-    #
-    # def raw_files_submit(self, request, *args, **kwargs):  # 之前的打开单个文件的submit
-    #     web_file_path, file_name, _ = ap.files.basic.upload(
-    #         request.FILES.get('raw_file'), settings.UPLOAD_ROOT)
-    #     log_funcs.set_info_log(self.ip, '004', 'info', f'Start to submit raw file, file name: {file_name}, '
-    #                                                    f'server file path: {web_file_path}')
-    #
-    #     step_list = ap.files.raw.open_file(web_file_path)
-    #
-    #     def _get_experiment_time(time_str):
-    #         k1 = time_str.split(' ')
-    #         [month, day, year] = k1[0].split('/')
-    #         [hour, min, second] = k1[2].split(':')
-    #         if 'pm' in time_str.capitalize():
-    #             hour = int(hour) + 12
-    #         return "-".join([year, month, day, str(hour), min, second])
-    #
-    #     def _is_blank(label: str):
-    #         return True if label.capitalize() in ['Blk', 'B', 'Blank'] else False
-    #
-    #     selectedData = [[[]]]
-    #     unselectedData = [[[]]]
-    #     experimentTime = []
-    #     sequenceLabel = []
-    #     isBlank = []
-    #     sequenceName = []
-    #     if step_list:
-    #         selectedData = [[
-    #             [[j[1], j[6]] for j in i[1:]],  # Ar36
-    #             [[j[1], j[5]] for j in i[1:]],  # Ar37
-    #             [[j[1], j[4]] for j in i[1:]],  # Ar38
-    #             [[j[1], j[3]] for j in i[1:]],  # Ar39
-    #             [[j[1], j[2]] for j in i[1:]]] for i in step_list]  # Ar40
-    #         unselectedData = [[[], [], [], [], []] for i in step_list]
-    #         experimentTime = [_get_experiment_time(i[0][1]) for i in step_list]
-    #         sequenceLabel = [i[0][3] for i in step_list]
-    #         isBlank = [_is_blank(i[0][2]) for i in step_list]
-    #         sequenceName = [file_name + "-" + str(i + 1) for i in range(len(step_list))]
-    #
-    #     # res = [ap.calc.regression.get_lines_data(i) for i in selectedData]
-    #     res = [ap.calc.raw_funcs.get_lines_data(i) for i in selectedData]
-    #     linesData = [i[0] for i in res]
-    #     linesResults = [i[1] for i in res]
-    #     fitMethod = [[0 for j in range(5)] for i in range(len(linesResults))]
-    #     # 写入缓存
-    #     raw_data = {
-    #         'selectedData': selectedData, 'unselectedData': unselectedData, 'linesData': linesData,
-    #         'linesResults': linesResults, 'fitMethod': fitMethod, 'sequenceLabel': sequenceLabel,
-    #         'experimentTime': experimentTime, 'sequenceName': sequenceName, 'isBlank': isBlank
-    #     }
-    #     allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
-    #     allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
-    #     allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
-    #
-    #     log_funcs.set_info_log(self.ip, '004', 'info', f'Success to submit raw file')
-    #     return render(request, 'extrapolate.html', {
-    #         'data': json.dumps(raw_data),
-    #         'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
-    #     })
-
-    def close(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Close')
-        return redirect('calc_view')
-
-    def upload_raw_project(self, request, *args, **kwargs):
+    def to_project_view(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Upload raw project')
-        return open_last_object(request)
+        return http_funcs.open_last_object(request)
         # return redirect('object_views_2')
-
-    def raw_fit_method_changed(self, request, *args, **kwargs):
-        fitMethod = self.body['fitMethod']
-        fitMethodValue = self.body['fitMethodValue']
-        fitMethodForAll = self.body['fitMethodForAll']
-        sequence = self.body['sequence']
-        isotope = self.body['isotope']
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Change raw fit method')
-        if fitMethodForAll:
-            for i in range(len(fitMethod)):
-                for j in range(5):
-                    fitMethod[i][j] = fitMethodValue
-        else:
-            fitMethod[sequence][isotope] = fitMethodValue
-        return JsonResponse({'fitMethod': fitMethod})
 
     def raw_corr_blank_method_changed(self, request, *args, **kwargs):
         receive = json.loads(request.body.decode('utf-8'))
@@ -827,6 +753,8 @@ class RawFileView(http_funcs.ArArView):
 
         status = not raw.sequence[sequence_index].flag[data_index][isotopic_index * 2 + 1]
         isotopic_index = list(range(5)) if selectionForAll else [isotopic_index]
+        print(f"{sequence_index = }")
+        print(f"{isotopic_index = }")
         for _isotope in isotopic_index:
             raw.sequence[sequence_index].flag[data_index][_isotope * 2 + 1] = status
             raw.sequence[sequence_index].flag[data_index][_isotope * 2 + 2] = status
@@ -866,7 +794,7 @@ class RawFileView(http_funcs.ArArView):
         )
         return JsonResponse({'newBlank': newBlank, 'new_sequence': ap.files.json.dumps(new_sequence)})
 
-    def calc_raw_submit(self, request, *args, **kwargs):
+    def raw_data_submit(self, request, *args, **kwargs):  # old name: calc_raw_submit
         """
         Raw data submit, return a sample instance and render a object html.
         """
@@ -875,11 +803,18 @@ class RawFileView(http_funcs.ArArView):
         sampleParams = self.body['sampleParams']
         sampleInfo = self.body['sampleInfo']
         interceptData = self.body['interceptData']
+        rawData = self.body['rawData']
         fingerprint = self.body['fingerprint']
         log_funcs.set_info_log(self.ip, '004', 'info', f'Start to submit raw file')
 
+        raw = self.sample
+        raw.interpolated_blank = rawData['interpolated_blank']
+        raw.sequence = [ap.Sequence(**seq) for seq in rawData['sequence']]
+
         # 创建sample
         sample = ap.Sample()
+        sample.RawData = raw
+
         # Initial values
         ap.smp.initial.initial(sample)
         # experimental time, unknown and blank intercepts
@@ -935,13 +870,13 @@ class RawFileView(http_funcs.ArArView):
             ]] * len(interceptData))
         sample.TotalParam[31] = ["-".join(re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", item)[0]) for item in
                                  experimentTime]
-        np = len(sample.SequenceName)
+        sequence_num = len(sample.SequenceName)
         stand_time_second = [
             ap.calc.basic.get_datetime(*sample.TotalParam[31][i].split('-')) - ap.calc.basic.get_datetime(
-                *sample.TotalParam[30][i].split('-')) for i in range(np)]
+                *sample.TotalParam[30][i].split('-')) for i in range(sequence_num)]
         sample.TotalParam[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
 
-        sample.UnselectedSequence = list(range(np))
+        sample.UnselectedSequence = list(range(sequence_num))
         sample.SelectedSequence1 = []
         sample.SelectedSequence2 = []
         sample.recalculate(*[True] * 12)  # Calculation after submitting row data
@@ -1066,22 +1001,3 @@ class ParamsSettingView(http_funcs.ArArView):
                         return JsonResponse({'status': 'fail', 'mas': 'something wrong happened when delete params'})
             else:
                 return JsonResponse({'status': 'fail', 'msg': 'wrong pin'})
-
-
-def open_last_object(request):
-    fingerprint = request.POST.get('fingerprint')
-    # print(cache.keys('*'))
-    try:
-        last_record = models.CalcRecord.objects.filter(user=str(fingerprint)).order_by('-id')[0]
-        cache_key = last_record.cache_key
-        sample = pickle.loads(cache.get(cache_key))
-        # sample = basic_funcs.getJsonLoads(cache.get(cache_key))
-        if sample is None:
-            raise IndexError
-    except (BaseException, Exception):
-        # print('No file found in cache!')
-        sample = ap.Sample()
-        ap.smp.initial.initial(sample)
-        return http_funcs.open_object_file(request, sample, web_file_path='')
-    else:
-        return http_funcs.open_object_file(request, sample, web_file_path='', cache_key=cache_key)

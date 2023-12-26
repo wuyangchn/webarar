@@ -131,7 +131,7 @@
                             <button type="button" class="btn btn-primary" onclick="getAverageofBlanks()">Average()</button>
                             <button type="button" class="btn btn-primary" onclick="getInterpolatedBlank()">Interpolate()</button>
                             <button type="button" class="btn btn-primary" onclick="addNewBlankButtonClicked()">Add to list</button>
-                            <button id="file-btn-import-blank" type="button" class="btn btn-primary" disabled>Import from (to be completed)</button>
+                            <button id="file-btn-import-blank" type="button" class="btn btn-primary" hidden>Import from (to be completed)</button>
                             <form id="form-import-blank-file" enctype="multipart/form-data">
                                 <label><input type="file" style="display: none" id="file-input-import-blank" name="blank_file" accept=".xls"></label>
                             </form>
@@ -445,13 +445,14 @@
     <div class="sr-only">
         <form method="post" id="fingerprint-form">
             <label><input type="text" name="fingerprint" value=""/></label>
-            <label><input type="text" name="flag" value="upload_raw_project"/></label>
+            <label><input type="text" name="flag" value="to_project_view"/></label>
         </form>
     </div>
     <script type="text/javascript">
         let myRawData2 = {{ raw_data | safe }};
         let myRawCacheKey = {{ raw_cache_key | safe }};
         console.log(myRawData2);
+        let newSequencesList = [];
         let current_page = 1;
         let max_page = myRawData2.sequence_num;
         let sequenceContainer = document.getElementById('sequenceContainer');
