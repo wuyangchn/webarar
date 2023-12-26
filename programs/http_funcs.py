@@ -78,6 +78,19 @@ def touch_cache(cache_key=''):
     return cache.touch(cache_key, timeout=DEFAULT_CACHE_TIMEOUT, version=None)
 
 
+def cache_load(cache_key):
+    """
+    Parameters
+    ----------
+    cache_key
+
+    Returns
+    -------
+
+    """
+    return pickle.loads(cache.get(cache_key))
+
+
 def set_mysql(request, mysql, fingerprint, file_path="", cache_key=""):
     mysql.objects.create(
         user=str(fingerprint),
@@ -121,6 +134,26 @@ def open_object_file(request, sample, web_file_path, cache_key=''):
     })
 
 
+def open_last_object(request):
+    fingerprint = request.POST.get('fingerprint')
+    # print(cache.keys('*'))
+    try:
+        last_record = models.CalcRecord.objects.filter(user=str(fingerprint)).order_by('-id')[0]
+        cache_key = last_record.cache_key
+    except (BaseException, Exception):
+        cache_key = ''
+    try:
+        sample = cache_load(cache_key)
+        if sample is None:
+            raise IndexError
+    except (BaseException, Exception):
+        # print('No file found in cache!')
+        sample = ap.Sample()
+        ap.smp.initial.initial(sample)
+        cache_key = create_cache(sample, cache_key=cache_key)
+    return open_object_file(request, sample, web_file_path='', cache_key=cache_key)
+
+
 class ArArView(View):
     """
     This class is rewritten based on View and is used to dispatch requests from client side.
@@ -148,7 +181,7 @@ class ArArView(View):
         self.body = {}
         self.content = {}
         self.cache_key = ''
-        self.sample = ap.smp.Sample()
+        self.sample = ...
 
         self.dispatch_post_method_name = [
             # Add names in daughter classes

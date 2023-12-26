@@ -14,7 +14,7 @@ import pandas as pd
 import traceback
 import os
 from xlrd import open_workbook
-from ..smp import RawData, Sample
+from ..smp import RawData, Sample, Sequence
 from ..calc import raw_funcs, arr
 
 
@@ -44,7 +44,7 @@ def to_raw(file_path: Union[str, List[str]], **kwargs):
         res = open_file(file_path)
         file_name = str(os.path.split(file_path)[-1]).split('.')[0]
         raw = RawData(name=file_name, data=res['data'], isotopic_num=10, sequence_num=len(res['data']),
-                      source=file_path)
+                      source=[file_path])
     return raw
 
 
@@ -58,8 +58,19 @@ def concatenate(raws: List[RawData]):
     -------
 
     """
-    source = [_raw.source for _raw in raws]
-    sequence = [i for _raw in raws for i in _raw.sequence]
+    name = []
+
+    def resort_sequence(seq: Sequence, index):
+        count = 0
+        while seq.name in name:
+            # rename
+            count = count + 1
+            seq.name = seq.name + f"({count})"
+        name.append(seq.name)
+        seq.index = index
+        return seq
+    source = [_source for _raw in raws for _source in _raw.source]
+    sequence = [resort_sequence(seq, index) for index, seq in enumerate([i for _raw in raws for i in _raw.sequence])]
     sequence_num = len(sequence)
     return RawData(name='concatenated', source=source, isotopic_num=10, sequence_num=sequence_num,
                    sequence=sequence)
@@ -185,7 +196,7 @@ def do_regression(raw: RawData, sequence_index: Optional[List], isotopic_index: 
             continue
         isotope: pd.DataFrame = sequence.get_data_df()
         selected: pd.DataFrame = isotope[sequence.get_flag_df()[list(range(1, 11))]]
-        unselected: pd.DataFrame = isotope[~sequence.get_flag_df()[list(range(1, 11))]]
+        # unselected: pd.DataFrame = isotope[~sequence.get_flag_df()[list(range(1, 11))]]
         selected: list = [selected[[isotopic_index*2 + 1, 2 * (isotopic_index + 1)]].dropna().values.tolist()
                           for isotopic_index in list(range(5))]
         # unselected: list = [unselected[[isotopic_index*2 + 1, 2 * (isotopic_index + 1)]].dropna().values.tolist()

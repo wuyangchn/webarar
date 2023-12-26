@@ -18,6 +18,7 @@ Create a sample instance.
 
 """
 from typing import List, Tuple, Dict, Optional, Union
+from types import MethodType
 
 NEW_SAMPLE_INTERCEPT_HEADERS = [
     'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
@@ -629,6 +630,7 @@ class Sample:
     def __init__(self, **kwargs):
         self.Doi = ""
         self.help = ""
+        self.RawData = RawData()
         self.Info = Info()
 
         self.SequenceName = []
@@ -906,6 +908,10 @@ class Sequence:
                  type_str=None, results=None, coefficients=None, fitting_method=None,
                  is_estimated=False, **kwargs):
         self.index = index
+        if name is None:
+            name = ""
+        if ' ' in name:
+            name = name.replace(" ", '')
         self.name = name
         self.datetime = datetime
         self.data = data
@@ -925,6 +931,8 @@ class Sequence:
         self.is_estimated = is_estimated
 
         for k, v in kwargs.items():
+            if hasattr(self, k) and type(getattr(self, k)) is MethodType:
+                continue
             setattr(self, k, v)
 
         self.__as_type(self.type_str)
@@ -932,22 +940,16 @@ class Sequence:
     def as_type(self, type_str):
         if str(type_str).lower() in ["blk", "b", "blank"]:
             self.type_str = "blank"
-        if str(type_str).lower() in ["unknown", "sample"]:
-            self.type_str = "unknown"
         if str(type_str).lower() in ["a", "air"]:
             self.type_str = "air"
+        if self.type_str not in ["blank", "air"]:
+            self.type_str = "unknown"
 
     __as_type = as_type
 
-    @property
     def is_blank(self): return self.type_str == "blank"
-
-    @property
     def is_unknown(self): return self.type_str != "blank" and self.type_str != "air"
-
-    @property
     def is_air(self): return self.type_str == "air"
-
     def as_blank(self): return self.as_type("blank")
     def as_unknown(self): return self.as_type("unknown")
     def as_air(self): return self.as_type("air")
@@ -957,7 +959,7 @@ class Sequence:
 
 class RawData:
     def __init__(self, id='', name='', type='raw', data=None, sequence_num=0,
-                 isotopic_num=10, source=None, **kwargs):
+                 isotopic_num=10, source=None, sequence=None, **kwargs):
         """
         Parameters
         ----------
@@ -975,6 +977,7 @@ class RawData:
         self.source = source
         self.isotopic_num = isotopic_num
         self.sequence_num = sequence_num
+        self.interpolated_blank = None
         if data is not None:
             self.sequence: List[Sequence] = [
                 Sequence(index=index, name=f"{self.name}-{index}", data=item[1:],
@@ -983,8 +986,11 @@ class RawData:
                 for index, item in enumerate(data)]
         else:
             self.sequence: List[Sequence] = []
+        if sequence is not None:
+            self.sequence = sequence
         for k, v in kwargs.items():
-            setattr(self, k, v)
+            if hasattr(self, k) and type(getattr(self, k)) is MethodType:
+                continue
 
     def __get_experiment_time(self, time_str):
         k1 = time_str.split(' ')

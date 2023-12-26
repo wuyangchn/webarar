@@ -46,8 +46,8 @@ class MyEncoder(json.JSONEncoder):
                             RawData, Sequence)):
             if isinstance(obj, Sequence):
                 return dict(obj.__dict__, **{
-                    'is_blank': obj.is_blank, 'is_unknown': obj.is_unknown,
-                    'is_air': obj.is_air})
+                    'is_blank': obj.is_blank(), 'is_unknown': obj.is_unknown(),
+                    'is_air': obj.is_air()})
             return obj.__dict__
         if not isinstance(obj, (int, str, list, dict, tuple, float)):
             print(f"Special type, {type(obj) = }, {obj = }")
