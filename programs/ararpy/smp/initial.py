@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 import copy
 
+from ..calc import arr
 from . import (sample as samples, basic)
 
 Sample = samples.Sample
@@ -90,7 +91,7 @@ def create_sample_from_dict(content: dict, smp_info: dict):
     smp.SequenceName = content['seq'][0]
     smp.SequenceValue = content['seq'][1]
 
-    basic.update_plot_from_dict(smp.Info, smp_info)
+    smp.Info = basic.update_plot_from_dict(smp.Info, smp_info)
 
     smp.SelectedSequence1 = [index for index, item in enumerate(smp.IsochronMark) if item == 1]
     smp.SelectedSequence2 = [index for index, item in enumerate(smp.IsochronMark) if item == 2]
@@ -101,15 +102,15 @@ def create_sample_from_dict(content: dict, smp_info: dict):
 
 def initial(smp: Sample):
     # 已更新 2023/7/4
-    smp.TotalParam = [[]] * 123
-    smp.BlankIntercept = [[]] * 10
-    smp.SampleIntercept = [[]] * 10
-    smp.PublishValues = [[]] * 11
-    smp.DecayCorrected = [[]] * 10
-    smp.CorrectedValues = [[]] * 10
-    smp.DegasValues = [[]] * 32
-    smp.ApparentAgeValues = [[]] * 8
-    smp.IsochronValues = [[]] * 47
+    smp.TotalParam = arr.create_arr((123, 0))
+    smp.BlankIntercept = arr.create_arr((10, 0))
+    smp.SampleIntercept = arr.create_arr((10, 0))
+    smp.PublishValues = arr.create_arr((11, 0))
+    smp.DecayCorrected = arr.create_arr((10, 0))
+    smp.CorrectedValues = arr.create_arr((10, 0))
+    smp.DegasValues = arr.create_arr((32, 0))
+    smp.ApparentAgeValues = arr.create_arr((8, 0))
+    smp.IsochronValues = arr.create_arr((47, 0))
 
     # Doi
     if not hasattr(smp, 'Doi') or getattr(smp, 'Doi') in (None, ""):

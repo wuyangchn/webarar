@@ -244,7 +244,7 @@ def update_plot_from_dict(plot, attrs: dict):
     """
 
     def _do(_plot, _attrs: dict):
-        for k1, v1 in attrs.items():
+        for k1, v1 in _attrs.items():
             if isinstance(v1, dict):
                 if hasattr(_plot, k1):
                     if isinstance(getattr(_plot, k1), dict):
