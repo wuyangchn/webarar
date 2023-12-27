@@ -246,13 +246,13 @@ def update_plot_from_dict(plot, attrs: dict):
     def _do(_plot, _attrs: dict):
         for k1, v1 in attrs.items():
             if isinstance(v1, dict):
-                if hasattr(plot, k1):
-                    if isinstance(getattr(plot, k1), dict):
-                        setattr(plot, k1, v1)
+                if hasattr(_plot, k1):
+                    if isinstance(getattr(_plot, k1), dict):
+                        setattr(_plot, k1, v1)
                     else:
-                        _do(getattr(plot, k1), v1)
+                        _do(getattr(_plot, k1), v1)
             else:
-                setattr(plot, k1, v1)
+                setattr(_plot, k1, v1)
 
     _do(_plot=plot, _attrs=attrs)
     return plot
