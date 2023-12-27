@@ -495,52 +495,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             'status': 100, 'msg': "Success to recalculate", 'res': ap.files.json.dumps(res)
         })
 
-    # def calc_change_irra_projects(self, request, *args, **kwargs):
-    #     try:
-    #         name = self.body['name']
-    #         param_file = models.IrraParams.objects.get(name=name).file_path
-    #         param = ap.files.basic.read(param_file)
-    #         log_funcs.set_info_log(
-    #             self.ip, '003', 'info',
-    #             f'Change irra params projects, sample name: {self.sample.Info.sample.name}, '
-    #             f'param name: {name}, param server path: {param_file}')
-    #         return JsonResponse({'status': 'success', 'param': param})
-    #     except KeyError:
-    #         sample = self.sample
-    #         data = ap.calc.arr.transpose(sample.TotalParam)[0]
-    #         param = [*data[0:27], *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
-    #         log_funcs.set_info_log(
-    #             self.ip, '003', 'info',
-    #             f'Irra param project is not found in database, using params in total param values, '
-    #             f'sample name: {self.sample.Info.sample.name}')
-    #         return JsonResponse({'status': 'success', 'param': param})
-    #     except Exception as e:
-    #         log_funcs.set_info_log(self.ip, '003', 'info', f'Fail to change irra params projects')
-    #         return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database' + str(e)})
-    #
-    # def calc_change_calc_projects(self, request, *args, **kwargs):
-    #     try:
-    #         name = self.body['name']
-    #         param_file = models.CalcParams.objects.get(name=name).file_path
-    #         param = ap.files.basic.read(param_file)
-    #         log_funcs.set_info_log(
-    #             self.ip, '003', 'info',
-    #             f'Change calc params projects, sample name: {self.sample.Info.sample.name}, '
-    #             f'param name: {name}, param server path: {param_file}')
-    #         return JsonResponse({'status': 'success', 'param': param})
-    #     except KeyError:
-    #         sample = self.sample
-    #         data = ap.calc.arr.transpose(sample.TotalParam)[0]
-    #         param = [*data[34:100], *ap.calc.corr.get_method_fitting_law_by_name(data[100]), *data[101:114]]
-    #         log_funcs.set_info_log(
-    #             self.ip, '003', 'info',
-    #             f'Calc param project is not found in database, using params in total param values, '
-    #             f'sample name: {self.sample.Info.sample.name}')
-    #         return JsonResponse({'status': 'success', 'param': param})
-    #     except Exception as e:
-    #         log_funcs.set_info_log(self.ip, '003', 'info', f'Fail to change calc params projects')
-    #         return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database. ' + str(e)})
-
     def flag_not_matched(self, request, *args, **kwargs):
         # Show calc.html when the received flag doesn't exist.
         return http_funcs.open_last_object(request)
@@ -645,69 +599,8 @@ class RawFileView(http_funcs.ArArView):
         return http_funcs.open_last_object(request)
         # return redirect('object_views_2')
 
-    def raw_corr_blank_method_changed(self, request, *args, **kwargs):
-        receive = json.loads(request.body.decode('utf-8'))
-        method = receive['corrBlankMethod']
-        isBlank = receive['isBlank']
-
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Change correct blank method')
-
-        def _get_corr_relation(a: list, m: int or str):
-            _blank, _unknown = [], []
-            for index, val in enumerate(a):
-                if val:
-                    _blank.append(index)
-                else:
-                    _unknown.append(index)
-            if str(m) == '0':  # 向下校正
-                for j in _blank:
-                    if _blank.index(j) == len(_blank) - 1:
-                        continue
-                    if j == _blank[_blank.index(j) + 1]:
-                        _blank.remove(j)
-                for i, v in enumerate(_unknown):
-                    try:
-                        if v < _blank[i]:
-                            _blank.insert(i, _blank[i - 1])
-                    except IndexError:
-                        _blank.insert(i, _blank[i - 1])
-                _blank = _blank[0:len(_unknown)]
-            elif str(m) == '1':  # 向上校正
-                res = []
-                for i, v in enumerate(_unknown):
-                    for j in _blank:
-                        if v < j:
-                            res.append(j)
-                            break
-                for i in range(len(_unknown) - len(res)):
-                    res.append(_blank[-1])
-                _blank = res
-            elif str(m) == '2':  # 临近扣除
-                res = []
-                for i, v in enumerate(_unknown):
-                    if v < _blank[0]:
-                        res.append(_blank[0])
-                        continue
-                    elif v > _blank[-1]:
-                        res.append((_blank[-1]))
-                        continue
-                    for j in range(len(_blank) - 1):
-                        if _blank[j + 1] - v >= v - _blank[j] > 0:
-                            res.append(_blank[j])
-                            break
-                        elif v - _blank[j] > _blank[j + 1] - v > 0:
-                            res.append(_blank[j + 1])
-                            break
-                _blank = res
-            else:  # interpolation
-                _blank = [-1] * len(_unknown)
-            return _unknown, _blank
-
-        unknown, blank = _get_corr_relation(isBlank, method)
-        return JsonResponse({'blankIndex': blank})
-
     def calc_raw_chart_clicked(self, request, *args, **kwargs):
-        start = time.time()
+
         selectionForAll = self.body['selectionForAll']
         sequence_index = self.body['sequence_index']
         data_index = self.body['data_index']
@@ -717,8 +610,7 @@ class RawFileView(http_funcs.ArArView):
 
         status = not raw.sequence[sequence_index].flag[data_index][isotopic_index * 2 + 1]
         isotopic_index = list(range(5)) if selectionForAll else [isotopic_index]
-        print(f"{sequence_index = }")
-        print(f"{isotopic_index = }")
+
         for _isotope in isotopic_index:
             raw.sequence[sequence_index].flag[data_index][_isotope * 2 + 1] = status
             raw.sequence[sequence_index].flag[data_index][_isotope * 2 + 2] = status
@@ -727,7 +619,7 @@ class RawFileView(http_funcs.ArArView):
 
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw data in cache
         error = ''
-        print(f"Time clicking raw data points: {time.time() - start}")
+
         return JsonResponse({
             'sequence': ap.files.json.dumps(raw.sequence[sequence_index]),
             'status': 100, 'msg': error,
