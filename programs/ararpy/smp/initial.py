@@ -58,7 +58,7 @@ def create_sample_from_df(content: pd.DataFrame, smp_info: dict):
     Sample instance
     """
     content_dict = content.to_dict('list')
-    res = dict(zip([key[0] for key in content_dict.keys()], [[]] * len(content_dict)))
+    res = dict(zip([key[0] for key in content_dict.keys()], arr.create_arr((len(content_dict), 0))))
     for key, val in content_dict.items():
         res[key[0]] = res[key[0]] + [val]
 
