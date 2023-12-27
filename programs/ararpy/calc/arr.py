@@ -363,6 +363,21 @@ def filter(a: list, func: MethodType, get: Optional[MethodType], unique: Optiona
     return res
 
 
+def create_arr(shape: tuple):
+    """
+    Parameters
+    ----------
+    shape
+
+    Returns
+    -------
+
+    """
+    if len(shape) == 1:
+        return []
+    return [create_arr(shape[1:]) for i in range(shape[0])]
+
+
 def is_empty(a):
     """ Check if a list is empty. Return True if it is empty, or it is not a list,
     or all items in it are '', None or np.nan.

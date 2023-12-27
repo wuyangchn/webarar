@@ -123,6 +123,7 @@ def to_sample(raw: RawData, mapping: List[dict]) -> Sample:
         blank_intercept.append(row_blank_intercept)
         sample.SequenceName.append(unknown.name)
         sample.SequenceValue.append('')
+        sample.TotalParam[31].append(unknown.datetime)
 
     sample.SampleIntercept = arr.transpose(unknown_intercept)
     sample.BlankIntercept = arr.transpose(blank_intercept)
@@ -130,9 +131,10 @@ def to_sample(raw: RawData, mapping: List[dict]) -> Sample:
     sample.UnselectedSequence = list(range(len(sample.SequenceName)))
     sample.SelectedSequence1 = []
     sample.SelectedSequence2 = []
+
     table.update_table_data(sample)  # Update table after submission row data and calculation
 
-    sample.TotalParam[31] = [raw.get_sequence(row['unknown'], flag='name').datetime for row in mapping]
+    # sample.TotalParam[31] = [raw.get_sequence(row['unknown'], flag='name').datetime for row in mapping]
 
     return sample
 
