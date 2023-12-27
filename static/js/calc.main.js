@@ -384,24 +384,72 @@ function chartScatterClicked(params) {
     })
 }
 function corrBlankMethodChanged() {
-    $.ajax({
-        url: url_raw_corr_blank_method_changed,
-        type: 'POST',
-        data: JSON.stringify({
-            'isBlank': myRawData.sequence.map((seq, index) => seq.is_blank && !seq.is_estimated),
-            'corrBlankMethod': $('#corrBlankMethod').val()
-        }),
-        contentType:'application/json',
-        success: function(res){
-            let blank_name = [];
-            for (let i=0;i<res.blankIndex.length;i++){
-                blank_name.push(res.blankIndex[i]!==-1?myRawData.sequence[res.blankIndex[i]].name:'Interpolated Blank');
-            }
-            $.each(blank_name, function (index, item) {
-                $('#blank-sele'+Number(index+1)).val(item);
+    let is_blank = myRawData.sequence.map(
+        (seq, index) => seq.is_blank && !seq.is_estimated ? index : "false").filter(
+            (v, i) => v !== "false");
+    let not_blank = myRawData.sequence.map(
+        (seq, index) => !seq.is_blank && !seq.is_estimated ? index : "false").filter(
+            (v, i) => v !== "false");
+    let blank_index = []
+    switch ($('#corrBlankMethod').val()) {
+        case "0":
+            blank_index = not_blank.map(function (v, i) {
+                for (let _i = is_blank.length - 1; _i >= 0; _i --) {
+                    if (is_blank[_i] < v) {
+                        return is_blank[_i]
+                    }
+                }
+                return is_blank[0]
             })
-        }
+            break
+        case "1":
+            blank_index = not_blank.map(function (v, i) {
+                for (let _i = 0; _i < is_blank.length; _i ++) {
+                    if (is_blank[_i] > v) {
+                        return is_blank[_i]
+                    }
+                }
+                return is_blank[is_blank.length - 1]
+            })
+            break
+        case "2":
+            blank_index = not_blank.map(function (v, i) {
+                if (is_blank[0] > v) {
+                    return is_blank[0]
+                }
+                if (is_blank[is_blank.length - 1] < v) {
+                    return is_blank[is_blank.length - 1]
+                }
+                let a = is_blank.filter(function (_v, _i) {
+                    return v > _v && v < is_blank[_i + 1]
+                })[0]
+                let b = is_blank[is_blank.indexOf(a) + 1]
+                if (Math.abs(a - v) <= Math.abs(b - v)) {
+                    return a
+                } else {
+                    return b
+                }
+            })
+            break
+        case "3":
+            blank_index = not_blank.map(function (v, i) {
+                return -1  // -1 for interpolated blank
+            })
+            break
+        default:
+            break
+    }
+    let blank_name = [];
+    for (let i=0;i<blank_index.length;i++){
+        blank_name.push(blank_index[i]!==-1?myRawData.sequence[blank_index[i]].name:'Interpolated Blank');
+    }
+    $.each(blank_name, function (index, item) {
+        $('#blank-sele'+Number(index+1)).val(item);
+        // if the selection doesn't have a option named Interpolated Blank, it will be null
     })
+
+
+
 }
 function deleteParamObject(type) {
     editParams({
