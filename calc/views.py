@@ -705,8 +705,6 @@ class RawFileView(http_funcs.ArArView):
         }
         sample.set_info(info=info)
 
-        sample.TotalParam[31] = [raw.get_sequence(row['unknown'], flag='name').datetime for row in selectedSequences]
-
         try:
             sample.set_params(irradiationParams['param'], 'irra')
             sample.set_params(calculationParams['param'], 'calc')

@@ -132,6 +132,8 @@ def to_sample(raw: RawData, mapping: List[dict]) -> Sample:
     sample.SelectedSequence2 = []
     table.update_table_data(sample)  # Update table after submission row data and calculation
 
+    sample.TotalParam[31] = [raw.get_sequence(row['unknown'], flag='name').datetime for row in mapping]
+
     return sample
 
 
