@@ -770,7 +770,7 @@ class Sample:
 
     def show_data(self): ...
 
-    def set_params(self, params: list, flag: str): ...
+    def set_params(self, params: Union[List, str], flag: Optional[str] = None): ...
 
     def set_info(self, info: dict): ...
 
@@ -919,6 +919,7 @@ class Sequence:
         self.name = name
         self.datetime = datetime
         self.data = data
+        # flag is to check if the data point is selected
         if flag is None and data is not None:
             flag = [[j if i == 0 else True for i, j in enumerate(_m)] for _m in data]
         self.flag = flag
@@ -1031,8 +1032,7 @@ class RawData:
                    method_index: Optional[List[List[Union[int, str]]]]) -> List[List[float]]:
         ...
 
-    def do_regression(self, sequence_index: Optional[List], isotopic_index: Optional[List],
-                      flag: Optional[List[List[float]]]):
+    def do_regression(self, sequence_index: Optional[List], isotopic_index: Optional[List]):
         ...
 
     def get_data_df(self):
@@ -1051,5 +1051,5 @@ class RawData:
     def get_air(self) -> Union[Sequence, List]:
         ...
 
-    def to_sample(self, mapping: List[dict]) -> Sample:
+    def to_sample(self, mapping: Optional[List[dict]]) -> Sample:
         ...

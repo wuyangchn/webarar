@@ -13,29 +13,8 @@
 import os
 import pickle
 
-from .. import smp
 
-SAMPLE_MODULE = smp.Sample().__module__
-
-
-def to_sample(file_path, sample_name: str = ""):
-    """
-    file_path: full path of input file
-    name： samplename
-    return sample instance
-    """
-    try:
-        with open(file_path, 'rb') as f:
-            sample = renamed_load(f)
-    except (Exception, BaseException):
-        raise ValueError(f"Fail to open arr file: {file_path}")
-    # Check arr version
-    # recalculation will not be applied automatically
-    sample = check_version(sample)
-    return sample
-
-
-def save(file_path, sample: smp.Sample):
+def save(file_path, sample):
     """ Save arr project as arr files
 
     Parameters
@@ -55,32 +34,4 @@ def save(file_path, sample: smp.Sample):
     #     f.write(basic_funcs.getJsonDumps(sample))
     return f"{sample.Info.sample.name}.arr"
 
-
-def check_version(sample: smp.Sample):
-    """
-
-    Parameters
-    ----------
-    sample
-
-    Returns
-    -------
-
-    """
-    if sample.version != smp.VERSION:
-        smp.initial.re_set_smp(sample)
-    return sample
-
-
-class RenameUnpickler(pickle.Unpickler):
-    def find_class(self, module: str, name: str):
-        renamed_module = module
-        if '.sample' in module and module != SAMPLE_MODULE:
-            renamed_module = SAMPLE_MODULE
-
-        return super(RenameUnpickler, self).find_class(renamed_module, name)
-
-
-def renamed_load(file_obj):
-    return RenameUnpickler(file_obj).load()
 

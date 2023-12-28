@@ -9,10 +9,9 @@
 #
 #
 """
-import re
 import traceback
 
-from ..calc import arr, err
+from . import arr, err
 import numpy as np
 
 

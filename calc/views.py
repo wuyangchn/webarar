@@ -95,9 +95,7 @@ class CalcHtmlView(http_funcs.ArArView):
 
     def open_new_file(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '001', 'info', 'Open new file')
-        sample = ap.Sample()
-        # initial settings
-        ap.smp.initial.initial(sample)
+        sample = ap.from_empty()
         return http_funcs.open_object_file(request, sample, web_file_path='')
 
     def open_multi_files(self, request, *args, **kwargs):
@@ -219,7 +217,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         print(
             f'time cost: {time_end - time_start}s = {time_middle - time_start} + {time_middle2 - time_middle} + {time_end - time_middle2}')
 
-        return JsonResponse({'res': ap.files.json.dumps(res), 'status': 100})
+        return JsonResponse({'res': ap.smp.json.dumps(res), 'status': 100})
 
     def update_handsontable(self, request, *args, **kwargs):
         btn_id = str(self.body['btn_id'])
@@ -259,7 +257,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         http_funcs.create_cache(sample, self.cache_key)  # Update cache
         res = ap.smp.basic.get_diff_smp(components_backup, ap.smp.basic.get_components(sample))
-        return JsonResponse({'changed_components': ap.files.json.dumps(res)})
+        return JsonResponse({'changed_components': ap.smp.json.dumps(res)})
 
     def export_arr(self, request, *args, **kwargs):
         sample = self.sample
@@ -279,7 +277,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             'font_color': '#000000', 'align': 'left',
             'top': 1, 'left': 1, 'right': 1, 'bottom': 1  # border width
         }
-        a = ap.files.export.WritingWorkbook(
+        a = ap.smp.export.WritingWorkbook(
             filepath=export_filepath, style=default_style,
             template_filepath=template_filepath, sample=self.sample)
         res = a.get_xls()
@@ -297,7 +295,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
     def export_opju(self, request, *args, **kwargs):
         name = f"{self.sample.Info.sample.name}_export"
         export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{name}.opju")
-        a = ap.files.export.CreateOriginGraph(
+        a = ap.smp.export.CreateOriginGraph(
             name=name, export_filepath=export_filepath, sample=self.sample,
             spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.data),
             set1_spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.set1.data),
@@ -315,13 +313,12 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                                 ap.calc.arr.transpose(self.sample.KClAr3IsochronPlot.line2.data),
         )
         try:
-            res = a.get_graphs()
-        except Exception:
-            res = traceback.format_exc()
+            a.get_graphs()
+        except (Exception, BaseException):
             log_funcs.set_info_log(
                 self.ip, '003', 'info',
                 f'Fail to export origin file (.opju), sample name: {self.sample.Info.sample.name}')
-            return JsonResponse({'status': 'fail', 'msg': res})
+            return JsonResponse({'status': 'fail', 'msg': traceback.format_exc()})
         else:
             export_href = '/' + settings.DOWNLOAD_URL + f"{name}.opju"
             log_funcs.set_info_log(self.ip, '003', 'info', f'Success to export origin file (.opju), '
@@ -344,14 +341,14 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         # Do something for PDF BODY
         if not merged_pdf:
-            ap.files.export.CreatePDF(
+            ap.smp.export.CreatePDF(
                 name=f"{self.sample.Info.sample.name}_export",
                 export_filepath=export_filepath,
                 sample=self.sample,
                 figure=figure,
             ).get_pdf()
         else:
-            pdf1 = ap.files.export.CreatePDF(
+            pdf1 = ap.smp.export.CreatePDF(
                 name=f"{self.sample.Info.sample.name}_export",
                 export_filepath=export_filepath,
                 sample=self.sample,
@@ -359,7 +356,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 axis_area=[60, 400, 200, 160]
             ).get_contents()
 
-            pdf2 = ap.files.export.CreatePDF(
+            pdf2 = ap.smp.export.CreatePDF(
                 name=f"{self.sample.Info.sample.name}_export",
                 export_filepath=export_filepath,
                 sample=self.sample,
@@ -367,7 +364,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 axis_area=[320, 400, 200, 160]
             ).get_contents()
 
-            pdf3 = ap.files.export.CreatePDF(
+            pdf3 = ap.smp.export.CreatePDF(
                 name=f"{self.sample.Info.sample.name}_export",
                 export_filepath=export_filepath,
                 sample=self.sample,
@@ -470,7 +467,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
         # print(f"Diff after reset_calc_params: {res}")
         return JsonResponse(
-            {'status': 'success', 'msg': 'Successfully!', 'changed_components': ap.files.json.dumps(res)})
+            {'status': 'success', 'msg': 'Successfully!', 'changed_components': ap.smp.json.dumps(res)})
 
     def recalculation(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '003', 'info', f'Recalculation, sample name: {self.sample.Info.sample.name}')
@@ -492,7 +489,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
         # print(f"Diff after recalculation: {res}")
         return JsonResponse({
-            'status': 100, 'msg': "Success to recalculate", 'res': ap.files.json.dumps(res)
+            'status': 100, 'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)
         })
 
     def flag_not_matched(self, request, *args, **kwargs):
@@ -545,7 +542,7 @@ class RawFileView(http_funcs.ArArView):
     def submit(self, request, *args, **kwargs):
         files = json.loads(request.POST.get('raw-file-table'))['files']
 
-        raw = ap.files.raw_file.to_raw(file_path=[file['file_path'] for file in files])
+        raw = ap.smp.raw.to_raw(file_path=[file['file_path'] for file in files])
         raw.do_regression()
 
         allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
@@ -556,9 +553,9 @@ class RawFileView(http_funcs.ArArView):
         cache_key = http_funcs.create_cache(raw)
 
         return render(request, 'extrapolate.html', {
-            # 'data': ap.files.json.dumps(raw_data),
-            'raw_data': ap.files.json.dumps(raw),
-            'raw_cache_key': ap.files.json.dumps(cache_key),
+            # 'data': ap.smp.json.dumps(raw_data),
+            'raw_data': ap.smp.json.dumps(raw),
+            'raw_cache_key': ap.smp.json.dumps(cache_key),
             'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
         })
 
@@ -592,7 +589,7 @@ class RawFileView(http_funcs.ArArView):
         raw.sequence = ap.calc.arr.multi_append(raw.sequence, *new_sequences)
         http_funcs.create_cache(raw, cache_key=cache_key)
 
-        return JsonResponse({'new_sequences': ap.files.json.dumps(new_sequences), 'status': 100})
+        return JsonResponse({'new_sequences': ap.smp.json.dumps(new_sequences), 'status': 100})
 
     def to_project_view(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Upload raw project')
@@ -621,7 +618,7 @@ class RawFileView(http_funcs.ArArView):
         error = ''
 
         return JsonResponse({
-            'sequence': ap.files.json.dumps(raw.sequence[sequence_index]),
+            'sequence': ap.smp.json.dumps(raw.sequence[sequence_index]),
             'status': 100, 'msg': error,
         })
 
@@ -653,7 +650,7 @@ class RawFileView(http_funcs.ArArView):
         raw.sequence.append(new_sequence)
         http_funcs.create_cache(raw, cache_key=self.cache_key)
 
-        return JsonResponse({'newBlank': newBlank, 'new_sequence': ap.files.json.dumps(new_sequence)})
+        return JsonResponse({'newBlank': newBlank, 'new_sequence': ap.smp.json.dumps(new_sequence)})
 
     def calc_raw_interpolated_blanks(self, request, *args, **kwargs):
         """
@@ -679,7 +676,7 @@ class RawFileView(http_funcs.ArArView):
 
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update cache
 
-        return JsonResponse({'new_sequences': ap.files.json.dumps(new_sequences)})
+        return JsonResponse({'new_sequences': ap.smp.json.dumps(new_sequences)})
 
     def raw_data_submit(self, request, *args, **kwargs):  # old name: calc_raw_submit
         """

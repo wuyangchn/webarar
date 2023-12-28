@@ -9,7 +9,7 @@
 # Regression functions
 #
 """
-from ..calc import arr
+from . import arr
 
 # === External import ===
 import traceback

@@ -130,7 +130,7 @@ def open_object_file(request, sample, web_file_path, cache_key=''):
     return render(request, 'object.html', {
         'cache_key': json.dumps(cache_key),
         'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames,
-        'sampleComponents': ap.files.json.dumps(ap.smp.basic.get_components(sample)),
+        'sampleComponents': ap.smp.json.dumps(ap.smp.basic.get_components(sample)),
     })
 
 

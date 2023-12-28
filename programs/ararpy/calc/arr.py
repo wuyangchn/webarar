@@ -14,9 +14,8 @@
 # === Internal import ===
 import traceback
 
-from ..calc import err
+from . import err
 # === External import ===
-import re
 import numpy as np
 from scipy.stats import distributions
 from types import MethodType

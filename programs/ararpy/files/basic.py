@@ -9,19 +9,11 @@
 #
 #
 """
-# from programs.ararpy.files import json as myjson
-from ..files import json as myjson
 
 import os
 import pickle
 import traceback
 import json
-
-
-try:
-    from webarar.settings import SETTINGS_ROOT
-except ModuleNotFoundError:
-    SETTINGS_ROOT = ""
 
 
 def upload(file, media_dir):
@@ -78,7 +70,7 @@ def write(file_path, params):
     # with open(file_path, 'wb') as f:
     #     f.write(pickle.dumps(params))
     with open(file_path, 'w') as f:  # save serialized json data to a readable text
-        f.write(myjson.dumps(params))
+        f.write(json.dumps(params))
     return file_path
 
 

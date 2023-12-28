@@ -11,7 +11,7 @@
 """
 
 from math import atan, cos, sin
-from ..calc import arr
+from . import arr
 import numpy as np
 
 
