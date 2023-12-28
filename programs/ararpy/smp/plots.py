@@ -231,7 +231,7 @@ def get_isochron_results(data: list, sample, sequence, figure_type: int = 0):
     try:
         york_res = calc.regression.york2(*data[0:5])
     except (Exception, BaseException):
-        print(traceback.format_exc())
+        print(f"Warning: {traceback.format_exc()}")
         return iso_res
     else:
         iso_res.update(dict(zip(reg_res_index, calc.regression.york2(*data[0:5]))))
@@ -296,11 +296,11 @@ def get_3D_results(data: list, sequence: list, sample: Sample):
             Q = 1 - np.exp(-1 * sample.TotalParam[46][0] * sum(sample.TotalParam[32]) / len(sample.TotalParam[32]))
             P = PQ / Q
         except:
-            print(traceback.format_exc())
+            print(f"Warning: {traceback.format_exc()}")
             P = 0
         age = basic.calc_age([f, sf], smp=sample)
     except:
-        print(traceback.format_exc())
+        print(f"Warning: {traceback.format_exc()}")
         k = [0] * 15
         age = [0] * 4
         ar40ar36, sar40ar36, P = 0, 0, 0

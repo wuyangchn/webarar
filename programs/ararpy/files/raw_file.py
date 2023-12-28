@@ -79,7 +79,10 @@ def open_raw_xls(filepath):
             step_values = [
                 each_step_header[0:4],
                 *list(map(
-                    lambda x: [x[0], x[1], x[2], x[1], x[3], x[1], x[4], x[1], x[5], x[1], x[6]],
+                    # lambda x: [x[0], x[1], x[2], x[1], x[3], x[1], x[4], x[1], x[5], x[1], x[6]],
+                    # x[1] = time, x[2] = H2:40, x[3] = H1: 39, x[4] = AX: 38, x[5] = L1: 37, x[6] = L2: 36
+                    lambda x: [x[0], x[1], x[6], x[1], x[5], x[1], x[4], x[1], x[3], x[1], x[2]],
+                    # in sequence: Ar36, Ar37, Ar38, Ar39, Ar40
                     [value[i] for i in range(row_start_number + 2, row_stop_number - 7, 1)]))
             ]
             step_list.append(step_values)
@@ -107,11 +110,12 @@ def open_raw_ahd(filepath):
             start_row = 15 + 5 * step_index
             step_list[0].append([
                 str(step_index + 1),
-                float(value[start_row + 4][0]), float(value[start_row + 4][1]),
-                float(value[start_row + 3][0]), float(value[start_row + 3][1]),
-                float(value[start_row + 2][0]), float(value[start_row + 2][1]),
-                float(value[start_row + 1][0]), float(value[start_row + 1][1]),
+                # in sequence: Ar36, Ar37, Ar38, Ar39, Ar40
                 float(value[start_row + 0][0]), float(value[start_row + 0][1]),
+                float(value[start_row + 1][0]), float(value[start_row + 1][1]),
+                float(value[start_row + 2][0]), float(value[start_row + 2][1]),
+                float(value[start_row + 3][0]), float(value[start_row + 3][1]),
+                float(value[start_row + 4][0]), float(value[start_row + 4][1]),
             ])
     except Exception as e:
         print('Error in opening the original file: %s' % str(e))

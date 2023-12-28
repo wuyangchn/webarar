@@ -89,7 +89,7 @@ def rec(a):
 
     Returns
     -------
-    2D list, [values, errors]
+        two dimensional list, [values, errors]
     """
     try:
         n = np.shape(a)[1]
