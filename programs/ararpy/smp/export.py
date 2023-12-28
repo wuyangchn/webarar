@@ -323,7 +323,7 @@ class WritingWorkbook:
                 sht.hide_gridlines(2)  # 0 = show grids, 1 = hide print grid, else = hide print and screen grids
                 sht.hide()  # default hidden table sheet
                 sht.set_column(0, len(data), width=12)  # column width
-                header = getattr(samples, header_name)
+                header = getattr(sample, header_name)
                 sht.write_row(row=row - 1, col=col, data=header, cell_format=style)
                 for each_col in data:
                     res = sht.write_column(row=row, col=col, data=each_col, cell_format=style)
