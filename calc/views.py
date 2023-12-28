@@ -553,9 +553,7 @@ class RawFileView(http_funcs.ArArView):
         cache_key = http_funcs.create_cache(raw)
 
         return render(request, 'extrapolate.html', {
-            # 'data': ap.smp.json.dumps(raw_data),
-            'raw_data': ap.smp.json.dumps(raw),
-            'raw_cache_key': ap.smp.json.dumps(cache_key),
+            'raw_data': ap.smp.json.dumps(raw), 'raw_cache_key': ap.smp.json.dumps(cache_key),
             'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
         })
 
