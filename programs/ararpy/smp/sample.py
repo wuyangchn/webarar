@@ -629,7 +629,6 @@ class Sample:
 
     def __init__(self, **kwargs):
         self.Doi = ""
-        self.help = ""
         self.RawData = RawData()
         self.Info = Info()
 
@@ -683,6 +682,9 @@ class Sample:
         self.DegasPatternPlot = Plot()
         self.AgeDistributionPlot = Plot()
 
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
         # self.Components = {}
 
         # self.__version = '20230521'
@@ -695,6 +697,8 @@ class Sample:
     @property
     def version(self):
         return self.__version
+
+    def help(self): ...
 
     def name(self): ...
 
