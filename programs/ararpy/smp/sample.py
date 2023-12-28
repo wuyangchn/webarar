@@ -636,10 +636,6 @@ class Sample:
         self.SequenceValue = []
         self.SequenceUnit = []
 
-        self.NewIntercept = []
-        self.NewBlank = []
-        self.NewParam = []
-
         self.SampleIntercept = []
         self.BlankIntercept = []
         self.AnalysisDateTime = []
@@ -647,7 +643,6 @@ class Sample:
         self.BlankCorrected = []
         self.MassDiscrCorrected = []
         self.DecayCorrected = []
-        self.InterferenceCorrected = []
         self.CorrectedValues = []
         self.DegasValues = []
 
