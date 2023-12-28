@@ -1,29 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 # ==========================================
-# Copyright 2023 Yang 
+# Copyright 2023 Yang
 # webarar - export
 # ==========================================
 #
 #
 #
-import pickle
-import traceback
 
+from re import findall
 from xlsxwriter.workbook import Workbook
 from xlsxwriter.worksheet import Worksheet
 from xlsxwriter.chartsheet import Chartsheet
 import os
 import sys
+import pickle
+import traceback
 
-from re import findall
 from ..calc import arr, isochron
-from ..smp import (basic, samples, Sample, Plot, consts)
+from . import basic, sample, consts
+
+Sample = sample.Sample
+Plot = sample.Plot
 
 try:
     from webarar.settings import SETTINGS_ROOT
 except ModuleNotFoundError:
     SETTINGS_ROOT = ""
+
+
+def to_excel(file_path: str):
+    excel = WritingWorkbook(filepath=file_path)
+    excel.get_xls()
 
 
 class ExcelTemplate:

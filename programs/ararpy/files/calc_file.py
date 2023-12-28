@@ -20,29 +20,10 @@ import re
 from xlrd import open_workbook, biffh
 import os
 import msoffcrypto
-# from programs.ararpy.calc.basic import get_datetime
-# from programs.ararpy import smp, calc
-# from programs.ararpy.files import xls
-from ..files import xls
-from ..smp.initial import create_sample_from_df, create_sample_from_dict
+
+from . import xls
 from ..calc.basic import get_datetime
 from ..calc import arr, err, isochron
-
-
-def to_sample(file_path: str, **kwargs):
-    """
-
-    Parameters
-    ----------
-    file_path
-
-    Returns
-    -------
-
-    """
-    file = ArArCalcFile(file_path=file_path, **kwargs).open()
-    sample = create_sample_from_df(file.get_content(), file.get_smp_info())
-    return sample
 
 
 def read_calc_file(file_path: str):
@@ -425,24 +406,6 @@ def general_adjustment(
     total_param[122] = 1
 
     return total_param
-
-
-def full_to_sample(file_path: str, sample_name: str = None):
-    """
-    Parameters
-    ----------
-    file_path
-    sample_name
-
-    Returns
-    -------
-
-    """
-    if sample_name is None:
-        sample_name = str(os.path.split(file_path)[-1]).split('.')[0]
-    content, sample_info = open_full_xls(file_path, sample_name)
-    sample = create_sample_from_dict(content=content, smp_info=sample_info)
-    return sample
 
 
 def open_full_xls(file_path: str, sample_name: str = ''):

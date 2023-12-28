@@ -10,12 +10,14 @@
 #
 """
 # === Internal imports ===
-
+import os
 import traceback
 import pandas as pd
 import numpy as np
 import copy
+from typing import Optional, Union, List
 from .. import calc
+from ..files.basic import (read as read_params)
 from .sample import Sample, Info, Table, Plot
 
 Set = Plot.Set
@@ -386,18 +388,23 @@ def get_diff_smp(backup: (dict, Sample), smp: (dict, Sample)):
 # =======================
 # Set parameters
 # =======================
-def set_params(smp: Sample, params: list, flag: str):
+def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None):
     """
     Parameters
     ----------
     smp
     params
-    flag : str, 'calc', 'irra', or 'smp'
+    flag : optional, should be one of 'calc', 'irra', and 'smp'. If it is not given,
+        the text of the extension without a dot will be used
 
     Returns
     -------
 
     """
+    if isinstance(params, str) and os.path.isfile(params):
+        if flag is None:
+            flag = params.split(".")[-1]
+        return set_params(smp, read_params(params), flag=flag)
 
     def remove_none(old_params, new_params, rows, length):
         res = [[]] * length
@@ -427,11 +434,10 @@ def set_params(smp: Sample, params: list, flag: str):
                     # [t1, t2] = t.split(':')
                     # irradiation_time.append(d + '-' + t1 + '-' + t2 + 'D' + str(params[29:-3][i + 1]))
                     text = params[29:-3][i]
-                    print(text)
                     for char in ['T', ':']:
                         text = text.replace(char, '-')
                     irradiation_time.append(params[29:-3][i] + 'D' + str(params[29:-3][i + 1]))
-                    duration.append(params[29:-3][i + 1])
+                    duration.append(float(params[29:-3][i + 1]))
             smp.TotalParam[27] = ['S'.join(irradiation_time)] * n
             smp.TotalParam[28] = [params[-3]] * n
             smp.TotalParam[29] = [sum(duration)] * n

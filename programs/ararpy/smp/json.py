@@ -3,17 +3,17 @@
 """
 # ==========================================
 # Copyright 2023 Yang
-# ararpy - files - json
+# ararpy - smp - json
 # ==========================================
 #
 #
 #
 """
-from ..smp import Sample, Info, Table, Plot, RawData, Sequence
 
 import json
 import numpy as np
 import pandas as pd
+from .sample import Sample, Info, Table, Plot, RawData, Sequence
 
 
 def dumps(a):

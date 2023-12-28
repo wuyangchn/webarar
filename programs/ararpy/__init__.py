@@ -58,10 +58,11 @@ last_update = '2023-12-17'
 """ ===================================== """
 """ functions and attributions for ararpy """
 """ ===================================== """
-from_arr = files.arr_file.to_sample
-from_age = files.calc_file.to_sample
-from_full = files.calc_file.full_to_sample
-from_empty = files.new_file.to_sample
+from_arr = smp.initial.from_arr_files
+from_age = smp.initial.from_calc_files
+from_full = smp.initial.from_full_files
+from_raw = smp.initial.from_raw_files
+from_empty = smp.initial.from_empty
 
 """ =========================================== """
 """ functions and attributions for Sample class """
@@ -195,18 +196,16 @@ Sample.help = f"" \
 """ ============================================ """
 """ functions and attributions for RawData class """
 """ ============================================ """
-RawData.do_regression = lambda _raw, sequence_index=None, isotopic_index=None, flag=None: \
-    files.raw_file.do_regression(_raw, sequence_index, isotopic_index, flag)
-RawData.get_sequence = lambda _raw, index=None, flag=None, unique=True: \
-    files.raw_file.get_sequence(_raw, index, flag, unique=unique)
+RawData.do_regression = smp.raw.do_regression
+RawData.get_sequence = smp.raw.get_sequence
 """ 
     a = raw.get_sequence(True, 'is_unknown', unique=False)  # get unknown sequence
     print([_a.name for _a in a])
 """
-RawData.get_unknown = lambda _raw: files.raw_file.get_sequence(_raw, True, 'is_unknown', unique=False)
-RawData.get_blank = lambda _raw: files.raw_file.get_sequence(_raw, True, 'is_blank', unique=False)
-RawData.get_air = lambda _raw: files.raw_file.get_sequence(_raw, True, 'is_air', unique=False)
-RawData.to_sample = lambda _raw, mapping: files.raw_file.to_sample(_raw, mapping)
+RawData.to_sample = smp.initial.from_raw_files
+RawData.get_unknown = lambda _raw: smp.raw.get_sequence(_raw, True, 'is_unknown', unique=False)
+RawData.get_blank = lambda _raw: smp.raw.get_sequence(_raw, True, 'is_blank', unique=False)
+RawData.get_air = lambda _raw: smp.raw.get_sequence(_raw, True, 'is_air', unique=False)
 Sequence.get_data_df = lambda _seq: pd.DataFrame(_seq.data)
 Sequence.get_flag_df = lambda _seq: pd.DataFrame(_seq.flag)
 

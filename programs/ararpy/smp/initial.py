@@ -9,19 +9,23 @@
 #
 #
 """
-
+import os
+import pickle
 import uuid
 import pandas as pd
 import numpy as np
 import copy
-
+from typing import List, Union, Optional
 from ..calc import arr
-from . import (sample as samples, basic)
+from ..files import calc_file
+from . import (sample as samples, basic, table, raw as smp_raw)
 
 Sample = samples.Sample
 Info = samples.Info
 Table = samples.Table
 Plot = samples.Plot
+RawData = samples.RawData
+Sequence = samples.Sequence
 
 plateau_res_keys = [
     'F', 'sF', 'Num', 'MSWD', 'Chisq', 'Pvalue', 'age', 's1', 's2', 's3', 'Ar39',
@@ -230,4 +234,186 @@ def initial_plot_styles(sample: Sample, except_attrs=None):
 def re_set_smp(sample: Sample):
     std = initial(Sample())
     basic.get_merged_smp(sample, std)
+    return sample
+
+
+def check_version(smp: Sample):
+    """
+
+    Parameters
+    ----------
+    sample
+
+    Returns
+    -------
+
+    """
+    if smp.version != samples.VERSION:
+        re_set_smp(smp)
+    return smp
+
+
+# create
+def from_empty(file_path: str = '', sample_name: str = None):
+    """
+    Parameters
+    ----------
+    file_path
+    sample_name
+
+    Returns
+    -------
+
+    """
+    sample = Sample()
+    # initial settings
+    initial(sample)
+    if sample_name is not None:
+        sample.Info.sample.name = sample_name
+    return sample
+
+
+# create
+def from_arr_files(file_path, sample_name: str = ""):
+    """
+    file_path: full path of input file
+    name： samplename
+    return sample instance
+    """
+
+    class RenameUnpickler(pickle.Unpickler):
+        def find_class(self, module: str, name: str):
+            SAMPLE_MODULE = Sample().__module__
+            renamed_module = module
+            if '.sample' in module and module != SAMPLE_MODULE:
+                renamed_module = SAMPLE_MODULE
+
+            return super(RenameUnpickler, self).find_class(renamed_module, name)
+
+    def renamed_load(file_obj):
+        return RenameUnpickler(file_obj).load()
+
+    try:
+        with open(file_path, 'rb') as f:
+            sample = renamed_load(f)
+    except (Exception, BaseException):
+        raise ValueError(f"Fail to open arr file: {file_path}")
+    # Check arr version
+    # recalculation will not be applied automatically
+    return check_version(sample)
+
+
+# create
+def from_calc_files(file_path: str, **kwargs):
+    """
+
+    Parameters
+    ----------
+    file_path
+
+    Returns
+    -------
+
+    """
+    file = calc_file.ArArCalcFile(file_path=file_path, **kwargs).open()
+    sample = create_sample_from_df(file.get_content(), file.get_smp_info())
+    return sample
+
+
+# create
+def from_full_files(file_path: str, sample_name: str = None):
+    """
+    Parameters
+    ----------
+    file_path
+    sample_name
+
+    Returns
+    -------
+
+    """
+    if sample_name is None:
+        sample_name = str(os.path.split(file_path)[-1]).split('.')[0]
+    content, sample_info = calc_file.open_full_xls(file_path, sample_name)
+    sample = create_sample_from_dict(content=content, smp_info=sample_info)
+    return sample
+
+
+# create
+def from_raw_files(file_path: Union[RawData, str, List[str]],
+                   mapping: Optional[List[dict]] = None) -> Sample:
+    """
+    Parameters
+    ----------
+    file_path
+    mapping :
+        mapping is a list of dictionaries with two keys of blank and unknown,
+        for example, mapping = [
+            {'blank': blank_name, 'unknown': unknown_name_1},
+            ...,
+            {'blank': blank_name, 'unknown': unknown_name_1}
+        ]
+
+    Returns
+    -------
+
+    """
+    # check raw type
+    if isinstance(file_path, str) or isinstance(file_path, list):
+        raw = smp_raw.to_raw(file_path)
+        raw.do_regression()
+    elif isinstance(file_path, RawData):
+        raw = file_path
+    else:
+        raise ValueError(f"{file_path = } is not supported.")
+
+    if mapping is None:
+        mapping = []
+        _b: Sequence = raw.get_sequence(True, flag='is_blank', unique=True)
+        for _index, _seq in enumerate(raw.sequence):
+            if _seq.is_blank():
+                _b = _seq
+                continue
+            else:
+                mapping.append({'unknown': _seq.name, 'blank': _b.name})
+
+    # 创建sample
+    sample = Sample()
+    sample.RawData = raw
+    initial(sample)
+    unknown_intercept, blank_intercept = [], []
+    for row in mapping:
+        row_unknown_intercept = []
+        row_blank_intercept = []
+
+        unknown: Sequence = raw.get_sequence(row['unknown'], flag='name')
+        if row['blank'].lower() == "Interpolated Blank".lower():
+            blank: Sequence = arr.filter(
+                raw.interpolated_blank, func=lambda seq: seq.datetime == unknown.datetime,
+                get=None, unique=True)
+        else:
+            blank: Sequence = raw.get_sequence(row['blank'], flag='name')
+        for i in range(5):
+            row_unknown_intercept = arr.multi_append(
+                row_unknown_intercept, *unknown.results[i][unknown.fitting_method[i]][:2])
+            row_blank_intercept = arr.multi_append(
+                row_blank_intercept, *blank.results[i][unknown.fitting_method[i]][:2])
+
+        unknown_intercept.append(row_unknown_intercept)
+        blank_intercept.append(row_blank_intercept)
+        sample.SequenceName.append(unknown.name)
+        sample.SequenceValue.append('')
+        sample.TotalParam[31].append(unknown.datetime)
+
+    sample.SampleIntercept = arr.transpose(unknown_intercept)
+    sample.BlankIntercept = arr.transpose(blank_intercept)
+
+    sample.UnselectedSequence = list(range(len(sample.SequenceName)))
+    sample.SelectedSequence1 = []
+    sample.SelectedSequence2 = []
+
+    table.update_table_data(sample)  # Update table after submission row data and calculation
+
+    # sample.TotalParam[31] = [raw.get_sequence(row['unknown'], flag='name').datetime for row in mapping]
+
     return sample
