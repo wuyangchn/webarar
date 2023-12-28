@@ -186,7 +186,7 @@ Sample.show_data = lambda _smp: \
     f"Publish Table: \n\t{_smp.publish().to_df()}\n"
 
 __tab = "\t"
-Sample.help = f"" \
+Sample.help = lambda _smp: f"" \
               f"builtin methods:\n " \
               f"{__tab.join([func for func in dir(Sample) if callable(getattr(Sample, func)) and func.startswith('__')])}\n" \
               f"dunder-excluded methods:\n " \

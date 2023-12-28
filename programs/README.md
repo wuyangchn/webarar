@@ -1,16 +1,238 @@
 # ArArPy
 
-ArArPy is a python package for the reduction of <sup>40</sup>Ar/<sup>39</sup>Ar 
-geochronologic data. The package includes all data processing steps, including 
-reading data from local files, blank correction, decay correction, interference 
-reactions correction, age calculation, isochron regression, etc. The software is 
-written in Python language combined with some open source packages, such as numpy, 
-pandas, os, scipy, pickle, xlrd, xlsxwriter, and json. 
+ArArPy is a module for the reduction of <sup>40</sup>Ar/<sup>39</sup>Ar 
+geochronologic data. 
+
+It packages the whole processing steps, including reading data from local files, 
+blank correction, decay correction, interference reactions correction, age 
+calculation, isochron regression, etc. 
+
+The current version supports exported files in Thermo Scientific Qtegra (ISDS) 
+platform software.
+
+ArArPy is written in Python language combined with some open source packages, 
+such as numpy, pandas, os, scipy, pickle, xlrd, xlsxwriter, and json. 
 
 ## Installing from PyPI
 ArArPy can be installed via pip from PyPI.
 
     pip install ararpy
+    
+## API
+
+#### Sample
+
+##### new Sample(**kwargs)
+
+    __init__(
+        Doi = "",
+        RawData = RawData(),
+        Info = Info(),
+        SequenceName = [],
+        SequenceValue = [],
+        SequenceUnit = [],
+        NewIntercept = [],
+        NewBlank = [],
+        NewParam = [],
+        SampleIntercept = [],
+        BlankIntercept = [],
+        AnalysisDateTime = [],
+        BlankCorrected = [],
+        MassDiscrCorrected = [],
+        DecayCorrected = [],
+        InterferenceCorrected = [],
+        CorrectedValues = [],
+        DegasValues = [],
+        ApparentAgeValues = [],
+        IsochronValues = [],
+        TotalParam = [],
+        PublishValues = [],
+        SelectedSequence1 = [],
+        SelectedSequence2 = [],
+        UnselectedSequence = [],
+        IsochronMark = [],
+        UnknownTable = Table(),
+        BlankTable = Table(),
+        CorrectedTable = Table(),
+        DegasPatternTable = Table(),
+        PublishTable = Table(),
+        AgeSpectraTable = Table(),
+        IsochronsTable = Table(),
+        TotalParamsTable = Table(),
+        AgeSpectraPlot = Plot(),
+        NorIsochronPlot = Plot(),
+        InvIsochronPlot = Plot(),
+        KClAr1IsochronPlot = Plot(),
+        KClAr2IsochronPlot = Plot(),
+        KClAr3IsochronPlot = Plot(),
+        ThreeDIsochronPlot = Plot(),
+        CorrelationPlot = Plot(),
+        DegasPatternPlot = Plot(),
+        AgeDistributionPlot = Plot(),
+    )   
+    
+- ``` Doi``` ``` type: str ""``` ```default: ""```
+
+    Instance id, created by uuid.uuid4().hex.
+
+- ``` RawData ``` ``` type: RawData() ```
+
+    RawData instance, contains information and data of the imported raw files.
+
+- ``` Info ``` ``` type: Info() ```
+
+    Info instance. it may contain:
+    
+    - ``` attr_name ``` ``` type: str ``` Info
+    - ``` id ``` ``` type: str ``` 0
+    - ``` name ``` ``` type: str ``` info
+    - ``` type ``` ``` type: str ``` Info
+    - ``` sample ``` Info instance.
+        - ``` name ``` ``` type: str ``` Sample name.
+        - ``` material ``` ``` type: str ``` Sample material.
+        - ``` location ``` ``` type: str ``` Sample location.
+    - ``` researcher ``` Info instance
+        - ``` name ``` ``` type: str ``` Researcher name.
+        - ``` email ``` ``` type: str ``` Researcher email.
+    - ``` laboratory ``` Info instance
+        - ``` name ``` ``` type: str ``` Laboratory name.
+        - ``` email ``` ``` type: str ``` Laboratory email.
+        - ``` addr ``` ``` type: str ``` Laboratory address.
+        - ``` analyst ``` ``` type: str ``` Laboratory analyst.
+        - ``` info ``` ``` type: str ``` Laboratory info.
+    - ``` results ``` Info instance
+        - ``` name ``` ``` type: str ``` RESULTS
+        - ``` age_plateau ``` ``` type: List[float] ``` Age plateau.
+        - ``` age_spectra ``` ``` type: List[float] ``` Age spectra.
+        - ``` isochron ``` ``` type: List[float] ``` Isochron.
+        - ``` isochron_F ``` ``` type: List[float] ``` Isochron F.
+        - ``` isochron_age ``` ``` type: List[float] ``` Isochron age.
+        - ``` J ``` ``` type: List[float] ``` J value, a list of value and error.
+        - ``` plateau_F ``` ``` type: List[float] ``` Plateau F.
+        - ``` plateau_age ``` ``` type: List[float] ``` Plateau age.
+        - ``` total_F ``` ``` type: List[float] ``` total F.
+        - ``` total_age ``` ``` type: List[float] ``` total age.
+    - ``` reference ``` Info instance
+        - ``` name ``` ``` type: str ``` REFERENCE.
+        - ``` doi ``` ``` type: str ``` Paper doi.
+        - ``` journal ``` ``` type: str ``` Journal name.
+
+- ``` SequenceName = [] ``` ``` type: List[str] ``` 
+    
+    Sequence name list.
+
+- ``` SequenceValue = [] ``` ``` type: List[str] ``` 
+
+    Sequence label list.
+
+- ``` SequenceUnit = [] ``` ``` type: List[str] ``` 
+
+    Sequence unit list.
+
+- ``` NewIntercept = [] ``` ``` type: List[str] ``` 
+
+    New intercept list, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` NewBlank = [] ``` ``` type: List[str] ``` 
+
+    New Blank list, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` NewParam = [] ``` ``` type: List[str] ``` 
+
+    New Param list, 2d list, shape = (123, n), n is the number of sample sequences.
+
+- ``` SampleIntercept = [] ``` ``` type: List[str] ``` 
+
+    Unknown intercept list, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` BlankIntercept = [] ``` ``` type: List[str] ``` 
+
+    Blank intercept list, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` AnalysisDateTime = [] ``` ``` type: List[str] ``` 
+
+    Analysis DateTime list, 1d list, length equals the number of sample sequences.
+
+- ``` BlankCorrected = [] ``` ``` type: List[str] ``` 
+
+    Blank-corrected list, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` MassDiscrCorrected = [] ``` ``` type: List[str] ``` 
+
+    Mass discrimination corrected list, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` DecayCorrected = [] ``` ``` type: List[str] ``` 
+
+    Decay corrected list, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` InterferenceCorrected = [] ``` ``` type: List[str] ``` 
+
+    Interference Corrected, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` CorrectedValues = [] ``` ``` type: List[str] ``` 
+
+    Corrected values, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` DegasValues = [] ``` ``` type: List[str] ``` 
+
+    Degas values, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` ApparentAgeValues = [] ``` ``` type: List[str] ``` 
+
+    Degas values, 2d list, shape = (10, n), n is the number of sample sequences.
+
+- ``` IsochronValues = [] ``` ``` type: List[str] ``` 
+
+- ``` TotalParam = [] ``` ``` type: List[str] ``` 
+
+- ``` PublishValues = [] ``` ``` type: List[str] ``` 
+
+- ``` SelectedSequence1 = [] ``` ``` type: List[str] ``` 
+
+- ``` SelectedSequence2 = [] ``` ``` type: List[str] ``` 
+
+- ``` UnselectedSequence = [] ``` ``` type: List[str] ``` 
+
+- ``` IsochronMark = [] ``` ``` type: List[str] ``` 
+
+- ``` UnknownTable = Table() ```
+
+- ``` BlankTable = Table() ```
+
+- ``` CorrectedTable = Table() ```
+
+- ``` DegasPatternTable = Table() ```
+
+- ``` PublishTable = Table() ```
+
+- ``` AgeSpectraTable = Table() ```
+
+- ``` IsochronsTable = Table() ```
+
+- ``` TotalParamsTable = Table() ```
+
+- ``` AgeSpectraPlot = Plot() ```
+
+- ``` NorIsochronPlot = Plot() ```
+
+- ``` InvIsochronPlot = Plot() ```
+
+- ``` KClAr1IsochronPlot = Plot() ```
+
+- ``` KClAr2IsochronPlot = Plot() ```
+
+- ``` KClAr3IsochronPlot = Plot() ```
+
+- ``` ThreeDIsochronPlot = Plot() ```
+
+- ``` CorrelationPlot = Plot() ```
+
+- ``` DegasPatternPlot = Plot() ```
+
+- ``` AgeDistributionPlot = Plot() ```
+
+    
+    
 
 ## Testing
 #### 1. **Running the test function from a Python terminal**
