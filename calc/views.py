@@ -676,7 +676,7 @@ class RawFileView(http_funcs.ArArView):
 
         return JsonResponse({'new_sequences': ap.smp.json.dumps(new_sequences)})
 
-    def raw_data_submit(self, request, *args, **kwargs):  # old name: calc_raw_submit
+    def raw_data_submit(self, request, *args, **kwargs):
         """
         Raw data submit, return a sample instance and render a object html.
         """
@@ -709,7 +709,7 @@ class RawFileView(http_funcs.ArArView):
 
         sample.recalculate(*[True] * 12)  # Calculation after submitting row data
         # ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
-        ap.smp.table.update_table_data(sample)  # Update table after submittion row data and calculation
+        ap.smp.table.update_table_data(sample)  # Update table after submission row data and calculation
         # update cache
         cache_key = http_funcs.create_cache(sample)
         # write mysql
