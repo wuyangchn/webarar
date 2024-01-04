@@ -94,6 +94,9 @@ def get_sequence(raw: RawData, index: Optional[Union[list, int, str, bool]] = No
     unique : bool, if True, will return the first matched sequence,
         False, return a list of all matched sequences
 
+        a = raw.get_sequence(True, 'is_unknown', unique=False)  # get unknown sequence
+        print([_a.name for _a in a])
+
     Returns
     -------
 

@@ -35,17 +35,6 @@ def calc_age_min(F, sF, **kwargs) -> tuple:
     -------
 
     """
-    """
-    
-    kwargs keys:     [
-        'F', 'sF', 'L', 'sL', 'Le', 'sLe', 'Lb', 'sLb', 'A', 'sA', 'Ae', 'sAe', 'Ab', 'sAb',
-        't', 'st', 'J', 'sJ', 'W', 'sW', 'No', 'sNo', 'Y', 'sY', 'f', 'sf', 'Min'
-    ]. values are array-like objects
-    :param F:
-    :param sF:
-    :param kwargs:
-    :return:
-    """
     F, sF = arr.array_as_float([F, sF]).astype(float)
     J = arr.array_as_float(kwargs.pop('J'))
     sJ = arr.array_as_float(kwargs.pop('sJ') * J / 100)
@@ -108,14 +97,14 @@ def calc_age_min(F, sF, **kwargs) -> tuple:
     # e8 = (V * BB * KK * R / (Ap * XX)) ** 2 * sAp ** 2  # sAp
     # e9 = (V * BB * KK * R / (Kp * XX)) ** 2 * sKp ** 2  # sKp
     e8, e9 = 0, 0
-    useDecayConst = False
-    if useDecayConst:  # k0 = log(L / Le * KK * R + 1) / L
-        e1 = (V * BB * KK * R / (f * XX)) ** 2 * sf ** 2
-        e2 = 0
-        e3 = (-1 * np.log(XX) * V / L + BB * KK * R / (L * XX)) ** 2 * sLb ** 2
-        e4 = (-1 * np.log(XX) * V / L - Lb * KK * R / (Le ** 2 * XX)) ** 2 * sLe ** 2
-        e5 = (V * BB * KK * R / (W * XX)) ** 2 * sW ** 2
-        e6 = 0
+    # useDecayConst = False
+    # if useDecayConst:  # k0 = log(L / Le * KK * R + 1) / L
+    #     e1 = (V * BB * KK * R / (f * XX)) ** 2 * sf ** 2
+    #     e2 = 0
+    #     e3 = (-1 * np.log(XX) * V / L + BB * KK * R / (L * XX)) ** 2 * sLb ** 2
+    #     e4 = (-1 * np.log(XX) * V / L - Lb * KK * R / (Le ** 2 * XX)) ** 2 * sLe ** 2
+    #     e5 = (V * BB * KK * R / (W * XX)) ** 2 * sW ** 2
+    #     e6 = 0
     useStandardAge = True
     if useStandardAge:
         e1, e9 = 0, 0

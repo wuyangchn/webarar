@@ -19,16 +19,7 @@ Create a sample instance.
 """
 from typing import List, Tuple, Dict, Optional, Union
 from types import MethodType
-
-NEW_SAMPLE_INTERCEPT_HEADERS = [
-    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
-    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
-]
-NEW_BLANK_INTERCEPT_HEADERS = [
-    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
-    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
-]
-NEW_PARAMS_HEADERS = []
+import pandas as pd
 
 SAMPLE_INTERCEPT_HEADERS = [
     'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
@@ -38,12 +29,10 @@ BLANK_INTERCEPT_HEADERS = [
     'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
     '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
 ]
-
 CORRECTED_HEADERS = [
     'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
     '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
 ]
-
 DEGAS_HEADERS = [
     'Sequence', '',  # 0-1
     '\u00B3\u2076Ar[a]', '1\u03C3', '\u00B3\u2076Ar[c]', '1\u03C3',  # 2-5
@@ -55,7 +44,6 @@ DEGAS_HEADERS = [
     '\u2074\u2070Ar[r]', '1\u03C3', '\u2074\u2070Ar[a]', '1\u03C3',  # 26-29
     '\u2074\u2070Ar[c]', '1\u03C3', '\u2074\u2070Ar[K]', '1\u03C3'  # 29-32
 ]
-
 PUBLISH_TABLE_HEADERS = [
     'Sequence', '', '\u00B3\u2076Ar[a]', '\u00B3\u2077Ar[Ca]', '\u00B3\u2078Ar[Cl]',
     '\u00B3\u2079Ar[K]', '\u2074\u2070Ar[r]', 'Apparent Age', '1\u03C3', '\u2074\u2070Arr%',
@@ -136,6 +124,111 @@ TOTAL_PARAMS_HEADERS = [
     'Isotopic Errors',  # 122
     'Parameter Errors',  # 123
     'Plot Errors',  # 124
+]
+
+SAMPLE_INTERCEPT_SHORT_HEADERS = [
+    'Seq', 'Label', 'Ar36', '1s', 'Ar37', '1s',
+    'Ar38', '1s', 'Ar39', '1s', 'Ar40', '1s'
+]
+BLANK_INTERCEPT_SHORT_HEADERS = [
+    'Seq', 'Label', 'Ar36', '1s', 'Ar37', '1s',
+    'Ar38', '1s', 'Ar39', '1s', 'Ar40', '1s'
+]
+CORRECTED_SHORT_HEADERS = [
+    'Seq', 'Label', 'Ar36', '1s', 'Ar37', '1s',
+    'Ar38', '1s', 'Ar39', '1s', 'Ar40', '1s'
+]
+DEGAS_SHORT_HEADERS = [
+    'Seq', 'Label',  # 0-1
+    'Ar36[a]', '1s', 'Ar36[c]', '1s',  # 2-5
+    'Ar36[Ca]', '1s', 'Ar36[Cl]', '1s',  # 6-9
+    'Ar37[Ca]', '1s', 'Ar38[Cl]', '1s',  # 10-13
+    'Ar38[a]', '1s', 'Ar38[c]', '1s',  # 14-17
+    'Ar38[K]', '1s', 'Ar38[Ca]', '1s',  # 18-21
+    'Ar39[K]', '1s', 'Ar39[Ca]', '1s',  # 22-25
+    'Ar40[r]', '1s', 'Ar40[a]', '1s',  # 26-29
+    'Ar40[c]', '1s', 'Ar40[K]', '1s'  # 29-32
+]
+PUBLISH_TABLE_SHORT_HEADERS = [
+    'Seq', 'Label', 'Ar36[a]', 'Ar37[Ca]', 'Ar38[Cl]',
+    'Ar39[K]', 'Ar40[r]', 'Apparent Age', '1s', 'Ar40r%',
+    'Ar39K%', 'Ca/K', '1s'
+]
+SPECTRUM_TABLE_SHORT_HEADERS = [
+    'Seq', 'Label', 'Ar40/Ar39', '1s', 'Apparent Age',
+    '1s', '1s', '1s', 'Ar40[r]%', 'Ar39[K]%'
+]
+ISOCHRON_TABLE_SHORT_HEADERS = [
+    'Seq', 'Label', 'Mark',  # 0-2
+    'Ar39[K]/Ar36[a]', '1s',  # 3-4
+    'Ar40[r+a]/Ar36[a]', '1s', 'ri', '',  # 5-8
+    'Ar39[K]/Ar40[r+a]', '1s',  # 9-10
+    'Ar36[a]/Ar40[r+a]', '1s', 'ri', '',  # 11-14
+    'Ar39[K]/Ar38[Cl]', '1s',  # 15-16
+    'Ar40[r+Cl]/Ar38[Cl]', '1s', 'ri', '',  # 17-20
+    'Ar39[K]/Ar40[r+Cl]', '1s',  # 21-22
+    'Ar38[Cl]/Ar40[r+Cl]', '1s', 'ri', '',  # 23-26
+    'Ar38[Cl]/Ar39[K]', '1s',  # 27-28
+    'Ar40[r+Cl]/Ar39[K]', '1s', 'ri', '',  # 29-32
+    'Ar36[a+Cl]/Ar40[r+a]', '1s',  # 33-34
+    'Ar38[a+Cl]/Ar40[r+a]', '1s',  # 35-36
+    'Ar39[K]/Ar40[r+a]', '1s',  # 37-38
+    'r1', 'r2', 'r3',  # 39-41
+]
+TOTAL_PARAMS_SHORT_HEADERS = [
+    'Seq', 'Label',  # 0-1
+    'T_40v36', '%1s',
+    'C_40v36', '%1s',  # 2-5
+    'T_38v36', '%1s',
+    'C_38v36', '%1s',  # 6-9
+    'Ca_39v37', '%1s',
+    'Ca_38v37', '%1s',
+    'Ca_36v37', '%1s',  # 10-15
+    'K_40v39', '%1s',
+    'K_38v39', '%1s',  # 16-19
+    'Cl_36v38', '%1s',  # 20-21
+    'KvCa', '%1s', 'KvCl', '%1s', 'CavCl', '%1s',  # 22-27
+    'Ncy', 'Icy',  # 28-29
+    'Irr', 'Dur', 'IrrTime', 'ExpTime',  # 30-33
+    'StgY', '',  # 34-35
+    'DCK40', '%1s',  # 36-37
+    'DCeK40', '%1s',  # 38-39
+    'DCb-K40', '%1s',  # 40-41
+    'DCb+K40', '%1s',  # 42-43
+    'DCAr39', '%1s',  # 44-45
+    'DCAr37', '%1s',  # 46-47
+    'DCCl36', '%1s',  # 48-49
+    'DAK40', '%1s',  # 50-51
+    'DAeK40', '%1s',  # 52-53
+    'DAb-K40', '%1s',  # 54-55
+    'DAb+K40', '%1s',  # 56-57
+    'Cl36/Cl38P', '%1s',  # 58-59
+    'StdName', 'StdAge', '1s', 'Ar40%', '1s', 'K%', '1s',
+    'F', '1s',  # 60-68
+    'J', '%1s', 'MDF', '%1s',  # 69-72
+    'MassAr36', '%1s', 'MassAr37', '%1s',
+    'MassAr38', '%1s', 'MassAr39', '%1s',
+    'MassK40', '%1s', 'MassK', '%1s',  # 73-84
+    'No', '%1s', 'Year', '%1s', 'K40/K', '%1s',
+    'Cl35/Cl37', '%1s', 'HCl/Cl', '%1s',  # 85-94
+    'Ar40/Ar36Air', '%1s',
+    'Ar38/Ar36Air', '%1s',  # 95-98
+    'IsochronFitting', 'Convergence', 'Iteration', 'Discrimination',  # 99-102
+    'NotZero', 'CorrBlank', 'CorrDiscr', 'CorrAr37Decay',
+    'CorrAr39Decay',  # 103-107
+    'CaDegassing', 'KDegassing', 'ClDegassing', 'TrapDegassing',  # 108-111
+    'UsingMin',
+    # 'Recalibration', 'Using Std Age', 'Use Std Ratio',  # 112-115  to be completed
+    '', '', '',  # 112-115
+    'AutoPlateauMethod',  # 116 the index includes sequence name and unit
+    'InitialRatioModel',  # 117
+    'Set1InitialRatio',  # 118
+    '1s',  # 119
+    'Set2InitialRatio',  # 120
+    '1s',  # 121
+    'IsotopicErrors',  # 122
+    'ParameterErrors',  # 123
+    'PlotErrors',  # 124
 ]
 
 DEFAULT_PLOT_STYLES = {
@@ -624,13 +717,48 @@ DEFAULT_PLOT_STYLES = {
 
 VERSION = '20231208'
 
+NAMED_DICT = {
+    "unknown": {"header": SAMPLE_INTERCEPT_HEADERS.copy()},
+    "blank": {"header": BLANK_INTERCEPT_HEADERS.copy()},
+    "parameters": {"header": TOTAL_PARAMS_HEADERS.copy()},
+    "corrected": {"header": CORRECTED_HEADERS.copy()},
+    "degas": {"header": DEGAS_HEADERS.copy()},
+    "isochron": {"header": ISOCHRON_TABLE_HEADERS.copy()},
+    "apparent_ages": {"header": SPECTRUM_TABLE_HEADERS.copy()},
+    "publish": {"header": PUBLISH_TABLE_HEADERS.copy()},
+}
+
+
+class ArArBasic:
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+
+class ArArData(ArArBasic):
+    def __init__(self, **kwargs):
+        self.name: str = ""
+        self.data: list = []
+        self.header: list = []
+        self.short_header: list = []
+        super().__init__(**kwargs)
+        if not isinstance(self.data, list):
+            raise TypeError(f"Data must be a list.")
+        if self.name.lower() in NAMED_DICT.keys() and self.header == []:
+            self.header = NAMED_DICT[self.name]['header']
+        if len(self.header) != len(self.data):
+            self.header = [*self.header, *list(range(len(self.header), len(self.data)))][:len(self.data)]
+
+    def to_df(self) -> pd.DataFrame: ...
+    def to_list(self) -> list: ...
+
 
 class Sample:
 
     def __init__(self, **kwargs):
         self.Doi = ""
         self.RawData = RawData()
-        self.Info = Info()
+        self.Info = ArArBasic()
 
         self.SequenceName = []
         self.SequenceValue = []
@@ -693,21 +821,21 @@ class Sample:
     def version(self):
         return self.__version
 
-    def help(self): ...
+    def help(self) -> str: ...
 
-    def name(self): ...
+    def name(self) -> str: ...
 
-    def doi(self): ...
+    def doi(self) -> str: ...
 
-    def sample(self): ...
+    def sample(self) -> ArArBasic: ...
 
-    def researcher(self): ...
+    def researcher(self) -> ArArBasic: ...
 
-    def laboratory(self): ...
+    def laboratory(self) -> ArArBasic: ...
 
-    def results(self): ...
+    def results(self) -> ArArBasic: ...
 
-    def sequence(self): ...
+    def sequence(self) -> ArArBasic: ...
 
     def recalculate(self, *args): ...
 
@@ -733,21 +861,21 @@ class Sample:
 
     def update_table(self): ...
 
-    def unknown(self): ...
+    def unknown(self) -> ArArData: ...
 
-    def blank(self): ...
+    def blank(self) -> ArArData: ...
 
-    def parameters(self): ...
+    def parameters(self) -> ArArData: ...
 
-    def corrected(self): ...
+    def corrected(self) -> ArArData: ...
 
-    def degas(self): ...
+    def degas(self) -> ArArData: ...
 
-    def isochron(self): ...
+    def isochron(self) -> ArArData: ...
 
-    def apparent_ages(self): ...
+    def apparent_ages(self) -> ArArData: ...
 
-    def publish(self): ...
+    def publish(self) -> ArArData: ...
 
     def corr_blank(self): ...
 

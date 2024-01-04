@@ -21,11 +21,11 @@ from ..files import calc_file
 from . import (sample as samples, basic, table, raw as smp_raw)
 
 Sample = samples.Sample
-Info = samples.Info
 Table = samples.Table
 Plot = samples.Plot
 RawData = samples.RawData
 Sequence = samples.Sequence
+ArArBasic = samples.ArArBasic
 
 plateau_res_keys = [
     'F', 'sF', 'Num', 'MSWD', 'Chisq', 'Pvalue', 'age', 's1', 's2', 's3', 'Ar39',
@@ -121,18 +121,18 @@ def initial(smp: Sample):
         setattr(smp, 'Doi', str(uuid.uuid4().hex))
 
     # Info
-    setattr(smp, 'Info', Info(
+    setattr(smp, 'Info', ArArBasic(
         id='0', name='info', attr_name='Info',
-        sample=Info(
+        sample=ArArBasic(
             name='SAMPLE NAME', material='MATERIAL', location='LOCATION'
         ),
-        researcher=Info(
+        researcher=ArArBasic(
             name='RESEARCHER', addr='ADDRESS', email='EMAIL'
         ),
-        laboratory=Info(
+        laboratory=ArArBasic(
             name='LABORATORY', addr='ADDRESS', email='EMAIL', info='INFORMATION', analyst='ANALYST'
         ),
-        results=Info(
+        results=ArArBasic(
             name='RESULTS', plateau_F=[], plateau_age=[], total_F=[], total_age=[],
             isochron_F=[], isochron_age=[], J=[],
             # set1=result_set_1, set2=result_set_2,
@@ -154,7 +154,7 @@ def initial(smp: Sample):
                 0: copy.deepcopy(PLATEAU_RES), 1: copy.deepcopy(PLATEAU_RES), 2: copy.deepcopy(PLATEAU_RES)},
             age_spectra={},
         ),
-        reference=Info(
+        reference=ArArBasic(
             name='REFERENCE', journal='JOURNAL', doi='DOI'
         ),
     ))
