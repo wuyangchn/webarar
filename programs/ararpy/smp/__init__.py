@@ -14,6 +14,8 @@ Axis = samples.Plot.Axis
 Text = samples.Plot.Text
 RawData = samples.RawData
 Sequence = samples.Sequence
+ArArBasic = samples.ArArBasic
+ArArData = samples.ArArData
 
 VERSION = samples.VERSION
 

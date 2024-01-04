@@ -18,7 +18,7 @@ import copy
 from typing import Optional, Union, List
 from .. import calc
 from ..files.basic import (read as read_params)
-from .sample import Sample, Info, Table, Plot
+from .sample import Sample, Info, Table, Plot, ArArData, ArArBasic
 
 Set = Plot.Set
 Label = Plot.Label
@@ -156,7 +156,7 @@ def get_content_dict(smp: Sample):
     ))
 
 
-def get_dict_from_obj(obj: (Sample, Info, Plot, Table, Set, Label, Axis, Text)):
+def get_dict_from_obj(obj: (Sample, Info, Plot, Table, Set, Label, Axis, Text, ArArBasic, ArArData)):
     """
 
     Parameters
@@ -169,7 +169,7 @@ def get_dict_from_obj(obj: (Sample, Info, Plot, Table, Set, Label, Axis, Text)):
     """
     res = {}
     for key, attr in obj.__dict__.items():
-        if not isinstance(attr, (Sample, Info, Plot, Table, Set, Label, Axis, Text)):
+        if not isinstance(attr, (Sample, Info, Plot, Table, Set, Label, Axis, Text, ArArBasic, ArArData)):
             res.update({key: attr})
         else:
             res.update({key: get_dict_from_obj(attr)})
@@ -211,7 +211,7 @@ def get_component_byid(smp: Sample, comp_id: str):
 
     """
     for key, val in smp.__dict__.items():
-        if isinstance(val, (Plot, Table, Info)) and getattr(val, 'id') == comp_id:
+        if isinstance(val, (Plot, Table, Info, ArArBasic)) and getattr(val, 'id') == comp_id:
             return val
 
 
@@ -473,4 +473,33 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
         raise KeyError(f"{flag = } is not supported. It must be 'calc' for Calc Params, "
                        f"'irra' for Irradiation Params, or 'smp' for Sample Params.")
     return smp
+
+
+def get_sequence(smp: Sample):
+    return ArArBasic(
+        size=len(smp.SequenceName), name=smp.SequenceName, value=smp.SequenceValue, unit=smp.SequenceUnit,
+        mark=ArArBasic(
+            size=len(smp.IsochronMark), value=smp.IsochronMark,
+            set1=ArArBasic(size=sum([1 if i == 1 else 0 for i in smp.IsochronMark]),
+                           index=[index for index, _ in enumerate(smp.IsochronMark) if _ == 1]),
+            set2=ArArBasic(size=sum([1 if i == 2 else 0 for i in smp.IsochronMark]),
+                           index=[index for index, _ in enumerate(smp.IsochronMark) if _ == 2]),
+            unselected=ArArBasic(size=sum([0 if i == 2 or i == 1 else 1 for i in smp.IsochronMark]),
+                                 index=[index for index, _ in enumerate(smp.IsochronMark) if _ != 1 and _ != 2]),
+        )
+    )
+
+
+def get_results(smp: Sample):
+    return ArArBasic(
+        isochron=ArArBasic(**dict(
+            ({'figure_2': 'normal', 'figure_3': 'inverse', 'figure_4': 'cl_1',
+              'figure_5': 'cl_2', 'figure_6': 'cl_3', 'figure_7': 'three_d'}[key],
+             ArArBasic(**dict(({2: 'unselected', 0: 'set1', 1: 'set2'}[_key],
+                               ArArBasic(**_value)) for (_key, _value) in value.items())))
+            for (key, value) in smp.Info.results.isochron.items())),
+        age_plateau=ArArBasic(**dict(
+            ({2: 'unselected', 0: 'set1', 1: 'set2'}[key], ArArBasic(**value))
+            for (key, value) in smp.Info.results.age_plateau.items()))
+    )
 
