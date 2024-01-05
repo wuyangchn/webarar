@@ -19,7 +19,7 @@ import json
 def upload(file, media_dir):
     try:
         name, suffix = os.path.splitext(file.name)
-        if suffix not in [
+        if suffix.lower() not in [
             '.xls', '.age', '.xlsx', '.arr', '.jpg', '.png', '.txt',
             '.log', '.seq', '.json', '.ahd']:
             raise TypeError("Wrong File")
