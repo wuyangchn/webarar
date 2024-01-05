@@ -12,27 +12,25 @@
 import pandas as pd
 from . import calc, smp, files, test
 
-""" =========== """
+
 """ Information """
-""" =========== """
+
 name = 'ararpy'
 version = '0.0.1.a4'
 __version__ = version
 full_version = version
 last_update = '2024-01-04'
 
-""" ================ """
 """ ArArPy Functions """
-""" ================ """
+
 from_arr = smp.initial.from_arr_files
 from_age = smp.initial.from_calc_files
 from_full = smp.initial.from_full_files
 from_raw = smp.initial.from_raw_files
 from_empty = smp.initial.from_empty
 
-""" ======= """
 """ Classes """
-""" ======= """
+
 Sample = smp.Sample
 Info = smp.Info
 Table = smp.Table
@@ -46,15 +44,13 @@ Sequence = smp.Sequence
 ArArBasic = smp.ArArBasic
 ArArData = smp.ArArData
 
-""" ================= """
 """ ArArData Functions """
-""" ================= """
+
 ArArData.to_df = lambda _ad: pd.DataFrame(_ad.data, index=_ad.header).transpose()
 ArArData.to_list = lambda _ad: _ad.data
 
-""" ===================== """
 """ Sample Class Methods """
-""" ===================== """
+
 Sample.name = lambda _smp: _smp.Info.sample.name
 Sample.doi = lambda _smp: _smp.Doi
 Sample.sample = lambda _smp: _smp.Info.sample
@@ -126,9 +122,8 @@ Sample.help = lambda _smp: f"" \
                            f"dunder-excluded methods:\n " \
                            f"{__tab.join([func for func in dir(Sample) if callable(getattr(Sample, func)) and not func.startswith('__')])}\n"
 
-""" ===================== """
 """ RawData Class Methods """
-""" ===================== """
+
 RawData.do_regression = smp.raw.do_regression
 RawData.get_sequence = smp.raw.get_sequence
 RawData.to_sample = smp.initial.from_raw_files

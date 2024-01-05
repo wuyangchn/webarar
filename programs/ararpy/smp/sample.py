@@ -1128,8 +1128,7 @@ class RawData:
         if data is not None:
             self.sequence: List[Sequence] = [
                 Sequence(index=index, name=f"{self.name}-{index}", data=item[1:],
-                         datetime=self.__get_experiment_time(item[0][1]),
-                         type_str=item[0][2], fitting_method=[0] * 5)
+                         datetime=item[0][1], type_str=item[0][2], fitting_method=[0] * 5)
                 for index, item in enumerate(data)]
         else:
             self.sequence: List[Sequence] = []
@@ -1138,16 +1137,6 @@ class RawData:
         for k, v in kwargs.items():
             if hasattr(self, k) and type(getattr(self, k)) is MethodType:
                 continue
-
-    def __get_experiment_time(self, time_str):
-        k1 = time_str.split(' ')
-        [month, day, year] = k1[0].split('/')
-        [hour, min, second] = k1[2].split(':')
-        if 'pm' in time_str.lower() and int(hour) < 12:
-            hour = int(hour) + 12
-        if 'am' in time_str.lower() and int(hour) >= 12:
-            hour = int(hour) - 12
-        return f'{year}-{month}-{day}T{hour}:{min}:{second}'
 
     def set_flag(self, sequence_index: int, isotopic_index: int, data: List[List[float]]):
         ...

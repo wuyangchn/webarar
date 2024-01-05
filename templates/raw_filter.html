@@ -78,7 +78,7 @@
                             </label><a class="btn" href="" download>Download a sample file (pending)</a>
                         </div>
                         <div class="form-group">
-                            <input type="file" id="file-input-1" name="raw_file" multiple="multiple" accept="application/vnd.ms-excel, .ahd" onchange="rawFilesChanged()">
+                            <input type="file" id="file-input-1" name="raw_file" multiple="multiple" accept="application/vnd.ms-excel, .ahd, .txt" onchange="rawFilesChanged()">
                         </div>
 
                         <div style="">
@@ -134,6 +134,18 @@
         </div><!-- /.modal -->
     </div>
 
+    {% for message in messages %}
+        {% if 'success' in message.tags %}
+            <dialog class="alert alert-success" role="alert"><span style="font-weight:bold">{{ message }}</span></dialog>
+        {% elif 'error' in message.tags %}
+            <p class="alert alert-warning" role="alert" style="position: fixed; z-index: 9999; margin-top: -600px; margin-left: 40%">
+{#                <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>#}
+                <span style="font-weight:bold">{{ message }}</span>
+            </p>
+        {% endif %}
+    {% endfor %}
+
+
     <script>
         let pages = $(".raw-file-filter-page");
         let max_page = pages.length;
@@ -157,6 +169,13 @@
                 ]
             }
         );
+        //close alert after 3 seconds
+        window.setTimeout(function() {
+            $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove();
+
+            });
+        }, 3000);
     </script>
 
 {% endblock %}

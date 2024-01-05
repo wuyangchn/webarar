@@ -9,6 +9,7 @@ from math import ceil
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.conf import settings
+from django.contrib import messages
 import numpy as np
 import time
 from . import models
@@ -402,8 +403,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         data = list(self.body.get('data'))
         method = str(self.body.get('method'))
         adjusted_x = list(self.body.get('x'))
-        print(f"{method = }")
-        print(f"{data = }")
+
         x, adjusted_time = [], []
         year, month, day, hour, min, second = re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", data[0][0])[0]
         for each in data[0]:
@@ -541,21 +541,27 @@ class RawFileView(http_funcs.ArArView):
 
     def submit(self, request, *args, **kwargs):
         files = json.loads(request.POST.get('raw-file-table'))['files']
+        try:
+            raw = ap.smp.raw.to_raw(file_path=[file['file_path'] for file in files])
+            raw.do_regression()
 
-        raw = ap.smp.raw.to_raw(file_path=[file['file_path'] for file in files])
-        raw.do_regression()
+            allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
+            allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
+            allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
 
-        allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
-        allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
-        allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
-
-        # update cache
-        cache_key = http_funcs.create_cache(raw)
-
-        return render(request, 'extrapolate.html', {
-            'raw_data': ap.smp.json.dumps(raw), 'raw_cache_key': ap.smp.json.dumps(cache_key),
-            'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
-        })
+            # update cache
+            cache_key = http_funcs.create_cache(raw)
+            return render(request, 'extrapolate.html', {
+                'raw_data': ap.smp.json.dumps(raw), 'raw_cache_key': ap.smp.json.dumps(cache_key),
+                'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
+            })
+        except FileNotFoundError:
+            messages.error(request, "The file is currently not supported.")
+            return render(request, 'raw_filter.html')
+        except (Exception, BaseException):
+            print(traceback.format_exc())
+            messages.error(request, "Error in reading the file(s).")
+            return render(request, 'raw_filter.html')
 
     def import_blank_file(self, request, *args, **kwargs):
         file = request.FILES.get('blank_file')
