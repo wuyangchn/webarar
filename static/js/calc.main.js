@@ -702,7 +702,11 @@ function getExtrapolateDefaultOption(){
             textStyle: { fontSize: 18, fontWeight: 'bold',}},
         tooltip: {axisPointer: {type: 'none'}, confine: true, trigger: 'axis', showContent: false},
         legend: {show: true, top:'5%',
-            data: ['Line Regression', 'Quad Regression', 'Poly Regression', 'Exp Regression', 'Pow Regression', 'Average']},
+            data: [
+                'Filled Points', 'Unfilled Points',
+                'Line Regression', 'Quad Regression', 'Poly Regression',
+                'Exp Regression', 'Pow Regression', 'Average',
+            ]},
         grid: {show: true, borderWidth: 1, borderColor: '#333', top: '5%', left: '5%', bottom: '5%', right: '5%'},
         xAxis: {name: '', type: 'value', nameLocation: 'middle', nameGap: -20,
             nameTextStyle: {fontSize: 18, fontWeight: 'bold'},
@@ -733,7 +737,11 @@ function getExtrapolateDefaultOption(){
                 lineStyle: {color: '#329ea8'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
             {id: 'Average', name: 'Average', type: 'line', color: '#808080', clip: true, triggerLineEvent: false,
                 lineStyle: {color: '#808080', type: 'dashed'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
-        ]
+        ],
+        graphic: [{
+            id: 'LinesResults', type: 'text', z: 0, draggable: true, x: 100, y: 400,
+            style: {fill: '#FF0000', overflow: 'break', font: '16px "", Consolas, monospace'},
+        }]
     };
 }
 function getParamsByObjectName(type) {
@@ -988,11 +996,18 @@ function updateCharts(smCharts, bigChart, sequence_index, animation) {
     let coeff = myRawData.sequence[sequence_index].coefficients;
     for (let i=0;i<smCharts.length;i++) {
         // smCharts length should be 5
-        let xmax = Math.max(...selected.map((value, index) => value[i * 2 + 1]).filter(value => !Number.isNaN(value)));
+        let xmax = Math.max(...selected.concat(unselected).map((value, index) => value[i * 2 + 1]).filter(value => !Number.isNaN(value)));
         let option = {
+            xAxis: {min: 0, max: xmax},
             series: [
-                {name: 'Filled Points', data: selected, encode: {x: i * 2 + 1, y: i * 2 + 2}},
-                {name: 'Unfilled Points', data: unselected, encode: {x: i * 2 + 1, y: i * 2 + 2}},
+                {
+                    name: 'Filled Points', data: selected, encode: {x: i * 2 + 1, y: i * 2 + 2},
+                    label: {show: false, position: 'top', formatter: (params) => params.dataIndex + 1},
+                },
+                {
+                    name: 'Unfilled Points', data: unselected, encode: {x: i * 2 + 1, y: i * 2 + 2},
+                    label: {show: false, position: 'top', formatter: (params) => params.dataIndex + 1},
+                },
                 {name: 'Line Regression', tooltip: {formatter: 'Linear'}, data: generateLinesData(
                     (x) => coeff[i][0][0] + x * coeff[i][0][1], 0, xmax, 1),},
                 {name: 'Quad Regression', tooltip: {formatter: 'Quadratic'}, data: generateLinesData(
@@ -1020,10 +1035,10 @@ function updateCharts(smCharts, bigChart, sequence_index, animation) {
             bigChart.setOption({
                 title: {text: `${myRawData.sequence[sequence_index].name} ${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][i]}`},
                 graphic: [{
-                    id: 'LinesResults', type: 'text', z: 0, left: "10%", top: "80%", draggable: true,
+                    id: 'LinesResults', type: 'text', z: 0, draggable: true,
                     style: {fill: '#FF0000', overflow: 'break', text: text_table(text), font: '16px "", Consolas, monospace'},
                 }]
-            });
+            })
         }
     }
 }
@@ -1116,7 +1131,7 @@ function getLinkedChart(mainDiv, ...divs) {
         chart.setOption({
             title: {left: '5%', top:'5%', textStyle: {fontSize: 12, fontWeight: 'normal'}}, legend: {show: false},
             graphic: [{
-                id: 'LinesResults', invisible: true, type: 'text', left: "20%", top: "75%", draggable: true,
+                id: 'LinesResults', invisible: true, type: 'text', draggable: true,
                 style: {fill: '#FF0000', overflow: 'break', font: '16px "", Consolas, monospace', text: ''},
             }],
         });
@@ -1128,6 +1143,7 @@ function getLinkedChart(mainDiv, ...divs) {
         let option = chart.getOption();
         let series = option.series;
         // console.log(option);
+        // console.log("small charts clicked.");
         chartMain.setOption({
             title: {text: `Blank interpolation ${option.title[0].text}`},
             series: series.map((_item, _index) => {
@@ -1140,7 +1156,7 @@ function getLinkedChart(mainDiv, ...divs) {
                 }
             }),
             graphic: [{
-                id: 'LinesResults', invisible: false, type: 'text', left: "20%", top: "75%", draggable: true,
+                id: 'LinesResults', invisible: false, type: 'text', draggable: true,
                 style: {
                     fill: '#FF0000', overflow: 'break',
                     // Using monospaced font and spaces to align text

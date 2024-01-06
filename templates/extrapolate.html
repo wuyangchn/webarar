@@ -462,7 +462,24 @@
         chartBig.setOption(getExtrapolateDefaultOption());
         chartBig.setOption({
             title: {text: `${myRawData.sequence[current_page-1].name} Ar36`},
-            toolbox: {feature: {dataView: {show: true, readOnly: true}, saveAsImage: { show: true }}},
+            toolbox: {feature: {
+                    dataView: {show: true, readOnly: true},
+                    // saveAsImage: { show: true },
+                    dataZoom: {show: true},
+                    myTool1: {
+                        show: true, title: 'Show/Hide data indexes',
+                        icon: 'path://M432.45,595.444c0,2.177-4.661,6.82-11.305,6.82c-6.475,0-11.306-4.567-11.306-6.82s4.852-6.812,11.306-6.812C427.841,588.632,432.452,593.191,432.45,595.444L432.45,595.444z M421.155,589.876c-3.009,0-5.448,2.495-5.448,5.572s2.439,5.572,5.448,5.572c3.01,0,5.449-2.495,5.449-5.572C426.604,592.371,424.165,589.876,421.155,589.876L421.155,589.876z M421.146,591.891c-1.916,0-3.47,1.589-3.47,3.549c0,1.959,1.554,3.548,3.47,3.548s3.469-1.589,3.469-3.548C424.614,593.479,423.062,591.891,421.146,591.891L421.146,591.891zM421.146,591.891',
+                        onclick: function (){
+                            // let show_label = oven_log_chart.getOption().series[2].label.show;
+                            chartBig.getOption().series.map((series, index) => {
+                                if (series.name.includes('Points')) {
+                                    chartBig.setOption({
+                                        series: {name: series.name, label: {show: !series.label.show},},})
+                                }
+                            })
+                        }
+                    },
+                }},
             xAxis: {name: 'Time (s)', axisLabel: {show: true}, axisTick: {show: true, lineStyle: {width: 1, color: '#333'}}},
             yAxis: {name: 'Intensity (fA)', axisLabel: {show: true}, axisTick: {show: true}},
             series: [
@@ -488,6 +505,34 @@
         for (let i=0;i<smCharts.length;i++){
             smCharts[i].on('click', 'series.scatter', function (params) {chartScatterClicked(params)});
         }
+        // text moving
+        /*
+        let text_moving = false;
+        chartBig.on('mousedown', function (params) {
+            if (params.componentType === "graphic") {
+                console.log(params)
+                text_moving = true;
+            }
+        });
+        chartBig.getZr().on('mousemove', function (params) {
+            if (text_moving) {
+                //
+            }
+        });
+        chartBig.getZr().on('mouseup', function (params) {
+            if (text_moving) {
+                 chartBig.setOption({
+                    graphic: [{
+                        id: 'LinesResults', type: 'text', z: 0, draggable: true,
+                        x: params.event.target.transform[4], y: params.event.target.transform[5],
+                        style: {fill: '#FF0000', overflow: 'break', font: '16px "", Consolas, monospace'},
+                    }]
+                })
+                text_moving = false;
+            }
+        });
+         */
+
         // 自适应大小
         function chartResize(){
             $.each(document.getElementsByClassName('echarts-dom'), (index, dom) => {
