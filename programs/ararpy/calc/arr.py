@@ -14,12 +14,12 @@
 # === Internal import ===
 import traceback
 
-from . import err
+# from . import err
 # === External import ===
 import numpy as np
 from scipy.stats import distributions
 from types import MethodType
-from typing import Optional
+from typing import Optional, List, Union
 # import pandas as pd
 # import decimal
 # from math import exp, log, cos, acos, ceil, sqrt, atan, sin, gamma
@@ -511,6 +511,33 @@ def transpose(obj, ignore: bool = True):
         # print(traceback.format_exc())
         if ignore:
             return obj
+
+
+def get_item(obj: list, loc: (list, tuple, int), default: Union[str, int, float, bool] = None,
+             based: int = 0) -> Union[str, int, float, bool]:
+    """ Get item from a n-dimension list
+    Parameters
+    ----------
+    obj
+    loc
+    default
+    based
+
+    Returns
+    -------
+    """
+    try:
+        if not isinstance(obj, list):
+            raise TypeError
+        if isinstance(loc, int):
+            return obj[loc - based if loc - based >= 0 else 0]
+        if len(loc) == 1:
+            return obj[loc[0] - based if loc[0] - based >= 0 else 0]
+        return get_item(obj[loc[0] - based], loc[1:], based=based)
+    except (IndexError, TypeError, ValueError):
+        if default is not None:
+            return default
+    raise ValueError(f"Cannot get a item from {obj = }, {loc = }")
 
 
 # =======================

@@ -44,3 +44,4 @@ zipp==3.17.0
 
 ararpy>=0.0.1a3
 pandas>=2.1.2
+chardet>=5.2.0

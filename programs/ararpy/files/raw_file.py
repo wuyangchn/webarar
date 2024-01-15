@@ -10,20 +10,30 @@
 #
 """
 
+from typing import List, Union
 import traceback
 import os
+import chardet
 from xlrd import open_workbook
 from datetime import datetime
-
+import dateutil.parser as datetime_parser
+from ..calc.arr import get_item
 
 """ Open raw data file """
 
+DEFAULT_SAMPLE_INFO = {}
 
-def open_file(file_path: str, extension: str = None):
+
+def open_file(file_path: str, input_filter: List[Union[str, int, bool]]):
     """
-    :param file_path: directory of file
-    :param extension: filter 1 for .xls files, 2 for .ahd files
-    :return: step_list -> [[[header of step one], [cycle one in the step], [cycle two in the step]],[[],[]]]
+    Parameters
+    ----------
+    file_path:
+    input_filter
+
+    Returns
+    -------
+    step_list -> [[[header of step one], [cycle one in the step], [cycle two in the step]],[[],[]]]
         example:
             [
                 [
@@ -39,24 +49,21 @@ def open_file(file_path: str, extension: str = None):
                     ...
                 ]
             ]
+
     """
-    if extension is None:
-        extension = str(os.path.split(file_path)[-1]).split('.')[-1]
+    extension = str(os.path.split(file_path)[-1]).split('.')[-1]
     try:
-        handler = {'xls': open_raw_xls, 'ahd': open_raw_ahd, 'txt': open_raw_txt}[extension.lower()]
+        handler = {'excel': open_raw_xls, 'txt': open_raw_txt}[['txt', 'excel'][int(input_filter[1])]]
     except KeyError:
         print(traceback.format_exc())
-        raise FileNotFoundError("Woring File.")
-    try:
-        data = handler(file_path)
-    except (BaseException, Exception):
-        print(traceback.format_exc())
-        raise ValueError("Fails to open the file(s)")
-    else:
-        return {'data': data, 'type': extension}
+        raise FileNotFoundError("Wrong File.")
+    data, _ = handler(file_path, input_filter)
+    return {'data': data, 'type': extension}
 
 
-def open_raw_xls(filepath):
+def open_raw_xls(filepath, input_filter=None):
+    if input_filter is None:
+        input_filter = []
     try:
         wb = open_workbook(filepath)
         sheets = wb.sheet_names()
@@ -97,80 +104,152 @@ def open_raw_xls(filepath):
         print('Error in opening the original file: %s' % str(e))
         return False
     else:
-        return step_list
+        return step_list, {}
 
 
-def open_raw_ahd(filepath):
-    try:
-        contents, step_header, step_list = [], [], []
-        contents = [line.rstrip().split('\t') for line in open(filepath, 'r', encoding='utf-16-le')]
-        datetime_str = datetime.strptime(contents[6][1]+contents[6][2],
-                                         '%d/%m/%Y%H:%M:%S').isoformat(timespec='seconds')
-        step_count = int(contents[12][2])
-        step_header = [1, datetime_str, contents[0][1], contents[8][1]]
-        step_list.append([step_header])
-        for step_index in range(step_count):
-            start_row = 15 + 5 * step_index
-            step_list[0].append([
-                str(step_index + 1),
-                # in sequence: Ar36, Ar37, Ar38, Ar39, Ar40
-                float(contents[start_row + 0][0]), float(contents[start_row + 0][1]),
-                float(contents[start_row + 1][0]), float(contents[start_row + 1][1]),
-                float(contents[start_row + 2][0]), float(contents[start_row + 2][1]),
-                float(contents[start_row + 3][0]), float(contents[start_row + 3][1]),
-                float(contents[start_row + 4][0]), float(contents[start_row + 4][1]),
-            ])
-    except Exception as e:
-        print('Error in opening the original file: %s' % str(e))
-        return False
-    else:
-        return step_list
-
-
-def open_raw_txt(filepath, filter=None):
+def open_raw_txt(file_path, input_filter: List[Union[str, int]]):
     """
     Parameters
     ----------
-    filter
-    filepath
+    input_filter
+    file_path
 
     Returns
     -------
 
     """
-    default_index = (-1, -1)
+    if not input_filter:
+        raise ValueError("Input filter is empty array.")
 
-    def _get_val(a: list, index: tuple):
-        return "" if index == (-1, -1) else a[index[0] - 1][index[1] - 1]
+    if os.path.splitext(file_path)[1][1:].lower() != input_filter[0].strip().lower():
+        raise ValueError("The file does not comply with the extension in the given filter.")
 
-    if filter is None:
-        # indexes are all int from 1
-        filter = {
-            'header_len': 29, 'exp_name': (4, 2), 'exp_time': (10, 2),
-            'time': 7, 'Ar40': 16, 'Ar39': 15, 'Ar38': 12, 'Ar37': 9, 'Ar36': 8,
-            'separator': ',', 'end': ""
-        }
-    if filter.get('separator', ' ').lower() == 'comma':
-        filter['separator'] = ','
-    contents = [line.rstrip().split(filter.get('separator', ' ')) for line in open(filepath, 'r', encoding='utf-8')]
-    datetime_str = datetime.strptime(_get_val(contents, filter.get('exp_time', default_index)),
-                                     ' %d %B %Y %H:%M:%S.%f').isoformat(timespec='seconds')
-    name = _get_val(contents, filter.get('exp_name', default_index))
-    cycle_list = [[[1, datetime_str, name]]]
-    cycle_num = 0
-    for line in contents[filter['header_len']:]:
-        if line == filter['end'] or line == [filter['end']]:
+    with open(file_path, 'rb') as f:
+        contents = f.read()
+        encoding = chardet.detect(contents)
+        lines = [line.strip().split(['\t', ';', " ", ",", input_filter[3]][int(input_filter[2])])
+                 for line in contents.decode(encoding=encoding["encoding"]).split('\r\n')]
+
+    sample_info = get_sample_info([lines], input_filter)
+    # print(sample_info)
+    name = get_item([lines], input_filter[34:37], default="", based=1)
+    if input_filter[131]:  # input_filter[131]: date in one string
+        if input_filter[32].strip() != "":
+            zero_date = datetime.strptime(get_item([lines], input_filter[46:49], based=1),
+                                          input_filter[32]).isoformat(timespec='seconds')
+            # zero_time = datetime.strptime(_get_val(contents, filter.get('exp_time', default_index)),
+            #                               ' %d %B %Y %H:%M:%S.%f').isoformat(timespec='seconds')
+        else:
+            print("date string")
+            print(get_item([lines], input_filter[46:49], based=1))
+            zero_date = datetime_parser.parse(get_item([lines], input_filter[46:49], based=1))
+    else:
+        zero_date = datetime(year=get_item([lines], input_filter[46:49], based=1),
+                             month=get_item([lines], input_filter[52:55], based=1),
+                             day=get_item([lines], input_filter[58:61], based=1))
+
+    if input_filter[132]:  # input_filter[132]: time in one string
+        if input_filter[33].strip() != "":
+            zero_time = datetime.strptime(get_item([lines], input_filter[49:52], based=1),
+                                          input_filter[33]).isoformat(timespec='seconds')
+        else:
+            print("time string")
+            print(get_item([lines], input_filter[49:52], based=1))
+            zero_time = datetime_parser.parse(get_item([lines], input_filter[49:52], based=1))
+    else:
+        zero_time = datetime(year=2020, month=12, day=31,
+                             hour=get_item([lines], input_filter[49:52], based=1),
+                             minute=get_item([lines], input_filter[55:58], based=1),
+                             second=get_item([lines], input_filter[61:64], based=1))
+
+    zero_datetime = datetime(zero_date.year, zero_date.month, zero_date.day, zero_time.hour,
+                             zero_time.minute, zero_time.second).isoformat(timespec='seconds')
+
+    step_list = [[[1, zero_datetime, name]]]
+    break_num = 0
+    step_num = 0
+    for step_index in range(2000):
+        start_row = input_filter[5] + input_filter[27] * step_num + input_filter[28] * step_num
+        if lines[start_row] == "" or lines[start_row] == [""]:
             break
-        cycle_num += 1
-        cycle_list[0].append([
-            str(cycle_num),
-            # Ar36, Ar37, Ar38, Ar39, Ar40
-            float(line[filter['time'] - 1]), float(line[filter['Ar36'] - 1]),
-            float(line[filter['time'] - 1]), float(line[filter['Ar37'] - 1]),
-            float(line[filter['time'] - 1]), float(line[filter['Ar38'] - 1]),
-            float(line[filter['time'] - 1]), float(line[filter['Ar39'] - 1]),
-            float(line[filter['time'] - 1]), float(line[filter['Ar40'] - 1]),
-        ])
-    return cycle_list
+        if break_num < input_filter[28]:
+            break_num += 1
+            continue
+        break_num = 0
+        step_num += 1
+        if input_filter[6] == 0:  # == 0, vertical
+            step_list[0].append([
+                str(step_num),
+                # in sequence: Ar36, Ar37, Ar38, Ar39, Ar40
+                float(lines[start_row + input_filter[25] - 1][input_filter[26] - 1]),
+                float(lines[start_row + input_filter[25] - 1][input_filter[24] - 1]),
+                float(lines[start_row + input_filter[21] - 1][input_filter[22] - 1]),
+                float(lines[start_row + input_filter[21] - 1][input_filter[20] - 1]),
+                float(lines[start_row + input_filter[17] - 1][input_filter[18] - 1]),
+                float(lines[start_row + input_filter[17] - 1][input_filter[16] - 1]),
+                float(lines[start_row + input_filter[13] - 1][input_filter[14] - 1]),
+                float(lines[start_row + input_filter[13] - 1][input_filter[12] - 1]),
+                float(lines[start_row + input_filter[9] - 1][input_filter[10] - 1]),
+                float(lines[start_row + input_filter[9] - 1][input_filter[8] - 1]),
+            ])
+        else:  # == 1, horizontal
+            step_list[0].append([
+                str(step_num),
+                # Ar36, Ar37, Ar38, Ar39, Ar40
+                float(lines[start_row][input_filter[26] - 1]), float(lines[start_row][input_filter[24] - 1]),
+                float(lines[start_row][input_filter[22] - 1]), float(lines[start_row][input_filter[20] - 1]),
+                float(lines[start_row][input_filter[18] - 1]), float(lines[start_row][input_filter[16] - 1]),
+                float(lines[start_row][input_filter[14] - 1]), float(lines[start_row][input_filter[12] - 1]),
+                float(lines[start_row][input_filter[10] - 1]), float(lines[start_row][input_filter[8] - 1]),
+            ])
+
+    return step_list, sample_info
 
 
+def get_sample_info(file_contents: list, input_filter: list) -> dict:
+    """
+    Parameters
+    ----------
+    file_contents
+    input_filter
+
+    Returns
+    -------
+
+    """
+    sample_info = DEFAULT_SAMPLE_INFO.copy()
+    sample_info.update({
+        "Experiment Name": get_item(file_contents, input_filter[34:37], default="", based=1),
+        "Sample Name": get_item(file_contents, input_filter[37:40], default="", based=1),
+        "Sample Type": get_item(file_contents, input_filter[40:43], default="", based=1),
+        "Step Label": get_item(file_contents, input_filter[43:46], default="", based=1),
+        "Zero Date Year": get_item(file_contents, input_filter[46:49], default="", based=1),
+        "Zero Time Hour": get_item(file_contents, input_filter[49:52], default="", based=1),
+        "Zero Date Month": get_item(file_contents, input_filter[52:55], default="", based=1),
+        "Zero Time Minute": get_item(file_contents, input_filter[55:58], default="", based=1),
+        "Zero Date Day": get_item(file_contents, input_filter[58:61], default="", based=1),
+        "Zero Time Second": get_item(file_contents, input_filter[61:64], default="", based=1),
+        "Sample material": get_item(file_contents, input_filter[64:67], default="", based=1),
+        "Sample location": get_item(file_contents, input_filter[67:70], default="", based=1),
+        "Sample Weight": get_item(file_contents, input_filter[70:73], default="", based=1),
+        "Experiment Type": get_item(file_contents, input_filter[73:76], default="", based=1),
+        "Step name": get_item(file_contents, input_filter[76:79], default="", based=1),
+        "Step unit": get_item(file_contents, input_filter[79:82], default="", based=1),
+        "Heating time": get_item(file_contents, input_filter[82:85], default="", based=1),
+        "Instrument name": get_item(file_contents, input_filter[85:88], default="", based=1),
+        "Researcher": get_item(file_contents, input_filter[88:91], default="", based=1),
+        "Analyst": get_item(file_contents, input_filter[91:94], default="", based=1),
+        "Laboratory": get_item(file_contents, input_filter[94:97], default="", based=1),
+        "J value": get_item(file_contents, input_filter[97:100], default="", based=1),
+        "J value error": get_item(file_contents, input_filter[100:103], default="", based=1),
+        "Calc params": get_item(file_contents, input_filter[103:106], default="", based=1),
+        "Irra name": get_item(file_contents, input_filter[106:109], default="", based=1),
+        "Irra label": get_item(file_contents, input_filter[109:112], default="", based=1),
+        "Irra position H": get_item(file_contents, input_filter[112:115], default="", based=1),
+        "Irra position X": get_item(file_contents, input_filter[115:118], default="", based=1),
+        "Irra position Y": get_item(file_contents, input_filter[118:121], default="", based=1),
+        "Standard name": get_item(file_contents, input_filter[121:124], default="", based=1),
+        "Standard age": get_item(file_contents, input_filter[124:127], default="", based=1),
+        "Standard age error": get_item(file_contents, input_filter[127:130], default="", based=1)
+    })
+    return sample_info

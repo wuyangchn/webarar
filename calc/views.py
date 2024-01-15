@@ -526,6 +526,7 @@ class RawFileView(http_funcs.ArArView):
     def raw_files_changed(self, request, *args, **kwargs):
         files = []
         filter = request.POST.get('fileOptionsRadios')
+        names = list(models.InputFilterParams.objects.values_list('name', flat=True))
         for file in request.FILES.getlist('raw_file'):
             try:
                 web_file_path, file_name, suffix = ap.files.basic.upload(
@@ -535,14 +536,19 @@ class RawFileView(http_funcs.ArArView):
             else:
                 files.append({
                     'name': file_name, 'extension': suffix, 'path': web_file_path,
-                    'filter': suffix[1:] if filter == 'auto' else filter
+                    'filter': suffix[1:] if filter == 'auto' else filter,
+                    'filter_list': names
                 })
         return JsonResponse({'files': files})
 
     def submit(self, request, *args, **kwargs):
         files = json.loads(request.POST.get('raw-file-table'))['files']
+        file_path = [each['file_path'] for each in files if each['checked']]
+        filter_name = [each['filter'] for each in files if each['checked']]
+        filters = [ap.files.basic.read(getattr(models, "InputFilterParams").objects.get(name=each).file_path) for each
+                   in filter_name]
         try:
-            raw = ap.smp.raw.to_raw(file_path=[file['file_path'] for file in files])
+            raw = ap.smp.raw.to_raw(file_path=file_path, input_filter=filters)
             raw.do_regression()
 
             allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
@@ -555,13 +561,14 @@ class RawFileView(http_funcs.ArArView):
                 'raw_data': ap.smp.json.dumps(raw), 'raw_cache_key': ap.smp.json.dumps(cache_key),
                 'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
             })
-        except FileNotFoundError:
-            messages.error(request, "The file is currently not supported.")
-            return render(request, 'raw_filter.html')
+        except FileNotFoundError as e:
+            messages.error(request, e)
+        except ValueError as e:
+            messages.error(request, e)
         except (Exception, BaseException):
             print(traceback.format_exc())
-            messages.error(request, "Error in reading the file(s).")
-            return render(request, 'raw_filter.html')
+            messages.error(request, traceback.format_exc())
+        return render(request, 'raw_filter.html')
 
     def import_blank_file(self, request, *args, **kwargs):
         file = request.FILES.get('blank_file')
@@ -732,23 +739,29 @@ class ParamsSettingView(http_funcs.ArArView):
         ]
 
     def show_irra(self, request, *args, **kwargs):
-        allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
-        log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {allIrraNames}')
-        return render(request, 'irradiation_setting.html', {'allIrraNames': allIrraNames})
+        names = list(models.IrraParams.objects.values_list('name', flat=True))
+        log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
+        return render(request, 'irradiation_setting.html', {'allIrraNames': names})
 
     def show_calc(self, request, *args, **kwargs):
-        allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
-        log_funcs.set_info_log(self.ip, '005', 'info', f'Show calculation param project names: {allCalcNames}')
-        return render(request, 'calculation_setting.html', {'allCalcNames': allCalcNames})
+        names = list(models.CalcParams.objects.values_list('name', flat=True))
+        log_funcs.set_info_log(self.ip, '005', 'info', f'Show calculation param project names: {names}')
+        return render(request, 'calculation_setting.html', {'allCalcNames': names})
 
     def show_smp(self, request, *args, **kwargs):
-        allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
-        log_funcs.set_info_log(self.ip, '005', 'info', f'Show sample param project names: {allSmpNames}')
-        return render(request, 'sample_setting.html', {'allSmpNames': allSmpNames})
+        names = list(models.SmpParams.objects.values_list('name', flat=True))
+        log_funcs.set_info_log(self.ip, '005', 'info', f'Show sample param project names: {names}')
+        return render(request, 'sample_setting.html', {'allSmpNames': names})
+
+    def show_input_filter(self, request, *args, **kwargs):
+        names = list(models.InputFilterParams.objects.values_list('name', flat=True))
+        log_funcs.set_info_log(self.ip, '005', 'info', f'Show input filter project names: {names}')
+        return render(request, 'input_filter_setting.html', {'allInputFilterNames': names})
 
     def change_param_objects(self, request, *args, **kwargs):
         type = str(self.body['type'])  # type = irra, calc, smp
-        model_name = f"{type.capitalize()}Params"
+        model_name = f"{''.join([i.capitalize() for i in type.split('-')])}Params"
+        print(f"{type = }, {model_name = }")
         try:
             name = self.body['name']
             param_file = getattr(models, model_name).objects.get(name=name).file_path
@@ -782,8 +795,8 @@ class ParamsSettingView(http_funcs.ArArView):
         name = self.body['name']
         pin = self.body['pin']
         params = self.body['params']
-        type = str(self.body['type'])  # type = irra, calc, smp
-        model_name = f"{type.capitalize()}Params"
+        type = str(self.body['type'])  # type = irra, calc, smp, input-filter
+        model_name = f"{''.join([i.capitalize() for i in type.split('-')])}Params"
         model = getattr(models, model_name)
         if flag == 'create':
             email = self.body['email']
@@ -806,7 +819,8 @@ class ParamsSettingView(http_funcs.ArArView):
         else:
             try:
                 old = model.objects.get(name=name)
-            except Exception:
+            except (BaseException, Exception):
+                print(traceback.format_exc())
                 log_funcs.set_info_log(
                     self.ip, '005', 'info',
                     f'Fail to change selected {type.lower()} project, '
