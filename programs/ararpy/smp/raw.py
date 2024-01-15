@@ -21,7 +21,7 @@ RawData = samples.RawData
 Sequence = samples.Sequence
 
 
-def to_raw(file_path: Union[str, List[str]], **kwargs):
+def to_raw(file_path: Union[str, List[str]], input_filter: [Union[list, List[list]]], **kwargs):
     """ Read raw data from files, can create raw data instance based on the given files
     Raw data will have the structure like:
         [
@@ -33,18 +33,21 @@ def to_raw(file_path: Union[str, List[str]], **kwargs):
     Parameters
     ----------
     file_path
+    input_filter
     kwargs
 
     Returns
     -------
 
     """
+    if len(input_filter) == 1:
+        input_filter: str = input_filter[0]
     if isinstance(file_path, list) and len(file_path) == 1:
         file_path: str = file_path[0]
     if isinstance(file_path, list):
-        raw = concatenate([to_raw(file) for file in file_path])
+        raw = concatenate([to_raw(file, input_filter[index]) for index, file in enumerate(file_path)])
     else:
-        res = raw_file.open_file(file_path)
+        res = raw_file.open_file(file_path, input_filter)
         file_name = str(os.path.split(file_path)[-1]).split('.')[0]
         raw = RawData(name=file_name, data=res['data'], isotopic_num=10, sequence_num=len(res['data']),
                       source=[file_path])

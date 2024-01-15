@@ -237,13 +237,15 @@ function rawFilesChanged() {
             let data = table.bootstrapTable('getData');
             $.each(files, function (index, file) {
                 data.push({
-                    'file_name': file.name, 'file_path': file.path, 'filter': file.filter,
+                    'file_name': file.name, 'file_path': file.path,
+                    // 'filter': file.filter,
+                    'filter': `<select class="input-sm input-filter-selection" style="width: 200px">${file.filter_list.map((item, _) => 
+                        "<option>" + item + "</option>").join("")}$</select>`,
                     'operation': '<button type="button" class="btn btn-danger" onclick="removeRawFile(id)" ' +
-                        'id="btn-raw-file-' + data.length +'">Remove</button>'
+                        'id="btn-raw-file-' + data.length +'">Remove</button>',
                 });
             })
             table.bootstrapTable('load', data);
-            $('#raw-file-table-input').val(JSON.stringify({'files': table.bootstrapTable('getData')}))
         }
     })
 }
@@ -302,11 +304,18 @@ function showParamProject(ele, param_type) {
             if (!$('#calcParamsRadio1').is(':checked')) {
                 return
             }
-        } else {
+        } else if (ele.id.toString().includes('smp')) {
             param_type = "smp";
             if (!$('#smpParamsRadio1').is(':checked')) {
                 return
             }
+        } else if (ele.id.toString().includes('inputFilter')) {
+            param_type = "input-filter";
+            if (!$('#inputFilterParamsRadio1').is(':checked')) {
+                return
+            }
+        } else {
+            return
         }
     }
     $.ajax({
@@ -327,24 +336,14 @@ function showParamProject(ele, param_type) {
                         each.value=res.param[index];
                     });
                 }
-                if (param_type === "calc") {
-                    let calcInput = document.getElementsByClassName('calc-params');
-                    let calcCheckBox = document.getElementsByClassName('calc-check-box');
-                    $.each(calcInput, function (index, each) {
+                if (param_type === "input-filter" || param_type === "calc" || param_type === "smp") {
+                    let input_box = document.getElementsByClassName(`${ param_type }-params`);
+                    let check_Box = document.getElementsByClassName(`${ param_type }-check-box`);
+                    $.each(input_box, function (index, each) {
                         each.value=res.param[index];
                     });
-                    $.each(calcCheckBox, function (index, each) {
-                        each.checked=res.param[index+calcInput.length];
-                    });
-                }
-                if (param_type === "smp") {
-                    let smpInput = document.getElementsByClassName('smp-params');
-                    let smpCheckBox = document.getElementsByClassName('smp-check-box');
-                    $.each(smpInput, function (index, each) {
-                        each.value=res.param[index];
-                    });
-                    $.each(smpCheckBox, function (index, each) {
-                        each.checked=res.param[index+smpInput.length];
+                    $.each(check_Box, function (index, each) {
+                        each.checked=res.param[index+input_box.length];
                     });
                     initialRatioSelectChanged();
                 }

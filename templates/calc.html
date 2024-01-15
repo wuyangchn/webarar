@@ -30,7 +30,7 @@
     });
 </script>
 
-<div class="jumbotron">
+<div class="jumbotron" style="height: 830px">
     <div class="container">
 {#        <h2 class="text-center" style="color: #c0c0c0">Start from...</h2>#}
         <div class="upload-drop-zone" id="drop-zone">
@@ -89,11 +89,10 @@
                     <div class="caption">
                         <h3>Irradiation Params</h3>
                         <p style="font-size: small">
-                            - Irradiation time<br>
-                            - Correction factors<br>
+                            - Irradiation Time<br>
+                            - Correction Factors<br>
                             - ...<br>
-                            <br>
-                        </p><br>
+                        </p>
                         <p>
                             <a href="{% url 'params_views' 'show_irra' %}" class="btn btn-primary" role="button">Edit</a>
                         </p>
@@ -105,11 +104,10 @@
                     <div class="caption">
                         <h3>Calculation Params</h3>
                         <p style="font-size: small">
-                            - Decay constants<br>
-                            - Decay Activities<br>
-                            - Isotopic mass<br>
+                            - Decay Constants<br>
+                            - Isotopic Mass<br>
                             - ...<br>
-                        </p><br>
+                        </p>
                         <p>
                             <a href="{% url 'params_views' 'show_calc' %}" class="btn btn-primary" role="button">Edit</a>
                         </p>
@@ -121,13 +119,23 @@
                     <div class="caption">
                         <h3>Sample Params</h3>
                         <p style="font-size: small">
-                            - J value<br>
-                            - MDF<br>
-                            - Calculation option<br>
+                            - J Value<br>
+                            - Other Options<br>
                             - ...<br>
-                        </p><br>
+                        </p>
                         <p>
                             <a href="{% url 'params_views' 'show_smp' %}" class="btn btn-primary" role="button">Edit</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="thumbnail">
+                    <div class="caption">
+                        <h3>Raw Data Input Filter</h3>
+                        </p><br>
+                        <p>
+                            <a href="{% url 'params_views' 'show_input_filter' %}" class="btn btn-primary" role="button">Edit</a>
                         </p>
                     </div>
                 </div>
