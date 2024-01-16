@@ -14,17 +14,12 @@
 # === Internal import ===
 import traceback
 
-# from . import err
+from . import err
 # === External import ===
 import numpy as np
 from scipy.stats import distributions
 from types import MethodType
 from typing import Optional, List, Union
-# import pandas as pd
-# import decimal
-# from math import exp, log, cos, acos, ceil, sqrt, atan, sin, gamma
-# from typing import List, Any
-# from scipy.optimize import fsolve
 
 
 # =======================
@@ -533,7 +528,7 @@ def get_item(obj: list, loc: (list, tuple, int), default: Union[str, int, float,
             return obj[loc - based if loc - based >= 0 else 0]
         if len(loc) == 1:
             return obj[loc[0] - based if loc[0] - based >= 0 else 0]
-        return get_item(obj[loc[0] - based], loc[1:], based=based)
+        return get_item(obj[loc[0] - based if loc[0] - based >= 0 else 0], loc[1:], based=based)
     except (IndexError, TypeError, ValueError):
         if default is not None:
             return default

@@ -13,9 +13,11 @@
 from typing import List, Union
 import traceback
 import os
+import re
 import chardet
 from xlrd import open_workbook
 from datetime import datetime
+from parse import parse as string_parser
 import dateutil.parser as datetime_parser
 from ..calc.arr import get_item
 
@@ -53,7 +55,7 @@ def open_file(file_path: str, input_filter: List[Union[str, int, bool]]):
     """
     extension = str(os.path.split(file_path)[-1]).split('.')[-1]
     try:
-        handler = {'excel': open_raw_xls, 'txt': open_raw_txt}[['txt', 'excel'][int(input_filter[1])]]
+        handler = {'txt': open_raw_txt, 'excel': open_raw_xls, }[['txt', 'excel'][int(input_filter[1])]]
     except KeyError:
         print(traceback.format_exc())
         raise FileNotFoundError("Wrong File.")
@@ -61,7 +63,7 @@ def open_file(file_path: str, input_filter: List[Union[str, int, bool]]):
     return {'data': data, 'type': extension}
 
 
-def open_raw_xls(filepath, input_filter=None):
+def open_argus_exported_xls(filepath, input_filter=None):
     if input_filter is None:
         input_filter = []
     try:
@@ -130,80 +132,145 @@ def open_raw_txt(file_path, input_filter: List[Union[str, int]]):
         lines = [line.strip().split(['\t', ';', " ", ",", input_filter[3]][int(input_filter[2])])
                  for line in contents.decode(encoding=encoding["encoding"]).split('\r\n')]
 
+    file_name = os.path.basename(file_path).rstrip(os.path.splitext(file_path)[-1])
     sample_info = get_sample_info([lines], input_filter)
-    # print(sample_info)
-    name = get_item([lines], input_filter[34:37], default="", based=1)
+    step_list = get_raw_data([lines], input_filter, file_name=file_name)
+
+    return step_list, sample_info
+
+
+def open_raw_xls(file_path, input_filter: List[Union[str, int]]):
+    """
+    Parameters
+    ----------
+    file_path
+    input_filter
+
+    Returns
+    -------
+
+    """
+    if not input_filter:
+        raise ValueError("Input filter is empty array.")
+
+    if os.path.splitext(file_path)[1][1:].lower() != input_filter[0].strip().lower():
+        raise ValueError("The file does not comply with the extension in the given filter.")
+
+    def _get_content_from_sheet(_index) -> List[List[Union[str, bool, int, float]]]:
+        _sheet = wb.sheet_by_index(_index)
+        return [[_sheet.cell(_row, _col).value for _col in range(_sheet.ncols)] for _row in range(_sheet.nrows)]
+
+    wb = open_workbook(file_path)
+    used_sheet_index = set([input_filter[i] - 1 if input_filter[i] != 0 else 0 for i in
+                            [4, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85,
+                             88, 91, 94, 97, 100, 103, 106, 109, 112, 115, 118, 121, 124, 127]])
+    contents = [[] if i not in used_sheet_index else _get_content_from_sheet(i)
+                for i in range(max(used_sheet_index) + 1)]
+
+    file_name = os.path.basename(file_path).rstrip(os.path.splitext(file_path)[-1])
+    sample_info = get_sample_info(contents, input_filter)
+    step_list = get_raw_data(contents, input_filter, file_name=file_name)
+
+    return step_list, sample_info
+
+
+def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], input_filter: list,
+                 file_name: str = "") -> list:
+    """
+    Parameters
+    ----------
+    file_name
+    file_contents
+    input_filter
+
+    Returns
+    -------
+
+    """
     if input_filter[131]:  # input_filter[131]: date in one string
         if input_filter[32].strip() != "":
-            zero_date = datetime.strptime(get_item([lines], input_filter[46:49], based=1),
-                                          input_filter[32]).isoformat(timespec='seconds')
-            # zero_time = datetime.strptime(_get_val(contents, filter.get('exp_time', default_index)),
-            #                               ' %d %B %Y %H:%M:%S.%f').isoformat(timespec='seconds')
+            zero_date = datetime.strptime(get_item(file_contents, input_filter[46:49], based=1),
+                                          input_filter[32])
         else:
-            print("date string")
-            print(get_item([lines], input_filter[46:49], based=1))
-            zero_date = datetime_parser.parse(get_item([lines], input_filter[46:49], based=1))
+            zero_date = datetime_parser.parse(get_item(file_contents, input_filter[46:49], based=1))
     else:
-        zero_date = datetime(year=get_item([lines], input_filter[46:49], based=1),
-                             month=get_item([lines], input_filter[52:55], based=1),
-                             day=get_item([lines], input_filter[58:61], based=1))
+        zero_date = datetime(year=get_item(file_contents, input_filter[46:49], based=1),
+                             month=get_item(file_contents, input_filter[52:55], based=1),
+                             day=get_item(file_contents, input_filter[58:61], based=1))
 
     if input_filter[132]:  # input_filter[132]: time in one string
         if input_filter[33].strip() != "":
-            zero_time = datetime.strptime(get_item([lines], input_filter[49:52], based=1),
-                                          input_filter[33]).isoformat(timespec='seconds')
+            zero_time = datetime.strptime(get_item(file_contents, input_filter[49:52], based=1),
+                                          input_filter[33])
         else:
-            print("time string")
-            print(get_item([lines], input_filter[49:52], based=1))
-            zero_time = datetime_parser.parse(get_item([lines], input_filter[49:52], based=1))
+            zero_time = datetime_parser.parse(get_item(file_contents, input_filter[49:52], based=1))
     else:
         zero_time = datetime(year=2020, month=12, day=31,
-                             hour=get_item([lines], input_filter[49:52], based=1),
-                             minute=get_item([lines], input_filter[55:58], based=1),
-                             second=get_item([lines], input_filter[61:64], based=1))
+                             hour=get_item(file_contents, input_filter[49:52], based=1),
+                             minute=get_item(file_contents, input_filter[55:58], based=1),
+                             second=get_item(file_contents, input_filter[61:64], based=1))
 
     zero_datetime = datetime(zero_date.year, zero_date.month, zero_date.day, zero_time.hour,
                              zero_time.minute, zero_time.second).isoformat(timespec='seconds')
 
-    step_list = [[[1, zero_datetime, name]]]
+    # Get step name
+    experiment_name = get_item(file_contents, input_filter[34:37], default="", based=1) if input_filter[35] > 0 else ""
+    step_name = get_item(file_contents, input_filter[37:40], default="", based=1) if input_filter[38] > 0 else ""
+    if input_filter[130] and input_filter[31] != "":
+        _res = string_parser(input_filter[31], file_name)
+        if _res is not None:
+            experiment_name = _res.named.get("en", experiment_name)
+            step_index = _res.named.get("sn", step_name)
+            if step_index.isnumeric():
+                step_name = f"{experiment_name}-{int(step_index):02d}"
+            else:
+                step_name = f"{experiment_name}-{step_index}"
+    step_list = [[[step_name, zero_datetime, experiment_name]]]
+
     break_num = 0
     step_num = 0
+    data_content = file_contents[input_filter[4] - 1 if input_filter[4] != 0 else 0]
     for step_index in range(2000):
         start_row = input_filter[5] + input_filter[27] * step_num + input_filter[28] * step_num
-        if lines[start_row] == "" or lines[start_row] == [""]:
+        try:
+            if data_content[start_row] == "" or data_content[start_row] == [""]:
+                break
+        except IndexError:
             break
         if break_num < input_filter[28]:
             break_num += 1
             continue
         break_num = 0
         step_num += 1
-        if input_filter[6] == 0:  # == 0, vertical
+        if int(input_filter[6]) == 0:  # == 0, vertical
             step_list[0].append([
                 str(step_num),
                 # in sequence: Ar36, Ar37, Ar38, Ar39, Ar40
-                float(lines[start_row + input_filter[25] - 1][input_filter[26] - 1]),
-                float(lines[start_row + input_filter[25] - 1][input_filter[24] - 1]),
-                float(lines[start_row + input_filter[21] - 1][input_filter[22] - 1]),
-                float(lines[start_row + input_filter[21] - 1][input_filter[20] - 1]),
-                float(lines[start_row + input_filter[17] - 1][input_filter[18] - 1]),
-                float(lines[start_row + input_filter[17] - 1][input_filter[16] - 1]),
-                float(lines[start_row + input_filter[13] - 1][input_filter[14] - 1]),
-                float(lines[start_row + input_filter[13] - 1][input_filter[12] - 1]),
-                float(lines[start_row + input_filter[9] - 1][input_filter[10] - 1]),
-                float(lines[start_row + input_filter[9] - 1][input_filter[8] - 1]),
+                float(data_content[start_row + input_filter[25] - 1][input_filter[26] - 1]),
+                float(data_content[start_row + input_filter[25] - 1][input_filter[24] - 1]),
+                float(data_content[start_row + input_filter[21] - 1][input_filter[22] - 1]),
+                float(data_content[start_row + input_filter[21] - 1][input_filter[20] - 1]),
+                float(data_content[start_row + input_filter[17] - 1][input_filter[18] - 1]),
+                float(data_content[start_row + input_filter[17] - 1][input_filter[16] - 1]),
+                float(data_content[start_row + input_filter[13] - 1][input_filter[14] - 1]),
+                float(data_content[start_row + input_filter[13] - 1][input_filter[12] - 1]),
+                float(data_content[start_row + input_filter[9] - 1][input_filter[10] - 1]),
+                float(data_content[start_row + input_filter[9] - 1][input_filter[8] - 1]),
             ])
-        else:  # == 1, horizontal
+        elif int(input_filter[6]) == 1:  # == 1, horizontal
             step_list[0].append([
                 str(step_num),
                 # Ar36, Ar37, Ar38, Ar39, Ar40
-                float(lines[start_row][input_filter[26] - 1]), float(lines[start_row][input_filter[24] - 1]),
-                float(lines[start_row][input_filter[22] - 1]), float(lines[start_row][input_filter[20] - 1]),
-                float(lines[start_row][input_filter[18] - 1]), float(lines[start_row][input_filter[16] - 1]),
-                float(lines[start_row][input_filter[14] - 1]), float(lines[start_row][input_filter[12] - 1]),
-                float(lines[start_row][input_filter[10] - 1]), float(lines[start_row][input_filter[8] - 1]),
+                float(data_content[start_row][input_filter[26] - 1]), float(data_content[start_row][input_filter[24] - 1]),
+                float(data_content[start_row][input_filter[22] - 1]), float(data_content[start_row][input_filter[20] - 1]),
+                float(data_content[start_row][input_filter[18] - 1]), float(data_content[start_row][input_filter[16] - 1]),
+                float(data_content[start_row][input_filter[14] - 1]), float(data_content[start_row][input_filter[12] - 1]),
+                float(data_content[start_row][input_filter[10] - 1]), float(data_content[start_row][input_filter[8] - 1]),
             ])
+        else:
+            raise ValueError
 
-    return step_list, sample_info
+    return step_list
 
 
 def get_sample_info(file_contents: list, input_filter: list) -> dict:
@@ -220,7 +287,7 @@ def get_sample_info(file_contents: list, input_filter: list) -> dict:
     sample_info = DEFAULT_SAMPLE_INFO.copy()
     sample_info.update({
         "Experiment Name": get_item(file_contents, input_filter[34:37], default="", based=1),
-        "Sample Name": get_item(file_contents, input_filter[37:40], default="", based=1),
+        "Step Name": get_item(file_contents, input_filter[37:40], default="", based=1),
         "Sample Type": get_item(file_contents, input_filter[40:43], default="", based=1),
         "Step Label": get_item(file_contents, input_filter[43:46], default="", based=1),
         "Zero Date Year": get_item(file_contents, input_filter[46:49], default="", based=1),
@@ -229,11 +296,11 @@ def get_sample_info(file_contents: list, input_filter: list) -> dict:
         "Zero Time Minute": get_item(file_contents, input_filter[55:58], default="", based=1),
         "Zero Date Day": get_item(file_contents, input_filter[58:61], default="", based=1),
         "Zero Time Second": get_item(file_contents, input_filter[61:64], default="", based=1),
-        "Sample material": get_item(file_contents, input_filter[64:67], default="", based=1),
+        "Sample Name": get_item(file_contents, input_filter[64:67], default="", based=1),
         "Sample location": get_item(file_contents, input_filter[67:70], default="", based=1),
-        "Sample Weight": get_item(file_contents, input_filter[70:73], default="", based=1),
+        "Sample Material": get_item(file_contents, input_filter[70:73], default="", based=1),
         "Experiment Type": get_item(file_contents, input_filter[73:76], default="", based=1),
-        "Step name": get_item(file_contents, input_filter[76:79], default="", based=1),
+        "Sample Weight": get_item(file_contents, input_filter[76:79], default="", based=1),
         "Step unit": get_item(file_contents, input_filter[79:82], default="", based=1),
         "Heating time": get_item(file_contents, input_filter[82:85], default="", based=1),
         "Instrument name": get_item(file_contents, input_filter[85:88], default="", based=1),
