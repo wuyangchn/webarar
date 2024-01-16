@@ -162,37 +162,37 @@ def initial(smp: Sample):
     # Plots and Tables
     setattr(smp, 'UnknownTable', Table(
         id='1', name='Unknown', header=samples.SAMPLE_INTERCEPT_HEADERS,
-        textindexs=[0], numericindexs=list(range(1, 20))
+        text_indexes=[0], numeric_indexes=list(range(1, 20))
     ))
     setattr(smp, 'BlankTable', Table(
         id='2', name='Blank', header=samples.BLANK_INTERCEPT_HEADERS,
-        textindexs=[0], numericindexs=list(range(1, 20))
+        text_indexes=[0], numeric_indexes=list(range(1, 20))
     ))
     setattr(smp, 'CorrectedTable', Table(
         id='3', name='Corrected', header=samples.CORRECTED_HEADERS,
-        textindexs=[0], numericindexs=list(range(1, 35))
+        text_indexes=[0], numeric_indexes=list(range(1, 35))
     ))
     setattr(smp, 'DegasPatternTable', Table(
         id='4', name='Degas Pattern', header=samples.DEGAS_HEADERS,
-        textindexs=[0], numericindexs=list(range(1, 35))
+        text_indexes=[0], numeric_indexes=list(range(1, 35))
     ))
     setattr(smp, 'PublishTable', Table(
         id='5', name='Publish', header=samples.PUBLISH_TABLE_HEADERS,
-        textindexs=[0], numericindexs=list(range(1, 20))
+        text_indexes=[0], numeric_indexes=list(range(1, 20))
     ))
     setattr(smp, 'AgeSpectraTable', Table(
         id='6', name='Age Spectra', header=samples.SPECTRUM_TABLE_HEADERS,
-        textindexs=[0], numericindexs=list(range(1, 26))
+        text_indexes=[0], numeric_indexes=list(range(1, 26))
     ))
     setattr(smp, 'IsochronsTable', Table(
         id='7', name='Isochrons', header=samples.ISOCHRON_TABLE_HEADERS,
-        textindexs=[0], numericindexs=list(range(1, 42))
+        text_indexes=[0], numeric_indexes=list(range(1, 42))
     ))
     setattr(smp, 'TotalParamsTable', Table(
         id='8', name='Total Params', header=samples.TOTAL_PARAMS_HEADERS,
-        textindexs=[0, 29, 30, 32, 33, 60, 99, 102, *list(range(103, 115))],
-        # numericindexs=list(range(1, 120)),
-        numericindexs=[1],
+        text_indexes=[0, 29, 30, 32, 33, 60, 99, 102, *list(range(103, 115))],
+        # numeric_indexes=list(range(1, 120)),
+        numeric_indexes=[1],
     ))
 
     initial_plot_styles(smp)

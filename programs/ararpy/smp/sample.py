@@ -904,7 +904,7 @@ class Sample:
 
 class Table:
     def __init__(self, id='', name='Table', colcount=None, rowcount=None, header=None,
-                 data=None, coltypes=None, textindexs=None, numericindexs=None, **kwargs):
+                 data=None, coltypes=None, text_indexes=None, numeric_indexes=None, **kwargs):
         if header is None:
             header = ['']
         if data is None:
@@ -914,7 +914,8 @@ class Table:
         if rowcount is None:
             rowcount = len(data[0])
         if coltypes is None:
-            coltypes = [{'type': 'numeric'}] * colcount
+            # Note the difference between [xx] * 10 and [xx for i in range(10)]
+            coltypes = [{'type': 'numeric'} for i in range(colcount)]
         self.id = id
         self.name = name
         self.colcount = colcount
@@ -922,17 +923,20 @@ class Table:
         self.header = header
         self.data = data
         self.coltypes = coltypes
-        self.numericindexs = numericindexs
-        self.textindexs = textindexs
-        if textindexs is not None and numericindexs is not None:
-            for i in textindexs:
-                if i < self.colcount:
-                    self.coltypes[i].update({'type': 'text'})
-            for i in numericindexs:
-                if i < self.colcount:
-                    self.coltypes[i].update({'type': 'numeric'})
+        self.numeric_indexes = numeric_indexes
+        self.text_indexes = text_indexes
+        if text_indexes is not None and numeric_indexes is not None:
+            self.set_coltypes()
         for k, v in kwargs.items():
             setattr(self, k, v)
+
+    def set_coltypes(self):
+        for i in self.text_indexes:
+            if i < self.colcount:
+                self.coltypes[i].update({'type': 'text'})
+        for i in self.numeric_indexes:
+            if i < self.colcount:
+                self.coltypes[i].update({'type': 'numeric'})
 
 
 class Plot:
@@ -1039,11 +1043,9 @@ class Sequence:
                  type_str=None, results=None, coefficients=None, fitting_method=None,
                  is_estimated=False, **kwargs):
         self.index = index
-        if name is None:
+        if name is None or not isinstance(name, str):
             name = ""
-        if ' ' in name:
-            name = name.replace(" ", '')
-        self.name = name
+        self.name = name.strip()
         self.datetime = datetime
         self.data = data
         # flag is to check if the data point is selected
@@ -1127,8 +1129,9 @@ class RawData:
         self.interpolated_blank = None
         if data is not None:
             self.sequence: List[Sequence] = [
-                Sequence(index=index, name=item[0][0] if item[0][0] != '' else f"{self.name}-{index}", data=item[1:],
-                         datetime=item[0][1], type_str=item[0][2], fitting_method=[0] * 5)
+                Sequence(index=index, name=item[0][0] if isinstance(item[0][0], str) and item[0][
+                    0] != '' else f"{self.name}-{index + 1:02d}", data=item[1:], datetime=item[0][1], type_str=item[0][2],
+                         fitting_method=[0] * 5)
                 for index, item in enumerate(data)]
         else:
             self.sequence: List[Sequence] = []

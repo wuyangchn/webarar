@@ -1873,6 +1873,7 @@ function showPage(table_id) {
             break
         case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8":
             let table = sampleComponents[table_id];
+            console.log(table.coltypes);
             showTable();
             hot.updateSettings({
                 colHeaders: table.header,
