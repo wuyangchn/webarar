@@ -545,10 +545,9 @@ class RawFileView(http_funcs.ArArView):
         files = json.loads(request.POST.get('raw-file-table'))['files']
         file_path = [each['file_path'] for each in files if each['checked']]
         filter_name = [each['filter'] for each in files if each['checked']]
-        filters = [ap.files.basic.read(getattr(models, "InputFilterParams").objects.get(name=each).file_path) for each
-                   in filter_name]
+        filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_name]
         try:
-            raw = ap.smp.raw.to_raw(file_path=file_path, input_filter_path=filters)
+            raw = ap.smp.raw.to_raw(file_path=file_path, input_filter_path=filter_paths)
             raw.do_regression()
 
             allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
