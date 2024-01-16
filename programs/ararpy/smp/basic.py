@@ -374,7 +374,7 @@ def get_diff_smp(backup: (dict, Sample), smp: (dict, Sample)):
                 res.update({name: attr})
             continue
         if isinstance(attr, (Plot, Table, Plot.Text, Plot.Axis, Plot.Set,
-                             Plot.Label, Plot.BasicAttr, Info)):
+                             Plot.Label, Plot.BasicAttr, Info, ArArBasic, ArArData)):
             _res = get_diff_smp(backup[name].__dict__, attr.__dict__)
             if _res != {}:
                 res.update({name: _res})
