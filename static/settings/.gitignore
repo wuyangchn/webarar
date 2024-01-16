@@ -1,1 +1,4 @@
 # ignore all except .gitignore file
+**.input-filter
+**.calc
+**.irra
