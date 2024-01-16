@@ -55,7 +55,8 @@ def open_file(file_path: str, input_filter: List[Union[str, int, bool]]):
     """
     extension = str(os.path.split(file_path)[-1]).split('.')[-1]
     try:
-        handler = {'txt': open_raw_txt, 'excel': open_raw_xls, }[['txt', 'excel'][int(input_filter[1])]]
+        handler = {'txt': open_raw_txt, 'excel': open_raw_xls, 'Qtegra Exported XLS': open_argus_exported_xls}[
+            ['txt', 'excel', 'Qtegra Exported XLS'][int(input_filter[1])]]
     except KeyError:
         print(traceback.format_exc())
         raise FileNotFoundError("Wrong File.")
@@ -103,8 +104,7 @@ def open_argus_exported_xls(filepath, input_filter=None):
             ]
             step_list.append(step_values)
     except Exception as e:
-        print('Error in opening the original file: %s' % str(e))
-        return False
+        raise ValueError('Error in opening the original file: %s' % str(e))
     else:
         return step_list, {}
 
