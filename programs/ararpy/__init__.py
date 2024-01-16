@@ -64,14 +64,23 @@ Sample.initial = smp.initial.initial
 Sample.set_selection = lambda _smp, _index, _mark: smp.plots.set_selection(_smp, _index, _mark)
 Sample.update_table = lambda _smp, _data, _id: smp.table.update_handsontable(_smp, _data, _id)
 
-Sample.unknown = lambda _smp: ArArData(name='unknown', data=_smp.SampleIntercept)
-Sample.blank = lambda _smp: ArArData(name='blank', data=_smp.BlankIntercept)
-Sample.parameters = lambda _smp: ArArData(name='parameters', data=_smp.TotalParam)
-Sample.corrected = lambda _smp: ArArData(name='corrected', data=_smp.CorrectedValues)
-Sample.degas = lambda _smp: ArArData(name='degas', data=_smp.DegasValues)
-Sample.isochron = lambda _smp: ArArData(name='isochron', data=_smp.IsochronValues)
-Sample.apparent_ages = lambda _smp: ArArData(name='apparent_ages', data=_smp.ApparentAgeValues)
-Sample.publish = lambda _smp: ArArData(name='publish', data=_smp.PublishValues)
+# Sample.unknown = lambda _smp: ArArData(name='unknown', data=_smp.SampleIntercept)
+# Sample.blank = lambda _smp: ArArData(name='blank', data=_smp.BlankIntercept)
+# Sample.parameters = lambda _smp: ArArData(name='parameters', data=_smp.TotalParam)
+# Sample.corrected = lambda _smp: ArArData(name='corrected', data=_smp.CorrectedValues)
+# Sample.degas = lambda _smp: ArArData(name='degas', data=_smp.DegasValues)
+# Sample.isochron = lambda _smp: ArArData(name='isochron', data=_smp.IsochronValues)
+# Sample.apparent_ages = lambda _smp: ArArData(name='apparent_ages', data=_smp.ApparentAgeValues)
+# Sample.publish = lambda _smp: ArArData(name='publish', data=_smp.PublishValues)
+
+Sample.unknown = lambda _smp: ArArData(name='unknown', data=calc.arr.transpose(_smp.UnknownTable.data))
+Sample.blank = lambda _smp: ArArData(name='blank', data=calc.arr.transpose(_smp.BlankTable.data))
+Sample.parameters = lambda _smp: ArArData(name='parameters', data=calc.arr.transpose(_smp.TotalParamsTable.data))
+Sample.corrected = lambda _smp: ArArData(name='corrected', data=calc.arr.transpose(_smp.CorrectedTable.data))
+Sample.degas = lambda _smp: ArArData(name='degas', data=calc.arr.transpose(_smp.DegasPatternTable.data))
+Sample.isochron = lambda _smp: ArArData(name='isochron', data=calc.arr.transpose(_smp.IsochronsTable.data))
+Sample.apparent_ages = lambda _smp: ArArData(name='apparent_ages', data=calc.arr.transpose(_smp.AgeSpectraTable.data))
+Sample.publish = lambda _smp: ArArData(name='publish', data=calc.arr.transpose(_smp.PublishTable.data))
 
 Sample.corr_blank = smp.corr.corr_blank
 Sample.corr_massdiscr = smp.corr.corr_massdiscr
