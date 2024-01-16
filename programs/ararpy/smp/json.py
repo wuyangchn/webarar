@@ -38,7 +38,7 @@ class MyEncoder(json.JSONEncoder):
         if isinstance(obj, complex):
             return "complex number"
         # numpy.int32
-        if isinstance(obj, np.int32):
+        if isinstance(obj, (np.int8, np.int16, np.int32, np.int64)):
             return int(obj)
         # sample or raw instance
         if isinstance(obj, (Sample, Info, Plot, Table, Plot.Text, Plot.Axis, Plot.Label,
