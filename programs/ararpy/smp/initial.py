@@ -366,7 +366,7 @@ def from_raw_data(raw: RawData, mapping: Optional[List[dict]] = None) -> Sample:
     """
     if mapping is None:
         mapping = []
-        _b: Sequence = raw.get_sequence(True, flag='is_blank', unique=True)
+        _b: Sequence = raw.get_sequence(index=True, flag='is_blank', unique=True)
         for _index, _seq in enumerate(raw.sequence):
             if _seq.is_blank():
                 _b = _seq
@@ -404,7 +404,6 @@ def from_raw_data(raw: RawData, mapping: Optional[List[dict]] = None) -> Sample:
 
     sample.SampleIntercept = arr.transpose(unknown_intercept)
     sample.BlankIntercept = arr.transpose(blank_intercept)
-
     sample.UnselectedSequence = list(range(len(sample.SequenceName)))
     sample.SelectedSequence1 = []
     sample.SelectedSequence2 = []
