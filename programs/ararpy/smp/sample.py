@@ -1127,7 +1127,7 @@ class RawData:
         self.interpolated_blank = None
         if data is not None:
             self.sequence: List[Sequence] = [
-                Sequence(index=index, name=f"{self.name}-{index}", data=item[1:],
+                Sequence(index=index, name=item[0][0] if item[0][0] != '' else f"{self.name}-{index}", data=item[1:],
                          datetime=item[0][1], type_str=item[0][2], fitting_method=[0] * 5)
                 for index, item in enumerate(data)]
         else:
