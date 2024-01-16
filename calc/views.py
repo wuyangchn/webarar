@@ -548,7 +548,7 @@ class RawFileView(http_funcs.ArArView):
         filters = [ap.files.basic.read(getattr(models, "InputFilterParams").objects.get(name=each).file_path) for each
                    in filter_name]
         try:
-            raw = ap.smp.raw.to_raw(file_path=file_path, input_filter=filters)
+            raw = ap.smp.raw.to_raw(file_path=file_path, input_filter_path=filters)
             raw.do_regression()
 
             allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))

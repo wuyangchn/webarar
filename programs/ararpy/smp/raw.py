@@ -15,13 +15,14 @@ from typing import List, Union, Optional
 from types import MethodType
 from ..calc import arr, raw_funcs
 from ..files import raw_file
+from ..files.basic import read as read_params
 from . import (sample as samples)
 
 RawData = samples.RawData
 Sequence = samples.Sequence
 
 
-def to_raw(file_path: Union[str, List[str]], input_filter: [Union[list, List[list]]], **kwargs):
+def to_raw(file_path: Union[str, List[str]], input_filter_path: Union[str, List[str]], **kwargs):
     """ Read raw data from files, can create raw data instance based on the given files
     Raw data will have the structure like:
         [
@@ -33,25 +34,27 @@ def to_raw(file_path: Union[str, List[str]], input_filter: [Union[list, List[lis
     Parameters
     ----------
     file_path
-    input_filter
+    input_filter_path
     kwargs
 
     Returns
     -------
 
     """
-    if len(input_filter) == 1:
-        input_filter: str = input_filter[0]
+    if isinstance(input_filter_path, list) and len(input_filter_path) == 1:
+        input_filter_path: str = input_filter_path[0]
     if isinstance(file_path, list) and len(file_path) == 1:
         file_path: str = file_path[0]
-    if isinstance(file_path, list):
-        raw = concatenate([to_raw(file, input_filter[index]) for index, file in enumerate(file_path)])
-    else:
+    if isinstance(file_path, list) and isinstance(input_filter_path, list):
+        raw = concatenate([to_raw(file, input_filter_path[index]) for index, file in enumerate(file_path)])
+    elif isinstance(file_path, str) and isinstance(input_filter_path, str):
+        input_filter = read_params(input_filter_path)
         res = raw_file.open_file(file_path, input_filter)
         file_name = str(os.path.split(file_path)[-1]).split('.')[0]
         raw = RawData(name=file_name, data=res['data'], isotopic_num=10, sequence_num=len(res['data']),
                       source=[file_path])
-
+    else:
+        raise ValueError("File path and input filter should be both string or list with a same length.")
     return raw
 
 

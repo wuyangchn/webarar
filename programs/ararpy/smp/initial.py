@@ -340,12 +340,18 @@ def from_full_files(file_path: str, sample_name: str = None):
 
 
 # create
-def from_raw_files(file_path: Union[RawData, str, List[str]],
+def from_raw_files(file_path: Union[str, List[str]], input_filter_path: Union[str, List[str]],
                    mapping: Optional[List[dict]] = None) -> Sample:
+    raw = smp_raw.to_raw(file_path, input_filter_path)
+    raw.do_regression()
+    return from_raw_data(raw, mapping)
+
+
+def from_raw_data(raw: RawData, mapping: Optional[List[dict]] = None) -> Sample:
     """
     Parameters
     ----------
-    file_path
+    raw
     mapping :
         mapping is a list of dictionaries with two keys of blank and unknown,
         for example, mapping = [
@@ -358,15 +364,6 @@ def from_raw_files(file_path: Union[RawData, str, List[str]],
     -------
 
     """
-    # check raw type
-    if isinstance(file_path, str) or isinstance(file_path, list):
-        raw = smp_raw.to_raw(file_path)
-        raw.do_regression()
-    elif isinstance(file_path, RawData):
-        raw = file_path
-    else:
-        raise ValueError(f"{file_path = } is not supported.")
-
     if mapping is None:
         mapping = []
         _b: Sequence = raw.get_sequence(True, flag='is_blank', unique=True)

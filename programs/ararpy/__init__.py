@@ -126,7 +126,7 @@ Sample.help = lambda _smp: f"" \
 
 RawData.do_regression = smp.raw.do_regression
 RawData.get_sequence = smp.raw.get_sequence
-RawData.to_sample = smp.initial.from_raw_files
+RawData.to_sample = smp.initial.from_raw_data
 RawData.get_unknown = lambda _raw: smp.raw.get_sequence(_raw, True, 'is_unknown', unique=False)
 RawData.get_blank = lambda _raw: smp.raw.get_sequence(_raw, True, 'is_blank', unique=False)
 RawData.get_air = lambda _raw: smp.raw.get_sequence(_raw, True, 'is_air', unique=False)
