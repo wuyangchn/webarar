@@ -206,18 +206,23 @@ function addNewBlankButtonClicked() {
     $('#outputBlankSequences').val('');
     $('#inputBlankSequences').val('');
     let newNameList = newBlankName.split(';');
+    if (newNameList.length === 1) {return}
+    let existing_blank_names = myRawData.sequence.filter((seq, index) => seq.is_blank).map(
+        (seq, index) => seq.name)
     for (let i = 0; i < newNameList.length; i++) {
         let name = newNameList[i];
-        addNametoBlankList(name);
-        let option = document.createElement("option");
-        option.value = name;
-        option.innerText = name;
-        myRawData.sequence.push(...newSequencesList.filter((v, _i) => v.name === name));
+        if (!existing_blank_names.includes(name)) {
+            addNametoBlankList(name);
+            let option = document.createElement("option");
+            option.value = name;
+            option.innerText = name;
+            myRawData.sequence.push(...newSequencesList.filter((v, _i) => v.name === name));
+        } else {alert(`Blank with name ${name} exists.`)}
     }
     $('#table-sequences').bootstrapTable('destroy');
     initialTable(myRawData.sequence.filter((v, i) => v.is_blank).map((v, i) => v.name));
     updateSequenceTable();
-    corrBlankMethodChanged();
+    corrBlankMethodChanged(myRawData.sequence.filter((seq, index) => seq.is_blank));
 }
 function rawFilesChanged() {
     let table = $('#raw_file_list');
@@ -259,6 +264,21 @@ function removeRawFile(unique_id) {
     }
     table.bootstrapTable('load', data);
     $('#raw-file-table-input').val(JSON.stringify({'files': table.bootstrapTable('getData')}))
+}
+function getEmptyBlank() {
+    $.ajax({
+        url: url_raw_empty_blank,
+        type: 'POST',
+        data: JSON.stringify({
+            'cache_key': myRawCacheKey,
+        }),
+        contentType:'application/json',
+        success: function(res){
+            let new_sequence = myParse(res.new_sequence);
+            $('#outputBlankSequences').val(new_sequence.name);
+            newSequencesList.push(new_sequence);
+        }
+    })
 }
 function importBlank() {
     if ($('#file-input-import-blank').val() === '') {return}
@@ -382,10 +402,11 @@ function chartScatterClicked(params) {
         }
     })
 }
-function corrBlankMethodChanged() {
-    let is_blank = myRawData.sequence.map(
-        (seq, index) => seq.is_blank && !seq.is_estimated ? index : "false").filter(
-            (v, i) => v !== "false");
+function corrBlankMethodChanged(blank_sequences = []) {
+    blank_sequences = blank_sequences === []?myRawData.sequence.map(
+        (seq, index) => seq.is_blank && !seq.is_estimated ? seq : "false").filter(
+            (v, i) => v !== "false"):blank_sequences;
+    let is_blank = blank_sequences.map((seq, index) => index);
     let not_blank = myRawData.sequence.map(
         (seq, index) => !seq.is_blank && !seq.is_estimated ? index : "false").filter(
             (v, i) => v !== "false");
@@ -440,7 +461,7 @@ function corrBlankMethodChanged() {
     }
     let blank_name = [];
     for (let i=0;i<blank_index.length;i++){
-        blank_name.push(blank_index[i]!==-1?myRawData.sequence[blank_index[i]].name:'Interpolated Blank');
+        blank_name.push(blank_index[i]!==-1?blank_sequences[blank_index[i]].name:'Interpolated Blank');
     }
     $.each(blank_name, function (index, item) {
         $('#blank-sele'+Number(index+1)).val(item);
@@ -893,14 +914,30 @@ function submitDelete() {
     $('#name3').val($('select[name="projectName"]:first').val());
 }
 function submitExtrapolate() {
-
     let unknown_sequence = myRawData.sequence.filter((seq, index) => !seq.is_blank);
     let blank_sequence = myRawData.sequence.filter((seq, index) => seq.is_blank);
+    if (blank_sequence.length === 0) {
+        $.ajax({
+            url: url_raw_empty_blank,
+            type: 'POST',
+            data: JSON.stringify({
+                'cache_key': myRawCacheKey,
+            }),
+            async: false,
+            contentType:'application/json',
+            success: function(res){
+                let new_seq = myParse(res.new_sequence);
+                new_seq.index = 0;
+                blank_sequence = [new_seq];
+                myRawData.sequence.push(new_seq)
+            }
+        })
+    }
     // 初始化表格+
     $('#table-sequences').bootstrapTable('destroy');
     initialTable(blank_sequence.map((seq, index) => seq.name));
     updateSequenceTable();
-    corrBlankMethodChanged();
+    corrBlankMethodChanged(blank_sequence);
     // 初始化本底列表
     let li_list = document.getElementById('listGroupBlankName');
     while (li_list.hasChildNodes()){
