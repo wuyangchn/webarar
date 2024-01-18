@@ -601,6 +601,35 @@ class RawFileView(http_funcs.ArArView):
 
         return JsonResponse({'new_sequences': ap.smp.json.dumps(new_sequences), 'status': 100})
 
+    def add_empty_blank(self, request, *args, **kwargs):
+        cache_key = request.POST.get('cache_key')
+        raw: ap.RawData = pickle.loads(cache.get(cache_key, default=pickle.dumps(ap.RawData())))
+        new_blank_sequence = {
+            'name': ['EMPTY'],
+            'experimentTime': ["1996-08-09T08:00:00"],
+            'Ar36': [[0, 0, 0, 0]],
+            'Ar37': [[0, 0, 0, 0]],
+            'Ar38': [[0, 0, 0, 0]],
+            'Ar39': [[0, 0, 0, 0]],
+            'Ar40': [[0, 0, 0, 0]],
+        }
+        new_sequence = ap.Sequence(
+            index='undefined', name=f"empty", data=None, fitting_method=[0, 0, 0, 0, 0],
+            datetime=new_blank_sequence['experimentTime'], type_str='blank', is_estimated=True,
+            results=[
+                new_blank_sequence['Ar36'],
+                new_blank_sequence['Ar37'],
+                new_blank_sequence['Ar38'],
+                new_blank_sequence['Ar39'],
+                new_blank_sequence['Ar40'],
+            ],
+        )
+
+        raw.sequence.append(new_sequence)
+        http_funcs.create_cache(raw, cache_key=cache_key)
+
+        return JsonResponse({'new_sequence': ap.smp.json.dumps(new_sequence), 'status': 100})
+
     def to_project_view(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Upload raw project')
         return http_funcs.open_last_object(request)
