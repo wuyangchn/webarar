@@ -206,7 +206,6 @@ function addNewBlankButtonClicked() {
     $('#outputBlankSequences').val('');
     $('#inputBlankSequences').val('');
     let newNameList = newBlankName.split(';');
-    if (newNameList.length === 1) {return}
     let existing_blank_names = myRawData.sequence.filter((seq, index) => seq.is_blank).map(
         (seq, index) => seq.name)
     for (let i = 0; i < newNameList.length; i++) {
