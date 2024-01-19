@@ -758,6 +758,28 @@ class RawFileView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Success to submit raw file')
         return JsonResponse({})
 
+    def export_sequence(self, request, *args, **kwargs):
+        """
+        Parameters
+        ----------
+        request
+        args
+        kwargs
+
+        Returns
+        -------
+
+        """
+        raw: ap.RawData = self.sample
+        selected = self.body['selected']
+        sequences = [seq for index, seq in enumerate(raw.sequence) if selected[index]]
+        file_path = os.path.join(settings.DOWNLOAD_ROOT,
+                                 f"{sequences[0].name}{' et al' if len(sequences) > 1 else ''}.seq")
+        export_href = '/' + settings.DOWNLOAD_URL + f"{sequences[0].name}{' et al' if len(sequences) > 1 else ''}.seq"
+        with open(file_path, 'w') as f:  # save serialized json data to a readable text
+            f.write(ap.smp.json.dumps(sequences))
+        return JsonResponse({"href": export_href})
+
 
 class ParamsSettingView(http_funcs.ArArView):
     def __init__(self, **kwargs):

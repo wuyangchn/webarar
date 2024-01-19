@@ -300,6 +300,63 @@ function importBlank() {
         }
     })
 }
+function export_sequence() {
+    let modal = $('#modal-export-sequence');
+    let modal_body = $('#modal-export-sequence-body');
+    if (!modal.is(':visible')) {
+        modal_body.empty();
+        $.each(myRawData.sequence, (index, sequence) => {
+            let div = document.createElement('div');
+            let checkbox = document.createElement('input');
+            let label = document.createElement('label');
+            checkbox.type = "checkbox";
+            checkbox.id = sequence.name;
+            checkbox.style.marginLeft = "0px";
+            checkbox.className = "export-sequence-select";
+            div.className = "checkbox form-inline";
+
+            label.htmlFor = sequence.name;
+            label.appendChild(document.createTextNode(sequence.name));
+
+            div.append(checkbox);
+            div.append(label);
+            modal_body.append(div);
+        })
+        modal.modal('show');
+    } else {
+        let selected = $('.export-sequence-select').map((index, item) => item.checked).get();
+        if (selected.filter((item, index) => item).length === 0) {
+            return
+        }
+        $.ajax({
+            url: url_raw_export_sequence,
+            type: 'POST',
+            data: JSON.stringify({
+                'selected': selected,
+                'cache_key': myRawCacheKey}),
+            processData : false,
+            contentType : false,
+            mimeType: "multipart/form-data",
+            success: function(res){
+                res = myParse(res);
+                document.getElementById("export_sequence_link").href = res.href;
+                document.getElementById("export_sequence_link").click();
+            }
+        })
+        document.getElementById("export_sequence_link").href = '';
+        modal.modal('hide');
+    }
+}
+function export_sequence_select_all() {
+    $('.export-sequence-select').each(function (index, item) {
+        $(this).prop("checked", true);
+    });
+}
+function export_sequence_deselect_all() {
+    $('.export-sequence-select').each(function (index, item) {
+        $(this).prop("checked", false);
+    });
+}
 
 
 function createSmChart(container, option) {
@@ -1069,7 +1126,7 @@ function updateCharts(smCharts, bigChart, sequence_index, animation) {
                 ['Average'].concat(myRawData.sequence[sequence_index].results[i][4]),
             ];
             bigChart.setOption({
-                title: {text: `${myRawData.sequence[sequence_index].name} ${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][i]}`},
+                title: {text: `${myRawData.sequence[sequence_index].name}  ${myRawData.sequence[sequence_index].datetime}  ${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][i]}`},
                 graphic: [{
                     id: 'LinesResults', type: 'text', z: 0, draggable: true,
                     style: {fill: '#FF0000', overflow: 'break', text: text_table(text), font: '16px "", Consolas, monospace'},
