@@ -311,7 +311,7 @@ function export_sequence() {
     let modal_body = $('#modal-export-sequence-body');
     if (!modal.is(':visible')) {
         modal_body.empty();
-        $.each(myRawData.sequence, (index, sequence) => {
+        $.each(myRawData.sequence.filter((item, index) => !item.is_estimated), (index, sequence) => {
             let div = document.createElement('div');
             let checkbox = document.createElement('input');
             let label = document.createElement('label');
