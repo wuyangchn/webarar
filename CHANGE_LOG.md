@@ -7,6 +7,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection 
 
 
+# 0.0.2 (2024-01-19-)
+
+
 # 0.0.1a4 (2023.12.17-2024-01-19)
 
 * Fix typos in the readme document.
