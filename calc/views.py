@@ -573,33 +573,16 @@ class RawFileView(http_funcs.ArArView):
         file = request.FILES.get('blank_file')
         cache_key = request.POST.get('cache_key')
         raw: ap.RawData = pickle.loads(cache.get(cache_key, default=pickle.dumps(ap.RawData())))
+
         web_file_path, file_name, suffix = ap.files.basic.upload(
             file, settings.UPLOAD_ROOT)
-        new_blank_sequence = {
-            'name': ['Test'],
-            'experimentTime': ["2024-6-9T18:40:22"],
-            'Ar36': [[0.4790974808856151, 0.011707830326843962, 2.443726129638994, 0.5894056663608368]],
-            'Ar37': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
-            'Ar38': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
-            'Ar39': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
-            'Ar40': [[0.5106817066057479, 0.015751668730122223, 3.0844395885679714, 0.7801597508113187]],
-        }
-        new_sequences = [ap.Sequence(
-            index='undefined', name=f"from_{file_name}", data=None, fitting_method=[0, 0, 0, 0, 0],
-            datetime=new_blank_sequence['experimentTime'], type_str='blank', is_estimated=True,
-            results=[
-                new_blank_sequence['Ar36'],
-                new_blank_sequence['Ar37'],
-                new_blank_sequence['Ar38'],
-                new_blank_sequence['Ar39'],
-                new_blank_sequence['Ar40'],
-            ],
-        )]
+        with open(web_file_path, 'rb') as f:
+            sequences = pickle.load(f)
 
-        raw.sequence = ap.calc.arr.multi_append(raw.sequence, *new_sequences)
+        raw.sequence = ap.calc.arr.multi_append(raw.sequence, *sequences)
         http_funcs.create_cache(raw, cache_key=cache_key)
 
-        return JsonResponse({'new_sequences': ap.smp.json.dumps(new_sequences), 'status': 100})
+        return JsonResponse({'sequences': ap.smp.json.dumps(sequences), 'status': 100})
 
     def add_empty_blank(self, request, *args, **kwargs):
         cache_key = request.POST.get('cache_key')
@@ -772,12 +755,24 @@ class RawFileView(http_funcs.ArArView):
         """
         raw: ap.RawData = self.sample
         selected = self.body['selected']
-        sequences = [seq for index, seq in enumerate(raw.sequence) if selected[index]]
+        is_blank = self.body['is_blank']
+        fitting_method = self.body['fitting_method']
+
+        def _update_sequence(_seq, _is_blank, _fitting_method):
+            if _is_blank:
+                _seq.type_str = "blank"
+            _seq.fitting_method = _fitting_method
+            return _seq
+
+        sequences = [_update_sequence(raw.sequence[index], is_blank[index], fitting_method[index])
+                     for index, is_selected in enumerate(selected) if is_selected]
         file_path = os.path.join(settings.DOWNLOAD_ROOT,
                                  f"{sequences[0].name}{' et al' if len(sequences) > 1 else ''}.seq")
         export_href = '/' + settings.DOWNLOAD_URL + f"{sequences[0].name}{' et al' if len(sequences) > 1 else ''}.seq"
-        with open(file_path, 'w') as f:  # save serialized json data to a readable text
-            f.write(ap.smp.json.dumps(sequences))
+        # with open(file_path, 'w') as f:  # save serialized json data to a readable text
+        #     f.write(ap.smp.json.dumps(sequences))
+        with open(file_path, 'wb') as f:  # save serialized json data to a readable text
+            f.write(pickle.dumps(sequences))
         return JsonResponse({"href": export_href})
 
 

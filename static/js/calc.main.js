@@ -123,8 +123,8 @@ function toUnicodeVariant(str, variant, flags='') {
     return result
 }
 function myParse(myString) {
-    myString = myString.replace(/\bNaN\b/g, '"*isNaN*"').replace(/\bInfinity\b/g, '"*isInfinity*"');
-    // console.log(myString);
+    // Note that \\" to keep an escape character before double quote characters
+    myString = myString.replace(/\bNaN\b/g, '\\"*isNaN*\\"').replace(/\bInfinity\b/g, '\\"*isInfinity*\\"');
     return JSON.parse(myString, function (key, value) {
         if (value === "*isNaN*") {
             return NaN;
@@ -211,13 +211,20 @@ function addNewBlankButtonClicked() {
         (seq, index) => seq.name)
     for (let i = 0; i < newNameList.length; i++) {
         let name = newNameList[i];
-        if (!existing_blank_names.includes(name)) {
-            addNametoBlankList(name);
-            let option = document.createElement("option");
-            option.value = name;
-            option.innerText = name;
-            myRawData.sequence.push(...newSequencesList.filter((v, _i) => v.name === name));
-        } else {alert(`Blank with name ${name} exists.`)}
+        let new_sequence = newSequencesList.filter((v, _i) => v.name === name)[0]
+        if (!new_sequence.is_blank) {
+            alert(`Sequence with name ${name} is a ${new_sequence.type_str} sequence, but a blank sequence required.`)
+            continue;
+        }
+        if (existing_blank_names.includes(name)) {
+            alert(`Blank with name ${name} exists.`)
+            continue;
+        }
+        addNametoBlankList(name);
+        let option = document.createElement("option");
+        option.value = name;
+        option.innerText = name;
+        myRawData.sequence.push(...newSequencesList.filter((v, _i) => v.name === name));
     }
     $('#table-sequences').bootstrapTable('destroy');
     initialTable(myRawData.sequence.filter((v, i) => v.is_blank).map((v, i) => v.name));
@@ -294,7 +301,7 @@ function importBlank() {
         mimeType: "multipart/form-data",
         success: function(res){
             $('#file-input-import-blank').val('');
-            let new_sequences = myParse(myParse(res).new_sequences);
+            let new_sequences = myParse(myParse(res).sequences);
             newSequencesList.push(...new_sequences);
             $('#outputBlankSequences').val(new_sequences.map((v, i) => v.name).join(';'));
         }
@@ -313,7 +320,9 @@ function export_sequence() {
             checkbox.id = sequence.name;
             checkbox.style.marginLeft = "0px";
             checkbox.className = "export-sequence-select";
-            div.className = "checkbox form-inline";
+            div.className = "checkbox-inline checkbox";
+            div.style.width = "250px";
+            div.style.margin = "0 0 0 0";
 
             label.htmlFor = sequence.name;
             label.appendChild(document.createTextNode(sequence.name));
@@ -333,6 +342,8 @@ function export_sequence() {
             type: 'POST',
             data: JSON.stringify({
                 'selected': selected,
+                'is_blank': selected.map((item, index) => myRawData.sequence[index].is_blank),
+                'fitting_method': selected.map((item, index) => myRawData.sequence[index].fitting_method),
                 'cache_key': myRawCacheKey}),
             processData : false,
             contentType : false,
@@ -1967,7 +1978,6 @@ function showPage(table_id) {
             break
         case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8":
             let table = sampleComponents[table_id];
-            console.log(table.coltypes);
             showTable();
             hot.updateSettings({
                 colHeaders: table.header,

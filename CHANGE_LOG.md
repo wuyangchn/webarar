@@ -11,8 +11,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 * Fix typos in the readme document.
 * Break down the request function for clicking data points into two steps to decrease response time.
-* Fix bugs in column text types
+* Fix bugs in column text types.
 * Add raw data input filter.
+* Add sequence export and import.
 
 # 0.0.1a1 (-2023.12.17)
 

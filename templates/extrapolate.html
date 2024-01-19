@@ -135,9 +135,9 @@
                             <button type="button" class="btn btn-primary" onclick="getInterpolatedBlank()">Interpolate()</button>
                             <button type="button" class="btn btn-primary" onclick="addNewBlankButtonClicked()">Add to list</button>
                             <button type="button" class="btn btn-primary" onclick="getEmptyBlank()">Add Empty Blank</button>
-                            <button id="file-btn-import-blank" type="button" class="btn btn-primary">Import from (to be completed)</button>
+                            <button id="file-btn-import-blank" type="button" class="btn btn-primary">Import from Sequences</button>
                             <form id="form-import-blank-file" enctype="multipart/form-data">
-                                <label><input type="file" style="display: none" id="file-input-import-blank" name="blank_file" accept=".xls"></label>
+                                <label><input type="file" style="display: none" id="file-input-import-blank" name="blank_file" accept=".xls, .seq"></label>
                                 <label><input type="text" style="display: none" id="file-input-cache-key" name="cache_key"></label>
                             </form>
                         </div>
@@ -449,14 +449,22 @@
 
     <!-- 模态框（Modal）选择要导出的阶段 -->
     <div class="modal fade" id="modal-export-sequence" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog" style="width: 1000px">
+        <div class="modal-dialog" style="width: 1100px">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title" id="modal-export-sequence-title">Select sequences to export</h4>
                 </div>
-                <div class="modal-body" id="modal-export-sequence-body">
-
+                <div class="modal-body">
+{#                    <div class="checkbox checkbox-inline form-check-inline">#}
+{#                        <label><input type="checkbox" value="" style="margin-top: 10px">#}
+{#                    Read Information from File Name</label>#}
+{#                    </div>#}
+{#                    <div class="checkbox checkbox-inline form-check-inline">#}
+{#                        <label><input type="checkbox" value="" style="margin-top: 10px">#}
+{#                    xxxxxxxxxxxxxxxxxxxxxx</label>#}
+{#                    </div>#}
+                    <div id="modal-export-sequence-body"></div>
                 </div>
                 <div class="modal-footer">
                     <a id="export_sequence_link" href="" class="sr-only" download></a>
