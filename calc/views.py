@@ -582,14 +582,15 @@ class RawFileView(http_funcs.ArArView):
         raw.sequence = ap.calc.arr.multi_append(raw.sequence, *sequences)
         http_funcs.create_cache(raw, cache_key=cache_key)
 
-        return JsonResponse({'sequences': ap.smp.json.dumps(sequences), 'status': 100})
+        return JsonResponse({'sequences': sequences, 'status': 100}, encoder=ap.smp.json.MyEncoder,
+                            content_type='application/json', safe=True)
 
     def add_empty_blank(self, request, *args, **kwargs):
         cache_key = request.POST.get('cache_key')
         raw: ap.RawData = pickle.loads(cache.get(cache_key, default=pickle.dumps(ap.RawData())))
         new_blank_sequence = {
             'name': ['EMPTY'],
-            'experimentTime': ["1996-08-09T08:00:00"],
+            'experimentTime': "1996-08-09T08:00:00",
             'Ar36': [[0, 0, 0, 0]],
             'Ar37': [[0, 0, 0, 0]],
             'Ar38': [[0, 0, 0, 0]],
@@ -611,7 +612,8 @@ class RawFileView(http_funcs.ArArView):
         raw.sequence.append(new_sequence)
         http_funcs.create_cache(raw, cache_key=cache_key)
 
-        return JsonResponse({'new_sequence': ap.smp.json.dumps(new_sequence), 'status': 100})
+        return JsonResponse({'new_sequence': new_sequence, 'status': 100},
+                            encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def to_project_view(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Upload raw project')
@@ -639,10 +641,8 @@ class RawFileView(http_funcs.ArArView):
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw data in cache
         error = ''
 
-        return JsonResponse({
-            'sequence': ap.smp.json.dumps(raw.sequence[sequence_index]),
-            'status': 100, 'msg': error,
-        })
+        return JsonResponse({'sequence': raw.sequence[sequence_index], 'status': 100, 'msg': error},
+                            encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def calc_raw_average_blanks(self, request, *args, **kwargs):
         blanks = self.body['blanks']
@@ -672,7 +672,8 @@ class RawFileView(http_funcs.ArArView):
         raw.sequence.append(new_sequence)
         http_funcs.create_cache(raw, cache_key=self.cache_key)
 
-        return JsonResponse({'newBlank': newBlank, 'new_sequence': ap.smp.json.dumps(new_sequence)})
+        return JsonResponse({'newBlank': newBlank, 'new_sequence': new_sequence},
+                            encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def calc_raw_interpolated_blanks(self, request, *args, **kwargs):
         """
@@ -698,7 +699,8 @@ class RawFileView(http_funcs.ArArView):
 
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update cache
 
-        return JsonResponse({'new_sequences': ap.smp.json.dumps(new_sequences)})
+        return JsonResponse({'sequences': new_sequences},
+                            encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def raw_data_submit(self, request, *args, **kwargs):
         """
