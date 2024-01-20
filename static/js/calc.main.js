@@ -124,7 +124,8 @@ function toUnicodeVariant(str, variant, flags='') {
 }
 function myParse(myString) {
     // Note that \\" to keep an escape character before double quote characters
-    myString = myString.replace(/\bNaN\b/g, '\\"*isNaN*\\"').replace(/\bInfinity\b/g, '\\"*isInfinity*\\"');
+    if ( ! (typeof myString === 'string' || myString instanceof String)) {return myString}
+    myString = myString.replace(/\bNaN\b/g, '"*isNaN*"').replace(/\bInfinity\b/g, '"*isInfinity*"');
     return JSON.parse(myString, function (key, value) {
         if (value === "*isNaN*") {
             return NaN;
@@ -228,7 +229,8 @@ function addNewBlankButtonClicked() {
     $('#table-sequences').bootstrapTable('destroy');
     initialTable(myRawData.sequence.filter((v, i) => v.is_blank).map((v, i) => v.name));
     updateSequenceTable();
-    corrBlankMethodChanged(myRawData.sequence.filter((seq, index) => seq.is_blank));
+    // Note that estimated blank sequence will be ignored for automatically sorting
+    corrBlankMethodChanged(myRawData.sequence.filter((seq, index) => seq.is_blank && !seq.is_estimated));
 }
 function rawFilesChanged() {
     let table = $('#raw_file_list');
@@ -279,8 +281,10 @@ function getEmptyBlank() {
             'cache_key': myRawCacheKey,
         }),
         contentType:'application/json',
+        dataType: 'text',
         success: function(res){
-            let new_sequence = myParse(res.new_sequence);
+            res = myParse(res);
+            let new_sequence = res.new_sequence;
             $('#outputBlankSequences').val(new_sequence.name);
             newSequencesList.push(new_sequence);
         }
@@ -294,13 +298,17 @@ function importBlank() {
         url: url_raw_import_blank_file,
         type: 'POST',
         data: formData,
+        // data: JSON.stringify(Object.fromEntries(formData)),
         // async : true,
         processData : false,
         contentType : false,
+        // contentType: 'application/json',
         mimeType: "multipart/form-data",
+        dataType: "text",
         success: function(res){
             $('#file-input-import-blank').val('');
-            let new_sequences = myParse(myParse(res).sequences);
+            res = myParse(res)
+            let new_sequences = res.sequences;
             newSequencesList.push(...new_sequences);
             $('#outputBlankSequences').val(new_sequences.map((v, i) => v.name).join(';'));
         }
@@ -461,78 +469,73 @@ function chartScatterClicked(params) {
             'cache_key': myRawCacheKey,
         }),
         contentType:'application/json',
+        dataType : 'text',
         success: function(res){
+            res = myParse(res);
             if (res.status === 100) {
-                myRawData.sequence[current_page - 1] = myParse(res.sequence);
+                myRawData.sequence[current_page - 1] = res.sequence;
                 updateCharts(smCharts, chartBig, current_page-1, false);
             } else {alert(res.msg)}
-        }
+        },
     })
 }
-function corrBlankMethodChanged(blank_sequences = []) {
-    blank_sequences = blank_sequences === []?myRawData.sequence.map(
-        (seq, index) => seq.is_blank && !seq.is_estimated ? seq : "false").filter(
-            (v, i) => v !== "false"):blank_sequences;
-    let is_blank = blank_sequences.map((seq, index) => index);
-    let not_blank = myRawData.sequence.map(
-        (seq, index) => !seq.is_blank && !seq.is_estimated ? index : "false").filter(
-            (v, i) => v !== "false");
-    let blank_index = []
+function corrBlankMethodChanged(blank_sequences=[]) {
+    blank_sequences = blank_sequences.length === 0?myRawData.sequence.filter(
+        (seq, index) => seq.is_blank && (!seq.is_estimated)):blank_sequences;
+    if (blank_sequences.length === 0) {return}
+    let unknown_sequences = myRawData.sequence.filter((seq, index) => !seq.is_blank);
+    let matched_blank_name = [];
     switch ($('#corrBlankMethod').val()) {
         case "0":
-            blank_index = not_blank.map(function (v, i) {
-                for (let _i = is_blank.length - 1; _i >= 0; _i --) {
-                    if (is_blank[_i] < v) {
-                        return is_blank[_i]
+            matched_blank_name = unknown_sequences.map(function (v, i) {
+                for (let _i = blank_sequences.length - 1; _i >= 0; _i --) {
+                    if (blank_sequences[_i].index < v.index) {
+                        return blank_sequences[_i].name
                     }
                 }
-                return is_blank[0]
+                return blank_sequences[0].name
             })
             break
         case "1":
-            blank_index = not_blank.map(function (v, i) {
-                for (let _i = 0; _i < is_blank.length; _i ++) {
-                    if (is_blank[_i] > v) {
-                        return is_blank[_i]
+            matched_blank_name = unknown_sequences.map(function (v, i) {
+                for (let _i = 0; _i < blank_sequences.length; _i ++) {
+                    if (blank_sequences[_i].index > v.index) {
+                        return blank_sequences[_i].name
                     }
                 }
-                return is_blank[is_blank.length - 1]
+                return blank_sequences[blank_sequences.length - 1].name
             })
             break
         case "2":
-            blank_index = not_blank.map(function (v, i) {
-                if (is_blank[0] > v) {
-                    return is_blank[0]
+            matched_blank_name = unknown_sequences.map(function (v, i) {
+                if (blank_sequences[0].index > v.index) {
+                    return blank_sequences[0].name
                 }
-                if (is_blank[is_blank.length - 1] < v) {
-                    return is_blank[is_blank.length - 1]
+                if (blank_sequences[blank_sequences.length - 1].index < v.index) {
+                    return blank_sequences[blank_sequences.length - 1].name
                 }
-                let a = is_blank.filter(function (_v, _i) {
-                    return v > _v && v < is_blank[_i + 1]
+                let a = blank_sequences.filter(function (_v, _i) {
+                    return v.index > _v.index && v.index < blank_sequences[_i + 1].index
                 })[0]
-                let b = is_blank[is_blank.indexOf(a) + 1]
-                if (Math.abs(a - v) <= Math.abs(b - v)) {
-                    return a
+                let b = blank_sequences[blank_sequences.indexOf(a) + 1]
+                if (Math.abs(a.index - v.index) <= Math.abs(b.index - v.index)) {
+                    return a.name
                 } else {
-                    return b
+                    return b.name
                 }
             })
             break
         case "3":
-            blank_index = not_blank.map(function (v, i) {
-                return -1  // -1 for interpolated blank
+            matched_blank_name = unknown_sequences.map(function (v, i) {
+                return "Interpolated Blank"  // -1 for interpolated blank
             })
             break
         default:
             break
     }
-    let blank_name = [];
-    for (let i=0;i<blank_index.length;i++){
-        blank_name.push(blank_index[i]!==-1?blank_sequences[blank_index[i]].name:'Interpolated Blank');
-    }
-    $.each(blank_name, function (index, item) {
+    $.each(matched_blank_name, function (index, item) {
+        // If some of selected blank sequences don't exist, the selected option will be null
         $('#blank-sele'+Number(index+1)).val(item);
-        // if the selection doesn't have a option named Interpolated Blank, it will be null
     })
 
 
@@ -616,11 +619,15 @@ function getAverageofBlanks() {
     let separator = names.includes(';') ? ';' : ' ';
     let nameList = names.split(separator);
     if (nameList.indexOf('') !== -1) {nameList.splice(nameList.indexOf(''), 1)}
-    let blanksInfos = nameList.map(function (name, index) {
-        if (name !== '') {
-            return getBlankInfo(name);
-        }
-    });
+    let blanksInfos;
+    try {
+        blanksInfos = nameList.map(function (name, index) {
+            if (name !== '') {return getBlankInfo(name);}
+        });
+    } catch (e) {
+        alert("The blank sequences don't exist. Please check if a whitespace may be in the names and use a semicolon as a delimiter.")
+        return
+    }
     $.ajax({
         url: url_raw_average_blanks,
         type: 'POST',
@@ -629,8 +636,10 @@ function getAverageofBlanks() {
             'cache_key': myRawCacheKey,
         }),
         contentType:'application/json',
+        dataType: 'text',
         success: function(res){
-            let new_sequence = myParse(res.new_sequence);
+            res = myParse(res);
+            let new_sequence = res.new_sequence;
             $('#outputBlankSequences').val(new_sequence.name);
             newSequencesList.push(new_sequence);
         }
@@ -642,11 +651,15 @@ function getInterpolatedBlank() {
     let nameList = names.split(separator);
     if (nameList.indexOf('') !== -1) {nameList.splice(nameList.indexOf(''), 1)}
     if (nameList.length === 0) {return}
-    let blanksInfos = nameList.map(function (name, index) {
-        if (name !== '') {
-            return getBlankInfo(name);
-        }
-    });
+    let blanksInfos;
+    try {
+        blanksInfos = nameList.map(function (name, index) {
+            if (name !== '') {return getBlankInfo(name);}
+        });
+    } catch (e) {
+        alert("The blank sequences don't exist. Please check if a whitespace may be in the names and use a semicolon as a delimiter.")
+        return
+    }
     let blank_data = blanksInfos.map(function (blank, index) {
         return [blank[0].time, blank[0].intercept, blank[1].intercept,
             blank[2].intercept, blank[3].intercept, blank[4].intercept];
@@ -656,14 +669,16 @@ function getInterpolatedBlank() {
     let charts = getLinkedChart('figure-main', 'figure-01', 'figure-02', 'figure-03', 'figure-04', 'figure-05');
     $.each(charts, function (index, each) {
         let scatter_data = [transpose(blank_data)[0], transpose(blank_data)[index===0?1:index]];
-        let datatime_list = myRawData.sequence.map((v, i) => v.datetime);
+        // Note only consider unknown sequences and selected blank sequences
+        let datetime_list = myRawData.sequence.filter((item, index) =>
+            nameList.includes(item.name) || !item.is_blank).map((v, i) => v.datetime);
         let line_results = {
-            linear: getRegressionResults(scatter_data, 'linear', datatime_list),
-            quadratic: getRegressionResults(scatter_data, 'quadratic', datatime_list),
-            polynomial: getRegressionResults(scatter_data, 'polynomial', datatime_list),
-            exponential: getRegressionResults(scatter_data, 'exponential', datatime_list),
-            power: getRegressionResults(scatter_data, 'power', datatime_list),
-            average: getRegressionResults(scatter_data, 'average', datatime_list),
+            linear: getRegressionResults(scatter_data, 'linear', datetime_list),
+            quadratic: getRegressionResults(scatter_data, 'quadratic', datetime_list),
+            polynomial: getRegressionResults(scatter_data, 'polynomial', datetime_list),
+            exponential: getRegressionResults(scatter_data, 'exponential', datetime_list),
+            power: getRegressionResults(scatter_data, 'power', datetime_list),
+            average: getRegressionResults(scatter_data, 'average', datetime_list),
         }
         each.setOption({
             title: {text: `${index===0?'Blank interpolation ':''}${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][index===0?0:index-1]}`},
@@ -730,8 +745,10 @@ function getInterpolatedBlank() {
                 'cache_key': myRawCacheKey,
             }),
             contentType:'application/json',
+            dataType: 'text',
             success: function(res){
-                myRawData['interpolated_blank'] = myParse(res.new_sequences);
+                res = myParse(res);
+                myRawData['interpolated_blank'] = res.sequences;
             }
         });
 

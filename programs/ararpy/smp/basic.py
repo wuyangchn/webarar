@@ -18,7 +18,7 @@ import copy
 from typing import Optional, Union, List
 from .. import calc
 from ..files.basic import (read as read_params)
-from .sample import Sample, Info, Table, Plot, ArArData, ArArBasic
+from .sample import Sample, Info, Table, Plot, ArArData, ArArBasic, Sequence, RawData
 
 Set = Plot.Set
 Label = Plot.Label
@@ -156,7 +156,8 @@ def get_content_dict(smp: Sample):
     ))
 
 
-def get_dict_from_obj(obj: (Sample, Info, Plot, Table, Set, Label, Axis, Text, ArArBasic, ArArData)):
+def get_dict_from_obj(obj: (Sample, Info, Plot, Table, Set, Label, Axis, Text,
+                            ArArBasic, ArArData, Sequence, RawData)):
     """
 
     Parameters
@@ -169,7 +170,8 @@ def get_dict_from_obj(obj: (Sample, Info, Plot, Table, Set, Label, Axis, Text, A
     """
     res = {}
     for key, attr in obj.__dict__.items():
-        if not isinstance(attr, (Sample, Info, Plot, Table, Set, Label, Axis, Text, ArArBasic, ArArData)):
+        if not isinstance(attr, (Sample, Info, Plot, Table, Set, Label, Axis, Text,
+                                 ArArBasic, ArArData, Sequence, RawData)):
             res.update({key: attr})
         else:
             res.update({key: get_dict_from_obj(attr)})
