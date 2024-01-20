@@ -537,9 +537,6 @@ function corrBlankMethodChanged(blank_sequences=[]) {
         // If some of selected blank sequences don't exist, the selected option will be null
         $('#blank-sele'+Number(index+1)).val(item);
     })
-
-
-
 }
 function deleteParamObject(type) {
     editParams({
