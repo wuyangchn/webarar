@@ -584,16 +584,15 @@ function editParams(flag) {
         }),
         contentType:'application/json',
         success: function(res){
-            if (res.status === 'fail'){
-                alert(res.msg);
-            } else {
-                $('#modal-submit').modal('hide');
-                $('#modal-delete').modal('hide');
-                $('#modal-save').modal('hide');
-                // initialize input
-                $('#modal-submit').find($('input:not(:empty)')).val('');
-                $('#modal-save').find($('input:not(:empty)')).val('');
-            }
+            $('#modal-submit').modal('hide');
+            $('#modal-delete').modal('hide');
+            $('#modal-save').modal('hide');
+            // initialize input
+            $('#modal-submit').find($('input:not(:empty)')).val('');
+            $('#modal-save').find($('input:not(:empty)')).val('');
+        },
+        error: function(res) {
+            alert(res.responseJSON.error);
         }
     })
 }

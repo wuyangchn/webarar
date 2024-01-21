@@ -809,7 +809,6 @@ class ParamsSettingView(http_funcs.ArArView):
     def change_param_objects(self, request, *args, **kwargs):
         type = str(self.body['type'])  # type = irra, calc, smp
         model_name = f"{''.join([i.capitalize() for i in type.split('-')])}Params"
-        print(f"{type = }, {model_name = }")
         try:
             name = self.body['name']
             param_file = getattr(models, model_name).objects.get(name=name).file_path
@@ -851,11 +850,11 @@ class ParamsSettingView(http_funcs.ArArView):
             if name == '' or pin == '':
                 log_funcs.set_info_log(
                     self.ip, '005', 'info', f'Fail to create {type.lower()} project, empty name or pin')
-                return JsonResponse({'status': 'fail', 'msg': 'empty name or pin'})
+                return JsonResponse({'error': 'empty name or pin'}, status=403)
             elif model.objects.filter(name=name).exists():
                 log_funcs.set_info_log(
                     self.ip, '005', 'info', f'Fail to create {type.lower()} project, duplicate name, name: {name}')
-                return JsonResponse({'status': 'fail', 'msg': 'duplicate name'})
+                return JsonResponse({'error': 'duplicate name'}, status=403)
             else:
                 path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{type}"), params)
                 model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip)
@@ -873,7 +872,7 @@ class ParamsSettingView(http_funcs.ArArView):
                     self.ip, '005', 'info',
                     f'Fail to change selected {type.lower()} project, '
                     f'it does not exist in the server, name: {name}')
-                return JsonResponse({'status': 'fail', 'msg': 'current project does not exist'})
+                return JsonResponse({'error': 'current project does not exist'}, status=403)
             if pin == old.pin:
                 if flag == 'update':
                     path = ap.files.basic.write(old.file_path, params)
@@ -894,6 +893,6 @@ class ParamsSettingView(http_funcs.ArArView):
                             self.ip, '005', 'info',
                             f'Fail to delete {type.lower()} projects, '
                             f'something wrong happened, name: {name}')
-                        return JsonResponse({'status': 'fail', 'mas': 'something wrong happened when delete params'})
+                        return JsonResponse({'error': 'something wrong happened when delete params'}, status=403)
             else:
-                return JsonResponse({'status': 'fail', 'msg': 'wrong pin'})
+                return JsonResponse({'error': 'wrong pin'}, status=403)
