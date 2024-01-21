@@ -1,13 +1,17 @@
-<p><em>Thank you for using WebArAr. As of <strong>December 17, 2023</strong>, this documentation provides
-a short introduction to the features and functionalities available in the
-current release. However, it is planned to enhance and expand it to be better.</em></p>
+<p><em>Thank you for visiting WebArAr. As of <strong>Jan 21, 2024</strong>, this documentation provides
+a short guidance on how to use WebArAr.</em></p>
 <h1 id="webarar">WebArAr</h1>
-<p>WebArAr is a web-based application designed for <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data (based on <a href="https://www.djangoproject.com/">Django</a>).</p>
+<p>WebArAr is a web-based application based on <a href="https://www.djangoproject.com/">Django</a>
+designed to reduce <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data.</p>
 <ul>
-<li>The backend functionalities are provided by <a href="#ararpy">ArArPy</a>. </li>
-<li>WebArAr provides an intuitive interface, forstering a user-friendly and interactive experience.</li>
+<li>The backend functionalities are packaged into a module called <a href="#ararpy">ArArPy</a>.
+Access through <a href="https://pypi.org/project/ararpy/">PyPi</a>.</li>
+<li>Django framework, Bootstrap, Echarts, Bootstrap-table, etc. provide an intuitive and interactive interface.</li>
 </ul>
 <p>Visit <a href="https://www.webarar.net">WebArAr</a></p>
+<!-- See [user manual](#) (to be completed).
+
+See [video](#) (to be completed). -->
 <!-- ## Content
 
 [Introduction](#introduction)
@@ -38,66 +42,71 @@ The data tables are created using Handsontable, a commercial software but free
 for non-commercial purposes such as academic research
 (https://github.com/handsontable/handsontable/).  -->
 <h1 id="features">Features</h1>
-<h4 id="1-interactive-data-input-">1. <strong>Interactive data input:</strong></h4>
+<h4 id="1-data-input-">1. <strong>Data input:</strong></h4>
 <ul>
-<li>Easily enter raw data from mass spectrometers through an interactive
-web page.</li>
-<li>Modify and update parameters to recalculate ages, allowing flexibility
-in data analysis.</li>
+<li>Import raw data files from data acquisition software like Qtegra.</li>
+<li>Import.full.xls files produced from ArArCALC.</li>
+<li>Create empty project and typy in manually.</li>
 </ul>
-<h4 id="2-isochron-data-recalculation-">2. <strong>Isochron data recalculation:</strong></h4>
+<h4 id="2-isochron-regression-">2. <strong>Isochron regression:</strong></h4>
 <ul>
-<li>Users can input isochron data and selectively recalculate isochronous
-ages by choosing specific points.</li>
+<li>Select two groups of data points to do regression and calculate ages.</li>
+<li>3D K-Cl-Ar correction regression can be conducted using York-like regression method.</li>
 </ul>
-<h4 id="3-3d-k-cl-ar-correction-regression-">3. <strong>3D K-Cl-Ar correction regression:</strong></h4>
+<h4 id="3-age-plateau-">3. <strong>Age plateau:</strong></h4>
 <ul>
-<li>Utilizes advanced 3D K-Cl-Ar correction regression to minimize errors
-associated with assumptions in Cl correction.</li>
-<li>Particularly beneficial in progressive crushing 40Ar/39Ar dating when
-fluid inclusions may contain complex chlorine components.</li>
+<li>Using Isochron initial ratio to re-correct trapped argon.</li>
 </ul>
 <h4 id="4-export-options-">4. <strong>Export options:</strong></h4>
 <ul>
 <li>Export diagrams in various formats suitable for publications.</li>
-<li>Export sample data as structured JSON serialized files for easy sharing
+<li>Export sample project as structured JSON serialized files for easy sharing
 and future use.</li>
-</ul>
-<h4 id="5-publication-accessibility-">5. <strong>Publication accessibility:</strong></h4>
-<ul>
-<li>Availability of specially structured JSON serialized files with paper
-publications enhances data visibility and encourages reusability.</li>
-</ul>
-<h4 id="6-mswd-distribution-analysis-">6. <strong>MSWD distribution analysis:</strong></h4>
-<ul>
-<li>Discussion on the distribution of MSWD values, highlighting the influence
-of analytical and geological errors.</li>
-<li>Acknowledges the variability of MSWD values and challenges the rigid
-requirement for values to be close to 1.</li>
 </ul>
 <h1 id="usage">Usage</h1>
 <ul>
 <li>Access the application at <a href="http://www.webarar.net">http://www.webarar.net</a>.</li>
-<li>(Optional) Install and launch WebArAr on your laptop for offline usage. See <a href="#installation">Installation</a>.</li>
+<li>(Optional) Deploy and launch WebArAr on your computer for offline usage. See <a href="#installation">Installation</a>.</li>
 <li>(Optional) Use ArArPy with a Python terminal. See <a href="#ararpy">ArArPy</a>.</li>
 </ul>
-<h1 id="instruction">Instruction</h1>
-<ul>
-<li>See <a href="#">user manual</a>.</li>
-<li>See <a href="#">video</a>.</li>
-</ul>
 <h1 id="installation">Installation</h1>
-<p>The following instruction is for local usage. If you are planning to run WebArAr on a server computer instead, you can do much the same as mentioned below, but with some additional steps for a more stable application, such as replacing the built-in web server.</p>
-<h4 id="1-install-python-3">1. Install Python 3</h4>
-<pre><code>(<span class="hljs-name">to</span> be completed)
-</code></pre><h4 id="2-install-mysql">2. Install MySql</h4>
-<pre><code>(<span class="hljs-name">to</span> be completed)
+<p>The following instruction is for local usage. If you are planning to run WebArAr on a server computer instead,
+you can do much the same as mentioned below, but with some additional steps for a more stable application,
+such as replacing the built-in web server.</p>
+<p>For Windows system:</p>
+<h4 id="1-install-python3">1. Install Python3</h4>
+<p>Following instructions on <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>.</p>
+<h4 id="2-install-and-configure-mysql">2. Install and configure MySql</h4>
+<p>Following instructions on <a href="https://dev.mysql.com/doc/refman/8.3/en/windows-choosing-package.html">https://dev.mysql.com/doc/refman/8.3/en/windows-choosing-package.html</a></p>
+<p>Remember the MySql server port (default 3306) and root password.</p>
+<p>Create WebArAr databases: start MySql command line client -&gt; using the command following to create database.</p>
+<pre><code>create database webarar<span class="hljs-comment">;</span>
+<span class="hljs-comment"># webarar can be other name as you want</span>
+<span class="hljs-comment"># Note that each MySql command ends with a semicolon</span>
+
+<span class="hljs-comment"># basic commands for reference:</span>
+<span class="hljs-keyword">show </span>databases<span class="hljs-comment">;</span>
 </code></pre><h4 id="3-redis">3. Redis</h4>
-<pre><code>(<span class="hljs-name">to</span> be completed)
-</code></pre><h4 id="4-download-codes">4. Download codes</h4>
-<pre><code>(<span class="hljs-name">to</span> be completed)
-</code></pre><h4 id="5-run-server">5. Run server</h4>
-<pre><code>(<span class="hljs-name">to</span> be completed)
+<p>Redis on Windows <a href="https://github.com/microsoftarchive/redis">https://github.com/microsoftarchive/redis</a></p>
+<h4 id="4-download-source-code">4. Download source code</h4>
+<pre><code># <span class="hljs-keyword">open</span> CMD <span class="hljs-built_in">and</span> <span class="hljs-keyword">cd</span> <span class="hljs-keyword">to</span> your location, clone webarar repository
+git clone http<span class="hljs-variable">s:</span>//github.<span class="hljs-keyword">com</span>/wuyangchn/webarar.git
+</code></pre><h4 id="5-install-requirements">5. Install requirements</h4>
+<pre><code>pip <span class="hljs-keyword">install</span> -r requirements
+</code></pre><h4 id="6-change-settings-py">6. Change settings.py</h4>
+<pre><code><span class="hljs-comment"># in settings.py, find and replace</span>
+DATABASES = {
+    <span class="hljs-string">'default'</span>: {
+        <span class="hljs-string">'ENGINE'</span>: <span class="hljs-string">'django.db.backends.mysql'</span>,
+        <span class="hljs-string">'NAME'</span>: <span class="hljs-string">'webarar'</span>,  <span class="hljs-comment"># MySql database name</span>
+        <span class="hljs-string">'HOST'</span>: <span class="hljs-string">'127.0.0.1'</span>,
+        <span class="hljs-string">'PORT'</span>: <span class="hljs-number">3306</span>,  <span class="hljs-comment"># port</span>
+        <span class="hljs-string">'USER'</span>: <span class="hljs-string">'root'</span>,
+        <span class="hljs-string">'PASSWORD'</span>: <span class="hljs-string">'password'</span>  <span class="hljs-comment"># your password</span>
+    }
+}
+</code></pre><h4 id="7-run-server">7. Run server</h4>
+<pre><code>python manage<span class="hljs-selector-class">.py</span> runserver
 </code></pre><p>### </p>
 <h1 id="ararpy">ArArPy</h1>
 <p>The main python code used in WebArAr is packaged as ArArPy and uploaded to PyPI.

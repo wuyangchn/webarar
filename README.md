@@ -105,23 +105,34 @@ Create WebArAr databases: start MySql command line client -> using the command f
 
 #### 3. Redis
 
-    (to be completed)
+Redis on Windows https://github.com/microsoftarchive/redis
 
 #### 4. Download source code
 
-    (to be completed)
+    # open CMD and cd to your location, clone webarar repository
+    git clone https://github.com/wuyangchn/webarar.git
     
 #### 5. Install requirements
 
-
+    pip install -r requirements 
     
 #### 6. Change settings.py
 
-
+    # in settings.py, find and replace
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'webarar',  # MySql database name
+            'HOST': '127.0.0.1',
+            'PORT': 3306,  # port
+            'USER': 'root',
+            'PASSWORD': 'password'  # your password
+        }
+    }
 
 #### 7. Run server
 
-    (to be completed)
+    python manage.py runserver
 
 ### 
 
