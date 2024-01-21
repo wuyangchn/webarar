@@ -248,18 +248,35 @@ function rawFilesChanged() {
             $('#file-input-1').val('');
             let files = JSON.parse(res).files;
             let data = table.bootstrapTable('getData');
+
             $.each(files, function (index, file) {
-                data.push({
-                    'file_name': file.name, 'file_path': file.path,
-                    // 'filter': file.filter,
-                    'filter': `<select class="input-sm input-filter-selection" style="width: 200px">${file.filter_list.map((item, _) => 
-                        "<option>" + item + "</option>").join("")}$</select>`,
-                    'operation': '<button type="button" class="btn btn-danger" onclick="removeRawFile(id)" ' +
-                        'id="btn-raw-file-' + data.length +'">Remove</button>',
-                });
+                table.bootstrapTable('insertRow', {index: data.length + index,
+                    row: {
+                        'file_name': file.name, 'file_path': file.path,
+                        // 'filter': file.filter,
+                        'filter': `<select class="input-sm input-filter-selection" style="width: 200px" onchange="change_input_filter(this)">${file.filter_list.map((item, _) => 
+                            "<option>" + item + "</option>").join("")}$</select>`,
+                        'operation': '<button type="button" class="btn btn-danger" onclick="removeRawFile(id)" ' +
+                            'id="btn-raw-file-' + data.length +'">Remove</button>',
+                    }
+                })
             })
-            table.bootstrapTable('load', data);
         }
+    })
+}
+function change_input_filter(row) {
+    // This function is used to keep selected options when rows inserted or removed
+    let table = $('#raw_file_list');
+    let current_data = table.bootstrapTable('getData');
+    let tr = row.parentElement.parentElement;
+    let row_index = tr.getAttribute("data-index");
+    let opts = row.options;
+    for (let index=0;index<opts.length;index++){
+        $(opts[index]).attr("selected", index === row.selectedIndex);
+    }
+    current_data[row_index].filter = row.outerHTML;
+    table.bootstrapTable('updateRow', {index: row_index,
+        row: current_data
     })
 }
 function removeRawFile(unique_id) {

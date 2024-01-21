@@ -51,32 +51,34 @@
                     <h4 class="modal-title" id="myModalLabel">Raw File Filter</h4>
                 </div>
                 <form id="rawFileForm" method="post" enctype="multipart/form-data">
-                    <div id="page-1" class="modal-body raw-file-filter-page">Step 1: Select input filter and upload raw files
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios" value="auto" checked>
-                                Auto select based on extensions of input files
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios1" value="xls">
-                                Qtegra export (.xls)
-                            </label>
-                            <a class="btn" href="/static/examples/raw-data/raw_example.xls" download>Download a sample file</a>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios2" value="ahd">
-                                Qtegra export (.ahd)
-                            </label><a class="btn" href="/static/examples/raw-data/raw_example.ahd" download>Download a sample file</a>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios3" value="Filter 4">
-                                Other: Select a input filter.</label>
-<!--                            <a class="btn" href="" download>Download a sample file (pending)</a>-->
-                        </div>
+                    <div id="page-1" class="modal-body raw-file-filter-page">
+                        <p>Upload files and select filter</p>
+{#                        Step 1: Select input filter and upload raw files#}
+{#                        <div class="radio">#}
+{#                            <label>#}
+{#                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios" value="auto" checked>#}
+{#                                Auto select based on extensions of input files#}
+{#                            </label>#}
+{#                        </div>#}
+{#                        <div class="radio">#}
+{#                            <label>#}
+{#                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios1" value="xls">#}
+{#                                Qtegra export (.xls)#}
+{#                            </label>#}
+{#                            <a class="btn" href="/static/examples/raw-data/raw_example.xls" download>Download a sample file</a>#}
+{#                        </div>#}
+{#                        <div class="radio">#}
+{#                            <label>#}
+{#                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios2" value="ahd">#}
+{#                                Qtegra export (.ahd)#}
+{#                            </label><a class="btn" href="/static/examples/raw-data/raw_example.ahd" download>Download a sample file</a>#}
+{#                        </div>#}
+{#                        <div class="radio">#}
+{#                            <label>#}
+{#                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios3" value="Filter 4">#}
+{#                                Other: Select a input filter.</label>#}
+{#<!--                            <a class="btn" href="" download>Download a sample file (pending)</a>-->#}
+{#                        </div>#}
                         <div class="form-group">
                             <input type="file" id="file-input-1" name="raw_file" multiple="multiple" accept="application/vnd.ms-excel, .ahd, .txt" onchange="rawFilesChanged()">
                         </div>
