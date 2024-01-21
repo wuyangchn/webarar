@@ -29,7 +29,6 @@ DEBUG = False
 ALLOWED_HOSTS = [
     # '172.24.32.202',  # cug
     '103.140.228.72',  # 硅云
-    'www.yangwoo.site',
     '127.0.0.1',  # localhost
     # 'www.webarar.com', this domain was cancelled
     'www.webarar.net',
