@@ -88,9 +88,14 @@ def update_handsontable(smp: Sample, data: list, id: str):
             'true': True, 'false': False, '1': True, '0': False, 'none': False,
         }
         return [bools_dict.get(str(col).lower(), False) for col in cols]
-
-    smp.SequenceName = data[0]
-    smp.SequenceValue = data[1]
+    try:
+        smp.SequenceName = data[0]
+    except IndexError:
+        pass
+    try:
+        smp.SequenceValue = data[1]
+    except IndexError:
+        pass
     if id == '1':  # 样品值
         data = _normalize_data(data, 12, 2)
         smp.SampleIntercept = data

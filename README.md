@@ -1,16 +1,21 @@
 
-*Thank you for using WebArAr. As of **December 17, 2023**, this documentation provides 
-a short introduction to the features and functionalities available in the 
-current release. However, it is planned to enhance and expand it to be better.*
+*Thank you for visiting WebArAr. As of **Jan 21, 2024**, this documentation provides 
+a short guidance on how to use WebArAr.*
 
 # WebArAr
 
-WebArAr is a web-based application designed for <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data (based on [Django](https://www.djangoproject.com/)).
+WebArAr is a web-based application based on [Django](https://www.djangoproject.com/) 
+designed to reduce <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data.
 
-* The backend functionalities are provided by [ArArPy](#ararpy). 
-* WebArAr provides an intuitive interface, forstering a user-friendly and interactive experience.
+* The backend functionalities are packaged into a module called [ArArPy](#ararpy). 
+Access through [PyPi](https://pypi.org/project/ararpy/).
+* Django framework, Bootstrap, Echarts, Bootstrap-table, etc. provide an intuitive and interactive interface.
 
 Visit [WebArAr](https://www.webarar.net)
+
+<!-- See [user manual](#) (to be completed).
+
+See [video](#) (to be completed). -->
 
 
 <!-- ## Content
@@ -48,71 +53,73 @@ for non-commercial purposes such as academic research
 
 # Features
 
-#### 1. **Interactive data input:**
-   - Easily enter raw data from mass spectrometers through an interactive 
-   web page.
-   - Modify and update parameters to recalculate ages, allowing flexibility 
-   in data analysis.
+#### 1. **Data input:**
+   - Import raw data files from data acquisition software like Qtegra.
+   - Import.full.xls files produced from ArArCALC.
+   - Create empty project and typy in manually.
 
-#### 2. **Isochron data recalculation:**
-   - Users can input isochron data and selectively recalculate isochronous 
-   ages by choosing specific points.
+#### 2. **Isochron regression:**
+   - Select two groups of data points to do regression and calculate ages.
+   - 3D K-Cl-Ar correction regression can be conducted using York-like regression method.
 
-#### 3. **3D K-Cl-Ar correction regression:**
-   - Utilizes advanced 3D K-Cl-Ar correction regression to minimize errors 
-   associated with assumptions in Cl correction.
-   - Particularly beneficial in progressive crushing 40Ar/39Ar dating when 
-   fluid inclusions may contain complex chlorine components.
+#### 3. **Age plateau:**
+   - Using Isochron initial ratio to re-correct trapped argon.
 
 #### 4. **Export options:**
    - Export diagrams in various formats suitable for publications.
-   - Export sample data as structured JSON serialized files for easy sharing 
+   - Export sample project as structured JSON serialized files for easy sharing 
    and future use.
-
-#### 5. **Publication accessibility:**
-   - Availability of specially structured JSON serialized files with paper 
-   publications enhances data visibility and encourages reusability.
-
-#### 6. **MSWD distribution analysis:**
-   - Discussion on the distribution of MSWD values, highlighting the influence 
-   of analytical and geological errors.
-   - Acknowledges the variability of MSWD values and challenges the rigid 
-   requirement for values to be close to 1.
 
 # Usage
 
 * Access the application at http://www.webarar.net.
-* (Optional) Install and launch WebArAr on your laptop for offline usage. See [Installation](#installation).
+* (Optional) Deploy and launch WebArAr on your computer for offline usage. See [Installation](#installation).
 * (Optional) Use ArArPy with a Python terminal. See [ArArPy](#ararpy).
-
-# Instruction
-
-* See [user manual](#).
-* See [video](#).
 
 # Installation
 
-The following instruction is for local usage. If you are planning to run WebArAr on a server computer instead, you can do much the same as mentioned below, but with some additional steps for a more stable application, such as replacing the built-in web server.
+The following instruction is for local usage. If you are planning to run WebArAr on a server computer instead, 
+you can do much the same as mentioned below, but with some additional steps for a more stable application, 
+such as replacing the built-in web server.
 
-#### 1. Install Python 3
+For Windows system:
 
-    (to be completed)
-   
-   
+#### 1. Install Python3
 
-#### 2. Install MySql
+Following instructions on https://www.python.org/downloads/.
 
-    (to be completed)
+#### 2. Install and configure MySql
+
+Following instructions on https://dev.mysql.com/doc/refman/8.3/en/windows-choosing-package.html
+
+Remember the MySql server port (default 3306) and root password.
+
+Create WebArAr databases: start MySql command line client -> using the command following to create database.
+
+    create database webarar;
+    # webarar can be other name as you want
+    # Note that each MySql command ends with a semicolon
+    
+    # basic commands for reference:
+    show databases;
 
 #### 3. Redis
 
     (to be completed)
 
-#### 4. Download codes
+#### 4. Download source code
 
     (to be completed)
+    
+#### 5. Install requirements
 
-#### 5. Run server
+
+    
+#### 6. Change settings.py
+
+
+
+#### 7. Run server
 
     (to be completed)
 
