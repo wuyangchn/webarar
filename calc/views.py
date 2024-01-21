@@ -218,7 +218,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         print(
             f'time cost: {time_end - time_start}s = {time_middle - time_start} + {time_middle2 - time_middle} + {time_end - time_middle2}')
 
-        return JsonResponse({'res': ap.smp.json.dumps(res), 'status': 100})
+        return JsonResponse({'res': ap.smp.json.dumps(res)})
 
     def update_handsontable(self, request, *args, **kwargs):
         btn_id = str(self.body['btn_id'])
@@ -488,9 +488,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
         # print(f"Diff after recalculation: {res}")
-        return JsonResponse({
-            'status': 100, 'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)
-        })
+        return JsonResponse({'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)})
 
     def flag_not_matched(self, request, *args, **kwargs):
         # Show calc.html when the received flag doesn't exist.
@@ -572,22 +570,26 @@ class RawFileView(http_funcs.ArArView):
     def import_blank_file(self, request, *args, **kwargs):
         file = request.FILES.get('blank_file')
         cache_key = request.POST.get('cache_key')
-        raw: ap.RawData = pickle.loads(cache.get(cache_key, default=pickle.dumps(ap.RawData())))
+        raw: ap.RawData = pickle.loads(cache.get(cache_key))
 
         web_file_path, file_name, suffix = ap.files.basic.upload(
             file, settings.UPLOAD_ROOT)
-        with open(web_file_path, 'rb') as f:
-            sequences = pickle.load(f)
+        try:
+            with open(web_file_path, 'rb') as f:
+                sequences = pickle.load(f)
+        except pickle.UnpicklingError:
+            return JsonResponse({
+                'error': "The file input cannot be unpicked. Please check the file format"},
+                encoder=ap.smp.json.MyEncoder, status=403)
 
         raw.sequence = ap.calc.arr.multi_append(raw.sequence, *sequences)
         http_funcs.create_cache(raw, cache_key=cache_key)
 
-        return JsonResponse({'sequences': sequences, 'status': 100}, encoder=ap.smp.json.MyEncoder,
+        return JsonResponse({'sequences': sequences}, encoder=ap.smp.json.MyEncoder,
                             content_type='application/json', safe=True)
 
     def add_empty_blank(self, request, *args, **kwargs):
-        cache_key = request.POST.get('cache_key')
-        raw: ap.RawData = pickle.loads(cache.get(cache_key, default=pickle.dumps(ap.RawData())))
+        raw: ap.RawData = self.sample
         new_blank_sequence = {
             'name': ['EMPTY'],
             'experimentTime': "1996-08-09T08:00:00",
@@ -610,9 +612,9 @@ class RawFileView(http_funcs.ArArView):
         )
 
         raw.sequence.append(new_sequence)
-        http_funcs.create_cache(raw, cache_key=cache_key)
+        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
 
-        return JsonResponse({'new_sequence': new_sequence, 'status': 100},
+        return JsonResponse({'new_sequence': new_sequence},
                             encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def to_project_view(self, request, *args, **kwargs):
@@ -639,9 +641,8 @@ class RawFileView(http_funcs.ArArView):
         raw.do_regression(sequence_index=[sequence_index], isotopic_index=isotopic_index)
 
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw data in cache
-        error = ''
 
-        return JsonResponse({'sequence': raw.sequence[sequence_index], 'status': 100, 'msg': error},
+        return JsonResponse({'sequence': raw.sequence[sequence_index]},
                             encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def calc_raw_average_blanks(self, request, *args, **kwargs):

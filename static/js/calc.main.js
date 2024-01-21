@@ -307,10 +307,14 @@ function importBlank() {
         dataType: "text",
         success: function(res){
             $('#file-input-import-blank').val('');
-            res = myParse(res)
+            console.log(res);
+            res = myParse(res);
             let new_sequences = res.sequences;
             newSequencesList.push(...new_sequences);
             $('#outputBlankSequences').val(new_sequences.map((v, i) => v.name).join(';'));
+        },
+        error: function (res) {
+            alert(myParse(res.responseText).error);
         }
     })
 }
@@ -472,10 +476,8 @@ function chartScatterClicked(params) {
         dataType : 'text',
         success: function(res){
             res = myParse(res);
-            if (res.status === 100) {
-                myRawData.sequence[current_page - 1] = res.sequence;
-                updateCharts(smCharts, chartBig, current_page-1, false);
-            } else {alert(res.msg)}
+            myRawData.sequence[current_page - 1] = res.sequence;
+            updateCharts(smCharts, chartBig, current_page-1, false);
         },
     })
 }
@@ -1008,12 +1010,13 @@ function submitExtrapolate() {
             contentType:'application/json',
             success: function(res){
                 let new_seq = myParse(res.new_sequence);
-                new_seq.index = 0;
+                // new_seq.index = 0;
                 blank_sequence = [new_seq];
                 myRawData.sequence.push(new_seq)
             }
         })
     }
+    console.log(myRawData.sequence);
     // 初始化表格+
     $('#table-sequences').bootstrapTable('destroy');
     initialTable(blank_sequence.map((seq, index) => seq.name));
@@ -1716,15 +1719,14 @@ function clickPoints(params) {
             'auto_replot': ! ctrlIsPressed, 'figures': first_figures,
         }, false
     )
-    if (response.status === 100) {
-        let results = myParse(response.results);
-        // let results =  JSON.parse(response.res);
-        sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {item[2]=results['marks'][index];return item});
-        delete results['marks'];
-        sampleComponents = assignDiff(sampleComponents, results);
-        showPage(current_figure);
-        setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5])
-    }
+
+    let results = myParse(response.results);
+    // let results =  JSON.parse(response.res);
+    sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {item[2]=results['marks'][index];return item});
+    delete results['marks'];
+    sampleComponents = assignDiff(sampleComponents, results);
+    showPage(current_figure);
+    setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5])
 
     // Get new results for other figures
     let content_2 = {
@@ -1742,12 +1744,8 @@ function clickPoints(params) {
         async: true,
         contentType:'application/json',
         success: function(AjaxResults, textStatus, xhr){
-            let response_2 = AjaxResults;
-            if (response_2.status === 100) {
-                let results = myParse(response_2.res);
-                sampleComponents = assignDiff(sampleComponents, results);
-                setRightSideText();
-            }
+            sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
+            setRightSideText();
         }
     });
 }
