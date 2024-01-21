@@ -482,7 +482,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             # sample = ap.recalculate(sample, *checked_options)
         except Exception as e:
             log_funcs.log(traceback.format_exc())
-            return JsonResponse({'status': 200, 'msg': f'Error in recalculating: {e}'})
+            return JsonResponse({'error': f'Error in recalculating: {e}'}, status=403)
         ap.smp.table.update_table_data(sample)  # Update data of tables after re-calculation
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
