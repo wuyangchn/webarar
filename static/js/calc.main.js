@@ -1859,16 +1859,15 @@ function clickRecalc() {
         }),
         contentType:'application/json',
         success: function(response){
-            if (response.status === 100) {
-                let results = myParse(response.res);
-                sampleComponents = assignDiff(sampleComponents, results);
-                // console.log(changed_components);
-                showPage(getCurrentTableId());
-                alert("Recalculating Successfully!");
-                setConsoleText('Recalculation has been applied successfully');
-            } else {
-                alert(response.msg)
-            }
+            let results = myParse(response.res);
+            sampleComponents = assignDiff(sampleComponents, results);
+            // console.log(changed_components);
+            showPage(getCurrentTableId());
+            alert("Recalculating Successfully!");
+            setConsoleText('Recalculation has been applied successfully');
+        },
+        error: function (res) {
+            alert(res.responseJSON.error)  // 403 Error
         }
     });
 }
