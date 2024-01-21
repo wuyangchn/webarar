@@ -298,8 +298,6 @@ function importBlank() {
         url: url_raw_import_blank_file,
         type: 'POST',
         data: formData,
-        // data: JSON.stringify(Object.fromEntries(formData)),
-        // async : true,
         processData : false,
         contentType : false,
         // contentType: 'application/json',
@@ -307,7 +305,6 @@ function importBlank() {
         dataType: "text",
         success: function(res){
             $('#file-input-import-blank').val('');
-            console.log(res);
             res = myParse(res);
             let new_sequences = res.sequences;
             newSequencesList.push(...new_sequences);
