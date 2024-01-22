@@ -55,13 +55,14 @@
     
     function getCurrentDatetime() {
         let currentdate = new Date();
-        let date = ("0" + currentdate.getUTCDate()).slice(-2);
+        let month = ("0" + (currentdate.getUTCMonth() + 1)).slice(-2);
+        let day = ("0" + currentdate.getUTCDate()).slice(-2);
         let hours = ("0" + currentdate.getUTCHours()).slice(-2);
         let minutes = ("0" + currentdate.getUTCMinutes()).slice(-2);
         let second = ("0" + currentdate.getUTCSeconds()).slice(-2);
         let datetime = "" + currentdate.getUTCFullYear() + "-"
-            + (currentdate.getUTCMonth()+1) + "-"
-            + date + "T"
+            + month + "-"
+            + day + "T"
             + hours + ":"
             + minutes + ":"
             + second;
@@ -105,17 +106,20 @@
 
     function parseDate(str_date) {
         const breakpoint = /[TZ\-:]/;
+        console.log(str_date);
         let splitted = str_date.split(breakpoint);
         for (let i=1; i<splitted.length; i++){
             if (splitted[i].length === 1) {
                 splitted[i] = "0" + splitted[i]
             }
         }
+        if (splitted.length === 5) {splitted.push('00')}
         return new Date(Date.parse(
             `${splitted[0]}-${splitted[1]}-${splitted[2]}T${splitted[3]}:${splitted[4]}:${splitted[5]}`));
     }
 
     function normalizeDataTime(data) {
+        if (data[0].length === 0) {return [[]]}
         let start = parseDate(data[0][0])
         return data.map((str_data, index) => {
             if (str_data[0] === undefined) {
