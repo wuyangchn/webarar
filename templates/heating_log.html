@@ -106,7 +106,6 @@
 
     function parseDate(str_date) {
         const breakpoint = /[TZ\-:]/;
-        console.log(str_date);
         let splitted = str_date.split(breakpoint);
         for (let i=1; i<splitted.length; i++){
             if (splitted[i].length === 1) {
