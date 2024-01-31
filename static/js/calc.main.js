@@ -461,6 +461,10 @@ function showParamProject(ele, param_type) {
                     initialRatioSelectChanged();
                 }
             } else {alert(res.msg);}
+        },
+        error: function (res) {
+            console.log(res);
+            alert("error");
         }
     })
 }
