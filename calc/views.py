@@ -829,9 +829,7 @@ class ParamsSettingView(http_funcs.ArArView):
                              *ap.calc.corr.get_method_fitting_law_by_name(data[100]), *data[101:114]]
             except IndexError:
                 param = []
-            # if not param:
-            #     return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n'})
-            return JsonResponse({'status': 'success', 'param': param})
+            return JsonResponse({'status': 'success', 'param': np.nan_to_num(param).tolist()})
         except Exception as e:
             print(traceback.format_exc())
             return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n' + str(e)})

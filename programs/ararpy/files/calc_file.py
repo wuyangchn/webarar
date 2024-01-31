@@ -332,9 +332,9 @@ def change_error_type(data: pd.DataFrame, header: pd.Series):
     data[tochange.tolist()] = data[tochange.tolist()] / 2
 
     # percentage errors to absolute errors
-    # tochange = np.flatnonzero(header.where(header.str.contains('%1s|%2s', regex=True), other=False))
-    # data[tochange.tolist()] = \
-    #     data[tochange.tolist()] * abs(data[(tochange - 1).tolist()].rename(lambda x: x + 1, axis='columns')) / 100
+    tochange = np.flatnonzero(header.where(header.str.contains('%1s|%2s', regex=True), other=False))
+    data[tochange.tolist()] = \
+        data[tochange.tolist()] * abs(data[(tochange - 1).tolist()].rename(lambda x: x + 1, axis='columns')) / 100
 
     return data
 
@@ -606,7 +606,6 @@ class ArArCalcFile:
 
         # change error type, 2sigma to 1sigma...
         data = change_error_type(data, header)
-
         # get full data frames
         # ['smp', 'blk', 'cor', 'deg', 'pub', 'age', 'iso', 'pam', 'inf', 'mak', 'seq',] are abbreviations for
         #     [sample_values, blank_values, corrected_values, degas_values, publish_values,
@@ -616,6 +615,14 @@ class ArArCalcFile:
             handler(data.copy(), logs01, logs02), axis=1,
             keys=['smp', 'blk', 'cor', 'deg', 'pub', 'age', 'iso', 'pam', 'mak', 'seq', ],
         )
+
+        # set error format for parameters, change to percentage
+        # list(range(1, 26, 2)) irradiation correction constants
+        # list(range(39, 58, 2)) decay constants
+        # list(range(68, 97, 2)) J, MDF, other constants
+        for column in list(range(1, 26, 2)) + list(range(68, 71, 2)):
+            self.content.loc[:, ('pam', column)] = \
+                self.content['pam', column].astype("float") / (self.content['pam', column - 1].astype("float")) * 100
 
         # sample info
         self.sample_info = {
