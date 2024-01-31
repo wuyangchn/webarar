@@ -127,6 +127,8 @@ def sub(*args):
     -------
 
     """
+    args = np.array(args)
+    args[np.isnan(args)] = 0
     n = np.shape(args)[-1]
     k0, k1 = [], []
     for i in range(n):

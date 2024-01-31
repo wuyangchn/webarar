@@ -84,7 +84,7 @@ def get_3d_data(x1: list, sx1: list, x2: list, sx2: list,
     return [k0, k1, k2, k3, k4, k5, r1, r2, r3]
 
 
-def get_ellipse(x: float, sx: float, y: float, sy: float, r: float):
+def get_ellipse(x: float, sx: float, y: float, sy: float, r: float, plt_sfactor: int = 1, size: int = 24):
     """ Error ellipses of data points in isochrons. Get 24 points of a ellispse
 
     Parameters
@@ -94,6 +94,8 @@ def get_ellipse(x: float, sx: float, y: float, sy: float, r: float):
     y
     sy
     r
+    plt_sfactor
+    size
 
     Returns
     -------
@@ -112,7 +114,6 @@ def get_ellipse(x: float, sx: float, y: float, sy: float, r: float):
     phi_e = atan((Qee - Qxx) / Qxy) if Qxy != 0 else 0 if Qxx >= Qyy else np.pi / 2  # radian
 
     # adjust
-    plt_sfactor = 1
     if plt_sfactor == 1:
         v = 2.279  # 68% confidence limit, 1 sigma
     elif plt_sfactor == 2:
@@ -123,8 +124,8 @@ def get_ellipse(x: float, sx: float, y: float, sy: float, r: float):
     f = f * pow(v, 0.5)
 
     ellipse_points = []
-    for i in range(24):
-        theta = i * 15 / 180 * np.pi
+    for i in range(size):
+        theta = i * 2 / size * np.pi
         ellipse_points.append([
             e * cos(theta) * cos(phi_e) - f * sin(theta) * sin(phi_e) + x,
             e * cos(theta) * sin(phi_e) + f * sin(theta) * cos(phi_e) + y

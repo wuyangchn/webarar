@@ -331,10 +331,10 @@ def change_error_type(data: pd.DataFrame, header: pd.Series):
     tochange = np.flatnonzero(header.where(header.str.contains('2s'), other=False))
     data[tochange.tolist()] = data[tochange.tolist()] / 2
 
-    # 2 sigma to 1 sigma
-    tochange = np.flatnonzero(header.where(header.str.contains('%1s|%2s', regex=True), other=False))
-    data[tochange.tolist()] = \
-        data[tochange.tolist()] * abs(data[(tochange - 1).tolist()].rename(lambda x: x + 1, axis='columns')) / 100
+    # percentage errors to absolute errors
+    # tochange = np.flatnonzero(header.where(header.str.contains('%1s|%2s', regex=True), other=False))
+    # data[tochange.tolist()] = \
+    #     data[tochange.tolist()] * abs(data[(tochange - 1).tolist()].rename(lambda x: x + 1, axis='columns')) / 100
 
     return data
 

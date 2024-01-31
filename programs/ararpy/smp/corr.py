@@ -30,7 +30,7 @@ def corr_blank(sample: Sample):
         sample.BlankCorrected = copy.deepcopy(sample.SampleIntercept)
         sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
         return
-    blank_corrected = [[]]*10
+    blank_corrected = [[]] * 10
     try:
         for i in range(5):
             blank_corrected[i * 2:2 + i * 2] = calc.corr.blank(
@@ -55,12 +55,12 @@ def corr_massdiscr(sample: Sample):
         sample.CorrectedValues = copy.deepcopy(sample.MassDiscrCorrected)
         return
     MASS = sample.TotalParam[71:81]
-    mdf_corrected = [[]]*10
+    mdf_corrected = [[]] * 10
     try:
         for i in range(5):
             mdf_corrected[i * 2:2 + i * 2] = calc.corr.discr(
                 *sample.BlankCorrected[i * 2:2 + i * 2],
-                *sample.TotalParam[69:71], m=MASS[i*2], m40=MASS[8], isRelative=True,
+                *sample.TotalParam[69:71], m=MASS[i * 2], m40=MASS[8], isRelative=True,
                 method=sample.TotalParam[100][0])
     except Exception as e:
         print(traceback.format_exc())
@@ -82,7 +82,7 @@ def corr_decay(sample: Sample):
     -------
 
     """
-    decay_corrected = [[]]*10
+    decay_corrected = [[]] * 10
     try:
         irradiation_cycles = [list(filter(None, re.split(r'[DS]', each_step))) for each_step in sample.TotalParam[27]]
         t1 = [re.findall(r"\d+", i) for i in sample.TotalParam[31]]  # t1: experimental times
@@ -374,3 +374,78 @@ def calc_ratio(sample: Sample):
     # Note that the difference between Turner 3D plots and our 3D plots.
 
 
+def Monte_Carlo_F(smp: Sample):
+    """
+    Parameters
+    ----------
+    sample
+
+    Returns
+    -------
+
+    """
+
+    sequence_num = smp.sequence().size
+
+    ar40m = np.transpose(smp.SampleIntercept[8:10])
+    ar39m = np.transpose(smp.SampleIntercept[6:8])
+    ar38m = np.transpose(smp.SampleIntercept[4:6])
+    ar37m = np.transpose(smp.SampleIntercept[2:4])
+    ar36m = np.transpose(smp.SampleIntercept[0:2])
+    ar40b = np.transpose(smp.BlankIntercept[8:10])
+    ar39b = np.transpose(smp.BlankIntercept[6:8])
+    ar38b = np.transpose(smp.BlankIntercept[4:6])
+    ar37b = np.transpose(smp.BlankIntercept[2:4])
+    ar36b = np.transpose(smp.BlankIntercept[0:2])
+
+    M36 = np.transpose(smp.TotalParam[71:73])
+    M37 = np.transpose(smp.TotalParam[73:75])
+    M38 = np.transpose(smp.TotalParam[75:77])
+    M39 = np.transpose(smp.TotalParam[77:79])
+    M40 = np.transpose(smp.TotalParam[79:81])
+
+    M36 = [[35.96754628, 0] for i in range(sequence_num)]
+    M37 = [[36.9667759, 0] for i in range(sequence_num)]
+    M38 = [[37.9627322, 0] for i in range(sequence_num)]
+    M39 = [[38.964313, 0] for i in range(sequence_num)]
+    M40 = [[39.962383123, 0] for i in range(sequence_num)]
+
+    MDF = np.transpose(smp.TotalParam[69:71])
+
+    L39ar = np.transpose(smp.TotalParam[42:44])
+    L37ar = np.transpose(smp.TotalParam[44:46])
+    L36cl = np.transpose(smp.TotalParam[46:48])
+
+    R39v37ca = np.transpose(smp.TotalParam[8:10])
+    R38v37ca = np.transpose(smp.TotalParam[10:12])
+    R36v37ca = np.transpose(smp.TotalParam[12:14])
+    R40v39k = np.transpose(smp.TotalParam[14:16])
+    R38v39k = np.transpose(smp.TotalParam[16:18])
+
+    R40v36a = np.transpose(smp.TotalParam[0:2])
+    R38v36a = np.transpose(smp.TotalParam[4:6])
+    R36v38clp = np.transpose(smp.TotalParam[56:58])
+
+    stand_time_year = np.transpose(smp.TotalParam[32])
+
+    irradiation_cycles = [list(filter(None, re.split(r'[DS]', each_step))) for each_step in smp.TotalParam[27]]
+    t1 = [re.findall(r"\d+", i) for i in smp.TotalParam[31]]  # t1: experimental times
+    t2, t3 = [], []  # t2: irradiation times, t3: irradiation durations
+    for each_step in irradiation_cycles:
+        t2.append([re.findall(r"\d+", item) for i, item in enumerate(each_step) if i % 2 == 0])
+        t3.append([item for i, item in enumerate(each_step) if i % 2 == 1])
+
+    for i in range(sequence_num):
+        f = calc.corr.Monte_Carlo_F(
+            ar40m=ar40m[i], ar39m=ar39m[i], ar38m=ar38m[i], ar37m=ar37m[i], ar36m=ar36m[i],
+            ar40b=ar40b[i], ar39b=ar39b[i], ar38b=ar38b[i], ar37b=ar37b[i], ar36b=ar36b[i],
+            M40=M40[i], M39=M39[i], M38=M38[i], M37=M37[i], M36=M36[i],
+            t1=t1[i], t2=t2[i], t3=t3[i],
+            R40v36a=R40v36a[i], R38v36a=R38v36a[i],
+            R39v37ca=R39v37ca[i], R36v37ca=R36v37ca[i], R38v37ca=R38v37ca[i],
+            R40v39k=R40v39k[i], R38v39k=R38v39k[i],
+            R36v38clp=R36v38clp[i],
+            L37ar=L37ar[i], L39ar=L39ar[i], L36cl=L36cl[i],
+            MDFunc=None,
+            MDF=MDF[i], stand_time_year=stand_time_year[i]
+        )
