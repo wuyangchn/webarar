@@ -13,6 +13,9 @@ import traceback
 
 from . import arr, err
 import numpy as np
+from typing import Tuple, List, Optional, Union
+from types import MethodType
+from math import exp, log
 
 
 def blank(a0: list, e0: list, a1: list, e1: list):
@@ -252,5 +255,136 @@ def get_method_fitting_law_by_name(method_str: str):
     except ValueError:
         res[0] = True
     return res
+
+
+def random_normal_relative(mu, std, size):
+    return np.random.normal(mu, std * mu / 100, size)
+
+
+def random_normal_absolute(mu, std, size):
+    return np.random.normal(mu, std, size)
+
+
+def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m: Tuple[float, float],
+                  ar37m: Tuple[float, float], ar36m: Tuple[float, float],
+                  ar40b: Tuple[float, float], ar39b: Tuple[float, float], ar38b: Tuple[float, float],
+                  ar37b: Tuple[float, float], ar36b: Tuple[float, float],
+                  t1: List[float], t2: List[float], t3: List[float],
+                  R40v36a: Tuple[float, float], R38v36a: Tuple[float, float],
+                  R39v37ca: Tuple[float, float], R36v37ca: Tuple[float, float], R38v37ca: Tuple[float, float],
+                  R40v39k: Tuple[float, float], R38v39k: Tuple[float, float],
+                  R36v38clp: Tuple[float, float],
+                  L37ar: Tuple[float, float], L39ar: Tuple[float, float], L36cl: Tuple[float, float],
+                  MDFunc: Union[MethodType],
+                  MDF: Tuple[float, float],
+                  M40: Tuple[float, float],
+                  M39: Tuple[float, float],
+                  M38: Tuple[float, float],
+                  M37: Tuple[float, float],
+                  M36: Tuple[float, float],
+                  stand_time_year: float,
+                  **options) -> Tuple[float, float]:
+    """
+
+    Parameters
+    ----------
+    ar40m
+    ar39m
+    ar38m
+    ar37m
+    ar36m
+    t1
+    t2
+    t3
+    R40v36a
+    R38v36a
+    R39v37ca
+    R36v37ca
+    R40v39k
+    R38v39k
+    R36v38clp
+    L37ar
+    L39ar
+    L36cl
+    MDFunc
+    MDF
+    options
+
+    Returns
+    -------
+
+    """
+    # define parameters
+
+    MDFunc = lambda _M40, _mass, _mdf: 1 / ((_M40 - _mass) * (_mdf - 1) + 1)
+
+    Monte_Carlo_Size = 10000
+
+    # generate random
+    ar40m = random_normal_absolute(*ar40m, size=Monte_Carlo_Size)
+    ar39m = random_normal_absolute(*ar39m, size=Monte_Carlo_Size)
+    ar38m = random_normal_absolute(*ar38m, size=Monte_Carlo_Size)
+    ar37m = random_normal_absolute(*ar37m, size=Monte_Carlo_Size)
+    ar36m = random_normal_absolute(*ar36m, size=Monte_Carlo_Size)
+    ar40b = random_normal_absolute(*ar40b, size=Monte_Carlo_Size)
+    ar39b = random_normal_absolute(*ar39b, size=Monte_Carlo_Size)
+    ar38b = random_normal_absolute(*ar38b, size=Monte_Carlo_Size)
+    ar37b = random_normal_absolute(*ar37b, size=Monte_Carlo_Size)
+    ar36b = random_normal_absolute(*ar36b, size=Monte_Carlo_Size)
+
+    MDF =random_normal_relative(*MDF, size=Monte_Carlo_Size)
+
+    M40 = random_normal_relative(*M40, size=Monte_Carlo_Size)
+    M39 = random_normal_relative(*M39, size=Monte_Carlo_Size)
+    M38 = random_normal_relative(*M38, size=Monte_Carlo_Size)
+    M37 = random_normal_relative(*M37, size=Monte_Carlo_Size)
+    M36 = random_normal_relative(*M36, size=Monte_Carlo_Size)
+
+    L36cl = random_normal_relative(*L36cl, size=Monte_Carlo_Size)
+    L37ar = random_normal_relative(*L37ar, size=Monte_Carlo_Size)
+    L39ar = random_normal_relative(*L39ar, size=Monte_Carlo_Size)
+
+    R40v36a = random_normal_relative(*R40v36a, size=Monte_Carlo_Size)
+    R38v36a = random_normal_relative(*R38v36a, size=Monte_Carlo_Size)
+    R39v37ca = random_normal_relative(*R39v37ca, size=Monte_Carlo_Size)
+    R38v37ca = random_normal_relative(*R38v37ca, size=Monte_Carlo_Size)
+    R36v37ca = random_normal_relative(*R36v37ca, size=Monte_Carlo_Size)
+    R40v39k = random_normal_relative(*R40v39k, size=Monte_Carlo_Size)
+    R38v39k = random_normal_relative(*R38v39k, size=Monte_Carlo_Size)
+    R36v38clp = random_normal_relative(*R36v38clp, size=Monte_Carlo_Size)
+
+
+    def _yield_F():
+        i = 0
+        while i < Monte_Carlo_Size:
+            P40Mdf = MDFunc(M40[i], M40[i], MDF[i])
+            P39Mdf = MDFunc(M40[i], M39[i], MDF[i])
+            P38Mdf = MDFunc(M40[i], M38[i], MDF[i])
+            P37Mdf = MDFunc(M40[i], M37[i], MDF[i])
+            P36Mdf = MDFunc(M40[i], M36[i], MDF[i])
+            P37Decay = get_decay_factor(t1, t2, t3, L37ar[i], sf=0)[0]
+            P39Decay = get_decay_factor(t1, t2, t3, L39ar[i], sf=0)[0]
+            _ar37ca = (ar37m[i] - ar37b[i]) * P37Mdf * P37Decay
+            _ar39k = (ar39m[i] - ar39b[i]) * P39Mdf * P39Decay - _ar37ca * R39v37ca[i]
+            _ar38res = (ar38m[i] - ar38b[i]) * P38Mdf - _ar39k * R38v39k[i] - _ar37ca * R38v37ca[i]
+            _ar36res = (ar36m[i] - ar36b[i]) * P36Mdf - _ar37ca * R36v37ca[i]
+            _ar36cl = (_ar36res - _ar38res / R38v36a[i]) / (1 - 1 / (R36v38clp[i] * (1 - exp(-1 * L36cl[i] * stand_time_year)) * R38v36a[i]))
+            _ar36a = _ar36res - _ar36cl
+            _ar40r = (ar40m[i] - ar40b[i]) * P40Mdf - _ar36a * R40v36a[i] - _ar39k * R40v39k[i]
+            _f = _ar40r / _ar39k
+            i += 1
+            yield _f
+
+    F = _yield_F()
+    res = []
+    for f in F:
+        res.append(f)
+        # print(f)
+
+    print("F = {0} ± {1}".format(np.mean(res), np.std(res)))
+
+    return 0, 0
+
+
 
 
