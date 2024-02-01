@@ -622,7 +622,8 @@ class ArArCalcFile:
         # list(range(68, 97, 2)) J, MDF, other constants
         for column in list(range(1, 26, 2)) + list(range(68, 71, 2)):
             self.content.loc[:, ('pam', column)] = \
-                self.content['pam', column].astype("float") / (self.content['pam', column - 1].astype("float")) * 100
+                (self.content['pam', column].astype("float") / (
+                    self.content['pam', column - 1].astype("float")) * 100).replace(np.nan, 0)
 
         # sample info
         self.sample_info = {
