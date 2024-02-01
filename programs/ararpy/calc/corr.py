@@ -251,7 +251,7 @@ def get_method_fitting_law_by_name(method_str: str):
     """
     res = [False] * 3
     try:
-        res[['Linear', 'Exponential', 'Power'].index(method_str.capitalize())] = True
+        res[['Lin', 'Exp', 'Pow'].index(method_str.capitalize()[:3])] = True
     except ValueError:
         res[0] = True
     return res
