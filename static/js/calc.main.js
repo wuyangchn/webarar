@@ -465,8 +465,6 @@ function showParamProject(ele, param_type) {
                     $.each(input_box, function (index, each) {
                         each.value=res.param[index];
                     });
-                    console.log(res.param);
-                    console.log(myParse(res.param));
                     $.each(check_Box, function (index, each) {
                         each.checked=stringToBoolean(res.param[index+input_box.length]);
                     });
