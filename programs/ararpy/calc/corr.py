@@ -95,7 +95,6 @@ def discr(a0: list, e0: list, mdf: list, smdf: list, m: list, m40: list,
     for i in range(min([len(arg) for arg in [a0, e0, mdf, smdf]])):
         delta_mass = abs(m40[i] - m[i])
         ratio_mass = abs(m40[i] / m[i]) if m[i] != 0 else 1
-        print(method.lower())
         if method.lower()[0] == 'l':
             k0 = 1 / (delta_mass * mdf[i] - delta_mass + 1) if (delta_mass * mdf[i] - delta_mass + 1) != 0 else 0
             k1 = err.div((1, 0), (delta_mass * mdf[i] - delta_mass + 1, smdf[i] * delta_mass))
@@ -252,7 +251,7 @@ def get_method_fitting_law_by_name(method_str: str):
     """
     res = [False] * 3
     try:
-        res[['Lin', 'Exp', 'Pow'].index(method_str.capitalize()[:3])] = True
+        res[['Linear', 'Exponential', 'Power'].index(method_str.capitalize())] = True
     except ValueError:
         res[0] = True
     return res
@@ -354,8 +353,7 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
     R38v39k = random_normal_relative(*R38v39k, size=Monte_Carlo_Size)
     R36v38clp = random_normal_relative(*R36v38clp, size=Monte_Carlo_Size)
 
-
-    def _yield_F():
+    def do_simulation():
         i = 0
         while i < Monte_Carlo_Size:
             P40Mdf = MDFunc(M40[i], M40[i], MDF[i])
@@ -365,6 +363,15 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
             P36Mdf = MDFunc(M40[i], M36[i], MDF[i])
             P37Decay = get_decay_factor(t1, t2, t3, L37ar[i], sf=0)[0]
             P39Decay = get_decay_factor(t1, t2, t3, L39ar[i], sf=0)[0]
+
+            _ar40m = ar40m[i]
+
+            _ar36 = (ar36m[i] - ar36b[i]) * P36Mdf
+            _ar37 = (ar37m[i] - ar37b[i]) * P37Mdf
+            _ar38 = (ar38m[i] - ar38b[i]) * P38Mdf
+            _ar39 = (ar39m[i] - ar39b[i]) * P39Mdf
+            _ar40 = (ar40m[i] - ar40b[i]) * P40Mdf
+
             _ar37ca = (ar37m[i] - ar37b[i]) * P37Mdf * P37Decay
             _ar39k = (ar39m[i] - ar39b[i]) * P39Mdf * P39Decay - _ar37ca * R39v37ca[i]
             _ar38res = (ar38m[i] - ar38b[i]) * P38Mdf - _ar39k * R38v39k[i] - _ar37ca * R38v37ca[i]
@@ -374,17 +381,70 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
             _ar40r = (ar40m[i] - ar40b[i]) * P40Mdf - _ar36a * R40v36a[i] - _ar39k * R40v39k[i]
             _f = _ar40r / _ar39k
             i += 1
-            yield _f
+            yield _f, _ar36, _ar37, _ar38, _ar39, _ar40, _ar36a, _ar37ca, _ar39k, _ar40r, _ar36cl
 
-    F = _yield_F()
-    res = []
-    for f in F:
-        res.append(f)
-        # print(f)
+    simulation = do_simulation()
+    F = []
+    ar36 = []
+    ar37 = []
+    ar38 = []
+    ar39 = []
+    ar40 = []
 
-    print("F = {0} ± {1}".format(np.mean(res), np.std(res)))
+    ar36a = []
+    ar37ca = []
+    ar39k = []
+    ar40r = []
+    ar36cl = []
+    for each in simulation:
+        F.append(each[0])
+        ar36.append(each[1])
+        ar37.append(each[2])
+        ar38.append(each[3])
+        ar39.append(each[4])
+        ar40.append(each[5])
+        ar36a.append(each[6])
+        ar37ca.append(each[7])
+        ar39k.append(each[8])
+        ar40r.append(each[9])
+        ar36cl.append(each[10])
 
-    return 0, 0
+    # print("F = {0} ± {1}".format(np.mean(F), np.std(F)))
+    #
+    # with open("ar36m.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar36m]))
+    # with open("ar37m.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar37m]))
+    # with open("ar38m.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar38m]))
+    # with open("ar39m.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar39m]))
+    # with open("ar40m.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar40m]))
+    #
+    # with open("ar36.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar36]))
+    # with open("ar37.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar37]))
+    # with open("ar38.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar38]))
+    # with open("ar39.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar39]))
+    # with open("ar40.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar40]))
+    #
+    # with open("ar36a.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar36a]))
+    # with open("ar36cl.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar36cl]))
+    # with open("ar37ca.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar37ca]))
+    # with open("ar39k.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar39k]))
+    # with open("ar40r.txt", 'w') as f:  # save serialized json data to a readable text
+    #     f.writelines("\n".join([str(i) for i in ar40r]))
+
+    return np.mean(F), np.std(F)
 
 
 

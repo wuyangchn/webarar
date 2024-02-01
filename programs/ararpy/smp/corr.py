@@ -373,8 +373,10 @@ def calc_ratio(sample: Sample):
 
     # Note that the difference between Turner 3D plots and our 3D plots.
 
+    monte_carlo_f(sample=sample)
 
-def Monte_Carlo_F(smp: Sample):
+
+def monte_carlo_f(sample: Sample):
     """
     Parameters
     ----------
@@ -385,58 +387,66 @@ def Monte_Carlo_F(smp: Sample):
 
     """
 
-    sequence_num = smp.sequence().size
+    sequence_num = sample.sequence().size
 
-    ar40m = np.transpose(smp.SampleIntercept[8:10])
-    ar39m = np.transpose(smp.SampleIntercept[6:8])
-    ar38m = np.transpose(smp.SampleIntercept[4:6])
-    ar37m = np.transpose(smp.SampleIntercept[2:4])
-    ar36m = np.transpose(smp.SampleIntercept[0:2])
-    ar40b = np.transpose(smp.BlankIntercept[8:10])
-    ar39b = np.transpose(smp.BlankIntercept[6:8])
-    ar38b = np.transpose(smp.BlankIntercept[4:6])
-    ar37b = np.transpose(smp.BlankIntercept[2:4])
-    ar36b = np.transpose(smp.BlankIntercept[0:2])
+    ar40m = np.transpose(sample.SampleIntercept[8:10])
+    ar39m = np.transpose(sample.SampleIntercept[6:8])
+    ar38m = np.transpose(sample.SampleIntercept[4:6])
+    ar37m = np.transpose(sample.SampleIntercept[2:4])
+    ar36m = np.transpose(sample.SampleIntercept[0:2])
+    ar40b = np.transpose(sample.BlankIntercept[8:10])
+    ar39b = np.transpose(sample.BlankIntercept[6:8])
+    ar38b = np.transpose(sample.BlankIntercept[4:6])
+    ar37b = np.transpose(sample.BlankIntercept[2:4])
+    ar36b = np.transpose(sample.BlankIntercept[0:2])
 
-    M36 = np.transpose(smp.TotalParam[71:73])
-    M37 = np.transpose(smp.TotalParam[73:75])
-    M38 = np.transpose(smp.TotalParam[75:77])
-    M39 = np.transpose(smp.TotalParam[77:79])
-    M40 = np.transpose(smp.TotalParam[79:81])
+    M36 = np.transpose(sample.TotalParam[71:73])
+    M37 = np.transpose(sample.TotalParam[73:75])
+    M38 = np.transpose(sample.TotalParam[75:77])
+    M39 = np.transpose(sample.TotalParam[77:79])
+    M40 = np.transpose(sample.TotalParam[79:81])
 
-    M36 = [[35.96754628, 0] for i in range(sequence_num)]
-    M37 = [[36.9667759, 0] for i in range(sequence_num)]
-    M38 = [[37.9627322, 0] for i in range(sequence_num)]
-    M39 = [[38.964313, 0] for i in range(sequence_num)]
-    M40 = [[39.962383123, 0] for i in range(sequence_num)]
+    # M36 = [[35.96754628, 0] for i in range(sequence_num)]
+    # M37 = [[36.9667759, 0] for i in range(sequence_num)]
+    # M38 = [[37.9627322, 0] for i in range(sequence_num)]
+    # M39 = [[38.964313, 0] for i in range(sequence_num)]
+    # M40 = [[39.962383123, 0] for i in range(sequence_num)]
 
-    MDF = np.transpose(smp.TotalParam[69:71])
+    MDF = np.transpose(sample.TotalParam[69:71])
 
-    L39ar = np.transpose(smp.TotalParam[42:44])
-    L37ar = np.transpose(smp.TotalParam[44:46])
-    L36cl = np.transpose(smp.TotalParam[46:48])
+    L39ar = np.transpose(sample.TotalParam[42:44])
+    L37ar = np.transpose(sample.TotalParam[44:46])
+    L36cl = np.transpose(sample.TotalParam[46:48])
 
-    R39v37ca = np.transpose(smp.TotalParam[8:10])
-    R38v37ca = np.transpose(smp.TotalParam[10:12])
-    R36v37ca = np.transpose(smp.TotalParam[12:14])
-    R40v39k = np.transpose(smp.TotalParam[14:16])
-    R38v39k = np.transpose(smp.TotalParam[16:18])
+    R39v37ca = np.transpose(sample.TotalParam[8:10])
+    R38v37ca = np.transpose(sample.TotalParam[10:12])
+    R36v37ca = np.transpose(sample.TotalParam[12:14])
+    R40v39k = np.transpose(sample.TotalParam[14:16])
+    R38v39k = np.transpose(sample.TotalParam[16:18])
 
-    R40v36a = np.transpose(smp.TotalParam[0:2])
-    R38v36a = np.transpose(smp.TotalParam[4:6])
-    R36v38clp = np.transpose(smp.TotalParam[56:58])
+    R40v36a = np.transpose(sample.TotalParam[0:2])
+    R38v36a = np.transpose(sample.TotalParam[4:6])
+    R36v38clp = np.transpose(sample.TotalParam[56:58])
 
-    stand_time_year = np.transpose(smp.TotalParam[32])
+    stand_time_year = np.transpose(sample.TotalParam[32])
 
-    irradiation_cycles = [list(filter(None, re.split(r'[DS]', each_step))) for each_step in smp.TotalParam[27]]
-    t1 = [re.findall(r"\d+", i) for i in smp.TotalParam[31]]  # t1: experimental times
+    irradiation_cycles = [list(filter(None, re.split(r'[DS]', each_step))) for each_step in sample.TotalParam[27]]
+    t1 = [re.findall(r"\d+", i) for i in sample.TotalParam[31]]  # t1: experimental times
     t2, t3 = [], []  # t2: irradiation times, t3: irradiation durations
     for each_step in irradiation_cycles:
         t2.append([re.findall(r"\d+", item) for i, item in enumerate(each_step) if i % 2 == 0])
         t3.append([item for i, item in enumerate(each_step) if i % 2 == 1])
 
+    # for i in range(sequence_num):
+    #     P37Decay = calc.corr.get_decay_factor(t1[i], t2[i], t3[i], L37ar[i][0], L37ar[i][0] * L37ar[i][1] / 100)
+    #     print(P37Decay)
+    #
+    # for i in range(sequence_num):
+    #     P39Decay = calc.corr.get_decay_factor(t1[i], t2[i], t3[i], L39ar[i][0], L39ar[i][0] * L39ar[i][1] / 100)
+    #     print(P39Decay)
+
     for i in range(sequence_num):
-        f = calc.corr.Monte_Carlo_F(
+        F = calc.corr.Monte_Carlo_F(
             ar40m=ar40m[i], ar39m=ar39m[i], ar38m=ar38m[i], ar37m=ar37m[i], ar36m=ar36m[i],
             ar40b=ar40b[i], ar39b=ar39b[i], ar38b=ar38b[i], ar37b=ar37b[i], ar36b=ar36b[i],
             M40=M40[i], M39=M39[i], M38=M38[i], M37=M37[i], M36=M36[i],
@@ -449,3 +459,6 @@ def Monte_Carlo_F(smp: Sample):
             MDFunc=None,
             MDF=MDF[i], stand_time_year=stand_time_year[i]
         )
+
+        # where to display simulation results
+        sample.ApparentAgeValues[6][i] = F[1]
