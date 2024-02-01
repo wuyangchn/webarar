@@ -137,6 +137,16 @@ function myParse(myString) {
     });
 }
 
+const stringToBoolean = (stringValue) => {
+    switch(stringValue?.toLowerCase().trim()){
+        case "true":
+        case "1":
+          return true;
+        default:
+          return false;
+    }
+}
+
 class AjaxRequest {
     constructor(url, content, async) {
         this.url = url;
@@ -455,8 +465,10 @@ function showParamProject(ele, param_type) {
                     $.each(input_box, function (index, each) {
                         each.value=res.param[index];
                     });
+                    console.log(res.param);
+                    console.log(myParse(res.param));
                     $.each(check_Box, function (index, each) {
-                        each.checked=res.param[index+input_box.length];
+                        each.checked=stringToBoolean(res.param[index+input_box.length]);
                     });
                     initialRatioSelectChanged();
                 }

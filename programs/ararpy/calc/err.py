@@ -64,7 +64,7 @@ def div(*args: tuple) -> float:
     Returns: float, propagated error
 
     """
-    args = [arg if index == 0 else (np.divide(1, arg[0]), div(arg)) for index, arg in enumerate(args)]
+    args = [arg if index == 0 else (np.divide(1, arg[0]), rec(arg)) for index, arg in enumerate(args)]
     k = mul(*args)
     return k
 
