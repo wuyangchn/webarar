@@ -95,6 +95,7 @@ def discr(a0: list, e0: list, mdf: list, smdf: list, m: list, m40: list,
     for i in range(min([len(arg) for arg in [a0, e0, mdf, smdf]])):
         delta_mass = abs(m40[i] - m[i])
         ratio_mass = abs(m40[i] / m[i]) if m[i] != 0 else 1
+        print(method.lower())
         if method.lower()[0] == 'l':
             k0 = 1 / (delta_mass * mdf[i] - delta_mass + 1) if (delta_mass * mdf[i] - delta_mass + 1) != 0 else 0
             k1 = err.div((1, 0), (delta_mass * mdf[i] - delta_mass + 1, smdf[i] * delta_mass))
@@ -251,7 +252,7 @@ def get_method_fitting_law_by_name(method_str: str):
     """
     res = [False] * 3
     try:
-        res[['Linear', 'Exponential', 'Power'].index(method_str.capitalize())] = True
+        res[['Lin', 'Exp', 'Pow'].index(method_str.capitalize()[:3])] = True
     except ValueError:
         res[0] = True
     return res
