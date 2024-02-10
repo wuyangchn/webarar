@@ -16,6 +16,7 @@ import os
 import sys
 import pickle
 import traceback
+import pdf_maker as pm
 
 from ..calc import arr, isochron
 from . import basic, sample, consts
@@ -33,6 +34,10 @@ def to_excel(file_path: str):
     excel = WritingWorkbook(filepath=file_path)
     excel.get_xls()
 
+
+def to_pdf(file_path: str, figure: str, smp: Sample):
+    pdf = CreatePDF(filepath=file_path, sample=smp)
+    pdf.save(figure=figure)
 
 class ExcelTemplate:
     def __init__(self, **kwargs):
@@ -875,15 +880,15 @@ class CreatePDF:
         self.name = "PDF"
         self.sample = Sample()
         self.figure = Plot()
-        self.export_filepath = ""
+        self.filepath = ""
         self.page_size = [595, 842]
         self.data_bytes = b""
         self.component = []
         self.text = []
         self.frame = []
         self.axis_area = [138, 400, 360, 270]  # x0, y0, w, h
-        with open(os.path.join(SETTINGS_ROOT, 'PDF_Template.txt'), 'rb') as f:
-            self.data_str: str = f.read().decode('utf-8')
+        # with open(os.path.join(SETTINGS_ROOT, 'PDF_Template.txt'), 'rb') as f:
+        #     self.data_str: str = f.read().decode('utf-8')
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -1166,9 +1171,9 @@ class CreatePDF:
         self.data_bytes = self.data_str.encode('utf-8')
         return self.data_bytes
 
-    def save(self):
-        with open(self.export_filepath, 'wb') as f:
-            f.write(self.data_bytes)
+    # def save(self):
+    #     with open(self.filepath, 'wb') as f:
+    #         f.write(self.data_bytes)
 
     def do_function(self, *handlers):
         for handler in handlers:
@@ -1177,6 +1182,99 @@ class CreatePDF:
             except Exception:
                 print(traceback.format_exc())
                 continue
+
+    def create_pdf(self):
+        pass
+
+    def save(self, figure: str = "figure_3"):
+
+        file = pm.NewPDF(filepath=self.filepath)
+        # rich text tags should follow this priority: color > script > break
+        file.text(page=0, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
+                  text=f"This is a demo of creating pdf with <red>PDF-Maker</red>, which is still under improvement.<r>"
+                       f"The PDF can be edited with Adobe and CorelDRAW to satisfy your needs.<r>"
+                       f"<r><sup>40</sup>Ar/<sup>39</sup>Ar {'Inverse Isochron' if figure == 'figure_3' else 'Normal Isochron' if figure == 'figure_2' else ''}")
+        cv = self.plot_isochron(figure=figure)
+        file.canvas(page=1, margin_top=5, canvas=cv, unit="cm", h_align="middle")
+
+        # save pdf
+        file.save()
+
+    def plot_isochron(self, smp: Sample = None, figure: str = "figure_3"):
+        if smp is None:
+            smp = self.sample
+
+        if figure == "figure_2":
+            plot: Plot = smp.NorIsochronPlot
+        elif figure == "figure_3":
+            plot: Plot = smp.InvIsochronPlot
+        else:
+            return
+
+        xaxis: Plot.Axis = plot.xaxis
+        yaxis: Plot.Axis = plot.yaxis
+        set1: Plot.Set = plot.set1
+        set2: Plot.Set = plot.set2
+        age_results = smp.Info.results.isochron[figure]
+
+        plot_scale = (xaxis.min, xaxis.max, yaxis.min, yaxis.max)
+
+        # create a canvas
+        cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
+        # change frame outline style
+        cv.show_frame(color="grey", line_width=0.5)
+        pt = cv.add_plot_area(name="Plot1", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=plot_scale, show_frame=True)
+
+        # isochron scatters
+        data = arr.transpose(plot.data)
+        for (x, sx, y, sy, r, i) in data:
+            pt.scatter(x, y, fill_color="red" if (i - 1) in set1.data else "blue" if (i - 1) in set2.data else "white",
+                       size=2)
+
+        # isochron line
+        line1: list = plot.line1.data
+        pt.line(start=line1[0], end=line1[1], clip=True, width=1, color='red')
+
+        # split sticks
+        xaxis.interval = (xaxis.max - xaxis.min) / xaxis.split_number
+        yaxis.interval = (yaxis.max - yaxis.min) / yaxis.split_number
+        for i in range(xaxis.split_number + 1):
+            start = pt.scale_to_points(*(xaxis.min + xaxis.interval * i, yaxis.min))
+            end = pt.scale_to_points(xaxis.min + xaxis.interval * i, yaxis.min)
+            end = (end[0], start[1] - 5)
+            pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+            pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis.min + xaxis.interval * i}", clip=False,
+                    coordinate="pt", h_align="middle")
+        for i in range(yaxis.split_number + 1):
+            start = pt.scale_to_points(*(xaxis.min, yaxis.min + yaxis.interval * i))
+            end = pt.scale_to_points(xaxis.min, yaxis.min + yaxis.interval * i)
+            end = (start[0] - 5, end[1])
+            pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+            pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis.min + yaxis.interval * i}", clip=False,
+                    coordinate="pt", h_align="right", v_align="center")
+
+        # axis titles
+        p = pt.scale_to_points((xaxis.max + xaxis.min) / 2, yaxis.min)
+        x_title = f"<sup>39</sup>Ar<sub>K</sub>/<sup>40</sup>Ar" \
+            if figure == "figure_3" else f"<sup>40</sup>Ar/<sup>39</sup>Ar<sub>K</sub>"
+        y_title = f"<sup>36</sup>Ar<sub>a</sub>/<sup>40</sup>Ar" \
+            if figure == "figure_3" else f"<sup>40</sup>Ar/<sup>36</sup>Ar<sub>a</sub>"
+        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
+        p = pt.scale_to_points(xaxis.min, (yaxis.max + yaxis.min) / 2)
+        pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
+                h_align="middle", v_align="bottom", rotate=90)
+
+        # inside text
+        age, sage = round(age_results[0]['age'], 2), round(age_results[0]['s2'], 2)
+        F, sF = round(age_results[0]['F'], 2), round(age_results[0]['sF'], 2)
+        R0, sR0 = round(age_results[0]['initial'], 2), round(age_results[0]['sinitial'], 2)
+        pt.text(x=(xaxis.max - xaxis.min) * 0.6 + xaxis.min,
+                y=(yaxis.max - yaxis.min) * 0.7 + yaxis.min,
+                text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>F = {F} {chr(0xb1)} {sF}<r>"
+                     f"R<sub>0</sub> = {R0} {chr(0xb1)} {sR0}",
+                clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0)
+
+        return cv
 
 
 class CustomUnpickler(pickle.Unpickler):

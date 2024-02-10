@@ -342,12 +342,13 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         # Do something for PDF BODY
         if not merged_pdf:
-            ap.smp.export.CreatePDF(
-                name=f"{self.sample.Info.sample.name}_export",
-                export_filepath=export_filepath,
-                sample=self.sample,
-                figure=figure,
-            ).get_pdf()
+            # ap.smp.export.CreatePDF(
+            #     name=f"{self.sample.Info.sample.name}_export",
+            #     export_filepath=export_filepath,
+            #     sample=self.sample,
+            #     figure=figure,
+            # ).get_pdf()
+            ap.smp.export.to_pdf(export_filepath, figure_id, self.sample)
         else:
             pdf1 = ap.smp.export.CreatePDF(
                 name=f"{self.sample.Info.sample.name}_export",
