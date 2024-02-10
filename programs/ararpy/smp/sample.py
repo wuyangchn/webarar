@@ -901,6 +901,8 @@ class Sample:
 
     def set_info(self, info: dict): ...
 
+    def to_pdf(self, file_path: str, figure: str = "figure_3"): ...
+
 
 class Table:
     def __init__(self, id='', name='Table', colcount=None, rowcount=None, header=None,
