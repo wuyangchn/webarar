@@ -6,6 +6,8 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 * Error type selection 
 
+# 0.0.23 2024-02-11
+* Fix error of exporting to excel, index error in getting data of set2
 
 # 0.0.22 2024-02-11
 * Add age spectra export

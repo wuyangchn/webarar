@@ -145,10 +145,22 @@ class WritingWorkbook:
         sht_reference.write_column(f"R{start_row}", set2_data[2], style)
         sht_reference.write_column(f"S{start_row}", set3_data[0], style)
         sht_reference.write_column(f"T{start_row}", set3_data[2], style)
-        sht_reference.write_column(f"U{start_row}", self.sample.NorIsochronPlot.line1.data[0], style)
-        sht_reference.write_column(f"V{start_row}", self.sample.NorIsochronPlot.line1.data[1], style)
-        sht_reference.write_column(f"W{start_row}", self.sample.NorIsochronPlot.line2.data[0], style)
-        sht_reference.write_column(f"X{start_row}", self.sample.NorIsochronPlot.line2.data[1], style)
+        try:
+            sht_reference.write_column(f"U{start_row}", self.sample.NorIsochronPlot.line1.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"V{start_row}", self.sample.NorIsochronPlot.line1.data[1], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"W{start_row}", self.sample.NorIsochronPlot.line2.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"X{start_row}", self.sample.NorIsochronPlot.line2.data[1], style)
+        except IndexError:
+            pass
         # Data for inverse isochron
         set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
             self.sample.InvIsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
@@ -159,10 +171,22 @@ class WritingWorkbook:
         sht_reference.write_column(f"AB{start_row}", set2_data[2], style)
         sht_reference.write_column(f"AC{start_row}", set3_data[0], style)
         sht_reference.write_column(f"AD{start_row}", set3_data[2], style)
-        sht_reference.write_column(f"AE{start_row}", self.sample.InvIsochronPlot.line1.data[0], style)
-        sht_reference.write_column(f"AF{start_row}", self.sample.InvIsochronPlot.line1.data[1], style)
-        sht_reference.write_column(f"AG{start_row}", self.sample.InvIsochronPlot.line2.data[0], style)
-        sht_reference.write_column(f"AH{start_row}", self.sample.InvIsochronPlot.line2.data[1], style)
+        try:
+            sht_reference.write_column(f"AE{start_row}", self.sample.InvIsochronPlot.line1.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"AF{start_row}", self.sample.InvIsochronPlot.line1.data[1], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"AG{start_row}", self.sample.InvIsochronPlot.line2.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"AH{start_row}", self.sample.InvIsochronPlot.line2.data[1], style)
+        except IndexError:
+            pass
         # Data for Cl 1 isochron
         set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
             self.sample.KClAr1IsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
@@ -173,10 +197,22 @@ class WritingWorkbook:
         sht_reference.write_column(f"AL{start_row}", set2_data[2], style)
         sht_reference.write_column(f"AM{start_row}", set3_data[0], style)
         sht_reference.write_column(f"AN{start_row}", set3_data[2], style)
-        sht_reference.write_column(f"AO{start_row}", self.sample.KClAr1IsochronPlot.line1.data[0], style)
-        sht_reference.write_column(f"AP{start_row}", self.sample.KClAr1IsochronPlot.line1.data[1], style)
-        sht_reference.write_column(f"AQ{start_row}", self.sample.KClAr1IsochronPlot.line2.data[0], style)
-        sht_reference.write_column(f"AR{start_row}", self.sample.KClAr1IsochronPlot.line2.data[1], style)
+        try:
+            sht_reference.write_column(f"AO{start_row}", self.sample.KClAr1IsochronPlot.line1.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"AP{start_row}", self.sample.KClAr1IsochronPlot.line1.data[1], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"AQ{start_row}", self.sample.KClAr1IsochronPlot.line2.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"AR{start_row}", self.sample.KClAr1IsochronPlot.line2.data[1], style)
+        except IndexError:
+            pass
         # Data for Cl 2 isochron
         set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
             self.sample.KClAr2IsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
@@ -187,10 +223,22 @@ class WritingWorkbook:
         sht_reference.write_column(f"AV{start_row}", set2_data[2], style)
         sht_reference.write_column(f"AW{start_row}", set3_data[0], style)
         sht_reference.write_column(f"AX{start_row}", set3_data[2], style)
-        sht_reference.write_column(f"AY{start_row}", self.sample.KClAr2IsochronPlot.line1.data[0], style)
-        sht_reference.write_column(f"AZ{start_row}", self.sample.KClAr2IsochronPlot.line1.data[1], style)
-        sht_reference.write_column(f"BA{start_row}", self.sample.KClAr2IsochronPlot.line2.data[0], style)
-        sht_reference.write_column(f"BB{start_row}", self.sample.KClAr2IsochronPlot.line2.data[1], style)
+        try:
+            sht_reference.write_column(f"AY{start_row}", self.sample.KClAr2IsochronPlot.line1.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"AZ{start_row}", self.sample.KClAr2IsochronPlot.line1.data[1], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"BA{start_row}", self.sample.KClAr2IsochronPlot.line2.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"BB{start_row}", self.sample.KClAr2IsochronPlot.line2.data[1], style)
+        except IndexError:
+            pass
         # Data for Cl 3 isochron
         set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
             self.sample.KClAr3IsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
@@ -201,10 +249,22 @@ class WritingWorkbook:
         sht_reference.write_column(f"BF{start_row}", set2_data[2], style)
         sht_reference.write_column(f"BG{start_row}", set3_data[0], style)
         sht_reference.write_column(f"BH{start_row}", set3_data[2], style)
-        sht_reference.write_column(f"BI{start_row}", self.sample.KClAr3IsochronPlot.line1.data[0], style)
-        sht_reference.write_column(f"BJ{start_row}", self.sample.KClAr3IsochronPlot.line1.data[1], style)
-        sht_reference.write_column(f"BK{start_row}", self.sample.KClAr3IsochronPlot.line2.data[0], style)
-        sht_reference.write_column(f"BL{start_row}", self.sample.KClAr3IsochronPlot.line2.data[1], style)
+        try:
+            sht_reference.write_column(f"BI{start_row}", self.sample.KClAr3IsochronPlot.line1.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"BJ{start_row}", self.sample.KClAr3IsochronPlot.line1.data[1], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"BK{start_row}", self.sample.KClAr3IsochronPlot.line2.data[0], style)
+        except IndexError:
+            pass
+        try:
+            sht_reference.write_column(f"BL{start_row}", self.sample.KClAr3IsochronPlot.line2.data[1], style)
+        except IndexError:
+            pass
         # Data for degas pattern
         degas_data = self.sample.DegasPatternPlot.data
         sht_reference.write_column(f"BM{start_row}", degas_data[0], style)
