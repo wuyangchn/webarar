@@ -7,7 +7,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection 
 
 
-# 0.0.21 (2024-01-19-)
+# 0.0.22 2024-02-11
+* Add age spectra export
+
+# 0.0.21 2024-02-10
 * Export to pdf
 
 

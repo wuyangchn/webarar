@@ -1186,15 +1186,25 @@ class CreatePDF:
     def create_pdf(self):
         pass
 
-    def save(self, figure: str = "figure_3"):
+    def save(self, figure: str = "figure_3", use_split_number: bool = True):
+
+        if figure in ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6']:
+            cv = self.plot_isochron(figure=figure)
+        elif figure in ['figure_1']:
+            cv = self.plot_spectra(figure=figure)
+        elif figure in ['figure_8']:
+            cv = self.plot_degas(figure=figure)
+        elif figure in ['figure_9']:
+            cv = self.plot_age_distribution(figure=figure)
+        else:
+            return
 
         file = pm.NewPDF(filepath=self.filepath)
         # rich text tags should follow this priority: color > script > break
         file.text(page=0, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
-                  text=f"This is a demo of creating pdf with <red>PDF-Maker</red>, which is still under improvement.<r>"
-                       f"The PDF can be edited with Adobe and CorelDRAW to satisfy your needs.<r>"
-                       f"<r><sup>40</sup>Ar/<sup>39</sup>Ar {'Inverse Isochron' if figure == 'figure_3' else 'Normal Isochron' if figure == 'figure_2' else ''}")
-        cv = self.plot_isochron(figure=figure)
+                  text=f"The PDF producer is still under improvement.<r>"
+                       f"The PDF can be edited with Adobe Acrobat and Illustrator.<r>"
+                       f"<r><sup>40</sup>Ar/<sup>39</sup>Ar Plot")
         file.canvas(page=1, margin_top=5, canvas=cv, unit="cm", h_align="middle")
 
         # save pdf
@@ -1204,12 +1214,28 @@ class CreatePDF:
         if smp is None:
             smp = self.sample
 
+        x_title = f""
+        y_title = f""
         if figure == "figure_2":
             plot: Plot = smp.NorIsochronPlot
-        elif figure == "figure_3":
+            x_title = f"<sup>40</sup>Ar/<sup>39</sup>Ar<sub>K</sub>"
+            y_title = f"<sup>40</sup>Ar/<sup>36</sup>Ar<sub>a</sub>"
+        if figure == "figure_3":
             plot: Plot = smp.InvIsochronPlot
-        else:
-            return
+            x_title = f"<sup>39</sup>Ar<sub>K</sub>/<sup>40</sup>Ar"
+            y_title = f"<sup>36</sup>Ar<sub>a</sub>/<sup>40</sup>Ar"
+        if figure == "figure_4":
+            plot: Plot = smp.KClAr1IsochronPlot
+            x_title = f"<sup>39</sup>Ar<sub>K</sub>/<sup>38</sup>Ar<sub>Cl</sub>"
+            y_title = f"<sup>40</sup>Ar/<sup>38</sup>Ar<sub>Cl</sub>"
+        if figure == "figure_5":
+            plot: Plot = smp.KClAr2IsochronPlot
+            x_title = f"<sup>39</sup>Ar<sub>K</sub>/<sup>40</sup>Ar"
+            y_title = f"<sup>38</sup>Ar<sub>Cl</sub>/<sup>40</sup>Ar"
+        if figure == "figure_6":
+            plot: Plot = smp.KClAr3IsochronPlot
+            x_title = f"<sup>38</sup>Ar<sub>Cl</sub>/<sup>39</sup>Ar<sub>K</sub>"
+            y_title = f"<sup>40</sup>Ar/<sup>39</sup>Ar<sub>K</sub>"
 
         xaxis: Plot.Axis = plot.xaxis
         yaxis: Plot.Axis = plot.yaxis
@@ -1218,6 +1244,7 @@ class CreatePDF:
         age_results = smp.Info.results.isochron[figure]
 
         plot_scale = (xaxis.min, xaxis.max, yaxis.min, yaxis.max)
+        colors = ['red', 'color']
 
         # create a canvas
         cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
@@ -1231,50 +1258,157 @@ class CreatePDF:
             pt.scatter(x, y, fill_color="red" if (i - 1) in set1.data else "blue" if (i - 1) in set2.data else "white",
                        size=2)
 
-        # isochron line
-        line1: list = plot.line1.data
-        pt.line(start=line1[0], end=line1[1], clip=True, width=1, color='red')
-
         # split sticks
-        xaxis.interval = (xaxis.max - xaxis.min) / xaxis.split_number
-        yaxis.interval = (yaxis.max - yaxis.min) / yaxis.split_number
+        # xaxis.interval = (xaxis.max - xaxis.min) / xaxis.split_number
+        # yaxis.interval = (yaxis.max - yaxis.min) / yaxis.split_number
         for i in range(xaxis.split_number + 1):
-            start = pt.scale_to_points(*(xaxis.min + xaxis.interval * i, yaxis.min))
+            start = pt.scale_to_points(xaxis.min + xaxis.interval * i, yaxis.min)
             end = pt.scale_to_points(xaxis.min + xaxis.interval * i, yaxis.min)
             end = (end[0], start[1] - 5)
-            pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
-            pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis.min + xaxis.interval * i}", clip=False,
-                    coordinate="pt", h_align="middle")
+            if not pt.is_out_side(*start):
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis.min + xaxis.interval * i}", clip=False,
+                        coordinate="pt", h_align="middle")
         for i in range(yaxis.split_number + 1):
-            start = pt.scale_to_points(*(xaxis.min, yaxis.min + yaxis.interval * i))
+            start = pt.scale_to_points(xaxis.min, yaxis.min + yaxis.interval * i)
             end = pt.scale_to_points(xaxis.min, yaxis.min + yaxis.interval * i)
             end = (start[0] - 5, end[1])
-            pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
-            pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis.min + yaxis.interval * i}", clip=False,
-                    coordinate="pt", h_align="right", v_align="center")
+            if not pt.is_out_side(*start):
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis.min + yaxis.interval * i}", clip=False,
+                        coordinate="pt", h_align="right", v_align="center")
+                # pt.text(x=end[0] - 5, y=end[1], text=arr.change_number_format([f"{yaxis.min + yaxis.interval * i}"], flag="Scientific", precision=1)[0], clip=False,
+                #         coordinate="pt", h_align="right", v_align="center")
+
 
         # axis titles
+
         p = pt.scale_to_points((xaxis.max + xaxis.min) / 2, yaxis.min)
-        x_title = f"<sup>39</sup>Ar<sub>K</sub>/<sup>40</sup>Ar" \
-            if figure == "figure_3" else f"<sup>40</sup>Ar/<sup>39</sup>Ar<sub>K</sub>"
-        y_title = f"<sup>36</sup>Ar<sub>a</sub>/<sup>40</sup>Ar" \
-            if figure == "figure_3" else f"<sup>40</sup>Ar/<sup>36</sup>Ar<sub>a</sub>"
         pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
         p = pt.scale_to_points(xaxis.min, (yaxis.max + yaxis.min) / 2)
         pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
                 h_align="middle", v_align="bottom", rotate=90)
 
         # inside text
-        age, sage = round(age_results[0]['age'], 2), round(age_results[0]['s2'], 2)
-        F, sF = round(age_results[0]['F'], 2), round(age_results[0]['sF'], 2)
-        R0, sR0 = round(age_results[0]['initial'], 2), round(age_results[0]['sinitial'], 2)
-        pt.text(x=(xaxis.max - xaxis.min) * 0.6 + xaxis.min,
-                y=(yaxis.max - yaxis.min) * 0.7 + yaxis.min,
-                text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>F = {F} {chr(0xb1)} {sF}<r>"
-                     f"R<sub>0</sub> = {R0} {chr(0xb1)} {sR0}",
-                clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0)
+        for index, data in enumerate([plot.line1.data, plot.line2.data]):
+            # isochron line
+            try:
+                pt.line(start=data[0], end=data[1], clip=True, width=1, color=colors[index])
+            except IndexError:
+                pass
+            if data != []:
+                age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
+                F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
+                R0, sR0 = round(age_results[index]['initial'], 2), round(age_results[index]['sinitial'], 2)
+                pt.text(x=(xaxis.max - xaxis.min) * 0.6 + xaxis.min,
+                        y=(yaxis.max - yaxis.min) * 0.7 + yaxis.min,
+                        text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>F = {F} {chr(0xb1)} {sF}<r>"
+                             f"R<sub>0</sub> = {R0} {chr(0xb1)} {sR0}",
+                        clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0)
+        return cv
+
+    def plot_spectra(self, smp: Sample = None, figure: str = "figure_1"):
+        if smp is None:
+            smp = self.sample
+
+        x_title = f""
+        y_title = f""
+        if figure == "figure_1":
+            plot: Plot = smp.AgeSpectraPlot
+            x_title = f"Cumulative <sup>39</sup>Ar Released (%)"
+            y_title = f"Apparent Age (Ma)"
+        else:
+            return
+
+        xaxis: Plot.Axis = plot.xaxis
+        yaxis: Plot.Axis = plot.yaxis
+        set1: Plot.Set = plot.set1
+        set2: Plot.Set = plot.set2
+        # age_results = smp.Info.results.age_spectra
+        age_results = smp.Info.results.age_plateau
+        xaxis.min = float(xaxis.min)
+        xaxis.max = float(xaxis.max)
+        yaxis.min = float(yaxis.min)
+        yaxis.max = float(yaxis.max)
+
+        plot_scale = (xaxis.min, xaxis.max, yaxis.min, yaxis.max)
+        colors = ['red', 'color']
+
+        # create a canvas
+        cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
+        # change frame outline style
+        cv.show_frame(color="grey", line_width=0.5)
+        pt = cv.add_plot_area(name="Plot1", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=plot_scale, show_frame=True)
+
+        # spectra lines
+        data = plot.data
+        for index in range(len(data) - 1):
+            pt.line(start=(data[index][0], data[index][1]), end=(data[index + 1][0], data[index + 1][1]),
+                    clip=True, width=1, color='black')
+            pt.line(start=(data[index][0], data[index][2]), end=(data[index + 1][0], data[index + 1][2]),
+                    clip=True, width=1, color='black')
+
+        for index, data in enumerate([plot.set1.data, plot.set2.data]):
+            if not data:
+                continue
+            color = colors[index]
+            for i in range(len(data) - 1):
+                pt.line(start=(data[i][0], data[i][1]), end=(data[i + 1][0], data[i + 1][1]),
+                        clip=True, width=1, color=color)
+                pt.line(start=(data[i][0], data[i][2]), end=(data[i + 1][0], data[i + 1][2]),
+                            clip=True, width=1, color=color)
+            age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
+            F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
+            Num = int(age_results[index]['Num'])
+            MSWD, Ar39 = round(age_results[index]['MSWD'], 2), round(age_results[index]['Ar39'], 2)
+            Chisq, Pvalue = round(age_results[index]['Chisq'], 2), round(age_results[index]['Pvalue'], 2)
+            pt.text(x=(xaxis.max - xaxis.min) * 0.6 + xaxis.min,
+                    y=(yaxis.max - yaxis.min) * 0.7 + yaxis.min,
+                    text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>WMF = {F} {chr(0xb1)} {sF}, n = {Num}<r>"
+                         f"MSWD = {MSWD}, <sup>39</sup>Ar = {Ar39}%<r>"
+                         f"Chisq = {Chisq}, p = {Pvalue}",
+                    clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0)
+
+        # split sticks
+        for i in range(xaxis.split_number + 1):
+            start = pt.scale_to_points(xaxis.min + xaxis.interval * i, yaxis.min)
+            end = pt.scale_to_points(xaxis.min + xaxis.interval * i, yaxis.min)
+            end = (end[0], start[1] - 5)
+            if not pt.is_out_side(*start):
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis.min + xaxis.interval * i}", clip=False,
+                        coordinate="pt", h_align="middle")
+        for i in range(yaxis.split_number + 1):
+            start = pt.scale_to_points(xaxis.min, yaxis.min + yaxis.interval * i)
+            end = pt.scale_to_points(xaxis.min, yaxis.min + yaxis.interval * i)
+            end = (start[0] - 5, end[1])
+            if not pt.is_out_side(*start):
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis.min + yaxis.interval * i}", clip=False,
+                        coordinate="pt", h_align="right", v_align="center")
+
+        # axis titles
+        p = pt.scale_to_points((xaxis.max + xaxis.min) / 2, yaxis.min)
+        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
+        p = pt.scale_to_points(xaxis.min, (yaxis.max + yaxis.min) / 2)
+        pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
+                h_align="middle", v_align="bottom", rotate=90)
 
         return cv
+
+    def plot_degas(self, figure: str = 'figure_8'):        # create a canvas
+        cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
+        # change frame outline style
+        cv.show_frame(color="grey", line_width=0.5)
+        return cv
+
+    def plot_age_distribution(self, figure: str = 'figure_9'):        # create a canvas
+        cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
+        # change frame outline style
+        cv.show_frame(color="grey", line_width=0.5)
+        return cv
+
+
 
 
 class CustomUnpickler(pickle.Unpickler):

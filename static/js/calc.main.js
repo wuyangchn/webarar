@@ -2441,7 +2441,7 @@ function applySettingDialog() {
         figure.title.show = $("#axis-setting-in-dialog :input[name='showTitle']").is(':checked');
         figure.label.show = $("#axis-setting-in-dialog :input[name='showLabel']").is(':checked');
         showPage(getCurrentTableId());
-        return;
+        // return;  Now changes on xaxis scales can be sent to the backend  2024-02-11
     }
     if (current_component==='figure-9-axis-setting'){
         figure.xaxis.max = $("#figure-9-axis-setting :input[name='xMax']").val();
