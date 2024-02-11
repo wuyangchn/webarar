@@ -1188,8 +1188,6 @@ class CreatePDF:
 
     def save(self, figure: str = "figure_3", use_split_number: bool = True):
 
-        print(figure)
-
         if figure in ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6']:
             cv = self.plot_isochron(figure=figure)
         elif figure in ['figure_1']:
@@ -1200,8 +1198,6 @@ class CreatePDF:
             cv = self.plot_age_distribution(figure=figure)
         else:
             return
-
-        print(cv.__dict__)
 
         file = pm.NewPDF(filepath=self.filepath)
         # rich text tags should follow this priority: color > script > break
