@@ -1188,6 +1188,8 @@ class CreatePDF:
 
     def save(self, figure: str = "figure_3", use_split_number: bool = True):
 
+        print(figure)
+
         if figure in ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6']:
             cv = self.plot_isochron(figure=figure)
         elif figure in ['figure_1']:
@@ -1198,6 +1200,8 @@ class CreatePDF:
             cv = self.plot_age_distribution(figure=figure)
         else:
             return
+
+        print(cv.__dict__)
 
         file = pm.NewPDF(filepath=self.filepath)
         # rich text tags should follow this priority: color > script > break
@@ -1242,8 +1246,12 @@ class CreatePDF:
         set1: Plot.Set = plot.set1
         set2: Plot.Set = plot.set2
         age_results = smp.Info.results.isochron[figure]
+        xaxis_min = float(xaxis.min)
+        xaxis_max = float(xaxis.max)
+        yaxis_min = float(yaxis.min)
+        yaxis_max = float(yaxis.max)
 
-        plot_scale = (xaxis.min, xaxis.max, yaxis.min, yaxis.max)
+        plot_scale = (xaxis_min, xaxis_max, yaxis_min, yaxis_max)
         colors = ['red', 'color']
 
         # create a canvas
@@ -1259,33 +1267,33 @@ class CreatePDF:
                        size=2)
 
         # split sticks
-        # xaxis.interval = (xaxis.max - xaxis.min) / xaxis.split_number
-        # yaxis.interval = (yaxis.max - yaxis.min) / yaxis.split_number
+        # xaxis.interval = (xaxis_max - xaxis_min) / xaxis.split_number
+        # yaxis.interval = (yaxis_max - yaxis_min) / yaxis.split_number
         for i in range(xaxis.split_number + 1):
-            start = pt.scale_to_points(xaxis.min + xaxis.interval * i, yaxis.min)
-            end = pt.scale_to_points(xaxis.min + xaxis.interval * i, yaxis.min)
+            start = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
+            end = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
             end = (end[0], start[1] - 5)
             if not pt.is_out_side(*start):
                 pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
-                pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis.min + xaxis.interval * i}", clip=False,
+                pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis_min + xaxis.interval * i}", clip=False,
                         coordinate="pt", h_align="middle")
         for i in range(yaxis.split_number + 1):
-            start = pt.scale_to_points(xaxis.min, yaxis.min + yaxis.interval * i)
-            end = pt.scale_to_points(xaxis.min, yaxis.min + yaxis.interval * i)
+            start = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
+            end = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = (start[0] - 5, end[1])
             if not pt.is_out_side(*start):
                 pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
-                pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis.min + yaxis.interval * i}", clip=False,
+                pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis_min + yaxis.interval * i}", clip=False,
                         coordinate="pt", h_align="right", v_align="center")
-                # pt.text(x=end[0] - 5, y=end[1], text=arr.change_number_format([f"{yaxis.min + yaxis.interval * i}"], flag="Scientific", precision=1)[0], clip=False,
+                # pt.text(x=end[0] - 5, y=end[1], text=arr.change_number_format([f"{yaxis_min + yaxis.interval * i}"], flag="Scientific", precision=1)[0], clip=False,
                 #         coordinate="pt", h_align="right", v_align="center")
 
 
         # axis titles
 
-        p = pt.scale_to_points((xaxis.max + xaxis.min) / 2, yaxis.min)
+        p = pt.scale_to_points((xaxis_max + xaxis_min) / 2, yaxis_min)
         pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
-        p = pt.scale_to_points(xaxis.min, (yaxis.max + yaxis.min) / 2)
+        p = pt.scale_to_points(xaxis_min, (yaxis_max + yaxis_min) / 2)
         pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
                 h_align="middle", v_align="bottom", rotate=90)
 
@@ -1300,8 +1308,8 @@ class CreatePDF:
                 age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
                 F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
                 R0, sR0 = round(age_results[index]['initial'], 2), round(age_results[index]['sinitial'], 2)
-                pt.text(x=(xaxis.max - xaxis.min) * 0.6 + xaxis.min,
-                        y=(yaxis.max - yaxis.min) * 0.7 + yaxis.min,
+                pt.text(x=(xaxis_max - xaxis_min) * 0.6 + xaxis_min,
+                        y=(yaxis_max - yaxis_min) * 0.7 + yaxis_min,
                         text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>F = {F} {chr(0xb1)} {sF}<r>"
                              f"R<sub>0</sub> = {R0} {chr(0xb1)} {sR0}",
                         clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0)
@@ -1326,12 +1334,12 @@ class CreatePDF:
         set2: Plot.Set = plot.set2
         # age_results = smp.Info.results.age_spectra
         age_results = smp.Info.results.age_plateau
-        xaxis.min = float(xaxis.min)
-        xaxis.max = float(xaxis.max)
-        yaxis.min = float(yaxis.min)
-        yaxis.max = float(yaxis.max)
+        xaxis_min = float(xaxis.min)
+        xaxis_max = float(xaxis.max)
+        yaxis_min = float(yaxis.min)
+        yaxis_max = float(yaxis.max)
 
-        plot_scale = (xaxis.min, xaxis.max, yaxis.min, yaxis.max)
+        plot_scale = (xaxis_min, xaxis_max, yaxis_min, yaxis_max)
         colors = ['red', 'color']
 
         # create a canvas
@@ -1362,8 +1370,8 @@ class CreatePDF:
             Num = int(age_results[index]['Num'])
             MSWD, Ar39 = round(age_results[index]['MSWD'], 2), round(age_results[index]['Ar39'], 2)
             Chisq, Pvalue = round(age_results[index]['Chisq'], 2), round(age_results[index]['Pvalue'], 2)
-            pt.text(x=(xaxis.max - xaxis.min) * 0.6 + xaxis.min,
-                    y=(yaxis.max - yaxis.min) * 0.7 + yaxis.min,
+            pt.text(x=(xaxis_max - xaxis_min) * 0.6 + xaxis_min,
+                    y=(yaxis_max - yaxis_min) * 0.7 + yaxis_min,
                     text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>WMF = {F} {chr(0xb1)} {sF}, n = {Num}<r>"
                          f"MSWD = {MSWD}, <sup>39</sup>Ar = {Ar39}%<r>"
                          f"Chisq = {Chisq}, p = {Pvalue}",
@@ -1371,26 +1379,26 @@ class CreatePDF:
 
         # split sticks
         for i in range(xaxis.split_number + 1):
-            start = pt.scale_to_points(xaxis.min + xaxis.interval * i, yaxis.min)
-            end = pt.scale_to_points(xaxis.min + xaxis.interval * i, yaxis.min)
+            start = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
+            end = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
             end = (end[0], start[1] - 5)
             if not pt.is_out_side(*start):
                 pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
-                pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis.min + xaxis.interval * i}", clip=False,
+                pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis_min + xaxis.interval * i}", clip=False,
                         coordinate="pt", h_align="middle")
         for i in range(yaxis.split_number + 1):
-            start = pt.scale_to_points(xaxis.min, yaxis.min + yaxis.interval * i)
-            end = pt.scale_to_points(xaxis.min, yaxis.min + yaxis.interval * i)
+            start = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
+            end = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = (start[0] - 5, end[1])
             if not pt.is_out_side(*start):
                 pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
-                pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis.min + yaxis.interval * i}", clip=False,
+                pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis_min + yaxis.interval * i}", clip=False,
                         coordinate="pt", h_align="right", v_align="center")
 
         # axis titles
-        p = pt.scale_to_points((xaxis.max + xaxis.min) / 2, yaxis.min)
+        p = pt.scale_to_points((xaxis_max + xaxis_min) / 2, yaxis_min)
         pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
-        p = pt.scale_to_points(xaxis.min, (yaxis.max + yaxis.min) / 2)
+        p = pt.scale_to_points(xaxis_min, (yaxis_max + yaxis_min) / 2)
         pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
                 h_align="middle", v_align="bottom", rotate=90)
 
