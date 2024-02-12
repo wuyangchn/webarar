@@ -35,7 +35,8 @@ def read_calc_file(file_path: str):
     try:
         with open(file_path, 'rb') as file:
             office_file = msoffcrypto.OfficeFile(file)
-            office_file.load_key(password=bytes.fromhex(open("programs/conf.txt", "r").read()).decode())
+            office_file.load_key(password=bytes.fromhex(
+                open(os.path.join(os.path.dirname(__file__), '../../conf.txt'), "r").read()).decode())
             office_file.decrypt(open(decrypt_file_path, 'wb'))
         wb = open_workbook(decrypt_file_path)
         worksheets = wb.sheet_names()
