@@ -604,7 +604,7 @@ class ArArCalcFile:
         else:
             raise ValueError(f'non-supported version: {version}')
 
-        # change error type, 2sigma to 1sigma...
+        # change error type, 2sigma to 1sigma..., relative errors to absolute errors
         data = change_error_type(data, header)
         # get full data frames
         # ['smp', 'blk', 'cor', 'deg', 'pub', 'age', 'iso', 'pam', 'inf', 'mak', 'seq',] are abbreviations for

@@ -269,7 +269,7 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
                   ar37m: Tuple[float, float], ar36m: Tuple[float, float],
                   ar40b: Tuple[float, float], ar39b: Tuple[float, float], ar38b: Tuple[float, float],
                   ar37b: Tuple[float, float], ar36b: Tuple[float, float],
-                  t1: List[float], t2: List[float], t3: List[float],
+                  t1: List[float], t2: List[List[float]], t3: List[float],
                   R40v36a: Tuple[float, float], R38v36a: Tuple[float, float],
                   R39v37ca: Tuple[float, float], R36v37ca: Tuple[float, float], R38v37ca: Tuple[float, float],
                   R40v39k: Tuple[float, float], R38v39k: Tuple[float, float],

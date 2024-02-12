@@ -168,7 +168,7 @@ def mul_factor(a, factor, isRelative: bool = False):
     """
     f, sf = np.array(factor)
     if isRelative:
-        sf = f * sf * 100
+        sf = f * sf / 100
     return mul(a, (f, sf))
 
 

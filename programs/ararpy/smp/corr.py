@@ -274,8 +274,10 @@ def calc_degas_atm(sample: Sample):
         ar36a[0] = [item if item >= 0 else ar36acl[index] for index, item in enumerate(ar36a[0])]
     # 38ArAir
     ar38a = calc.arr.mul_factor(ar36a, sample.TotalParam[4:6], isRelative=True)
+    print(sample.TotalParam[4:6])
     # 40ArAir
     ar40a = calc.arr.mul_factor(ar36a, sample.TotalParam[0:2], isRelative=True)
+    print(sample.TotalParam[0:2])
     sample.DegasValues[0:2] = ar36a
     sample.DegasValues[12:14] = ar38a if corrDecasAtm else [[0] * n, [0] * n]
     sample.DegasValues[26:28] = ar40a if corrDecasAtm else [[0] * n, [0] * n]
@@ -305,12 +307,13 @@ def calc_degas_r(sample: Sample):
 # =======================
 # Calc ratio
 # =======================
-def calc_ratio(sample: Sample):
+def calc_ratio(sample: Sample, monte_carlo: bool = False):
     """ Calculate isochron ratio data, 40Arr/39ArK, Ar40r percentage,
         Ar39K released percentage, Ca/K
     Parameters
     ----------
     sample : Sample instance
+    monte_carlo : whether conduct monte carlo simulation for calculating 40Arr/39ArK
 
     Returns
     -------
@@ -373,7 +376,11 @@ def calc_ratio(sample: Sample):
 
     # Note that the difference between Turner 3D plots and our 3D plots.
 
-    monte_carlo_f(sample=sample)
+    if monte_carlo:
+        res = monte_carlo_f(sample=sample)
+        # where to display simulation results
+        age, sage = calc.arr.transpose(list(res))  # res is a generator for [age, sage]
+        sample.ApparentAgeValues[1] = sage
 
 
 def monte_carlo_f(sample: Sample):
@@ -446,6 +453,9 @@ def monte_carlo_f(sample: Sample):
     #     print(P39Decay)
 
     for i in range(sequence_num):
+
+        print(f"Monte Carlo Simulation For sequence {i + 1}")
+
         F = calc.corr.Monte_Carlo_F(
             ar40m=ar40m[i], ar39m=ar39m[i], ar38m=ar38m[i], ar37m=ar37m[i], ar36m=ar36m[i],
             ar40b=ar40b[i], ar39b=ar39b[i], ar38b=ar38b[i], ar37b=ar37b[i], ar36b=ar36b[i],
@@ -460,5 +470,4 @@ def monte_carlo_f(sample: Sample):
             MDF=MDF[i], stand_time_year=stand_time_year[i]
         )
 
-        # where to display simulation results
-        sample.ApparentAgeValues[6][i] = F[1]
+        yield F
