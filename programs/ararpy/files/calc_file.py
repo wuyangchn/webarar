@@ -31,13 +31,11 @@ def read_calc_file(file_path: str):
     :param file_path: file with suffix of .age or .air
     :return: dict, keys are sheet name, value are list of [[col 0], [col 1], ...] of corresponding sheet
     """
-    PASSWORD = 'aapkop'  # password to open age file, the password to unhide worksheets is boris
     decrypt_file_path = file_path + '_decrypt.xls'
     try:
-        # opening excel in decrypt function would reveal the hidden sheet without protect
-        with open(file_path, 'rb') as age_file:
-            office_file = msoffcrypto.OfficeFile(age_file)
-            office_file.load_key(password=PASSWORD)
+        with open(file_path, 'rb') as file:
+            office_file = msoffcrypto.OfficeFile(file)
+            office_file.load_key(password=bytes.fromhex(open("../../conf.txt", "r").read()).decode())
             office_file.decrypt(open(decrypt_file_path, 'wb'))
         wb = open_workbook(decrypt_file_path)
         worksheets = wb.sheet_names()
