@@ -22,7 +22,7 @@ def recalculate(
         re_corr_blank: bool = False, re_corr_massdiscr: bool = False,
         re_corr_decay: bool = False, re_degas_ca: bool = False, re_degas_k: bool = False,
         re_degas_cl: bool = False, re_degas_atm: bool = False, re_degas_r: bool = False,
-        re_calc_ratio: bool = False, re_calc_apparent_age: bool = False,
+        re_calc_ratio: bool = False, re_calc_apparent_age: bool = False, monte_carlo: bool = False,
         re_plot: bool = False, re_plot_style: bool = False, re_set_table: bool = False,
         re_table_style: bool = False, **kwargs
 ):
@@ -42,6 +42,7 @@ def recalculate(
     re_degas_r
     re_calc_ratio
     re_calc_apparent_age
+    monte_carlo
     re_plot
     re_plot_style
     re_set_table
@@ -78,7 +79,7 @@ def recalculate(
     if re_degas_r:  # 9
         corr.calc_degas_r(sample)
     if re_calc_ratio:  # 10
-        corr.calc_ratio(sample)
+        corr.calc_ratio(sample, monte_carlo)
     if re_calc_apparent_age:  # 11
         basic.calc_apparent_ages(sample)
     # --- plot and table ---
