@@ -6,6 +6,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 * Error type selection 
 
+# v0.0.25 2024-02-12
+
+
 # v0.0.24 2024-02-12
 * Fix error of error propagation in multiplying factors (function mul_factor in arr.py)
 * Fix the step attribute for number inputs in parameter setting dialogs
