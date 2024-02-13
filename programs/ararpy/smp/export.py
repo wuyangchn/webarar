@@ -17,6 +17,7 @@ import sys
 import pickle
 import traceback
 import pdf_maker as pm
+from decimal import Decimal
 
 from ..calc import arr, isochron
 from . import basic, sample, consts
@@ -1331,22 +1332,18 @@ class CreatePDF:
             end = (end[0], start[1] - 5)
             if not pt.is_out_side(*start):
                 pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
-                pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis_min + xaxis.interval * i}", clip=False,
-                        coordinate="pt", h_align="middle")
+                pt.text(x=start[0], y=end[1] - 15, clip=False, coordinate="pt", h_align="middle",
+                        text=f"{Decimal(str(xaxis_min)) + Decimal(str(xaxis.interval)) * Decimal(str(i))}")
         for i in range(yaxis.split_number + 1):
             start = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = (start[0] - 5, end[1])
             if not pt.is_out_side(*start):
                 pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
-                pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis_min + yaxis.interval * i}", clip=False,
-                        coordinate="pt", h_align="right", v_align="center")
-                # pt.text(x=end[0] - 5, y=end[1], text=arr.change_number_format([f"{yaxis_min + yaxis.interval * i}"], flag="Scientific", precision=1)[0], clip=False,
-                #         coordinate="pt", h_align="right", v_align="center")
-
+                pt.text(x=end[0] - 5, y=end[1], clip=False, coordinate="pt", h_align="right", v_align="center",
+                        text=f"{Decimal(str(yaxis_min)) + Decimal(str(yaxis.interval)) * Decimal(str(i))}")
 
         # axis titles
-
         p = pt.scale_to_points((xaxis_max + xaxis_min) / 2, yaxis_min)
         pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
         p = pt.scale_to_points(xaxis_min, (yaxis_max + yaxis_min) / 2)
