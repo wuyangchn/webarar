@@ -1405,9 +1405,9 @@ class CreatePDF:
         data = plot.data
         for index in range(len(data) - 1):
             pt.line(start=(data[index][0], data[index][1]), end=(data[index + 1][0], data[index + 1][1]),
-                    clip=True, width=1, color='black')
+                    clip=True, width=1, color='black', line_caps="square")
             pt.line(start=(data[index][0], data[index][2]), end=(data[index + 1][0], data[index + 1][2]),
-                    clip=True, width=1, color='black')
+                    clip=True, width=1, color='black', line_caps="square")
 
         for index, data in enumerate([plot.set1.data, plot.set2.data]):
             if not data:
@@ -1415,9 +1415,9 @@ class CreatePDF:
             color = colors[index]
             for i in range(len(data) - 1):
                 pt.line(start=(data[i][0], data[i][1]), end=(data[i + 1][0], data[i + 1][1]),
-                        clip=True, width=1, color=color)
+                        clip=True, width=1, color=color, line_caps="square")
                 pt.line(start=(data[i][0], data[i][2]), end=(data[i + 1][0], data[i + 1][2]),
-                            clip=True, width=1, color=color)
+                            clip=True, width=1, color=color, line_caps="square")
             age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
             F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
             Num = int(age_results[index]['Num'])
