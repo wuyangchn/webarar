@@ -6,6 +6,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 * Error type selection 
 
+# v0.0.26 2024-02-13
+* Add line caps for exporting age spectra plot.
+
 # v0.0.25 2024-02-13
 * Fix error of axises label display in exporting to pdf, using decimal number now.
 
