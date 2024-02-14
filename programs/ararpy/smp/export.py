@@ -1263,8 +1263,7 @@ class CreatePDF:
         file = pm.NewPDF(filepath=self.filepath)
         # rich text tags should follow this priority: color > script > break
         file.text(page=0, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
-                  text=f"The PDF producer is still under improvement.<r>"
-                       f"The PDF can be edited with Adobe Acrobat and Illustrator.<r>"
+                  text=f"The PDF can be edited with Adobe Acrobat and Illustrator.<r>"
                        f"<r><sup>40</sup>Ar/<sup>39</sup>Ar Plot")
         file.canvas(page=1, margin_top=5, canvas=cv, unit="cm", h_align="middle")
 
@@ -1457,10 +1456,82 @@ class CreatePDF:
 
         return cv
 
-    def plot_degas(self, figure: str = 'figure_8'):        # create a canvas
+    def plot_degas(self, smp: Sample = None, figure: str = 'figure_8'):        # create a canvas
+        if smp is None:
+            smp = self.sample
+        if figure != "figure_8":
+            raise ValueError
+
+        x_title = f""
+        y_title = f""
+
+        plot: Plot = smp.DegasPatternPlot
+        title = plot.title.text
+        xaxis: Plot.Axis = plot.xaxis
+        yaxis: Plot.Axis = plot.yaxis
+        x_title = xaxis.title.text
+        y_title = yaxis.title.text
+        xaxis_min = float(xaxis.min)
+        xaxis_max = float(xaxis.max)
+        yaxis_min = float(yaxis.min)
+        yaxis_max = float(yaxis.max) + 2
+        plot_scale = (xaxis_min, xaxis_max, yaxis_min, yaxis_max)
+
+        colors = ['red', 'color']
+
+        # data
+        data = plot.data  # 36a, 37ca, 38cl, 39k, 40r, 36, 37, 38, 39, 40
+
+        # create a canvas
         cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
         # change frame outline style
         cv.show_frame(color="grey", line_width=0.5)
+        pt = cv.add_plot_area(name="Plot1", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=plot_scale, show_frame=True)
+
+        COLOR_MAP_1: list = [
+            # 3399FF, 33FF99, CCCC00, FF6666,
+            [0.200, 0.600, 1.000], [0.200, 1.000, 0.600], [0.800, 0.800, 0.000], [1.000, 0.400, 0.400],
+            # 00FFFF, 00994C, FF8000, 7F00FF
+            [0.000, 1.000, 1.000], [0.000, 0.600, 0.298], [1.000, 0.502, 0.000], [0.498, 0.000, 1.000],
+            # 3333FF, FF3399
+            [1.000, 0.200, 0.600], [0.200, 0.200, 1.000],
+        ]
+
+        # spectra lines
+        data = plot.data
+        for i, isotope in enumerate(data):
+            color = COLOR_MAP_1[i]
+            for index, point in enumerate(isotope):
+                # plot scatter pints
+                pt.scatter(index + 1, point, fill_color="white", stroke_color=color, size=2)
+                if index != 0:
+                    pt.line(start=(index, isotope[index - 1]), end=(index + 1, point), clip=True, width=1, color=color)
+
+        # split sticks
+        for i in range(xaxis.split_number + 1):
+            start = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
+            end = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
+            end = (end[0], start[1] - 5)
+            if not pt.is_out_side(*start):
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.text(x=start[0], y=end[1] - 15, text=f"{int(xaxis_min + xaxis.interval * i)}", clip=False,
+                        coordinate="pt", h_align="middle")
+        for i in range(yaxis.split_number + 1):
+            start = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
+            end = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
+            end = (start[0] - 5, end[1])
+            if not pt.is_out_side(*start):
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis_min + yaxis.interval * i}", clip=False,
+                        coordinate="pt", h_align="right", v_align="center")
+
+        # axis titles
+        p = pt.scale_to_points((xaxis_max + xaxis_min) / 2, yaxis_min)
+        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
+        p = pt.scale_to_points(xaxis_min, (yaxis_max + yaxis_min) / 2)
+        pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
+                h_align="middle", v_align="bottom", rotate=90)
+
         return cv
 
     def plot_age_distribution(self, figure: str = 'figure_9'):        # create a canvas
@@ -1468,8 +1539,6 @@ class CreatePDF:
         # change frame outline style
         cv.show_frame(color="grey", line_width=0.5)
         return cv
-
-
 
 
 class CustomUnpickler(pickle.Unpickler):

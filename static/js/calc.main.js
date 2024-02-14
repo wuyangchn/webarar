@@ -2048,7 +2048,15 @@ function showPage(table_id) {
             chart.clear();
             chart = getDegasPatternEchart(chart, table_id, false);
             chart.resize();
-            getChartInterval(chart, comp);
+            comp.xaxis.min = chart._model._componentsMap.get('xAxis')[0].axis.scale._extent[0];
+            comp.xaxis.max = chart._model._componentsMap.get('xAxis')[0].axis.scale._extent[1];
+            comp.yaxis.min = chart._model._componentsMap.get('yAxis')[0].axis.scale._extent[0];
+            comp.yaxis.max = chart._model._componentsMap.get('yAxis')[0].axis.scale._extent[1];
+            comp.xaxis.split_number = chart._model._componentsMap.get('xAxis')[0].axis.getTicksCoords().length - 1;
+            comp.yaxis.split_number = chart._model._componentsMap.get('yAxis')[0].axis.getTicksCoords().length - 1;
+            // 这个图没法查interval
+            comp.xaxis.interval = 5;
+            comp.yaxis.interval = 2;
             break
         case "figure_9":
             showFigure();
@@ -3314,6 +3322,7 @@ function getDegasPatternEchart(chart, figure_id, animation) {
         ],
         series: figure.data.map((item, index) => {
             let degas_data = figure.info[index]?item:[];
+            degas_data = degas_data.map((v, i) => [i + 1, v]);  // set category of xaxis as index from 1
             return {
                 name: ['Ar36a', 'Ar37Ca', 'Ar38Cl', 'Ar39K', 'Ar40r', 'Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][index],
                 type: 'line', symbolSize: 6, z: 2, data: degas_data, silent: true,
