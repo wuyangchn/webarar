@@ -6,6 +6,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 * Error type selection 
 
+# v0.0.28 2024-02-15
+* Delete options of exporting to origin.
+* Change the style of information div.
+
 # v0.0.27 2024-02-14
 * Add exporting degas plot and age distribution plot.
 * Fix issue about degas pattern plot. Now the x-axis and y-axis scale will be sent back.

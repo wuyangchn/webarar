@@ -575,23 +575,28 @@
                         <p><span style="font-weight: bold">Download .Arr </span>
                             (with a single click, or right click and
                             <span style="font-weight: bold">Save Link As...</span>)</p>
-                        <a id="download-arr" href="" download>Link</a><br><br><br><br>
+                        <a id="download-arr" href="" download>Link</a><br><br>
                         <p><span style="font-weight: bold">Other formats:</span></p>
                         <label>
                             <select class="form-control" id="exportChoicesLabel">
                                 <option selected>Excel (.xls)</option>
-                                <option>OriginPro (.opju)</option>
+{#                                <option>OriginPro (.opju)</option>#}
                                 <option>Single PDF (.pdf)</option>
-                                <option>Merged PDF (.pdf)</option>
+{#                                <option>Merged PDF (.pdf)</option>#}
                                 <option>Single SVG (.svg)</option>
                         </select></label>
                         <button type="button" class="btn btn-default" value="Download" onclick="clickExportBtn()">Download</button>
-                        <p>Other formats (except for Excel) are only used to export a diagram in currently visible page.
-                            For example, export an isochron diagram. 3D plot is unavailable</p>
-                        <p>*svg: svg files can be open with CorelDraw and Adobe Illustrator.</p>
-                        <p>*pdf: exporting to pdf is still to be completed.</p>
-                        <p>*origin: exporting to origin files is almost complete,
-                            but sometime error may occur.</p>
+                        <p>Notes:</p>
+                        <ul><li><strong>Excel (.xls)</strong>: A Excel workbook with many worksheets, containing all values of this Sample Object, as well as 2D figures.</li></ul>
+                            <p>Exporting the current plot to:</p>
+                        <ul>
+                            <li><strong>SVG (.svg)</strong>: get what you see. Svg files can be open and edited with CorelDRAW and Adobe Illustrator.</li>
+                            <li><strong>PDF (.pdf)</strong>: get a publication-quality figure with built-in configurations,
+                            PDF files are editable with Adobe Acrobat and Illustrator.</li>
+                        </ul>
+                        <p><em>Exporting 3D plot is not available.</em></p>
+
+
                     </div>
                 </form>
                 <div class="modal-footer">
