@@ -2059,9 +2059,8 @@ function showPage(table_id) {
             comp.yaxis.max = chart._model._componentsMap.get('yAxis')[0].axis.scale._extent[1];
             comp.xaxis.split_number = chart._model._componentsMap.get('xAxis')[0].axis.getTicksCoords().length - 1;
             comp.yaxis.split_number = chart._model._componentsMap.get('yAxis')[0].axis.getTicksCoords().length - 1;
-            // 这个图没法查interval
-            comp.xaxis.interval = 5;
-            comp.yaxis.interval = 2;
+            comp.xaxis.interval = 5;  // category axis don't have interval attribute
+            comp.yaxis.interval = chart._model._componentsMap.get('yAxis')[0].axis.scale.getInterval();
             break
         case "figure_9":
             showFigure();
