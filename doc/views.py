@@ -14,3 +14,15 @@ def doc_en(request):
 
 def doc_zh(request):
     return render(request, 'doc.html')
+
+
+def tutorial(request):
+    return render(request, 'tutorial.html')
+
+
+def deploy(request):
+    return render(request, 'deploy.html')
+
+
+def update_log(request):
+    return render(request, 'update_log.html')

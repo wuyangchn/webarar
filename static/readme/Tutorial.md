@@ -20,8 +20,6 @@
 
 ## General procedure
 
-![alt text](image.png)
-
 WebArAr will create a Sample Object for all data imported, which is essentially a instance of a Python class. Changes from users in interactive pages are sent to the server side for synchronization, and the server side sends the results of the calculations to the front end for display.
 
 There are four ways to create a Sample Object:
