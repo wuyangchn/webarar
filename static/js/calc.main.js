@@ -1587,12 +1587,13 @@ function clickExportBtn() {
             exportSmp(url_export_xls);
             break
         case 1:
-            exportSmp(url_export_opju);
+            // exportSmp(url_export_opju);
+            exportSmp(url_export_pdf, true, false);
             break
-        case 2: case 3:
-            exportSmp(url_export_pdf, true, export_type === 3);
-            break
-        case 4:
+        // case 2: case 3:
+        //     exportSmp(url_export_pdf, true, export_type === 3);
+        //     break
+        case 2:
             saveChart(true);
             break
         default:
@@ -1709,11 +1710,15 @@ function showLoadingMessage(message, time, bgcolor){
         .appendTo('body')
         .css({"display":"block",
             "left":($(document.body).outerWidth(true)) / 3,
-            "top":0,
+            "top":($(document.body).outerHeight(true)) / 3,
             "position": "absolute",
             "padding": "10px",
             "background-color": bgcolor,
+            "font-size": "24px",
+            "font-weight": "normal",
+            "text-align": "center",
             "color": "white",
+            "z-index": 99999,
             "border-radius": "5px"})
         .html(message)
         .show()
