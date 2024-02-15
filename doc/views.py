@@ -28,5 +28,9 @@ def deploy(request):
     return render(request, 'deploy.html')
 
 
+def deploy_zh_CN(request):
+    return render(request, 'deploy_zh_CN.html')
+
+
 def update_log(request):
     return render(request, 'update_log.html')
