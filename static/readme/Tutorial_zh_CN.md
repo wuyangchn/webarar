@@ -1,7 +1,7 @@
 
 *本文档最新更新于 **2024年2月15日***
 
-[English](/Tutorial.md)
+[English](Tutorial.md)
 
 ## 目录
 
