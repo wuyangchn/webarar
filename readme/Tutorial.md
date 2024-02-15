@@ -146,7 +146,7 @@ see [arr file example](22WHA0433.arr)
 
 .age files, see [age file example](22WHA0433.age)
 
-.xls files, see [xls file example]()
+.xls files, see [xls file example](22WHA0433.full.xls)
 
 ## The current file
 
