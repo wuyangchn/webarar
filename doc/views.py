@@ -12,12 +12,16 @@ def doc_en(request):
     return render(request, 'doc.html')
 
 
-def doc_zh(request):
-    return render(request, 'doc.html')
+def doc_zh_cn(request):
+    return render(request, 'doc_zh_cn.html')
 
 
 def tutorial(request):
     return render(request, 'tutorial.html')
+
+
+def tutorial_zh_CN(request):
+    return render(request, 'tutorial_zh_CN.html')
 
 
 def deploy(request):
