@@ -140,11 +140,11 @@ To set file filter, see [here](#setting-file-filter)
 
 ## Open arr file
 
-see [arr file example]()
+see [arr file example](22WHA0433.arr)
 
 ## Import from ArArCALC
 
-.age files, see [age file example]()
+.age files, see [age file example](22WHA0433.age)
 
 .xls files, see [xls file example]()
 
