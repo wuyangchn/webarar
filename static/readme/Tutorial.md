@@ -3,6 +3,8 @@
 
 *Last updated: **Feb 15, 2024***
 
+[简体中文](/Tutorial_zh_CN.md)
+
 ## Content
 
 1. [General procedure](#general-procedure)
