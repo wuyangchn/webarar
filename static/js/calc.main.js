@@ -1760,27 +1760,30 @@ function clickPoints(params) {
     showPage(current_figure);
     setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5])
 
-    // Get new results for other figures
-    let content_2 = {
-        'checked_options': [], 'others': {'re_plot': true, 'isInit': false,
-        'isIsochron': true, 'isPlateau': true, 'figures': second_figures,}
-    };
+    if (! ctrlIsPressed) {
+        // Get new results for other figures
+        let content_2 = {
+            'checked_options': [], 'others': {'re_plot': true, 'isInit': false,
+            'isIsochron': true, 'isPlateau': true, 'figures': all_figures,}
+        };
 
-    $.ajax({
-        url: url_recalculation,
-        type: 'POST',
-        data: JSON.stringify({
-            'content': content_2,
-            'cache_key': cache_key,
-            'user_uuid': localStorage.getItem('fingerprint'),
-        }),
-        async: false,
-        contentType:'application/json',
-        success: function(AjaxResults, textStatus, xhr){
-            sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
-            setRightSideText();
-        }
-    });
+        $.ajax({
+            url: url_recalculation,
+            type: 'POST',
+            data: JSON.stringify({
+                'content': content_2,
+                'cache_key': cache_key,
+                'user_uuid': localStorage.getItem('fingerprint'),
+            }),
+            async: true,
+            contentType:'application/json',
+            success: function(AjaxResults, textStatus, xhr){
+                sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
+                setRightSideText();
+            }
+        });
+    }
+
 }
 function getSetById(figure_id, set_id) {
     for (let [key, obj] of Object.entries(sampleComponents[figure_id])) {
