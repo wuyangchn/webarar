@@ -188,7 +188,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         return JsonResponse(res)
 
     def click_points_update_figures(self, request, *args, **kwargs):
-        time_start = time.time()
 
         clicked_data = self.content['clicked_data']
         current_set = self.content['current_set']
@@ -200,12 +199,12 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         data_index = clicked_data[-1] - 1  # Isochron plot data label starts from 1, not 0
         sample.set_selection(data_index, [1, 2][current_set == "set_2"])
-        time_middle = time.time()
+
         if auto_replot:
             # Re-plot after clicking points
             sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True, figures=figures)
             # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
-        time_middle2 = time.time()
+
         http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
         # Response are changes in sample.Components, in this way we can decrease the size of response.
         res = ap.smp.basic.get_diff_smp(
@@ -213,10 +212,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         res.update({'marks': sample.IsochronMark})
         # Update isochron table data, changes in isotope table is not required to transfer
         ap.smp.table.update_table_data(sample, only_table='7')
-
-        time_end = time.time()
-        print(
-            f'time cost: {time_end - time_start}s = {time_middle - time_start} + {time_middle2 - time_middle} + {time_end - time_middle2}')
 
         return JsonResponse({'res': ap.smp.json.dumps(res)})
 

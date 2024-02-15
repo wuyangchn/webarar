@@ -9,6 +9,7 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 # v0.0.29 2024-02-15
 * Update readme and tutorial
 * Fix age spectra y-axis ticks issue
+* Fix async error of clicking isochron points
 
 # v0.0.28 2024-02-15
 * Delete options of exporting to origin.
