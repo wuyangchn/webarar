@@ -6,6 +6,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 * Error type selection 
 
+# v0.0.29 2024-02-15
+* Update readme and tutorial
+* Fix age spectra y-axis ticks issue
+
 # v0.0.28 2024-02-15
 * Delete options of exporting to origin.
 * Change the style of information div.
