@@ -1472,9 +1472,9 @@ class CreatePDF:
         x_title = xaxis.title.text
         y_title = yaxis.title.text
         xaxis_min = float(xaxis.min)
-        xaxis_max = float(xaxis.max)
+        xaxis_max = float(xaxis.max) + 2
         yaxis_min = float(yaxis.min)
-        yaxis_max = float(yaxis.max) + 2
+        yaxis_max = float(yaxis.max)
         plot_scale = (xaxis_min, xaxis_max, yaxis_min, yaxis_max)
 
         colors = ['red', 'color']
