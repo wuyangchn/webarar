@@ -1,3 +1,4 @@
+{% load static %}
 <p><em>本文档更新于 <strong>2024年2月15日</strong></em></p>
 <p><a href="/doc/tutorial">English</a></p>
 <h2 id="-">目录</h2>
@@ -50,7 +51,7 @@
 </ol>
 <h3 id="-sample-">打开 Sample 后</h3>
 <p>成功创建样本对象后，将进入对象显示页面。</p>
-<p><img src="image-15.png" alt="alt text"></p>
+<p><img src="{% static 'readme/image-15.png' %}" alt="alt text"></p>
 <p>左侧导航栏列出该对象拥有的表格和图形。<a href="#图表内容">图表内容</a>介绍了各个图表中的详细内容。</p>
 <p>已打开的任何文件都将不再与用户的本地文件有关联，因此不用担心操作会造成本地数据丢失。此外，Sample 对象以数据流的形式在服务器端和用户端之间传递，不会自动形成文件，因此，除非用户下载 .arr 文件，否则关闭窗口时将丢失所有操作。</p>
 <p>在对象显示页面可以进行如下操作：</p>
