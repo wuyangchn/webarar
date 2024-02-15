@@ -29,12 +29,12 @@ See [Tutorial](/readme/Tutorial.md) for step-by-step instructions
 
 
 ## Features
-- [ ] Import
+- [x] Import
     - [x] Raw files from mass spec. See [File Filter](#)
     - [x] Age files from ArArCALC
     - [x] Xls files from ArArCALC
     - [x] Munally enter
-- [ ] Raw Data Reduction
+- [x] Raw Data Reduction
     - [x] Blank correction
     - [x] Mass discrimination correction
     - [x] Decay correlation
@@ -44,7 +44,7 @@ See [Tutorial](/readme/Tutorial.md) for step-by-step instructions
         - [x] Regular equation
         - [x] Min equation
         - [x] Renne calibration
-    - [x] Isochron regression
+    - [ ] Isochron regression
         - [x] Normal and inverse isochron
         - [x] Chlorine related isochrons
         - [x] York error weighted regression
@@ -56,7 +56,7 @@ See [Tutorial](/readme/Tutorial.md) for step-by-step instructions
         - [x] Plateau ages
     - [x] Chi-squared and P values
     - [x] MSWD 
-- [ ] Interfaces, tables and plots
+- [x] Interfaces, tables and plots
     - [x] Interacitve multi tables and plots 
 - [x] Export
     - [x] Xls
