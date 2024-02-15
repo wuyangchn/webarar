@@ -2461,6 +2461,7 @@ function applySettingDialog() {
         figure.yaxis.max = $("#figure-9-axis-setting :input[name='yMax']").val();
         figure.yaxis.min = $("#figure-9-axis-setting :input[name='yMin']").val();
         figure.xaxis.ticks_inside = $("#figure-9-axis-setting :input[name='ticksInside']").is(':checked');
+        figure.yaxis.ticks_inside = $("#figure-9-axis-setting :input[name='ticksInside']").is(':checked');
         figure.xaxis.show_splitline = $("#figure-9-axis-setting :input[name='showXSplitLine']").is(':checked');
         figure.yaxis.show_splitline = $("#figure-9-axis-setting :input[name='showYSplitLine']").is(':checked');
         figure.text1.show = $("#figure-9-axis-setting :input[name='showText1']").is(':checked');
@@ -3133,6 +3134,7 @@ function getSpectraEchart(chart, figure_id, animation) {
                 name: figure.yaxis.title.text, type: 'value', nameLocation: 'middle', nameGap: 50,
                 max: figure.yaxis.max, min: figure.yaxis.min,
                 splitLine: {show: figure.yaxis.show_splitline},
+                axisTick: {inside: figure.xaxis.ticks_inside},
                 axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
                 axisLabel: {
                     showMaxLabel: true, color: '#222', showMinLabel: false,

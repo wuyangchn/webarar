@@ -49,8 +49,13 @@ The redis will save your last opened object for a while, via The Current File yo
 
 Create an empty object and you will need to enter data in the appropriate tables. What data is required is dependant on your needs, WebArAr will do whatever it can do.
 
-For example, if you want to plot a age speatra. Paste data into 'Apparent Age' and '1σ' columns in the 'Age Spectra table', then click 'Sava changes'
-![alt text](image-8.png)
+For example, if you want to plot a age speatra. Paste data into 'Apparent Age', '1σ', and '<sup>39</sup>Ar[K]%' columns in the 'Age Spectra table', then click 'Sava changes'.
+
+![alt text](image-9.png)
+
+Then click 'Recalcualte' and select 'Reset Plot Data' and 'Reset Figure Style' and apply.
+The age spectra plot shows.
+![alt text](image-11.png)
 
 ## Setting file filter
 ![alt text](image-3.png)
