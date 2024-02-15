@@ -1,3 +1,4 @@
+[简体中文](Deployment_zh_CN.md)
 
 # Installation
 
