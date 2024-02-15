@@ -22,15 +22,15 @@ Therefore, the main purpose of WebArAr is to balance the functionality of ArArCA
 ## Usage
 
 * Access the application at http://www.webarar.net.
-See [Tutorial](/readme/Tutorial.md) for step-by-step instructions
-* (Optional) Deploy and launch WebArAr on your computer for offline usage. See [Deploy on your own caomputer](/readme/Deployment.md).
+See [Tutorial](/static/readme/Tutorial.md) for step-by-step instructions
+* (Optional) Deploy and launch WebArAr on your computer for offline usage. See [Deploy on your own caomputer](/static/readme/Deployment.md).
 * (Optional) Use ArArPy with a Python terminal. See [ArArPy](#ararpy).
 <!-- * [Vedio examples]() -->
 
 
 ## Features
 - [x] Import
-    - [x] Raw files from mass spec. See [File Filter](#)
+    - [x] Raw files from mass spec
     - [x] Age files from ArArCALC
     - [x] Xls files from ArArCALC
     - [x] Munally enter
