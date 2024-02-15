@@ -1,0 +1,139 @@
+{% load static %}
+<p><em>This documentation provides guidance on how to use WebArAr.</em></p>
+<p><em>Last updated: <strong>Feb 15, 2024</strong></em></p>
+<h2 id="content">Content</h2>
+<ol>
+<li><a href="#general-procedure">General procedure</a></li>
+<li><a href="#interface">Interface</a></li>
+<li><a href="#import-your-data">Import your data</a></li>
+<li><a href="#setting-file-filter">Setting file filter</a></li>
+<li><a href="#setting-constants-set">Setting constants set</a></li>
+<li><a href="#setting-irradiation-parameters">Setting irradiation parameters</a></li>
+<li><a href="#setting-sample-imformation-and-parameters">Setting sample information and parameters</a></li>
+<li><a href="#data-reduction-and-recalculation">Data reduction and recalculaiton</a></li>
+<li><a href="#interact-with-tables">Interact with tables</a></li>
+<li><a href="#interact-with-plots">Interact with plots</a></li>
+<li><a href="#save-and-export">Save and export</a></li>
+<li><a href="https://github.com/wuyangchn/webarar/issues">FAQ</a></li>
+</ol>
+<h2 id="general-procedure">General procedure</h2>
+<p>WebArAr will create a Sample Object for all data imported, which is essentially a instance of a Python class. Changes from users in interactive pages are sent to the server side for synchronization, and the server side sends the results of the calculations to the front end for display.</p>
+<p>There are four ways to create a Sample Object:</p>
+<ol>
+<li><p>Read from a raw data exported from a mass spec.</p>
+<ul>
+<li><p>A file filter is required to read files correctly. <a href="#setting-file-filter">See here</a> for how to edit a filter.</p>
+</li>
+<li><p>Raw data requires some necessary extrapolation and blank assignment. <a href="#import-from-mass-spec-raw-data">See here</a> for more information.</p>
+</li>
+</ul>
+</li>
+<li><p>Read .arr files.</p>
+<ul>
+<li><p>.arr files are files exported from WebArAr as users&#39; command. It is essentially the Sample Object after being JSON-serialized. </p>
+</li>
+</ul>
+</li>
+<li><p>Read from .age and .xls files from ArArCALC</p>
+<ul>
+<li><p>.age is an extension of project files of ArArCALC.</p>
+</li>
+<li><p>.xls refers to the files exported from ArArCALC, which lost some information compared to the .age files.</p>
+</li>
+</ul>
+</li>
+<li><p>Create an empty object</p>
+<ul>
+<li><p>Empty object require users enter data munally.</p>
+</li>
+<li><p>This is helpful for users who will just use some parts of functionalities. <a href="#create-an-empty-object">See here</a> for more information on how much data is needed for a certain requirement.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>Successful creation of a Sample object will take you to the object display page. The left side navigation lists the tables and figures that the object has.</p>
+<p>Any file that is opened will no longer be associated with your local file, so any changes will not result in a loss of your local data. Also, the Sample object is passed between the server and the user in the form of stream, and is not automatically saved as a file, so all modifications will be lost when the window is closed unless the arr file is downloaded.</p>
+<p>The operations that can be performed after opening the Sample object include:</p>
+<ol>
+<li><p>Change sample information</p>
+<p> Sample information includes location, laboratory, researcher etc., which are unrelated to the calculation.</p>
+</li>
+<li><p>Edit content in tables</p>
+<p> All tables are editable. Munally editing and saving changes can change table contents.</p>
+<p> <a href="">See here</a> for information on what content contained in tables.</p>
+</li>
+<li><p>Edit parameters</p>
+<ul>
+<li><p>Edit manually.</p>
+<p>  All parameters are displayed in a table named Total Params. Note: after saving changes in this table, re-calculation will not applied automatically.</p>
+</li>
+<li><p>Apply parameter set</p>
+<p>  Open parameter setting dialogs to set parameters for all sequences. Parameter setting dialogs includes:</p>
+<ul>
+<li>Calculation Constants, <a href="#setting-constants-set">see here</a></li>
+<li>Irradiation Parameters, <a href="#setting-irradiation-parameters">see here</a></li>
+<li>Special parameters for individual samples, <a href="#setting-sample-imformation-and-parameters">see here</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Generic interactions for figures</p>
+<p> All figures are rendered by Echarts</p>
+<ul>
+<li><p>Click on the top legend area to show or hide a graphical element.</p>
+</li>
+<li><p>Drag and drop to move the text position</p>
+</li>
+<li><p>Click the Style button below will bring up the style settings window on the right side. Clicking on a scatter point, line, or text element on the figure will take you to the object-specific style settings window. close or click style again to hide the style settings window.</p>
+</li>
+</ul>
+</li>
+</ol>
+<ol>
+<li><p>Scatter point selection for isochrons</p>
+<p> WebArAr provides five isochrones, including normal, inverse isochrones, and three isochrones related to Chlorine. All isochrones and age spectrum plots will use the same combination of selection, and up tp two combinations of picks are supported.</p>
+<p> Click on Set1 and Set2 on the right side to toggle the current combination, Set1 is in red and Set2 is in blue, and click on the scatter point to select or unselect the point. Each click will automatically recalculate the regression and age. The response speed depends on the network speed. For smooth operation, you can press and hold Ctrl and then continually click on scatter points, after which you need to call a re-calculation.</p>
+</li>
+</ol>
+<h2 id="interface">Interface</h2>
+<p><em>Home Page</em></p>
+<p><img src="{% static 'readme/image.png' %}" alt="alt text"></p>
+<p><em>Import Data Page</em></p>
+<p><img src="{% static 'readme/image-1.png' %}" alt="alt text"></p>
+<p><em>Object Page</em></p>
+<p><img src="{% static 'readme/image-12.png' %}" alt="alt text"></p>
+<p><em>Tables</em></p>
+<p><img src="{% static 'readme/image-13.png' %}" alt="alt text"></p>
+<p><em>Figures</em></p>
+<p><img src="{% static 'readme/image-14.png' %}" alt="alt text"></p>
+<h2 id="import-your-data">Import your data</h2>
+<p><img src="{% static 'readme/image-1.png' %}" alt="alt text"></p>
+<h2 id="import-from-mass-spec-raw-data">Import from mass spec raw data</h2>
+<p><img src="{% static 'readme/image-2.png' %}" alt="alt text"></p>
+<p>To set file filter, see <a href="#setting-file-filter">here</a></p>
+<h2 id="open-arr-file">Open arr file</h2>
+<p>see <a href="/static/readme/22WHA0433.arr">arr file example</a></p>
+<h2 id="import-from-ararcalc">Import from ArArCALC</h2>
+<p>.age files, see <a href="/static/readme/22WHA0433.age">age file example</a></p>
+<p>.xls files, see <a href="/static/readme/22WHA0433.full.xls">xls file example</a></p>
+<h2 id="the-current-file">The current file</h2>
+<p>The redis will save your last opened object for a while, via The Current File you can get it without uploding the file again.</p>
+<h2 id="create-an-empty-object">Create an empty object</h2>
+<p>Create an empty object and you will need to enter data in the appropriate tables. What data is required is dependant on your needs, WebArAr will do whatever it can do.</p>
+<p>For example, if you want to plot a age speatra. Paste data into &#39;Apparent Age&#39;, &#39;1σ&#39;, and &#39;<sup>39</sup>Ar[K]%&#39; columns in the &#39;Age Spectra table&#39;, then click &#39;Sava changes&#39;.</p>
+<p><img src="{% static 'readme/image-9.png' %}" alt="alt text"></p>
+<p>Then click &#39;Recalcualte&#39; and select &#39;Reset Plot Data&#39; and &#39;Reset Figure Style&#39; and apply.
+The age spectra plot shows.</p>
+<p><img src="{% static 'readme/image-11.png' %}" alt="alt text"></p>
+<h2 id="setting-file-filter">Setting file filter</h2>
+<p><img src="{% static 'readme/image-3.png' %}" alt="alt text"></p>
+<h2 id="setting-constants-set">Setting constants set</h2>
+<p><img src="{% static 'readme/image-4.png' %}" alt="alt text"></p>
+<h2 id="setting-irradiation-parameters">Setting irradiation parameters</h2>
+<p><img src="{% static 'readme/image-5.png' %}" alt="alt text"></p>
+<h2 id="setting-sample-imformation-and-parameters">Setting sample imformation and parameters</h2>
+<p><img src="{% static 'readme/image-6.png' %}" alt="alt text"></p>
+<h2 id="data-reduction-and-recalculation">Data reduction and recalculation</h2>
+<h2 id="interact-with-tables">Interact with tables</h2>
+<h2 id="interact-with-plots">Interact with plots</h2>
+<h2 id="save-and-export">Save and export</h2>
