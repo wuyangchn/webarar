@@ -1,354 +1,77 @@
-<p><em>Thank you for visiting WebArAr. As of <strong>Jan 21, 2024</strong>, this documentation provides
-a short guidance on how to use WebArAr.</em></p>
 <h1 id="webarar">WebArAr</h1>
+<h2 id="introduciton">Introduciton</h2>
 <p>WebArAr is a web-based application based on <a href="https://www.djangoproject.com/">Django</a>
 designed to reduce <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data.</p>
 <ul>
-<li>The backend functionalities are packaged into a module called <a href="#ararpy">ArArPy</a>.
+<li>The backend functionalities are packaged into a module called <a href="https://github.com/wuyangchn/ararpy.git">ArArPy</a>.
 Access through <a href="https://pypi.org/project/ararpy/">PyPi</a>.</li>
 <li>Django framework, Bootstrap, Echarts, Bootstrap-table, etc. provide an intuitive and interactive interface.</li>
 </ul>
 <p>Visit <a href="https://www.webarar.net">WebArAr</a></p>
-<!-- See [user manual](#) (to be completed).
-
-See [video](#) (to be completed). -->
-<!-- ## Content
-
-[Introduction](#introduction)
-
-[Features](#features)
-
-[ArArPy](#ararpy)
-
-
-## Introduction -->
-<!-- WebArAr is a web-based application designed for the reduction and analysis
-of <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data for both beginners
-and professionals. This platform provides researchers with a user-friendly
-interface to input raw data, conduct various calculations to determine ages,
-and export in many formats.
-
-The web application of WebArAr is mainly developed in Python ([ArArPy](#ArArPy))
-with the Django framework,
-HTML template components, cascading style sheets (CSS), and JavaScript.
-The main functions on the backend for handling file input, data
-correction, and age calculation are programmed using Python, working with
-some open-source modules, including json, xlrd, xlsxwriter, math, SciPy,
-and NumPy. On the frontend, Bootstrap, a widely used CSS framework, is used
-to yield a simple and responsive interface. Apache Echarts
-(https://echarts.apache.org/) is used to plot interactive charts,
-such as age spectra and isochrone diagrams.
-The data tables are created using Handsontable, a commercial software but free
-for non-commercial purposes such as academic research
-(https://github.com/handsontable/handsontable/).  -->
-<h1 id="features">Features</h1>
-<h4 id="1-data-input-">1. <strong>Data input:</strong></h4>
+<h2 id="background">Background</h2>
+<p>This project originated from the necessity to update and enhance existing software tools for <sup>40</sup>Ar/<sup>39</sup>Ar dating. In general, ArArCALC and Isoplot/Isoplot R have been widely utilized within this field. However, several factors have rendered these tools inadequate for meeting the evolving requirements: (1) ArArCALC and Isoplot were developed as macro tools for outdated Excel versions, such as Excel 2003. Isoplot is no longer maintained, and ArArCALC is closed-source. (2) The increasing importance of chlorine correction in crushing experiments requires software with new features. (3) IsoplotR is great for plotting but lacks support for correction and newer calcultions in <sup>40</sup>Ar/<sup>39</sup>Ar community such as age calibration. Additionally, its regression methods differ from commonly used York regression.</p>
+<p>Therefore, the main purpose of WebArAr is to balance the functionality of ArArCALC and IsoplotR and it will be continuously updated with more research needs in order to serve the community.</p>
+<h2 id="usage">Usage</h2>
 <ul>
-<li>Import raw data files from data acquisition software like Qtegra.</li>
-<li>Import.full.xls files produced from ArArCALC.</li>
-<li>Create empty project and typy in manually.</li>
+<li>Access the application at <a href="http://www.webarar.net">http://www.webarar.net</a>.
+See <a href="/readme/Tutorial.md">Tutorial</a> for step-by-step instructions</li>
+<li>(Optional) Deploy and launch WebArAr on your computer for offline usage. See <a href="/readme/Deployment.md">Deploy on your own caomputer</a>.</li>
+<li>(Optional) Use ArArPy with a Python terminal. See <a href="#ararpy">ArArPy</a>.<!-- * [Vedio examples]() -->
+</li>
 </ul>
-<h4 id="2-isochron-regression-">2. <strong>Isochron regression:</strong></h4>
+<h2 id="features">Features</h2>
 <ul>
-<li>Select two groups of data points to do regression and calculate ages.</li>
-<li>3D K-Cl-Ar correction regression can be conducted using York-like regression method.</li>
+<li>[x] Import<ul>
+<li>[x] Raw files from mass spec. See <a href="#">File Filter</a></li>
+<li>[x] Age files from ArArCALC</li>
+<li>[x] Xls files from ArArCALC</li>
+<li>[x] Munally enter</li>
 </ul>
-<h4 id="3-age-plateau-">3. <strong>Age plateau:</strong></h4>
-<ul>
-<li>Using Isochron initial ratio to re-correct trapped argon.</li>
+</li>
+<li>[x] Raw Data Reduction<ul>
+<li>[x] Blank correction</li>
+<li>[x] Mass discrimination correction</li>
+<li>[x] Decay correlation</li>
+<li>[x] Degas argon isotopes</li>
 </ul>
-<h4 id="4-export-options-">4. <strong>Export options:</strong></h4>
-<ul>
-<li>Export diagrams in various formats suitable for publications.</li>
-<li>Export sample project as structured JSON serialized files for easy sharing
-and future use.</li>
+</li>
+<li>[ ] Calculation<ul>
+<li>[x] Age Calculation<ul>
+<li>[x] Regular equation</li>
+<li>[x] Min equation</li>
+<li>[x] Renne calibration</li>
 </ul>
-<h1 id="usage">Usage</h1>
-<ul>
-<li>Access the application at <a href="http://www.webarar.net">http://www.webarar.net</a>.</li>
-<li>(Optional) Deploy and launch WebArAr on your computer for offline usage. See <a href="#installation">Installation</a>.</li>
-<li>(Optional) Use ArArPy with a Python terminal. See <a href="#ararpy">ArArPy</a>.</li>
+</li>
+<li>[ ] Isochron regression<ul>
+<li>[x] Normal and inverse isochron</li>
+<li>[x] Chlorine related isochrons</li>
+<li>[x] York error weighted regression</li>
+<li>[ ] Robust regression</li>
+<li>[ ] Other regression methods</li>
 </ul>
-<h1 id="installation">Installation</h1>
-<p>The following instruction is for local usage. If you are planning to run WebArAr on a server computer instead,
-you can do much the same as mentioned below, but with some additional steps for a more stable application,
-such as replacing the built-in web server.</p>
-<p>For Windows system:</p>
-<h4 id="1-install-python3">1. Install Python3</h4>
-<p>Following instructions on <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>.</p>
-<h4 id="2-install-and-configure-mysql">2. Install and configure MySql</h4>
-<p>Following instructions on <a href="https://dev.mysql.com/doc/refman/8.3/en/windows-choosing-package.html">https://dev.mysql.com/doc/refman/8.3/en/windows-choosing-package.html</a></p>
-<p>Remember the MySql server port (default 3306) and root password.</p>
-<p>Create WebArAr databases: start MySql command line client -&gt; using the command following to create database.</p>
-<pre><code>create database webarar<span class="hljs-comment">;</span>
-<span class="hljs-comment"># webarar can be other name as you want</span>
-<span class="hljs-comment"># Note that each MySql command ends with a semicolon</span>
-
-<span class="hljs-comment"># basic commands for reference:</span>
-<span class="hljs-keyword">show </span>databases<span class="hljs-comment">;</span>
-</code></pre><h4 id="3-redis">3. Redis</h4>
-<p>Redis on Windows <a href="https://github.com/microsoftarchive/redis">https://github.com/microsoftarchive/redis</a></p>
-<h4 id="4-download-source-code">4. Download source code</h4>
-<pre><code># <span class="hljs-keyword">open</span> CMD <span class="hljs-built_in">and</span> <span class="hljs-keyword">cd</span> <span class="hljs-keyword">to</span> your location, clone webarar repository
-git clone http<span class="hljs-variable">s:</span>//github.<span class="hljs-keyword">com</span>/wuyangchn/webarar.git
-</code></pre><h4 id="5-install-requirements">5. Install requirements</h4>
-<pre><code>pip <span class="hljs-keyword">install</span> -r requirements
-</code></pre><h4 id="6-change-settings-py">6. Change settings.py</h4>
-<pre><code><span class="hljs-comment"># in settings.py, find and replace</span>
-DATABASES = {
-    <span class="hljs-string">'default'</span>: {
-        <span class="hljs-string">'ENGINE'</span>: <span class="hljs-string">'django.db.backends.mysql'</span>,
-        <span class="hljs-string">'NAME'</span>: <span class="hljs-string">'webarar'</span>,  <span class="hljs-comment"># MySql database name</span>
-        <span class="hljs-string">'HOST'</span>: <span class="hljs-string">'127.0.0.1'</span>,
-        <span class="hljs-string">'PORT'</span>: <span class="hljs-number">3306</span>,  <span class="hljs-comment"># port</span>
-        <span class="hljs-string">'USER'</span>: <span class="hljs-string">'root'</span>,
-        <span class="hljs-string">'PASSWORD'</span>: <span class="hljs-string">'password'</span>  <span class="hljs-comment"># your password</span>
-    }
-}
-</code></pre><h4 id="7-run-server">7. Run server</h4>
-<pre><code>python manage<span class="hljs-selector-class">.py</span> runserver
-</code></pre><p>### </p>
-<h1 id="ararpy">ArArPy</h1>
-<p>The main python code used in WebArAr is packaged as ArArPy and uploaded to PyPI.
-ArArPy includes all data processing steps, including reading data from local files,
-blank correction, decay correction, interference reactions correction, age calculation,
-isochron regression, etc. The software is written in Python language combined with
-some open source packages, such as numpy, pandas, os, scipy, pickle, xlrd, xlsxwriter,
-and json. </p>
-<h3 id="installing-from-pypi">Installing from PyPI</h3>
-<p>ArArPy can be installed via pip from PyPI.</p>
-<pre><code>pip <span class="hljs-keyword">install</span> ararpy
-</code></pre><h3 id="testing">Testing</h3>
-<h4 id="1-running-the-test-function-from-a-python-terminal-">1. <strong>Running the test function from a Python terminal</strong></h4>
-<pre><code>&gt;&gt;&gt; import ararpy as ap
-&gt;&gt;&gt; ap.test()
-Running: ararpy.test()
-============= Open an example .arr file =============
-file_path = 'your_dir<span class="hljs-symbol">\\</span>examples<span class="hljs-symbol">\\</span>22WHA0433.arr'
-sample = from_arr(file_path=file_path)
-sample.name() = '22WHA0433 -PFI'
-sample.help = 'builtin methods:<span class="hljs-symbol">\n</span> __class__<span class="hljs-symbol">\t</span>__delattr__<span class="hljs-symbol">\t</span>__dir__<span class="hljs-symbol">\t</span>__eq__<span class="hljs-symbol">\t</span>__format__<span class="hljs-symbol">\t</span>__ge__<span class="hljs-symbol">\t</span>__getattribute__<span class="hljs-symbol">\t</span>__gt__<span class="hljs-symbol">\t</span>__hash__<span class="hljs-symbol">\t</span>__init__<span class="hljs-symbol">\t</span>__init_subclass__<span class="hljs-symbol">\t</span>__le__<span class="hljs-symbol">\t</span>__lt__<span class="hljs-symbol">\t</span>__ne__<span class="hljs-symbol">\t</span>__new__<span class="hljs-symbol">\t</span>__reduce__<span class="hljs-symbol">\t</span>__reduce_ex__<span class="hljs-symbol">\t</span>__repr__<span class="hljs-symbol">\t</span>__setattr__<span class="hljs-symbol">\t</span>__sizeof__<span class="hljs-symbol">\t</span>__str__<span class="hljs-symbol">\t</span>__subclasshook__<span class="hljs-symbol">\n</span>dunder-excluded methods:<span class="hljs-symbol">\n</span> apparent_ages<span class="hljs-symbol">\t</span>blank<span class="hljs-symbol">\t</span>calc_ratio<span class="hljs-symbol">\t</span>corr_atm<span class="hljs-symbol">\t</span>corr_blank<span class="hljs-symbol">\t</span>corr_ca<span class="hljs-symbol">\t</span>corr_cl<span class="hljs-symbol">\t</span>corr_decay<span class="hljs-symbol">\t</span>corr_k<span class="hljs-symbol">\t</span>corr_massdiscr<span class="hljs-symbol">\t</span>corr_r<span class="hljs-symbol">\t</span>doi<span class="hljs-symbol">\t</span>initial<span class="hljs-symbol">\t</span>isochron<span class="hljs-symbol">\t</span>laboratory<span class="hljs-symbol">\t</span>name<span class="hljs-symbol">\t</span>parameters<span class="hljs-symbol">\t</span>publish<span class="hljs-symbol">\t</span>recalculation<span class="hljs-symbol">\t</span>researcher<span class="hljs-symbol">\t</span>results<span class="hljs-symbol">\t</span>sample<span class="hljs-symbol">\t</span>sequence<span class="hljs-symbol">\t</span>set_selection<span class="hljs-symbol">\t</span>unknown<span class="hljs-symbol">\t</span>update_table<span class="hljs-symbol">\n</span>'
-sample.parameters() = &lt;ararpy.ArArData object at 0x0000027F7FBEC9D0&gt;
-sample.parameters().to_df() =
-         0    1      2       3       4    5  ...   117     118   119 120 121 122
-0   298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-1   298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-2   298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-3   298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-4   298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-... ...     ...  ...    ...     ...     ...  ...  ...   ...     ...    ... ... ...
-22  298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-23  298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-24  298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-25  298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-26  298.56  0.0  0.018  0.0063  0.1885  0.0  ...  0.31  298.56  0.31   1   1   1
-</code></pre><h4 id="2-example-1-create-an-empty-sample-">2. <strong>Example 1： create an empty sample</strong></h4>
-<pre><code>&gt;&gt;&gt; import ararpy as ap
-&gt;&gt;&gt; sample = ap.from_empty()  # create <span class="hljs-keyword">new</span> sample instance
-&gt;&gt;&gt; print(sample.show_data())
-<span class="hljs-meta"># Sample Name:</span>
-<span class="hljs-meta">#</span>
-<span class="hljs-meta"># Doi:</span>
-<span class="hljs-meta">#    9a43b5c1a99747ee8608676ac31814da  # uuid</span>
-<span class="hljs-meta"># Corrected Values:</span>
-<span class="hljs-meta">#     Empty DataFrame</span>
-<span class="hljs-meta"># Columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]</span>
-<span class="hljs-meta"># Index: []</span>
-<span class="hljs-meta"># Parameters:</span>
-<span class="hljs-meta">#     Empty DataFrame</span>
-<span class="hljs-meta"># Columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,</span>
-<span class="hljs-meta">#           30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56,</span>
-<span class="hljs-meta">#           57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,</span>
-<span class="hljs-meta">#           84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, ...]</span>
-<span class="hljs-meta"># Index: []</span>
-<span class="hljs-meta">#</span>
-<span class="hljs-meta"># [0 rows x 123 columns]</span>
-<span class="hljs-meta"># Isochron Values:</span>
-<span class="hljs-meta">#     Empty DataFrame</span>
-<span class="hljs-meta"># Columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,</span>
-<span class="hljs-meta">#           30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]</span>
-<span class="hljs-meta"># Index: []</span>
-<span class="hljs-meta"># Apparent Ages:</span>
-<span class="hljs-meta">#     Empty DataFrame</span>
-<span class="hljs-meta"># Columns: [0, 1, 2, 3, 4, 5, 6, 7]</span>
-<span class="hljs-meta"># Index: []</span>
-<span class="hljs-meta"># Publish Table:</span>
-<span class="hljs-meta">#     Empty DataFrame</span>
-<span class="hljs-meta"># Columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</span>
-<span class="hljs-meta"># Index: []</span>
-</code></pre><h4 id="3-example-2-change-data-point-selection-and-recalculate-">3. <strong>Example 2： change data point selection and recalculate</strong></h4>
-<pre><code>&gt;&gt;&gt; import ararpy as ap
-&gt;&gt;&gt; import os
-&gt;&gt;&gt; example_dir = os.path.join(os.path.dirname(os.path.abspath(ap.__file__)), r'examples')
-&gt;&gt;&gt; file_path = os.path.join(example_dir, r'<span class="hljs-number">22</span>WHA0433.arr')
-&gt;&gt;&gt; sample = ap.from_arr(file_path)
-# normal isochron age
-&gt;&gt;&gt; print(f<span class="hljs-string">"{sample.results().isochron.inverse.set1.age = }"</span>)
-# sample.results().isochron.inverse.set1.age = <span class="hljs-number">163.10336210925516</span>
-# check current data point selection
-&gt;&gt;&gt; print(f<span class="hljs-string">"{sample.sequence().mark.value}"</span>)
-# [nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>]
-&gt;&gt;&gt; print(f<span class="hljs-string">"{sample.sequence().mark.set1.index}"</span>)
-# [<span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>]
-
-# change data point selection
-&gt;&gt;&gt; sample.set_selection(<span class="hljs-number">10</span>, <span class="hljs-number">1</span>)
-# check new data point selection
-&gt;&gt;&gt; print(f<span class="hljs-string">"{sample.sequence().mark.set1.index}"</span>)
-# [<span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>]
-
-# recalculate
-&gt;&gt;&gt; sample.recalculate(re_plot=True)
-# check new results
-&gt;&gt;&gt; print(f<span class="hljs-string">"{sample.results().isochron.inverse.set1.age = }"</span>)
-# sample.results().isochron.inverse.set1.age = <span class="hljs-number">164.57644271385772</span>
-</code></pre><h3 id="classes">Classes</h3>
-<pre><code>Info
-Plot
-Sample
-Table
-
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Info</span>(<span class="hljs-title">builtins</span>.<span class="hljs-title">object</span>)</span>
- <span class="hljs-params">|  Info(id='', name='', type='Info', **kwargs)
- |</span>
- <span class="hljs-params">|  Methods <span class="hljs-keyword">defined</span> here:
- |</span>
- <span class="hljs-params">|  __init__(<span class="hljs-keyword">self</span>, id='', name='', type='Info', **kwargs)
- |</span>      Initialize <span class="hljs-keyword">self</span>.  See help(type(<span class="hljs-keyword">self</span>)) <span class="hljs-keyword">for</span> accurate signature.
- <span class="hljs-params">|
- |</span>  ----------------------------------------------------------------------
- <span class="hljs-params">|  Data descriptors <span class="hljs-keyword">defined</span> here:
- |</span>
- <span class="hljs-params">|  __dict__
- |</span>      dictionary <span class="hljs-keyword">for</span> instance variables (<span class="hljs-keyword">if</span> <span class="hljs-keyword">defined</span>)
- <span class="hljs-params">|
- |</span>  __weakref_<span class="hljs-number">_</span>
- <span class="hljs-params">|      list of weak references to the object (<span class="hljs-keyword">if</span> <span class="hljs-keyword">defined</span>)
-
-<span class="hljs-keyword">class</span> Plot(builtins.object)
- |</span>  Plot(id=<span class="hljs-string">''</span>, type=<span class="hljs-string">''</span>, name=<span class="hljs-string">''</span>, data=None, info=None, **kwargs)
- <span class="hljs-params">|
- |</span>  Methods <span class="hljs-keyword">defined</span> <span class="hljs-symbol">here:</span>
- <span class="hljs-params">|
- |</span>  __init_<span class="hljs-number">_</span>(<span class="hljs-keyword">self</span>, id=<span class="hljs-string">''</span>, type=<span class="hljs-string">''</span>, name=<span class="hljs-string">''</span>, data=None, info=None, **kwargs)
- <span class="hljs-params">|      Initialize <span class="hljs-keyword">self</span>.  See help(type(<span class="hljs-keyword">self</span>)) <span class="hljs-keyword">for</span> accurate signature.
- |</span>
- <span class="hljs-params">|  ----------------------------------------------------------------------
- |</span>  Data descriptors <span class="hljs-keyword">defined</span> <span class="hljs-symbol">here:</span>
- <span class="hljs-params">|
- |</span>  __dict_<span class="hljs-number">_</span>
- <span class="hljs-params">|      dictionary <span class="hljs-keyword">for</span> instance variables (<span class="hljs-keyword">if</span> <span class="hljs-keyword">defined</span>)
- |</span>
- <span class="hljs-params">|  __weakref__
- |</span>      list of weak references to the object (<span class="hljs-keyword">if</span> <span class="hljs-keyword">defined</span>)
- <span class="hljs-params">|
- |</span>  ----------------------------------------------------------------------
- <span class="hljs-params">|  Data <span class="hljs-keyword">and</span> other attributes <span class="hljs-keyword">defined</span> here:
- |</span>
- <span class="hljs-params">|  Axis = &lt;<span class="hljs-keyword">class</span> 'sample.Plot.Axis'&gt;
- |</span>
- <span class="hljs-params">|  BasicAttr = &lt;<span class="hljs-keyword">class</span> 'sample.Plot.BasicAttr'&gt;
- |</span>
- <span class="hljs-params">|  Label = &lt;<span class="hljs-keyword">class</span> 'sample.Plot.Label'&gt;
- |</span>
- <span class="hljs-params">|  Set = &lt;<span class="hljs-keyword">class</span> 'sample.Plot.Set'&gt;
- |</span>
- <span class="hljs-params">|  Text = &lt;<span class="hljs-keyword">class</span> 'sample.Plot.Text'&gt;
-
-<span class="hljs-keyword">class</span> Sample(builtins.object)
- |</span>  Sample(**kwargs)
- <span class="hljs-params">|
- |</span>  Methods <span class="hljs-keyword">defined</span> <span class="hljs-symbol">here:</span>
- <span class="hljs-params">|
- |</span>  __init_<span class="hljs-number">_</span>(<span class="hljs-keyword">self</span>, **kwargs)
- <span class="hljs-params">|      Initialize <span class="hljs-keyword">self</span>.  See help(type(<span class="hljs-keyword">self</span>)) <span class="hljs-keyword">for</span> accurate signature.
- |</span>
- <span class="hljs-params">|  apparent_ages(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  blank(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  calc_ratio(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  corr_atm(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  corr_blank(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  corr_ca(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  corr_cl(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  corr_decay(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  corr_k(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  corr_massdiscr(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  corr_r(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  corrected(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  doi(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  degas(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  initial(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  isochron(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  laboratory(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  name(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  parameters(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  publish(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  recalculation(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  researcher(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  results(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  sample(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  sequence(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  set_selection(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  show_data(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  unknown(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  update_table(<span class="hljs-keyword">self</span>)
- |</span>
- <span class="hljs-params">|  ----------------------------------------------------------------------
- |</span>  Readonly properties <span class="hljs-keyword">defined</span> <span class="hljs-symbol">here:</span>
- <span class="hljs-params">|
- |</span>  version
- <span class="hljs-params">|
- |</span>  ----------------------------------------------------------------------
- <span class="hljs-params">|  Data descriptors <span class="hljs-keyword">defined</span> here:
- |</span>
- <span class="hljs-params">|  __dict__
- |</span>      dictionary <span class="hljs-keyword">for</span> instance variables (<span class="hljs-keyword">if</span> <span class="hljs-keyword">defined</span>)
- <span class="hljs-params">|
- |</span>  __weakref_<span class="hljs-number">_</span>
- <span class="hljs-params">|      list of weak references to the object (<span class="hljs-keyword">if</span> <span class="hljs-keyword">defined</span>)
-
-<span class="hljs-keyword">class</span> Table(builtins.object)
- |</span>  Table(id=<span class="hljs-string">''</span>, name=<span class="hljs-string">'Table'</span>, colcount=None, rowcount=None, header=None, data=None, coltypes=None, textindexs=None, numericindexs=None, **kwargs)
- <span class="hljs-params">|
- |</span>  Methods <span class="hljs-keyword">defined</span> <span class="hljs-symbol">here:</span>
- <span class="hljs-params">|
- |</span>  __init_<span class="hljs-number">_</span>(<span class="hljs-keyword">self</span>, id=<span class="hljs-string">''</span>, name=<span class="hljs-string">'Table'</span>, colcount=None, rowcount=None, header=None, data=None, coltypes=None, textindexs=None, numericindexs=None, **kwargs)
- <span class="hljs-params">|      Initialize <span class="hljs-keyword">self</span>.  See help(type(<span class="hljs-keyword">self</span>)) <span class="hljs-keyword">for</span> accurate signature.
- |</span>
- <span class="hljs-params">|  ----------------------------------------------------------------------
- |</span>  Data descriptors <span class="hljs-keyword">defined</span> <span class="hljs-symbol">here:</span>
- <span class="hljs-params">|
- |</span>  __dict_<span class="hljs-number">_</span>
- <span class="hljs-params">|      dictionary <span class="hljs-keyword">for</span> instance variables (<span class="hljs-keyword">if</span> <span class="hljs-keyword">defined</span>)
- |</span>
- <span class="hljs-params">|  __weakref__
- |</span>      list of weak references to the object (<span class="hljs-keyword">if</span> <span class="hljs-keyword">defined</span>)
-</code></pre>
+</li>
+<li>[x] Three-dimensional regression</li>
+<li>[x] Age spectra<ul>
+<li>[x] Re-correction with initial ratio derived from isochrons</li>
+<li>[x] Plateau ages</li>
+</ul>
+</li>
+<li>[x] Chi-squared and P values</li>
+<li>[x] MSWD </li>
+</ul>
+</li>
+<li>[x] Interfaces, tables and plots<ul>
+<li>[x] Interacitve multi tables and plots </li>
+</ul>
+</li>
+<li>[x] Export<ul>
+<li>[x] Xls</li>
+<li>[x] PDF</li>
+<li>[x] SVG</li>
+</ul>
+</li>
+</ul>
+<h2 id="update-log">Update Log</h2>
+<p>The log is <a href="/../CHANGE_LOG.md">here</a></p>
+<h2 id="citing-webarar-or-ararpy">Citing WebArAr or ArArPy</h2>
+<h2 id="reference">Reference</h2>
