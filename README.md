@@ -18,6 +18,16 @@ This project originated from the necessity to update and enhance existing softwa
 
 Therefore, the main purpose of WebArAr is to balance the functionality of ArArCALC and IsoplotR and it will be continuously updated with more research needs in order to serve the community.
 
+
+## Usage
+
+* Access the application at http://www.webarar.net.
+See [Tutorial](/readme/Tutorial.md) for step-by-step instructions
+* (Optional) Deploy and launch WebArAr on your computer for offline usage. See [Deploy on your own caomputer](/readme/Deployment.md).
+* (Optional) Use ArArPy with a Python terminal. See [ArArPy](#ararpy).
+<!-- * [Vedio examples]() -->
+
+
 ## Features
 - [ ] Import
     - [x] Raw files from mass spec. See [File Filter](#)
@@ -48,18 +58,10 @@ Therefore, the main purpose of WebArAr is to balance the functionality of ArArCA
     - [x] MSWD 
 - [ ] Interfaces, tables and plots
     - [x] Interacitve multi tables and plots 
-- [ ] Export
+- [x] Export
     - [x] Xls
     - [x] PDF
     - [x] SVG
-
-## Usage
-
-* Access the application at http://www.webarar.net.
-See [Tutorial](/readme/Tutorial.md) for step-by-step instructions
-* (Optional) Deploy and launch WebArAr on your computer for offline usage. See [Deploy on your own caomputer](/readme/Deployment.md).
-* (Optional) Use ArArPy with a Python terminal. See [ArArPy](#ararpy).
-<!-- * [Vedio examples]() -->
 
 ## Update Log
 
