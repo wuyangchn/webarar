@@ -34,17 +34,11 @@ There are four ways to create a Sample Object:
 
     - .arr files are files exported from WebArAr as users' command. It is essentially the Sample Object after being JSON-serialized. 
 
-    <!-- - [here is an exmaple of .arr files](/20WHA0101.arr) -->
-
 3. Read from .age and .xls files from ArArCALC
 
     - .age is an extension of project files of ArArCALC.
 
     - .xls refers to the files exported from ArArCALC, which lost some information compared to the .age files.
-
-    <!-- - [here is an exmaple of .arr files](/20WHA0105.age)-->
-
-    <!--- [here is an exmaple of .xls files](/20WHA0105.age) -->
 
 4. Create an empty object
 
