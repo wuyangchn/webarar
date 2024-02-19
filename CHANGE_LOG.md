@@ -6,6 +6,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 * Error type selection 
 
+# v0.0.30 2024-02-20
+* Add a information dialogue for using Monte Carlo simulation
+
 # v0.0.29 2024-02-15
 * Update readme and tutorial
 * Fix age spectra y-axis ticks issue
