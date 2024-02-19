@@ -146,6 +146,7 @@ const stringToBoolean = (stringValue) => {
           return false;
     }
 }
+const delay = ms => new Promise(res => setTimeout(res, ms));
 
 class AjaxRequest {
     constructor(url, content, async) {
@@ -1897,7 +1898,14 @@ function clickRecalc() {
             'content': {'checked_options': checked_options,}
         }),
         contentType:'application/json',
-        success: function(response){
+        beforeSend: function(){
+            if (checked_options[11]) {
+                showLoadingMessage("Using Monte Carlo simulation, this may take a while, please waiting...");
+            }
+        },
+        success: async function(response){
+            $('#promptModal').remove();
+            await delay(500);
             let results = myParse(response.res);
             sampleComponents = assignDiff(sampleComponents, results);
             // console.log(changed_components);
