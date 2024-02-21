@@ -5,72 +5,81 @@
 
 ## Introduciton
 
-WebArAr is a web-based application based on [Django](https://www.djangoproject.com/) 
-designed to reduce <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data.
+WebArAr是一个基于[Django](https://www.djangoproject.com/) 框架的网络应用程序，用于
+<sup>40</sup>Ar/<sup>39</sup>Ar 地质年代学数据处理。
 
-* The backend functionalities are packaged into a module called [ArArPy](https://github.com/wuyangchn/ararpy.git). 
-Access through [PyPi](https://pypi.org/project/ararpy/).
-* Django framework, Bootstrap, Echarts, Bootstrap-table, etc. provide an intuitive and interactive interface.
+* 后端的主要程序打包成名为 [ArArPy](https://github.com/wuyangchn/ararpy.git) 的Python库，
+已经发布到 [PyPi](https://pypi.org/project/ararpy/) ，可通过pip安装。
+* Django框架、Bootstrap、Echarts、Bootstrap-table 等提供了直观的交互界面。
 
-Visit [WebArAr](https://www.webarar.net)
+访问 [WebArAr](https://www.webarar.net)
 
-## Background
+## 背景
 
-This project originated from the necessity to update and enhance existing software tools for <sup>40</sup>Ar/<sup>39</sup>Ar dating. In general, ArArCALC and Isoplot/Isoplot R have been widely utilized within this field. However, several factors have rendered these tools inadequate for meeting the evolving requirements: (1) ArArCALC and Isoplot were developed as macro tools for outdated Excel versions, such as Excel 2003. Isoplot is no longer maintained, and ArArCALC is closed-source. (2) The increasing importance of chlorine correction in crushing experiments requires software with new features. (3) IsoplotR is great for plotting but lacks support for correction and newer calcultions in <sup>40</sup>Ar/<sup>39</sup>Ar community such as age calibration. Additionally, its regression methods differ from commonly used York regression.
+本项目源于更新和增强现有的 <sup>40</sup>Ar/<sup>39</sup>Ar 测年数据处理工具的需要。
+总的来说，ArArCALC 和 Isoplot/IsoplotR 已在该领域得到广泛应用。
+然而，有几个因素使得这些工具不足以满足不断变化的需求：
+(1) ArArCALC 和 Isoplot 是为Microsoft Excel 早期版本（如 Excel 2003）开发的宏工具。
+Isoplot 已经不再维护；
+(2) 数据处理软件需要新的功能，例如砸碎实验中氯校正的重要性日益显现，ArArCALC 不足以处理 Cl 相关的图解；
+(3) IsoplotR 非常适合绘图，但缺乏对 <sup>40</sup>Ar/<sup>39</sup>Ar 数据校正和相对复杂计算的支持，例如更改参数重新计算等。
+此外，ArArCALC 和 Isoplot/IsoplotR的等时线回归方式有所不同。
 
-Therefore, the main purpose of WebArAr is to balance the functionality of ArArCALC and IsoplotR and it will be continuously updated with more research needs in order to serve the community.
+WebArAr 的主要目的是更进 <sup>40</sup>Ar/<sup>39</sup>Ar 定年新的需求，
+平衡 ArArCALC 和 IsoplotR 的使用体验，并将根据需求不断更新，以服务社区。
 
+## 使用
 
-## Usage
-
-* Access the application at http://www.webarar.net.
-See [Tutorial](/static/readme/Tutorial.md) for step-by-step instructions
-* (Optional) Deploy and launch WebArAr on your computer for offline usage. See [Deploy on your own caomputer](/static/readme/Deployment.md).
-* (Optional) Use ArArPy with a Python terminal. See [ArArPy](#ararpy).
+* 请访问 http://www.webarar.net 访问本应用程序，可将本域名加入收藏夹。
+* 详细使用指导请参阅 [教程](/static/readme/Tutorial_zh_CN.md)。
+* （可选）在您的计算机上部署并启动 WebArAr 以供离线使用。请参阅 [部署](/static/readme/Deployment_zh_CN.md).
+* （可选）用任意 Python IDE 引用 ArArPy 以使用处理处理功能。请参阅 [ArArPy](#ararpy).
 <!-- * [Vedio examples]() -->
 
 
-## Features
-- [x] Import
-    - [x] Raw files from mass spec
-    - [x] Age files from ArArCALC
-    - [x] Xls files from ArArCALC
-    - [x] Munally enter
-- [x] Raw Data Reduction
-    - [x] Blank correction
-    - [x] Mass discrimination correction
-    - [x] Decay correlation
-    - [x] Degas argon isotopes
-- [ ] Calculation
-    - [x] Age Calculation
-        - [x] Regular equation
-        - [x] Min equation
-        - [x] Renne calibration
-    - [ ] Isochron regression
-        - [x] Normal and inverse isochron
-        - [x] Chlorine related isochrons
-        - [x] York error weighted regression
-        - [ ] Robust regression
-        - [ ] Other regression methods
-    - [x] Three-dimensional regression
-    - [x] Age spectra
-        - [x] Re-correction with initial ratio derived from isochrons
-        - [x] Plateau ages
-    - [x] Chi-squared and P values
+## 功能
+- [x] 导入
+    - [x] 质谱仪原始文件
+    - [x] ArArCALC 项目文件 （后缀 .age）
+    - [x] ArArCALC 导出文件 （后缀 .xls）
+    - [x] 手动输入
+- [x] 原始数据处理
+    - [x] 外推零时刻截距值
+    - [x] 本底校正
+    - [x] 质量歧视校正
+    - [x] 衰变校正
+    - [x] 干扰核反应校正
+- [ ] 计算
+    - [x] 年龄计算
+        - [x] 常规年龄计算
+        - [x] Min 计算公式
+        - [x] Renne 年龄标定
+    - [ ] 等时线拟合
+        - [x] 正反等时线
+        - [x] 氯相关性图解
+        - [x] York 考虑误差相关性的加权回归
+        - [ ] 鲁棒回归
+        - [ ] 其他回归方法
+    - [x] 三维氯校正图解
+    - [x] 年龄谱
+        - [x] 由等时线推导的初始比值再校正年龄坪
+        - [x] 坪年龄
+    - [x] 卡方检测值和 P 值
     - [x] MSWD 
-- [x] Interfaces, tables and plots
-    - [x] Interacitve multi tables and plots 
-- [x] Export
-    - [x] Xls
-    - [x] PDF
-    - [x] SVG
+- [x] 界面、数据表和图解
+    - [x] 交互式多表格和图解
+- [x] 导出
+    - [x] XLS：EXCEL 文件，包含所有数据表和图表（除三维图）
+    - [x] PDF：可由Adobe Acrobat / Illustrator / CorelDRAW 打开根据需要再编辑
+    - [x] SVG：轻量化
+    - [ ] 三维图尚不能导出
 
-## Update Log
+## 更新记录
 
-The log is [here](/../CHANGE_LOG.md)
+请查看 [更新记录](/../CHANGE_LOG.md)
 
-## Citing WebArAr or ArArPy
+## 引用 WebArAr 或 ArArPy
 
 
-## Reference
+## 参考资料
 
