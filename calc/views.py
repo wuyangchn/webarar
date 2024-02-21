@@ -202,16 +202,16 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         if auto_replot:
             # Re-plot after clicking points
-            sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True, figures=figures)
+            sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=False, figures=figures)
             # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
 
-        http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
         # Response are changes in sample.Components, in this way we can decrease the size of response.
         res = ap.smp.basic.get_diff_smp(
             backup=components_backup, smp=ap.smp.basic.get_components(sample))
         res.update({'marks': sample.IsochronMark})
         # Update isochron table data, changes in isotope table is not required to transfer
         ap.smp.table.update_table_data(sample, only_table='7')
+        http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
 
         return JsonResponse({'res': ap.smp.json.dumps(res)})
 
@@ -483,7 +483,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
-        # print(f"Diff after recalculation: {res}")
         return JsonResponse({'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)})
 
     def flag_not_matched(self, request, *args, **kwargs):
