@@ -184,7 +184,7 @@ def recalc_isochrons(sample: Sample, **kwargs):
             continue
         figure = basic.get_component_byid(sample, key)
         figure.set3.data, figure.set1.data, figure.set2.data = \
-            sample.UnselectedSequence, sample.SelectedSequence1, sample.SelectedSequence2
+            sample.UnselectedSequence.copy(), sample.SelectedSequence1.copy(), sample.SelectedSequence2.copy()
         for index, sequence in enumerate([figure.set1.data, figure.set2.data, figure.set3.data]):
             set_data = calc.arr.partial(
                 sample.IsochronValues, rows=sequence, cols=list(range(*val['data_index'])))

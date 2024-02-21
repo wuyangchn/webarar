@@ -1737,13 +1737,9 @@ function initialRatioSelectChanged() {
 function clickPoints(params) {
     let current_set = ['set_1', 'set_2'][isochronLine1Btn.checked ? 0 : 1];
     let current_figure = getCurrentTableId();
-    let first_figures, second_figures;
+    let first_figures;
     let all_figures = ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7'];
-    if (['figure_2', 'figure_3'].indexOf(current_figure) !== -1) {
-        first_figures = ['figure_2', 'figure_3'];
-    } else
-        first_figures = [current_figure];
-    second_figures = all_figures.filter(x => ! first_figures.includes(x));
+    first_figures = [current_figure]
 
     // Get new results for the current figure
     let response = new AjaxRequest(
@@ -1754,7 +1750,6 @@ function clickPoints(params) {
     )
 
     let results = myParse(response.results);
-    // let results =  JSON.parse(response.res);
     sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {item[2]=results['marks'][index];return item});
     delete results['marks'];
     sampleComponents = assignDiff(sampleComponents, results);
