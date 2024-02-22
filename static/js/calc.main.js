@@ -1735,7 +1735,7 @@ function initialRatioSelectChanged() {
     inputs.css('background-color', disabled?'#eee':'#fff');
 }
 function clickPoints(params) {
-    let current_set = ['set_1', 'set_2'][isochronLine1Btn.checked ? 0 : 1];
+    let current_set = ['set1', 'set2'][isochronLine1Btn.checked ? 0 : 1];
     let current_figure = getCurrentTableId();
     let first_figures;
     let all_figures = ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7'];
@@ -1750,9 +1750,34 @@ function clickPoints(params) {
     )
 
     let results = myParse(response.results);
-    sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {item[2]=results['marks'][index];return item});
-    delete results['marks'];
     sampleComponents = assignDiff(sampleComponents, results);
+
+    if (ctrlIsPressed) {
+        let clicked_index = params.data[5] - 1;
+        if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
+            sampleComponents[current_figure][current_set].data =
+                sampleComponents[current_figure][current_set].data.filter(function(item) {
+                    return item !== clicked_index;
+                })
+            sampleComponents[current_figure].set3.data.push(clicked_index);
+        } else {
+            for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
+                if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
+                    sampleComponents[current_figure][i].data =
+                    sampleComponents[current_figure][i].data.filter(function(item) {
+                        return item !== clicked_index;
+                    })
+                }
+            }
+            sampleComponents[current_figure][current_set].data.push(clicked_index);
+        }
+    }
+
+    sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
+        item[2] = sampleComponents[current_figure].set1.data.includes(index) ? '1' : sampleComponents[current_figure].set2.data.includes(index) ? '2' : ''
+        return item
+    });
+
     showPage(current_figure);
     setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5])
 
