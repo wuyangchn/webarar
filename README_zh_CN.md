@@ -19,8 +19,8 @@ WebArAr是一个基于[Django](https://www.djangoproject.com/) 框架的网络�
 本项目源于更新和增强现有的 <sup>40</sup>Ar/<sup>39</sup>Ar 测年数据处理工具的需要。
 总的来说，ArArCALC 和 Isoplot/IsoplotR 已在该领域得到广泛应用。
 然而，有几个因素使得这些工具不足以满足不断变化的需求：
-(1) ArArCALC 和 Isoplot 是为Microsoft Excel 早期版本（如 Excel 2003）开发的宏工具。
-Isoplot 已经不再维护；
+(1) ArArCALC 和 Isoplot 是为 Microsoft Excel 早期版本（如 Excel 2003）开发的宏工具，现已缺乏更新，
+Isoplot 已不再维护；
 (2) 数据处理软件需要新的功能，例如砸碎实验中氯校正的重要性日益显现，ArArCALC 不足以处理 Cl 相关的图解；
 (3) IsoplotR 非常适合绘图，但缺乏对 <sup>40</sup>Ar/<sup>39</sup>Ar 数据校正和相对复杂计算的支持，例如更改参数重新计算等。
 此外，ArArCALC 和 Isoplot/IsoplotR的等时线回归方式有所不同。

@@ -59,7 +59,7 @@ See [Tutorial](/static/readme/Tutorial.md) for step-by-step instructions
     - [x] Chi-squared and P values
     - [x] MSWD 
 - [x] Interfaces, tables and plots
-    - [x] Interacitve multi tables and plots 
+    - [x] Interactive multi tables and plots 
 - [x] Export
     - [x] Xls
     - [x] PDF
