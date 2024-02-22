@@ -1,14 +1,13 @@
 [English](Deployment.md)
 
-# Installation
+# 部署
 
-The following instruction is for local usage. If you are planning to run WebArAr on a server computer instead, 
-you can do much the same as mentioned below, but with some additional steps for a more stable application, 
-such as replacing the built-in web server.
+以下说明仅供本地部署使用。如果你打算在服务器上运行 WebArAr，你可以做下面提到的相同的事情，
+但是需要一些额外的步骤来获得一个更稳定的应用程序，比如替换性能更强大的 web 服务器。
 
 For Windows system:
 
-#### 1. Install Python3
+#### 1. 安装 Python3
 
 Following instructions on https://www.python.org/downloads/.
 
