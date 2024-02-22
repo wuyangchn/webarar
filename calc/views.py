@@ -198,7 +198,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
 
         data_index = clicked_data[-1] - 1  # Isochron plot data label starts from 1, not 0
-        sample.set_selection(data_index, [1, 2][current_set == "set_2"])
+        sample.set_selection(data_index, [1, 2][current_set == "set2"])
 
         if auto_replot:
             # Re-plot after clicking points
@@ -208,7 +208,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # Response are changes in sample.Components, in this way we can decrease the size of response.
         res = ap.smp.basic.get_diff_smp(
             backup=components_backup, smp=ap.smp.basic.get_components(sample))
-        res.update({'marks': sample.IsochronMark})
         # Update isochron table data, changes in isotope table is not required to transfer
         ap.smp.table.update_table_data(sample, only_table='7')
         http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
