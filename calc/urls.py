@@ -14,4 +14,6 @@ urlpatterns = [
     path('raw/<str:flag>', views.RawFileView.as_view(), name="raw_views"),
     # /calc/params/...
     path('params/<str:flag>', views.ParamsSettingView.as_view(), name="params_views"),
+    # api
+    path('api/<str:flag>', views.ApiView.as_view(), name="api_views"),
 ]

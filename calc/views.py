@@ -48,6 +48,7 @@ class CalcHtmlView(http_funcs.ArArView):
             # sample = file_funcs.open_arr_file(web_file_path)
             sample = ap.from_arr(web_file_path)
         except (Exception, BaseException) as e:
+            print(traceback.format_exc())
             return render(request, 'calc.html', {
                 'title': 'alert', 'type': 'Error', 'message': 'Fail to open the arr file\n' + str(e)
             })
@@ -253,146 +254,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         http_funcs.create_cache(sample, self.cache_key)  # Update cache
         res = ap.smp.basic.get_diff_smp(components_backup, ap.smp.basic.get_components(sample))
         return JsonResponse({'changed_components': ap.smp.json.dumps(res)})
-
-    def export_arr(self, request, *args, **kwargs):
-        sample = self.sample
-        export_name = ap.files.arr_file.save(settings.DOWNLOAD_ROOT, sample)
-        export_href = '/' + settings.DOWNLOAD_URL + export_name
-        log_funcs.set_info_log(self.ip, '003', 'info',
-                               f'Success to export webarar file (.arr), sample name: {sample.Info.sample.name}, '
-                               f'export href: {export_href}')
-        return JsonResponse({'status': 'success', 'href': export_href})
-
-    def export_xls(self, request, *args, **kwargs):
-        template_filepath = os.path.join(settings.SETTINGS_ROOT, 'excel_export_template.xlstemp')
-        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{self.sample.Info.sample.name}_export.xlsx")
-        default_style = {
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
-            'bg_color': '#FFFFFF',  # back ground
-            'font_color': '#000000', 'align': 'left',
-            'top': 1, 'left': 1, 'right': 1, 'bottom': 1  # border width
-        }
-        a = ap.smp.export.WritingWorkbook(
-            filepath=export_filepath, style=default_style,
-            template_filepath=template_filepath, sample=self.sample)
-        res = a.get_xls()
-        export_href = '/' + settings.DOWNLOAD_URL + f"{self.sample.Info.sample.name}_export.xlsx"
-        if res:
-            log_funcs.set_info_log(
-                self.ip, '003', 'info', f'Success to export excel file (.xls), '
-                                        f'sample name: {self.sample.Info.sample.name}, export href: {export_href}')
-            return JsonResponse({'status': 'success', 'href': export_href})
-        else:
-            log_funcs.set_info_log(self.ip, '003', 'info',
-                                   f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}')
-            return JsonResponse({'status': 'fail', 'msg': res})
-
-    def export_opju(self, request, *args, **kwargs):
-        name = f"{self.sample.Info.sample.name}_export"
-        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{name}.opju")
-        a = ap.smp.export.CreateOriginGraph(
-            name=name, export_filepath=export_filepath, sample=self.sample,
-            spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.data),
-            set1_spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.set1.data),
-            set2_spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.set2.data),
-            isochron_data=self.sample.IsochronValues,
-            isochron_lines_data=ap.calc.arr.transpose(self.sample.NorIsochronPlot.line1.data) +
-                                ap.calc.arr.transpose(self.sample.NorIsochronPlot.line2.data) +
-                                ap.calc.arr.transpose(self.sample.InvIsochronPlot.line1.data) +
-                                ap.calc.arr.transpose(self.sample.InvIsochronPlot.line2.data) +
-                                ap.calc.arr.transpose(self.sample.KClAr1IsochronPlot.line1.data) +
-                                ap.calc.arr.transpose(self.sample.KClAr1IsochronPlot.line2.data) +
-                                ap.calc.arr.transpose(self.sample.KClAr2IsochronPlot.line1.data) +
-                                ap.calc.arr.transpose(self.sample.KClAr2IsochronPlot.line2.data) +
-                                ap.calc.arr.transpose(self.sample.KClAr3IsochronPlot.line1.data) +
-                                ap.calc.arr.transpose(self.sample.KClAr3IsochronPlot.line2.data),
-        )
-        try:
-            a.get_graphs()
-        except (Exception, BaseException):
-            log_funcs.set_info_log(
-                self.ip, '003', 'info',
-                f'Fail to export origin file (.opju), sample name: {self.sample.Info.sample.name}')
-            return JsonResponse({'status': 'fail', 'msg': traceback.format_exc()})
-        else:
-            export_href = '/' + settings.DOWNLOAD_URL + f"{name}.opju"
-            log_funcs.set_info_log(self.ip, '003', 'info', f'Success to export origin file (.opju), '
-                                                           f'sample name: {self.sample.Info.sample.name}, '
-                                                           f'export href: {export_href}')
-            return JsonResponse({'status': 'success', 'href': export_href})
-
-    def export_pdf(self, request, *args, **kwargs):
-
-        figure_id = str(self.body.get('figure_id'))
-        merged_pdf = bool(self.body.get('merged_pdf'))
-        figure = ap.smp.basic.get_component_byid(self.sample, figure_id)
-
-        name = f"{self.sample.Info.sample.name}_{figure.name}"
-        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{name}.pdf")
-
-        # filepath = 'D:\\Downloads\\2.pdf'
-        # with open(filepath, 'rb') as f:
-        #     pdf_data: bytes = f.read()
-
-        # Do something for PDF BODY
-        if not merged_pdf:
-            # ap.smp.export.CreatePDF(
-            #     name=f"{self.sample.Info.sample.name}_export",
-            #     export_filepath=export_filepath,
-            #     sample=self.sample,
-            #     figure=figure,
-            # ).get_pdf()
-            ap.smp.export.to_pdf(export_filepath, figure_id, self.sample)
-        else:
-            pdf1 = ap.smp.export.CreatePDF(
-                name=f"{self.sample.Info.sample.name}_export",
-                export_filepath=export_filepath,
-                sample=self.sample,
-                figure=ap.smp.basic.get_component_byid(self.sample, 'figure_1'),
-                axis_area=[60, 400, 200, 160]
-            ).get_contents()
-
-            pdf2 = ap.smp.export.CreatePDF(
-                name=f"{self.sample.Info.sample.name}_export",
-                export_filepath=export_filepath,
-                sample=self.sample,
-                figure=ap.smp.basic.get_component_byid(self.sample, 'figure_2'),
-                axis_area=[320, 400, 200, 160]
-            ).get_contents()
-
-            pdf3 = ap.smp.export.CreatePDF(
-                name=f"{self.sample.Info.sample.name}_export",
-                export_filepath=export_filepath,
-                sample=self.sample,
-                figure=ap.smp.Plot(name='Merged'),
-                component=pdf1['component'] + pdf2['component'],
-                text=pdf1['text'] + pdf2['text'],
-                frame=pdf1['frame'] + pdf2['frame']
-            )
-            pdf3.set_info()
-            pdf3.set_replace()
-            pdf3.toBetys()
-            pdf3.save()
-
-        export_href = '/' + settings.DOWNLOAD_URL + f"{name}.pdf"
-
-        return JsonResponse({'status': 'success', 'href': export_href})
-
-        # Write clipboard
-        # import win32clipboard as cp
-        # cp.OpenClipboard()
-        # # DataObject = 49161
-        # # Object Descriptor = 49166
-        # # Ole Private Data = 49171
-        # # Scalable Vector Graphics = 50148
-        # # Portable Document Format = 50199
-        # # Scalable Vector Graphics For Adobe Muse = 50215
-        # # ADOBE AI3 = 50375
-        # # Adobe Illustrator 25.0 = 50376
-        # # Encapsulated PostScript = 50379
-        # cp.EmptyClipboard()
-        # cp.SetClipboardData(cp.RegisterClipboardFormat('Portable Document Format'), pdf_data)
-        # cp.CloseClipboard()
 
     def get_regression_result(self, request, *args, **kwargs):
         data = list(self.body.get('data'))
@@ -888,3 +749,178 @@ class ParamsSettingView(http_funcs.ArArView):
                         return JsonResponse({'error': 'something wrong happened when delete params'}, status=403)
             else:
                 return JsonResponse({'error': 'wrong pin'}, status=403)
+
+
+class ApiView(http_funcs.ArArView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.dispatch_post_method_name = [
+        ]
+
+    @staticmethod
+    def open_raw(request, *args, **kwargs):
+        return CalcHtmlView().open_raw_file(request, *args, **kwargs)
+
+    @staticmethod
+    def open_arr(request, *args, **kwargs):
+        return CalcHtmlView().open_arr_file(request, *args, **kwargs)
+
+    @staticmethod
+    def open_full(request, *args, **kwargs):
+        return CalcHtmlView().open_full_xls_file(request, *args, **kwargs)
+
+    @staticmethod
+    def open_age(request, *args, **kwargs):
+        return CalcHtmlView().open_age_file(request, *args, **kwargs)
+
+    @staticmethod
+    def open_current(request, *args, **kwargs):
+        return CalcHtmlView().open_current_file(request, *args, **kwargs)
+
+    @staticmethod
+    def open_new(request, *args, **kwargs):
+        return CalcHtmlView().open_new_file(request, *args, **kwargs)
+
+    @staticmethod
+    def open_multi(request, *args, **kwargs):
+        return CalcHtmlView().open_multi_files(request, *args, **kwargs)
+
+    def export_arr(self, request, *args, **kwargs):
+        sample = self.sample
+        export_name = ap.files.arr_file.save(settings.DOWNLOAD_ROOT, sample)
+        export_href = '/' + settings.DOWNLOAD_URL + export_name
+        log_funcs.set_info_log(self.ip, '003', 'info',
+                               f'Success to export webarar file (.arr), sample name: {sample.Info.sample.name}, '
+                               f'export href: {export_href}')
+        return JsonResponse({'status': 'success', 'href': export_href})
+
+    def export_xls(self, request, *args, **kwargs):
+        template_filepath = os.path.join(settings.SETTINGS_ROOT, 'excel_export_template.xlstemp')
+        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{self.sample.Info.sample.name}_export.xlsx")
+        default_style = {
+            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
+            'bg_color': '#FFFFFF',  # back ground
+            'font_color': '#000000', 'align': 'left',
+            'top': 1, 'left': 1, 'right': 1, 'bottom': 1  # border width
+        }
+        a = ap.smp.export.WritingWorkbook(
+            filepath=export_filepath, style=default_style,
+            template_filepath=template_filepath, sample=self.sample)
+        res = a.get_xls()
+        export_href = '/' + settings.DOWNLOAD_URL + f"{self.sample.Info.sample.name}_export.xlsx"
+        if res:
+            log_funcs.set_info_log(
+                self.ip, '003', 'info', f'Success to export excel file (.xls), '
+                                        f'sample name: {self.sample.Info.sample.name}, export href: {export_href}')
+            return JsonResponse({'status': 'success', 'href': export_href})
+        else:
+            log_funcs.set_info_log(self.ip, '003', 'info',
+                                   f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}')
+            return JsonResponse({'status': 'fail', 'msg': res})
+
+    def export_opju(self, request, *args, **kwargs):
+        name = f"{self.sample.Info.sample.name}_export"
+        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{name}.opju")
+        a = ap.smp.export.CreateOriginGraph(
+            name=name, export_filepath=export_filepath, sample=self.sample,
+            spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.data),
+            set1_spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.set1.data),
+            set2_spectra_data=ap.calc.arr.transpose(self.sample.AgeSpectraPlot.set2.data),
+            isochron_data=self.sample.IsochronValues,
+            isochron_lines_data=ap.calc.arr.transpose(self.sample.NorIsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.NorIsochronPlot.line2.data) +
+                                ap.calc.arr.transpose(self.sample.InvIsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.InvIsochronPlot.line2.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr1IsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr1IsochronPlot.line2.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr2IsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr2IsochronPlot.line2.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr3IsochronPlot.line1.data) +
+                                ap.calc.arr.transpose(self.sample.KClAr3IsochronPlot.line2.data),
+        )
+        try:
+            a.get_graphs()
+        except (Exception, BaseException):
+            log_funcs.set_info_log(
+                self.ip, '003', 'info',
+                f'Fail to export origin file (.opju), sample name: {self.sample.Info.sample.name}')
+            return JsonResponse({'status': 'fail', 'msg': traceback.format_exc()})
+        else:
+            export_href = '/' + settings.DOWNLOAD_URL + f"{name}.opju"
+            log_funcs.set_info_log(self.ip, '003', 'info', f'Success to export origin file (.opju), '
+                                                           f'sample name: {self.sample.Info.sample.name}, '
+                                                           f'export href: {export_href}')
+            return JsonResponse({'status': 'success', 'href': export_href})
+
+    def export_pdf(self, request, *args, **kwargs):
+
+        figure_id = str(self.body.get('figure_id'))
+        merged_pdf = bool(self.body.get('merged_pdf'))
+        figure = ap.smp.basic.get_component_byid(self.sample, figure_id)
+
+        name = f"{self.sample.Info.sample.name}_{figure.name}"
+        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{name}.pdf")
+
+        # filepath = 'D:\\Downloads\\2.pdf'
+        # with open(filepath, 'rb') as f:
+        #     pdf_data: bytes = f.read()
+
+        # Do something for PDF BODY
+        if not merged_pdf:
+            # ap.smp.export.CreatePDF(
+            #     name=f"{self.sample.Info.sample.name}_export",
+            #     export_filepath=export_filepath,
+            #     sample=self.sample,
+            #     figure=figure,
+            # ).get_pdf()
+            ap.smp.export.to_pdf(export_filepath, figure_id, self.sample)
+        else:
+            pdf1 = ap.smp.export.CreatePDF(
+                name=f"{self.sample.Info.sample.name}_export",
+                export_filepath=export_filepath,
+                sample=self.sample,
+                figure=ap.smp.basic.get_component_byid(self.sample, 'figure_1'),
+                axis_area=[60, 400, 200, 160]
+            ).get_contents()
+
+            pdf2 = ap.smp.export.CreatePDF(
+                name=f"{self.sample.Info.sample.name}_export",
+                export_filepath=export_filepath,
+                sample=self.sample,
+                figure=ap.smp.basic.get_component_byid(self.sample, 'figure_2'),
+                axis_area=[320, 400, 200, 160]
+            ).get_contents()
+
+            pdf3 = ap.smp.export.CreatePDF(
+                name=f"{self.sample.Info.sample.name}_export",
+                export_filepath=export_filepath,
+                sample=self.sample,
+                figure=ap.smp.Plot(name='Merged'),
+                component=pdf1['component'] + pdf2['component'],
+                text=pdf1['text'] + pdf2['text'],
+                frame=pdf1['frame'] + pdf2['frame']
+            )
+            pdf3.set_info()
+            pdf3.set_replace()
+            pdf3.toBetys()
+            pdf3.save()
+
+        export_href = '/' + settings.DOWNLOAD_URL + f"{name}.pdf"
+
+        return JsonResponse({'status': 'success', 'href': export_href})
+
+        # Write clipboard
+        # import win32clipboard as cp
+        # cp.OpenClipboard()
+        # # DataObject = 49161
+        # # Object Descriptor = 49166
+        # # Ole Private Data = 49171
+        # # Scalable Vector Graphics = 50148
+        # # Portable Document Format = 50199
+        # # Scalable Vector Graphics For Adobe Muse = 50215
+        # # ADOBE AI3 = 50375
+        # # Adobe Illustrator 25.0 = 50376
+        # # Encapsulated PostScript = 50379
+        # cp.EmptyClipboard()
+        # cp.SetClipboardData(cp.RegisterClipboardFormat('Portable Document Format'), pdf_data)
+        # cp.CloseClipboard()

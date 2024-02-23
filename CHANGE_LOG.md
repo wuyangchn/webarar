@@ -4,7 +4,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 ## to do
 
-* Error type selection 
+* Error type selection
+
+# v0.0.32 2024-02-23
+* Test api 
 
 # v0.0.31 2024-02-20
 * Optimized the speed of clicking scatter points

@@ -2,9 +2,10 @@
 
 # Installation
 
-The following instruction is for local usage. If you are planning to run WebArAr on a server computer instead, 
-you can do much the same as mentioned below, but with some additional steps for a more stable application, 
-such as replacing the built-in web server.
+The following instruction is for local usage. If you are planning to run WebArAr 
+on a server computer instead, you can do much the same as mentioned below, but 
+with some additional steps for a more stable application, such as replacing the 
+built-in web server.
 
 For Windows system:
 
@@ -18,7 +19,8 @@ Following instructions on https://dev.mysql.com/doc/refman/8.3/en/windows-choosi
 
 Remember the MySql server port (default 3306) and root password.
 
-Create WebArAr databases: start MySql command line client -> using the command following to create database.
+Create WebArAr databases: start MySql command line client -> using the command 
+following to create database.
 
     create database webarar;
     # webarar can be other name as you want
