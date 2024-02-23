@@ -3,12 +3,12 @@
 
 [简体中文](README_zh_CN.md)
 
-## Introduciton
+## Introduction
 
 WebArAr is a web-based application based on [Django](https://www.djangoproject.com/) 
 designed to reduce <sup>40</sup>Ar/<sup>39</sup>Ar geochronologic data.
 
-* The backend functionalities are packaged into a module called [ArArPy](https://github.com/wuyangchn/ararpy.git). 
+* The backend algorithms are packaged into a module called [ArArPy](https://github.com/wuyangchn/ararpy.git). 
 Access through [PyPi](https://pypi.org/project/ararpy/).
 * Django framework, Bootstrap, Echarts, Bootstrap-table, etc. provide an intuitive and interactive interface.
 
@@ -16,18 +16,29 @@ Visit [WebArAr](https://www.webarar.net)
 
 ## Background
 
-This project originated from the necessity to update and enhance existing software tools for <sup>40</sup>Ar/<sup>39</sup>Ar dating. In general, ArArCALC and Isoplot/Isoplot R have been widely utilized within this field. However, several factors have rendered these tools inadequate for meeting the evolving requirements: (1) ArArCALC and Isoplot were developed as macro tools for outdated Excel versions, such as Excel 2003. Isoplot is no longer maintained, and ArArCALC is closed-source. (2) The increasing importance of chlorine correction in crushing experiments requires software with new features. (3) IsoplotR is great for plotting but lacks support for correction and newer calcultions in <sup>40</sup>Ar/<sup>39</sup>Ar community such as age calibration. Additionally, its regression methods differ from commonly used York regression.
+This project originated from the necessity to update and enhance existing software tools for 
+<sup>40</sup>Ar/<sup>39</sup>Ar dating. In general, ArArCALC and Isoplot/Isoplot R have been 
+widely utilized within this field. However, several factors have rendered these tools inadequate 
+for meeting the evolving requirements: (1) ArArCALC and Isoplot were developed as macro tools for 
+outdated Excel versions, such as Excel 2003. Isoplot is no longer maintained, and ArArCALC is 
+closed-source. (2) The increasing importance of chlorine correction in crushing experiments 
+requires software with new features. (3) IsoplotR is great for plotting but lacks support 
+for correction and newer calculations in <sup>40</sup>Ar/<sup>39</sup>Ar community such as 
+age calibration. Additionally, its regression methods differ from commonly used York regression.
 
-Therefore, the main purpose of WebArAr is to balance the functionality of ArArCALC and IsoplotR and it will be continuously updated with more research needs in order to serve the community.
+Therefore, the main purpose of WebArAr is to balance the functionality of ArArCALC and 
+IsoplotR and it will be continuously updated with more research needs in order to serve 
+the community.
 
 
 ## Usage
 
 * Access the application at http://www.webarar.net.
 See [Tutorial](/static/readme/Tutorial.md) for step-by-step instructions
-* (Optional) Deploy and launch WebArAr on your computer for offline usage. See [Deploy on your own caomputer](/static/readme/Deployment.md).
+* (Optional) Deploy and launch WebArAr on your computer for offline usage. 
+See [Deploy on your own caomputer](/static/readme/Deployment.md).
 * (Optional) Use ArArPy with a Python terminal. See [ArArPy](#ararpy).
-<!-- * [Vedio examples]() -->
+<!-- * [Video examples]() -->
 
 
 ## Features
@@ -35,7 +46,7 @@ See [Tutorial](/static/readme/Tutorial.md) for step-by-step instructions
     - [x] Raw files from mass spec
     - [x] Age files from ArArCALC
     - [x] Xls files from ArArCALC
-    - [x] Munally enter
+    - [x] Manually enter
 - [x] Raw Data Reduction
     - [x] Blank correction
     - [x] Mass discrimination correction
