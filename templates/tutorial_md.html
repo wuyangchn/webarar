@@ -1,140 +1,283 @@
 {% load static %}
+<h3 id="webarar-tutorial">WebArAr Tutorial</h3>
 <p><em>This documentation provides guidance on how to use WebArAr.</em></p>
-<p><em>Last updated: <strong>Feb 15, 2024</strong></em></p>
+<p><em>Last updated: <strong>Feb 25, 2024</strong></em></p>
 <p><a href="/doc/tutorial/zh-cn">简体中文</a></p>
-<h2 id="content">Content</h2>
+<h3 id="content">Content</h3>
 <ol>
 <li><a href="#general-procedure">General procedure</a></li>
-<li><a href="#interface">Interface</a></li>
-<li><a href="#import-your-data">Import your data</a></li>
-<li><a href="#setting-file-filter">Setting file filter</a></li>
-<li><a href="#setting-constants-set">Setting constants set</a></li>
-<li><a href="#setting-irradiation-parameters">Setting irradiation parameters</a></li>
-<li><a href="#setting-sample-imformation-and-parameters">Setting sample information and parameters</a></li>
-<li><a href="#data-reduction-and-recalculation">Data reduction and recalculaiton</a></li>
-<li><a href="#interact-with-tables">Interact with tables</a></li>
-<li><a href="#interact-with-plots">Interact with plots</a></li>
-<li><a href="#save-and-export">Save and export</a></li>
-<li><a href="https://github.com/wuyangchn/webarar/issues">FAQ</a></li>
+<li><a href="#import-raw-data">Import raw data</a></li>
+<li><a href="#arr-files">Arr files</a></li>
+<li><a href="#create-new-sample">Create new sample</a></li>
+<li><a href="#set-raw-file-filter">Set raw-file filter</a></li>
+<li><a href="#calculate-blank">Calculate blank</a></li>
+<li><a href="#tables-and-figures">Tables and figures</a></li>
+<li><a href="#set-parameters">Set parameters</a></li>
+<li><a href="#recalculation">Recalculation</a></li>
+<li><a href="#isochron-scatter-points-selection">Isochron scatter points selection</a></li>
+<li><a href="#change-figure-styles">Change figures styles</a></li>
+<li><a href="#air-corrected-plateaus">Air-corrected plateaus</a></li>
+<li><a href="#age-distribution-figure">Age distribution figure</a></li>
+<li><a href="#Save-and-export">Save and export</a></li>
 </ol>
-<h2 id="general-procedure">General procedure</h2>
-<p>WebArAr will create a Sample Object for all data imported, which is essentially a instance of a Python class. Changes from users in interactive pages are sent to the server side for synchronization, and the server side sends the results of the calculations to the front end for display.</p>
-<p>There are four ways to create a Sample Object:</p>
+<h3 id="general-procedure">General procedure</h3>
 <ol>
-<li><p>Read from a raw data exported from a mass spec.</p>
-<ul>
-<li><p>A file filter is required to read files correctly. <a href="#setting-file-filter">See here</a> for how to edit a filter.</p>
+<li><p><strong>导入数据</strong></p>
 </li>
-<li><p>Raw data requires some necessary extrapolation and blank assignment. <a href="#import-from-mass-spec-raw-data">See here</a> for more information.</p>
+<li><p>Support to read the original mass spectrometer output file: See <a href="#import-raw-data">Import raw data</a>.</p>
+</li>
+<li><p>Open arr files: arr is the format with which WebArAr saves Sample objects. See <a href="#arr-files">Arr files</a>.</p>
+</li>
+<li><p>Open files of ArArCALC software, including age and xls files.</p>
+</li>
+<li><p>Create a new object: See <a href="#create-new-sample">Create new sample</a>. </p>
+</li>
+<li><p><strong>View, modify, and calculate for a open sample object</strong></p>
+<p> After the Sample object is successfully created and opened, the object page will display some tables and figures. </p>
+<p> <img src="{%  static 'readme/image-15.png' %}" alt="alt text"></p>
+<p> Any files that have been opened will no longer be associated with the user&#39;s local file, the Sample object is passed between the server and the client in the form of data streams, and will be not automatically saved, so unless the user downloads the arr file, all operations will be lost when the page is closed.</p>
+<p> The actions that can be performed on the object page include:: </p>
+<ul>
+<li><p>Edit tables: </p>
+<p>  All tables are editable. After editing, click Save changes below the table to save your changes. See <a href="#tables-and-figures">Tables and figures</a> for content in each table or figure.</p>
+</li>
+<li><p>Edit parameters: </p>
+<p>  <em>Note: The calculation will not be automatically called after the parameter is modified. See <a href="#recalculation">Recalculation</a>.</em></p>
+<ul>
+<li><p><strong>Total Param</strong> include all parameters, editing this table and saving to set new parameters for the Sample.</p>
+</li>
+<li><p>Set parameters by three parameter sets, namely Irra Params, Calc Params, and Smp Params. This will change parameters of all <strong>sequences</strong>. See <a href="#set-parameters">Setting parameters</a></p>
 </li>
 </ul>
 </li>
-<li><p>Read .arr files.</p>
-<ul>
-<li><p>.arr files are files exported from WebArAr as users&#39; command. It is essentially the Sample Object after being JSON-serialized. </p>
+<li><p>interaction with figures:</p>
+<p>  All figures are rendered by Echarts and therefore have Echarts features and attributes. Some commonly used properties are editable. See <a href="#change-figure-styles">Change figure styles</a>.</p>
 </li>
-</ul>
-</li>
-<li><p>Read from .age and .xls files from ArArCALC</p>
-<ul>
-<li><p>.age is an extension of project files of ArArCALC.</p>
-</li>
-<li><p>.xls refers to the files exported from ArArCALC, which lost some information compared to the .age files.</p>
-</li>
-</ul>
-</li>
-<li><p>Create an empty object</p>
-<ul>
-<li><p>Empty object require users enter data munally.</p>
-</li>
-<li><p>This is helpful for users who will just use some parts of functionalities. <a href="#create-an-empty-object">See here</a> for more information on how much data is needed for a certain requirement.</p>
+<li><p>Select points used for regression in isochron plots</p>
+<p>  See <a href="#isochron-scatter-points-selection">Isochron scatter points selection</a>.</p>
+<p>  WebArAr provides five isochrons, including normal and inverse isochrons and three chlorine related isochrons. All isochrons and age spectra will use the same <strong>sequence</strong> selection combination, supporting two combinations, namely Set1 and Set2.</p>
 </li>
 </ul>
 </li>
 </ol>
-<p>Successful creation of a Sample object will take you to the object display page. The left side navigation lists the tables and figures that the object has.</p>
-<p>Any file that is opened will no longer be associated with your local file, so any changes will not result in a loss of your local data. Also, the Sample object is passed between the server and the user in the form of stream, and is not automatically saved as a file, so all modifications will be lost when the window is closed unless the arr file is downloaded.</p>
-<p>The operations that can be performed after opening the Sample object include:</p>
+<h3 id="import-raw-data">Import raw data</h3>
+<ul>
+<li><p>The raw files usually include at least the following information: the zero-time, analysis time, and intensities of five isotopes of each <strong>cycle</strong>.</p>
+</li>
+<li><p>The raw files will be read based on given filters. <a href="#set-raw-file-filter">Set raw-file filter</a> provides instructions and examples for creating filters.</p>
 <ol>
-<li><p>Change sample information</p>
-<p> Sample information includes location, laboratory, researcher etc., which are unrelated to the calculation.</p>
+<li><p>Mass Spec Raw Files </p>
+<p> <img src="{%  static 'readme/image-24.png' %}" alt="alt text"></p>
 </li>
-<li><p>Edit content in tables</p>
-<p> All tables are editable. Munally editing and saving changes can change table contents.</p>
-<p> <a href="">See here</a> for information on what content contained in tables.</p>
-</li>
-<li><p>Edit parameters</p>
-<ul>
-<li><p>Edit manually.</p>
-<p>  All parameters are displayed in a table named Total Params. Note: after saving changes in this table, re-calculation will not applied automatically.</p>
-</li>
-<li><p>Apply parameter set</p>
-<p>  Open parameter setting dialogs to set parameters for all sequences. Parameter setting dialogs includes:</p>
-<ul>
-<li>Calculation Constants, <a href="#setting-constants-set">see here</a></li>
-<li>Irradiation Parameters, <a href="#setting-irradiation-parameters">see here</a></li>
-<li>Special parameters for individual samples, <a href="#setting-sample-imformation-and-parameters">see here</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Generic interactions for figures</p>
-<p> All figures are rendered by Echarts</p>
-<ul>
-<li><p>Click on the top legend area to show or hide a graphical element.</p>
-</li>
-<li><p>Drag and drop to move the text position</p>
-</li>
-<li><p>Click the Style button below will bring up the style settings window on the right side. Clicking on a scatter point, line, or text element on the figure will take you to the object-specific style settings window. close or click style again to hide the style settings window.</p>
-</li>
-</ul>
+<li><p>Multiple raw files can be opened together and filters need to be selected for each file</p>
+<p> <img src="{%  static 'readme/image-22.png' %}" alt="alt text"></p>
 </li>
 </ol>
+</li>
+<li><p>Extrapolating the intercepts at zero-time.</p>
+<p>  You can click to deselect some outliers, decide whether to cancel this scatter point for all isotopes of the current <strong>sequence</strong>, select the fitting method to be adopted, check whether to apply this fitting method to all isotopes, and set the current <strong>sequence</strong> as the background. It is possible to export the sequence for later use.</p>
+<p>  <img src="{%  static 'readme/image-25.png' %}" alt="alt text"></p>
+</li>
+<li><p>Assign blanks for each sample sequence.</p>
+<p>  In the case of example below, three sequences of 1-7-13 are defined as blank sequences. There are four strategies to couple sample and blank sequences. It is also possible to select blanks for each sample sequence in drop-down boxes. The blank sequences can be calculated in the right interface. See <a href="#calculate-blank">Calculate blank</a>.</p>
+<p>  <img src="{%  static 'readme/image-26.png' %}" alt="alt text"></p>
+<p>  Four strategies:</p>
 <ol>
-<li><p>Scatter point selection for isochrons</p>
-<p> WebArAr provides five isochrones, including normal, inverse isochrones, and three isochrones related to Chlorine. All isochrones and age spectrum plots will use the same combination of selection, and up tp two combinations of picks are supported.</p>
-<p> Click on Set1 and Set2 on the right side to toggle the current combination, Set1 is in red and Set2 is in blue, and click on the scatter point to select or unselect the point. Each click will automatically recalculate the regression and age. The response speed depends on the network speed. For smooth operation, you can press and hold Ctrl and then continually click on scatter points, after which you need to call a re-calculation.</p>
+<li><strong>Pre-run</strong>: Each blank is used to correct the sample sequence performed after it until the next blank conducted, and if the first sequence is not blank, the first blank will also be used to deduct several sample sequence before it;</li>
+<li><strong>Post-run</strong>: Each blank will be used to correct the sample stage performed before it, and if the last sequence is not the blank, the last blank will also be used to deduct the last several sample sequences;</li>
+<li><strong>Adjacent</strong>: Each blank sequence will be used to correct the nearest several sample sequences.</li>
+<li><strong>Interpolation</strong>: The fitting line between the time and blank intensities can be defined from the given several blank sequences, and blanks of sample sequences can be obtained by interpolation.</li>
+</ol>
+</li>
+</ul>
+<h3 id="arr-files">arr files</h3>
+<ul>
+<li>The arr files are saved in binary format and in principle are JSON-serialized Sample object.</li>
+</ul>
+<h3 id="create-new-sample">Create new sample</h3>
+<ul>
+<li><p>Creating an empty object supports manually entering data by users.</p>
+</li>
+<li><p>It is often convenient when only some parts of WebArAr&#39;s functionality is required, such as plotting age spectra.</p>
+</li>
+</ul>
+<h3 id="set-raw-file-filter">Set raw-file filter</h3>
+<ol>
+<li><p>The entry of editing raw-file filters on the <em>Run</em> page.</p>
+<p> <img src="{%  static 'readme/image-17.png' %}" alt="alt text"></p>
+</li>
+<li><p>Edit an existing filter (requires Pin-verification), or create a new one.</p>
+<p> <img src="{%  static 'readme/image-3.png' %}" alt="alt text"></p>
+</li>
+<li><p>The filter is used to read isotope intensities and information correctly from the files. Text format files and Excel Multitable files (xls) are supported. For xls files, table, row, and column indexes are three-digit integers used to locate data. For text files, rows and columns are needed. </p>
+<p> <em>Note: all indexes are 1 based</em></p>
+</li>
+<li><p>Example 1: AHD files.</p>
+<p> AHD files might have following contents. Download the <a href="{% static 'readme/AHD.ahd' %}">AHD file</a>.</p>
+<pre><code> Sample    sample_name
+ Experiment    experiment_name
+ Project
+ Irradiation
+ Standard
+ Instrument    Argus    <span class="hljs-number">1</span>E-<span class="hljs-number">13</span>
+ Time Stamp    <span class="hljs-number">21/06/2023</span>    <span class="hljs-number">0</span>:<span class="hljs-number">08</span>:<span class="hljs-number">53</span>
+ Analyst
+ Temperature    <span class="hljs-number">0</span>    Laser
+ J-Value
+ Fractionation
+ Volume Correction    <span class="hljs-number">1</span>
+ Counters    <span class="hljs-number">1</span>    <span class="hljs-number">15</span>    <span class="hljs-number">1</span>    <span class="hljs-number">0</span>
+
+ Time    Intensity    <span class="hljs-number">37</span>    <span class="hljs-number">38</span>    <span class="hljs-number">39</span>    <span class="hljs-number">40</span>        Cycle #    Peakreading #
+ <span class="hljs-number">96.124784</span>    <span class="hljs-number">0</span>.<span class="hljs-number">039713085</span>
+ <span class="hljs-number">139.839784</span>    <span class="hljs-number">0</span>.<span class="hljs-number">017819889</span>
+ <span class="hljs-number">96.124784</span>    <span class="hljs-number">0</span>.<span class="hljs-number">095037932</span>
+ <span class="hljs-number">96.124784</span>    <span class="hljs-number">8.217368387</span>
+ <span class="hljs-number">96.124784</span>    <span class="hljs-number">52.50271246</span>
+ <span class="hljs-number">183.630784</span>    <span class="hljs-number">0</span>.<span class="hljs-number">039292885</span>
+ <span class="hljs-number">227.343784</span>    <span class="hljs-number">0.01599587</span>
+ <span class="hljs-number">183.630784</span>    <span class="hljs-number">0.088180873</span>
+ <span class="hljs-number">183.630784</span>    <span class="hljs-number">7</span>.<span class="hljs-number">980598974</span>
+ <span class="hljs-number">183.630784</span>    <span class="hljs-number">53.55335785</span>
+</code></pre><p> According to the contents above, we can find: head information count for 15 rows, sample name (0, 1, 2), experiment name (0, 2, 2), date of zero-time (0, 7, 2), time of zero-time (0, 7, 3), isotopic values are presented vertically in groups of five, so 36Ar is located at (1, 2), 37Ar (2, 2), 38Ar (3, 2), 39Ar (4, 2), 40Ar (5, 2), analysis time is 36Ar (1, 1), 37Ar (2, 1), 38Ar (3, 1), 39Ar (4, 1), 40Ar (5, 1). And note that date and time are in one string respectively.</p>
+<p> <img src="{%  static 'readme/image-16.png' %}" alt="alt text"></p>
+</li>
+<li><p>Example 2: xls files exported from NGX software. </p>
+<p> Contents of the file are partly shown as the following figure. Download <a href="{% static 'readme/NGX_Exported_XLS.xls' %}">NGX_Exported_XLS</a> for reference.</p>
+<p> <img src="{%  static 'readme/image-18.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-19.png' %}" alt="alt text"></p>
+<p> For this file, the filter Settings are as follows:</p>
+<p> <img src="{%  static 'readme/image-20.png' %}" alt="alt text"></p>
 </li>
 </ol>
-<h2 id="interface">Interface</h2>
-<p><em>Home Page</em></p>
-<p><img src="{% static 'readme/image.png' %}" alt="alt text"></p>
-<p><em>Import Data Page</em></p>
-<p><img src="{% static 'readme/image-1.png' %}" alt="alt text"></p>
-<p><em>Object Page</em></p>
-<p><img src="{% static 'readme/image-12.png' %}" alt="alt text"></p>
-<p><em>Tables</em></p>
-<p><img src="{% static 'readme/image-13.png' %}" alt="alt text"></p>
-<p><em>Figures</em></p>
-<p><img src="{% static 'readme/image-14.png' %}" alt="alt text"></p>
-<h2 id="import-your-data">Import your data</h2>
-<p><img src="{% static 'readme/image-1.png' %}" alt="alt text"></p>
-<h2 id="import-from-mass-spec-raw-data">Import from mass spec raw data</h2>
-<p><img src="{% static 'readme/image-2.png' %}" alt="alt text"></p>
-<p>To set file filter, see <a href="#setting-file-filter">here</a></p>
-<h2 id="open-arr-file">Open arr file</h2>
-<p>see <a href="/static/readme/22WHA0433.arr">arr file example</a></p>
-<h2 id="import-from-ararcalc">Import from ArArCALC</h2>
-<p>.age files, see <a href="/static/readme/22WHA0433.age">age file example</a></p>
-<p>.xls files, see <a href="/static/readme/22WHA0433.full.xls">xls file example</a></p>
-<h2 id="the-current-file">The current file</h2>
-<p>The redis will save your last opened object for a while, via The Current File you can get it without uploding the file again.</p>
-<h2 id="create-an-empty-object">Create an empty object</h2>
-<p>Create an empty object and you will need to enter data in the appropriate tables. What data is required is dependant on your needs, WebArAr will do whatever it can do.</p>
-<p>For example, if you want to plot a age speatra. Paste data into &#39;Apparent Age&#39;, &#39;1σ&#39;, and &#39;<sup>39</sup>Ar[K]%&#39; columns in the &#39;Age Spectra table&#39;, then click &#39;Sava changes&#39;.</p>
-<p><img src="{% static 'readme/image-9.png' %}" alt="alt text"></p>
-<p>Then click &#39;Recalcualte&#39; and select &#39;Reset Plot Data&#39; and &#39;Reset Figure Style&#39; and apply.
-The age spectra plot shows.</p>
-<p><img src="{% static 'readme/image-11.png' %}" alt="alt text"></p>
-<h2 id="setting-file-filter">Setting file filter</h2>
-<p><img src="{% static 'readme/image-3.png' %}" alt="alt text"></p>
-<h2 id="setting-constants-set">Setting constants set</h2>
-<p><img src="{% static 'readme/image-4.png' %}" alt="alt text"></p>
-<h2 id="setting-irradiation-parameters">Setting irradiation parameters</h2>
-<p><img src="{% static 'readme/image-5.png' %}" alt="alt text"></p>
-<h2 id="setting-sample-imformation-and-parameters">Setting sample imformation and parameters</h2>
-<p><img src="{% static 'readme/image-6.png' %}" alt="alt text"></p>
-<h2 id="data-reduction-and-recalculation">Data reduction and recalculation</h2>
-<h2 id="interact-with-tables">Interact with tables</h2>
-<h2 id="interact-with-plots">Interact with plots</h2>
-<h2 id="save-and-export">Save and export</h2>
+<h3 id="calculate-blank">Calculate blank</h3>
+<ol>
+<li><p>Click the blank name to add the blank into Input input-box. Click again to delete the blank.</p>
+<p> <img src="{%  static 'readme/image-27.png' %}" alt="alt text"></p>
+</li>
+<li><p>Choose to calculating average or fitting the interpolation.</p>
+<p> As shown in the figure below, three blank sequences give a regression constraining blanks of ten sample sequences.</p>
+<p> <img src="{%  static 'readme/image-28.png' %}" alt="alt text"></p>
+<p> After calculating the average or interpolation, a new blank name will appear in the Output text-box, click the <em>Add</em> button to add it as a blank, after which you can select it in the drop-down boxes on the left.</p>
+<p> <img src="{%  static 'readme/image-29.png' %}" alt="alt text"></p>
+</li>
+</ol>
+<h3 id="tables-and-figures">Tables and figures</h3>
+<p><strong>Tables</strong></p>
+<ol>
+<li>Information: Sample information, such as number, mineral material, laboratory, etc</li>
+<li>Unknown: Isotopic values for each sample sequence. Errors are in 1σ.</li>
+<li>Blank: Used blank values of each sample sequence.</li>
+<li>Corrected: The isotopic values of each sample sequence after necessary corrections, including blank correction, mass discrimination correction, and decay correction.</li>
+<li>Degas Pattern: The value of each isotope after distinguishing their sources.</li>
+<li>Publish: In most cases, it is used to publish Ar-Ar data in a paper, including stage name, stage conditions, 36Ara, 37ArCa, 38ArCl, 39ArK, 40Arr, apparent age, age error, proportion of 40Arr in each sequence, ratio of 39ArK released in each sequence to the total amount, and Ca/K value.</li>
+<li>Age Spectra: 40Arr/39ArK and apparent ages.</li>
+<li>Isochrons: Data of normal, inverse, and Cl-related isochrons and the 3D plot.</li>
+<li>Total Params: All parameters involved in calculation.</li>
+</ol>
+<p><strong>Figures</strong></p>
+<ol>
+<li>Age Spectra: Age spectra.</li>
+<li>Nor. Isochron: Normal isochron plot. </li>
+<li>Inv. Isochron: Inverse isochron plot.</li>
+<li>K-Cl-Ar 1: Cl correlation plot 1 in two dimensions. Note the difference in axes between three Cl plots.</li>
+<li>K-Cl-Ar 2: Cl correlation plot 2 in two dimensions.</li>
+<li>K-Cl-Ar 3: Cl correlation plot 3 in two dimensions.</li>
+<li>3D Correlation: Correction plot in three dimensions. </li>
+<li>Degas Pattern: Shows the proportion of different isotope contributions released at each sequence. </li>
+<li>Ages Distribution: Shows the distribution of apparent ages, including bar charts and KDE curves.</li>
+</ol>
+<h3 id="set-parameters">Set parameters</h3>
+<ul>
+<li><p>The parameter setting is divided into three categories: Irradiation Params, Calculation Params (calculation constants), and Sample Params.</p>
+</li>
+<li><p>Add or edit parameter sets in <em>Run</em> page for later use.</p>
+<p>  <img src="{%  static 'readme/image-32.png' %}" alt="alt text"></p>
+</li>
+<li><p>It is also possible to modify parameters arbitrarily in the Total Params table, which allows you to set different parameters for each sequence.</p>
+</li>
+<li><p>Irradiation Params</p>
+<p>  <img src="{%  static 'readme/image-30.png' %}" alt="alt text"></p>
+</li>
+<li><p>Calculation Params</p>
+<p>  <img src="{%  static 'readme/image-33.png' %}" alt="alt text"></p>
+</li>
+<li><p>Sample Params</p>
+<p>  <img src="{%  static 'readme/image-34.png' %}" alt="alt text"></p>
+</li>
+</ul>
+<h3 id="recalculation">Recalculation</h3>
+<ul>
+<li><p>Recalculation will be not called after setting new parameters.</p>
+</li>
+<li><p>The options that can be used: </p>
+<ul>
+<li>Reset Arr Attributes: Check the structure of Arr files, which can be used to fix old files that are missing some attributes due to program updates.</li>
+<li><p>Recalculate Correction and Degas:</p>
+<p>  For correct recalculation, specific procedures and subsequent calculations need to be selected. For example, if you modify some blank values, you need to select all the options from blank correction to age calculation, otherwise the new parameters will not really affect the final result; If you just modify the J-value, you only need to select recalculation of apparent age, the previous stage is not affected by the J-value, and you should also Reset Plot Data to recalculate plateau and isochron ages wiht the new J value</p>
+</li>
+<li><p>Reset Plot Style: reset styles of figures</p>
+<p><img src="{%  static 'readme/image-35.png' %}" alt="alt text"></p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="isochron-scatter-points-selection">Isochron scatter points selection</h3>
+<ul>
+<li><p>The isochron supports two sets of point selection (Set1 and Set2), and the corresponding age plateau will be drawn in the age spectrum (the age plateau will be deducted for the air argon by the specified initial value according to the setting). The normal and inverse isochrons and plateau ages of the two point groups are displayed on the right.</p>
+<p>  <img src="{%  static 'readme/image-36.png' %}" alt="alt text"></p>
+</li>
+<li><p>Clicking a scatter allows you to select or deselect a point for regression. Regression and age are automatically recalculated with each click, and response speed is related to network speed and number of stages.</p>
+</li>
+<li><p>In order to improve the operation, you can hold down the Ctrl and then click on multiple data points. It will not automatically recalculate, and then need to trigger recalculation, or release the Ctrl and click a scatter point. In this case only one recalcualtion is conducted.</p>
+</li>
+</ul>
+<h3 id="change-figure-styles">Change figure styles</h3>
+<ul>
+<li><p>Click the Style button at the bottom to set styles of the currently displayed figure, such as axes range, line width, color, size, etc.</p>
+</li>
+<li><p>When the Style dialog is open, click on elements, such as lines, points, or texts, to set styles of the corresponding elements.</p>
+<p>  For example, after opening Style, click a Scatter to open scatter style Settings, as shown in the following figure.</p>
+<p>  <img src="{%  static 'readme/image-37.png' %}" alt="alt text"></p>
+<p>  Set the point size to 20:</p>
+<p>  <img src="{%  static 'readme/image-38.png' %}" alt="alt text"></p>
+</li>
+</ul>
+<h3 id="air-corrected-plateaus">Air-corrected plateaus</h3>
+<ul>
+<li><p>Set initial values for Set1 and Set2 in the Sample Parameter.</p>
+</li>
+<li><p>Air-corrected using the initial value of inverse isochron lines: </p>
+<p>  <img src="{%  static 'readme/image-40.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-39.png' %}" alt="alt text"></p>
+</li>
+<li><p>Air-corrected using the specific initial values. In the following case a value same to the blank age spectra was used, so the red/blue lines and black lines overlap: </p>
+<p>  <img src="{%  static 'readme/image-42.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-41.png' %}" alt="alt text"></p>
+</li>
+</ul>
+<h3 id="age-distribution-figure">Age distribution figure</h3>
+<ul>
+<li><p>Age profiles are often used for single-grain Ar-Ar age analysis. Data are derived from apparent ages in the Age Spectra table. The figure includes KDE curves, bar charts, and age boxes.</p>
+<p>  <img src="{%  static 'readme/image-43.png' %}" alt="alt text"></p>
+</li>
+<li><p>After opening Style, click on the red KDE curve to set the properties and KDE parameters:
+  Normal probability density function is often used. Scott and Silverman are two methods to calculate bandwidth automatically. Or setting Auto Width to <em>none</em> and entering bandwidth. </p>
+<p>  <img src="{%  static 'readme/image-44.png' %}" alt="alt text"></p>
+</li>
+</ul>
+<h3 id="save-and-export">Save and export</h3>
+<ul>
+<li><p>Click Export to open the Export dialog. </p>
+<p>  <img src="{%  static 'readme/image-45.png' %}" alt="alt text"></p>
+</li>
+<li><p>To download the arr file, click <em>sample_name.arr</em> or right-click to save it.</p>
+</li>
+<li><p>Choose another format to export::</p>
+<ol>
+<li>Excel: Contains all data and charts (except 3D plot)；</li>
+<li>PDF: Export 2D figures to PDF, which can be opened and edited with Illustrator and CorelDRAW.</li>
+<li>SVG: Export 2D figures to SVG.</li>
+</ol>
+</li>
+</ul>
