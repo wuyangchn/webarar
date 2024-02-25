@@ -6,6 +6,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 * Error type selection
 
+
+# v0.0.33 2024-02-23
+* Fix bug of display checkboxes of setting parameters
+
 # v0.0.32 2024-02-23
 * Test api 
 

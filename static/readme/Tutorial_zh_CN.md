@@ -1,195 +1,315 @@
 
-*本文档更新于 **2024年2月15日***
+### WebArAr 使用教程
+*本文档更新于 **2024年2月25日***
 
 [English](Tutorial.md)
 
-## 目录
+### 目录
 
 1. [基本流程](#基本流程)
-2. [导入数据](#导入数据)
-3. [设置原始文件过滤器](#设置原始文件过滤器)
-4. [设置计算常数集](#设置计算参数集)
-5. [设置辐照参数](#设置辐照参数)
-6. [设置样品信息及特殊参数](#设置样品信息及特殊参数)
-7. [矫正及再计算](#矫正及再计算)
-8. [与表格的交互](#与表格的交互)
-9. [与图形的交互](#与图形的交互)
-10. [保存及导出](#保存及导出)
-11. [FAQ](https://github.com/wuyangchn/webarar/issues)
+2. [导入原始文件](#导入原始文件)
+3. [arr文件](#arr文件)
+4. [创建空白对象](#创建空白对象)
+5. [设置原始文件过滤器](#设置原始文件过滤器)
+6. [计算本底](#计算本底)
+7. [图表内容](#图表内容)
+8. [参数设置](#参数设置)
+9. [重新计算](#重新计算)
+10. [等时线选点](#等时线选点)
+11. [修改图件样式](#修改图件样式)
+12. [用等时线初始值扣空气氩](#用等时线初始值扣空气氩)
+13. [年龄分布图](#年龄分布图)
+14. [保存及导出](#保存及导出)
 
-## 基本流程
+### 基本流程
 
-WebArAr 以 Sample 为操作对象，每份导入数据都将创建响应的 Sample 对象，其本质为 Python 类对象的示例。
-交互页面中用户对 Sample 对象的更改被发送到服务器端进行同步，服务器端将计算结果发送到前端显示。
+1. **导入数据**
 
-### 创建并打开 Sample
+* 支持读取质谱仪输出的原始文件：参阅[导入原始文件](#导入原始文件)。
 
-创建 Sample 对象有以下四种方式：
+* 打开 arr 文件：arr 文件是WebArAr保存文件时的格式。参见[arr文件](#arr文件)。
 
-1. 读取质谱仪输出的原始文件：
+* 打开 ArArCALC 软件相关的 age 文件或其导出的 xls 文件。
 
-    - 原始文件记录了质谱仪在一定时间间隔内测量的信号量，通常需要至少包括以下信息：零时刻时间，测量时间，
-    测量时间响应的信号量。
+* 创建空白对象：参阅[创建空白对象](#创建空白对象)。
 
-    - 需要预先设置好文件过滤器。参见[设置原始文件过滤器](#设置原始文件过滤器)。
-    
-    - 读取原始文件后需要选择适当的拟合方法计算外推到零时刻时的信号量，并为为每个样品阶段指定本底。
-    参见[导入原始数据](#导入原始数据)。
+2. **查看、修改、计算**
 
-2. 打开 .arr 文件：
+    成功创建并打开样本对象后，将进入对象显示页面。左侧导航栏列出该对象拥有的表格和图形。
 
-    - .arr 文件是WebArAr保存文件时的格式，但并非专用格式，实质上是 JSON 序列化后的 Sample 实例。
+    ![alt text](image-15.png)
 
-3. 打开 ArArCALC 软件相关的 .age 文件或其导出的 .xls 文件：
+    已打开的任何文件都将不再与用户的本地文件有关联，Sample 对象以数据流的形式在服务器端和用户端之间传递，不会自动形成文件，因此，除非用户下载 arr 文件，否则关闭窗口时将丢失所有操作。
 
-    - .xls 文件相比 .xls 文件丢失了部分信息。
+    在对象显示页面可以进行的操作包括：
 
-4. 创建空白对象：
-
-    - 创建空白对象将支持由用户手动输入数据。
-
-    - 通常当只需要利用 WebArAr 的部分功能时，创建空白对象比较方便。例如，只需要绘制等时线，则只需要传入
-    响应的同位素比值。参见[创建空白对象](#创建空白对象)
-
-
-### 打开 Sample 后
-
-成功创建样本对象后，将进入对象显示页面。
-
-![alt text](image-15.png)
-
-左侧导航栏列出该对象拥有的表格和图形。[图表内容](#图表内容)介绍了各个图表中的详细内容。
-
-已打开的任何文件都将不再与用户的本地文件有关联，因此不用担心操作会造成本地数据丢失。此外，Sample 对象以数据流的
-形式在服务器端和用户端之间传递，不会自动形成文件，因此，除非用户下载 .arr 文件，否则关闭窗口时将丢失所有操作。
-
-在对象显示页面可以进行如下操作：
-
-1. 修改样品信息：
-    
+* 修改样品信息：
+        
     采样地点、实验室、研究人员等信息可在 Information 修改，这些与计算无关。
 
-2. 编辑修改表格内容：
+* 编辑修改表格内容：
 
-    所有的表格都是可编辑的，编辑后需要点击下方 Save changes 以保存修改。
+    所有的表格都是可编辑的，编辑后需要点击下方 Save changes 以保存修改。[图表内容](#图表内容) 介绍了各个图表中的详细内容。
 
-3. 编辑参数：
+* 编辑参数：
 
-    **注意：修改参数后不会自动调用计算，需要用户根据需要触发重新计算。参见[重新计算](#重新计算)。**
+    *注意：修改参数后不会自动调用计算，需要用户根据需要触发重新计算。参见 [重新计算](#重新计算)。*
 
     - Total Param 包括了所有参数，编辑该表格并保存可以设置新的参数。
 
-    - 通过下方的 Irra Params、Calc Params 和 Smp Params 为所有阶段选择预先设定好的参数集，或手动输入参数。
-    三组参数的内容可以参见[参数设置](#参数设置)
+    - 通过下方的 Irra Params、Calc Params 和 Smp Params 为所有阶段选择预先设定好的参数集，或手动输入参数。参见 [参数设置](#参数设置)
 
-4. 与图形的通用交互
+* 与图形的通用交互
 
-    所有的图形都由Echarts渲染，因此具备Echarts的特征和属性。
+    所有的图形都由Echarts渲染，因此具备Echarts的特征和属性。为一些常用的属性添加了设置选项，参见[修改图件样式](#修改图件样式)。
 
-    - 点击顶部的图例按钮，可以隐藏或显示响应的图形元素，如线、点或文字。
+* 等时线中选择散点以拟合等时线
+
+    参见 [等时线选点](#等时线选点)。
+
+    WebArAr提供了五个等时线，包括正反等时线和三个与氯相关的等时线。所有等时线和年龄谱图将使用相同的阶段选择组合，支持两种选择组合，即 Set1 和 Set2。
+
+### 导入原始文件
+
+* 原始文件通常需要至少包括以下信息：每个 **cycle** 的零时刻时间，测量时间，信号量。
+
+* 根据特定的过滤器读取文件内容，[设置原始文件过滤器](#设置原始文件过滤器) 提供了设置过滤器的说明和示例。
+
+    1. Mass Spec Raw Files 
     
-    - 文字可以被拖拽以移动位置。
+        ![alt text](image-24.png)
 
-    - 点击底部的 Style 按钮，可以设置当前显示的图件的属性信息，如坐标范围、线宽、颜色、字号等。打开 Style 窗体后，
-    默认显示的时坐标轴相关的属性。鼠标点击图形中的元素，如文字、直线等，可以设置相应元素的属性。
-
-5. 等时线中选择散点以拟合等时线
-
-    WebArAr提供了五个等时线，包括正反等时线和三个与氯相关的等时线。所有等时线和年龄谱图将使用相同的阶段选择组合，
-    最多支持两种选择组合，即 Set1 和 Set2。
-        
-    Set1 和 Set2 由右侧的两个单选按钮切换。Set1为红色，Set2为蓝色。点击散点可以选择或取消选择阶段数据点。通常，
+    2. 可以一起打开多个原始文件作为一个样品文件，为每个文件选择过滤器 
     
-    每次点击都会自动重新计算回归和年龄，响应速度与网络速度有关。为了方便操作，可以在按住 Ctrl 键后，连续点击多个数据点，
-    这时不会自动重新计算，之后需要触发重新计算，或松开 Ctrl 的情况下再点击一个散点。
+        ![alt text](image-22.png)
+
+* 外推零时刻值。
+
+    可单击取消选择某些离群点，可勾选是否对这当前 **阶段** 的所有同位素都取消这一散点，可选择要采纳的拟合方式，可勾选是否将这个拟合方式对所有同位素应用，可将当前 **阶段** 设置为 本底，可导出指定阶段。
+
+    ![alt text](image-25.png)
+
+* 为每个样品阶段指定本底。
+
+    下图的示例中，1-7-13 三个阶段被指定为本底阶段，可在默认下拉框中选择不同的扣本底策略，也可在各个本底阶段下拉框中灵活选择本底，可在右侧界面对本底进行计算，如 拟合计算插值，详见 [计算本底](#计算本底)。
+
+    ![alt text](image-26.png)
+
+    默认的本底策略：
+    1. **前置本底**：每个本底被用于矫正在其之后进行的样品阶段，直到下一个本底出现，如果第一个阶段不是本底，则第一个本底也将被用于扣除其之前的几个样品阶段；
+    2. **后置本底**：每个本底将用于矫正其之前进行的样品阶段，如果最后一个阶段不是本底，最后一个本底也将被用于扣除最后几个样品阶段；
+    3. **邻近本底**：每个本底将被用于矫正距离最近的几个样品阶段。
+    4. **本底插值**：以给定的本底信号值和测试时间拟合，每个样品阶段将根据测量时间计算本底值。需要先进性插值计算。
+
+### arr文件
+
+* arr 文件是以二进制保存的JSON序列化之后的Sample对象。
 
 
-## 界面
+### 创建空白对象
+* 创建空白对象将支持由用户手动输入数据。
 
-*Home Page*
-
-![alt text](image.png)
-
-
-*Import Data Page*
-
-![alt text](image-1.png)
-
-*Object Page*
-
-![alt text](image-12.png)
-
-*Tables*
-
-![alt text](image-13.png)
-
-*Figures*
-
-![alt text](image-14.png)
+* 通常当只需要利用 WebArAr 的部分功能时，创建空白对象比较方便。
 
 
-## Import your data
+### 设置原始文件过滤器
 
-![alt text](image-1.png)
+1. 从 *Run* 界面编辑 原始文件过滤器。
+
+    ![alt text](image-17.png)
+
+2. 编辑已存在的过滤器（需要验证Pin），或创建一个新的过滤器。
+
+    ![alt text](image-3.png)
+
+3. 过滤器支持文本格式的文件和Excel多表格文件（xls）。对于 xls 文件，表格序号、行数、列数三位整数用于定位数据；对于文本文件，需要行数和列数两位整数。
+
+4. 示例1：AHD 文件。
+    
+    文件具有如下结构，TAB制表符分隔。下载该 AHD 文件 [AHD](AHD.ahd) 查看。
+
+    ```
+    Sample	sample_name							
+    Experiment	experiment_name							
+    Project								
+    Irradiation								
+    Standard								
+    Instrument	Argus	1E-13						
+    Time Stamp	21/06/2023	0:08:53						
+    Analyst								
+    Temperature	0	Laser						
+    J-Value								
+    Fractionation								
+    Volume Correction	1							
+    Counters	1	15	1	0				
+                                    
+    Time	Intensity	37	38	39	40		Cycle #	Peakreading #
+    96.124784	0.039713085					
+    139.839784	0.017819889							
+    96.124784	0.095037932							
+    96.124784	8.217368387							
+    96.124784	52.50271246							
+    183.630784	0.039292885							
+    227.343784	0.01599587							
+    183.630784	0.088180873							
+    183.630784	7.980598974							
+    183.630784	53.55335785	
+    ```
+    从文件可以确定各个参数及索引，头部信息 15 行，样品名 (0, 1, 2)，实验名 (0, 2, 2)，零时刻日期 (0, 7, 2)，零时刻时间 (0, 7, 3)，同位素值呈列排列，五个一组，因此36Ar为 (1, 2)，37Ar (2, 2)，38Ar (3, 2)，39Ar (4, 2)，40Ar (5, 2)，对应依次为 (1, 1)，37Ar (2, 1)，38Ar (3, 1)，39Ar (4, 1)，40Ar (5, 1)。注意勾选日期和时间均为单列字符串。
+
+    ![alt text](image-16.png)
+
+5. 示例2：NGX 导出的 xls 文件。
+
+    文件部分内容如截图所示，详细可下载 [NGX_Exported_XLS](NGX_Exported_XLS.xls) 查看。
+
+    ![alt text](image-18.png)
+
+    ![alt text](image-19.png)
+
+    对于这个文件，过滤器设置如下：
+
+    ![alt text](image-20.png)
+	
+
+### 计算本底
+
+1. 单击下方的本底阶段名，将本底名添加到 Input 输入框，再次单击删除该本底。
+
+    ![alt text](image-27.png)
+
+2. 选择求平均 或 拟合插值。
+
+    如下图示例，三个本底阶段拟合约束了中间十个样品阶段的本底值。
+
+    ![alt text](image-28.png)
+
+    计算平均值或插值后，新的本底阶段将出现在 Output 文本框中，单击 Add 按钮 将其添加到本底中，之后即可在左侧 本底阶段 下拉框中选择该本底。
+
+    ![alt text](image-29.png)
 
 
-## Import from mass spec raw data
+### 图表内容
 
-![alt text](image-2.png)
+**表格**
 
-To set file filter, see [here](#setting-file-filter)
+1. Information: 样品信息，如编号、矿物材料、实验室等。
+2. Unknown：各样品阶段的同位素值。误差均为一倍 σ 绝对误差。
+3. Blank：各样品阶段扣本底所用的同位素值。
+4. Corrected：各样品阶段经过必须的校正之后的同位素值，包括本底校正、质量歧视矫正校正和衰变校正。
+5. Degas Pattern：各同位素区分来源之后的值。
+6. Publish：大多数情况下用于文章中发表Ar-Ar数据，包括阶段名、阶段条件、36Ara、37ArCa、38ArCl、39ArK、40Arr、表观年龄、年龄误差、各阶段内40Arr占比、各阶段39ArK释放占总量的比例、Ca/K值。
+7. Age Spectra：40Arr/39ArK 和 表观年龄。
+8. Isochrons：等时线数据，包括正反等时线、三个Cl相关图、三位图数据。
+9. Total Params：所有参数。
 
-## Open arr file
+**图件**
+1. Age Spectra：年龄谱图。
+2. Nor. Isochron：正等时线图。
+3. Inv. Isochron：反等时线图。
+4. K-Cl-Ar 1：二维Cl相关图 1，三张图的横纵坐标不同。
+5. K-Cl-Ar 2：二维Cl相关图 2。
+6. K-Cl-Ar 3：二维Cl相关图 3。
+7. 3D Correlation：三维校正图。
+8. Degas Pattern：显示各个阶段释放的不同同位素比例。
+9. Ages Distribution：显示表观年龄的分布，包括柱状图和KDE曲线。
 
-see [arr file example](22WHA0433.arr)
+### 参数设置
 
-## Import from ArArCALC
+* 参数设置分了三个类别：辐照参数（Irradiation Params），计算常数（Calculation Params），特征参数（Sample Params）。
 
-.age files, see [age file example](22WHA0433.age)
+* 在 *Run* 界面新增或编辑参数组，之后应用这些参数。
 
-.xls files, see [xls file example](22WHA0433.full.xls)
+    ![alt text](image-32.png)
 
-## The current file
+* 也可以在 Total Params 表中任意修改参数，这样可以为每个阶段设置不同的参数。
 
-The redis will save your last opened object for a while, via The Current File you can get it 
-without uploading the file again.
+* 辐照参数
 
-## Create an empty object
+    ![alt text](image-30.png)
 
-Create an empty object and you will need to enter data in the appropriate tables. What data is 
-required is dependant on your needs, WebArAr will do whatever it can do.
+* 计算常数
 
-For example, if you want to plot a age spectra. Paste data into 'Apparent Age', '1σ', and 
-'<sup>39</sup>Ar[K]%' columns in the 'Age Spectra table', then click 'Save changes'.
+    ![alt text](image-33.png)
 
-![alt text](image-9.png)
+* 特征参数
 
-Then click 'Recalculate' and select 'Reset Plot Data' and 'Reset Figure Style' and apply.
-The age spectra plot shows.
+    ![alt text](image-34.png)
 
-![alt text](image-11.png)
+### 重新计算 
 
-## Setting file filter
+* 设置新的参数后并不会自动进行计算。
 
-![alt text](image-3.png)
+* 可勾选的选项如图所示：
 
-## Setting constants set
+    - Reset Arr Attributes: 检查Arr结构，可以修正由于程序更新而缺失部分属性的旧文件。
+    - Recalculate Correction 和 Degas 用于重新进行校正和Degas，需要勾选特定过程及其之后的计算。例如：修改了本底数据，则需要勾选从本底校正到年龄计算的所有选项，否则新的参数将不会真正作用到最终结果；如果修改了 J 值，则只需要勾选重新计算表观年龄，前面的阶段并不会受 J 值影响，同时还应该重新计算 等时线数据，因此还应该勾选 Reset Plot Data。
+    - Reset Plot Style 用于重置图件样式。
 
-![alt text](image-4.png)
+    ![alt text](image-35.png)
 
-## Setting irradiation parameters
+### 等时线选点
 
-![alt text](image-5.png)
+* 等时线支持两组选点（Set1 和 Set2），同时将在年龄谱图中绘制相应的年龄坪（年龄坪根据设置用指定的初始值扣除空气氩）。右侧显示两组选点的正反等时线和坪年龄。
 
-## Setting sample information and parameters
+    ![alt text](image-36.png)
 
-![alt text](image-6.png)
+* 单击散点将可以选择或取消选择阶段数据点。每次点击都会自动重新计算回归和年龄，响应速度与网络速度和阶段数有关。
 
-## Data reduction and recalculation
+* 为了提高相应速度为了方便操作，可以在按住 Ctrl 键后，连续点击多个数据点，这时不会自动重新计算，之后需要触发重新计算，或松开 Ctrl 的情况下再点击一个散点。
 
-## Interact with tables
+### 修改图件样式
 
-## Interact with plots
+* 点击底部的 Style 按钮，可以设置当前显示的图件的属性信息，如坐标范围、线宽、颜色、字号等。
 
-## Save and export
+* 打开 Style 窗体后，点击图件元素，如线、点或文字，可以设置相应元素的属性。
+    
+    如打开 Style 后点击散点，打开散点属性设置，见下图。
+
+    ![alt text](image-37.png)
+
+    设置点大小为20：
+
+    ![alt text](image-38.png)
+
+### 用等时线初始值扣空气氩
+
+* 在 特征参数（Sample Parameter）中为 Set1 和 Set2 设置初始值。
+
+* 使用反等时线初始值扣除空气氩：
+
+    ![alt text](image-40.png)
+
+    ![alt text](image-39.png)
+
+* 使用其他值扣除空气氩，本实例中与黑线参数相同，两者重合：
+
+    ![alt text](image-42.png)
+    
+    ![alt text](image-41.png)
+
+### 年龄分布图
+
+* 年龄分布图常用于单颗粒Ar-Ar年龄分析。数据来自 Age Spectra 表中的表观年龄。包括 KDE 曲线，柱状图，及年龄方块。
+
+    ![alt text](image-43.png)
+
+* 打开 Style 后，点击 红色KDE曲线 可以设置属性和KDE参数：
+    常用正态概率密度函数，Scott和Sliverman两种自动计算带宽宽度方法，或选择none手动输入宽度。
+
+    ![alt text](image-44.png)
+
+### 保存及导出
+
+* 点击 Export 打开导出对话框。
+
+    ![alt text](image-45.png)
+
+* 下载 arr 文件，单击 sample_name.arr 或右键另存。
+
+* 选择其他格式导出:
+
+    1. Excel：包含所有数据和图表（除三维图）；
+    2. PDF：导出二维的图件到PDF，可由Illustrator和CorelDRAW打开编辑。
+    3. SVG：导出二维的图件到SVG。
 
