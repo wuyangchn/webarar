@@ -1,6 +1,5 @@
 {% load static %}
 <h3 id="webarar-tutorial">WebArAr Tutorial</h3>
-<p><em>This documentation provides guidance on how to use WebArAr.</em></p>
 <p><em>Last updated: <strong>Feb 25, 2024</strong></em></p>
 <p><a href="/doc/tutorial/zh-cn">简体中文</a></p>
 <h3 id="content">Content</h3>
@@ -22,8 +21,9 @@
 </ol>
 <h3 id="general-procedure">General procedure</h3>
 <ol>
-<li><p><strong>导入数据</strong></p>
+<li><p><strong>Input data</strong></p>
 </li>
+<ul>
 <li><p>Support to read the original mass spectrometer output file: See <a href="#import-raw-data">Import raw data</a>.</p>
 </li>
 <li><p>Open arr files: arr is the format with which WebArAr saves Sample objects. See <a href="#arr-files">Arr files</a>.</p>
@@ -32,16 +32,17 @@
 </li>
 <li><p>Create a new object: See <a href="#create-new-sample">Create new sample</a>. </p>
 </li>
+</ul>
 <li><p><strong>View, modify, and calculate for a open sample object</strong></p>
 <p> After the Sample object is successfully created and opened, the object page will display some tables and figures. </p>
-<p> <img src="{%  static 'readme/image-15.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-15.png' %}" alt="alt text" style="max-width: 800px"></p>
 <p> Any files that have been opened will no longer be associated with the user&#39;s local file, the Sample object is passed between the server and the client in the form of data streams, and will be not automatically saved, so unless the user downloads the arr file, all operations will be lost when the page is closed.</p>
 <p> The actions that can be performed on the object page include:: </p>
 <ul>
-<li><p>Edit tables: </p>
+<li><p><strong>Edit tables: </strong></p>
 <p>  All tables are editable. After editing, click Save changes below the table to save your changes. See <a href="#tables-and-figures">Tables and figures</a> for content in each table or figure.</p>
 </li>
-<li><p>Edit parameters: </p>
+<li><p><strong>Edit parameters: </strong></p>
 <p>  <em>Note: The calculation will not be automatically called after the parameter is modified. See <a href="#recalculation">Recalculation</a>.</em></p>
 <ul>
 <li><p><strong>Total Param</strong> include all parameters, editing this table and saving to set new parameters for the Sample.</p>
@@ -50,10 +51,10 @@
 </li>
 </ul>
 </li>
-<li><p>interaction with figures:</p>
+<li><p><strong>Interaction with figures:</strong></p>
 <p>  All figures are rendered by Echarts and therefore have Echarts features and attributes. Some commonly used properties are editable. See <a href="#change-figure-styles">Change figure styles</a>.</p>
 </li>
-<li><p>Select points used for regression in isochron plots</p>
+<li><p><strong>Select points used for regression in isochron plots</strong></p>
 <p>  See <a href="#isochron-scatter-points-selection">Isochron scatter points selection</a>.</p>
 <p>  WebArAr provides five isochrons, including normal and inverse isochrons and three chlorine related isochrons. All isochrons and age spectra will use the same <strong>sequence</strong> selection combination, supporting two combinations, namely Set1 and Set2.</p>
 </li>
@@ -67,20 +68,20 @@
 <li><p>The raw files will be read based on given filters. <a href="#set-raw-file-filter">Set raw-file filter</a> provides instructions and examples for creating filters.</p>
 <ol>
 <li><p>Mass Spec Raw Files </p>
-<p> <img src="{%  static 'readme/image-24.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-24.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>Multiple raw files can be opened together and filters need to be selected for each file</p>
-<p> <img src="{%  static 'readme/image-22.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-22.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 </ol>
 </li>
 <li><p>Extrapolating the intercepts at zero-time.</p>
 <p>  You can click to deselect some outliers, decide whether to cancel this scatter point for all isotopes of the current <strong>sequence</strong>, select the fitting method to be adopted, check whether to apply this fitting method to all isotopes, and set the current <strong>sequence</strong> as the background. It is possible to export the sequence for later use.</p>
-<p>  <img src="{%  static 'readme/image-25.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-25.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>Assign blanks for each sample sequence.</p>
 <p>  In the case of example below, three sequences of 1-7-13 are defined as blank sequences. There are four strategies to couple sample and blank sequences. It is also possible to select blanks for each sample sequence in drop-down boxes. The blank sequences can be calculated in the right interface. See <a href="#calculate-blank">Calculate blank</a>.</p>
-<p>  <img src="{%  static 'readme/image-26.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-26.png' %}" alt="alt text" style="max-width: 800px"></p>
 <p>  Four strategies:</p>
 <ol>
 <li><strong>Pre-run</strong>: Each blank is used to correct the sample sequence performed after it until the next blank conducted, and if the first sequence is not blank, the first blank will also be used to deduct several sample sequence before it;</li>
@@ -104,10 +105,10 @@
 <h3 id="set-raw-file-filter">Set raw-file filter</h3>
 <ol>
 <li><p>The entry of editing raw-file filters on the <em>Run</em> page.</p>
-<p> <img src="{%  static 'readme/image-17.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-17.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>Edit an existing filter (requires Pin-verification), or create a new one.</p>
-<p> <img src="{%  static 'readme/image-3.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-3.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>The filter is used to read isotope intensities and information correctly from the files. Text format files and Excel Multitable files (xls) are supported. For xls files, table, row, and column indexes are three-digit integers used to locate data. For text files, rows and columns are needed. </p>
 <p> <em>Note: all indexes are 1 based</em></p>
@@ -140,26 +141,26 @@
  <span class="hljs-number">183.630784</span>    <span class="hljs-number">7</span>.<span class="hljs-number">980598974</span>
  <span class="hljs-number">183.630784</span>    <span class="hljs-number">53.55335785</span>
 </code></pre><p> According to the contents above, we can find: head information count for 15 rows, sample name (0, 1, 2), experiment name (0, 2, 2), date of zero-time (0, 7, 2), time of zero-time (0, 7, 3), isotopic values are presented vertically in groups of five, so 36Ar is located at (1, 2), 37Ar (2, 2), 38Ar (3, 2), 39Ar (4, 2), 40Ar (5, 2), analysis time is 36Ar (1, 1), 37Ar (2, 1), 38Ar (3, 1), 39Ar (4, 1), 40Ar (5, 1). And note that date and time are in one string respectively.</p>
-<p> <img src="{%  static 'readme/image-16.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-16.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>Example 2: xls files exported from NGX software. </p>
 <p> Contents of the file are partly shown as the following figure. Download <a href="{% static 'readme/NGX_Exported_XLS.xls' %}">NGX_Exported_XLS</a> for reference.</p>
-<p> <img src="{%  static 'readme/image-18.png' %}" alt="alt text"></p>
-<p> <img src="{%  static 'readme/image-19.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-18.png' %}" alt="alt text" style="max-width: 800px"></p>
+<p> <img src="{%  static 'readme/image-19.png' %}" alt="alt text" style="max-width: 800px"></p>
 <p> For this file, the filter Settings are as follows:</p>
-<p> <img src="{%  static 'readme/image-20.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-20.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 </ol>
 <h3 id="calculate-blank">Calculate blank</h3>
 <ol>
 <li><p>Click the blank name to add the blank into Input input-box. Click again to delete the blank.</p>
-<p> <img src="{%  static 'readme/image-27.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-27.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>Choose to calculating average or fitting the interpolation.</p>
 <p> As shown in the figure below, three blank sequences give a regression constraining blanks of ten sample sequences.</p>
-<p> <img src="{%  static 'readme/image-28.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-28.png' %}" alt="alt text" style="max-width: 800px"></p>
 <p> After calculating the average or interpolation, a new blank name will appear in the Output text-box, click the <em>Add</em> button to add it as a blank, after which you can select it in the drop-down boxes on the left.</p>
-<p> <img src="{%  static 'readme/image-29.png' %}" alt="alt text"></p>
+<p> <img src="{%  static 'readme/image-29.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 </ol>
 <h3 id="tables-and-figures">Tables and figures</h3>
@@ -192,18 +193,18 @@
 <li><p>The parameter setting is divided into three categories: Irradiation Params, Calculation Params (calculation constants), and Sample Params.</p>
 </li>
 <li><p>Add or edit parameter sets in <em>Run</em> page for later use.</p>
-<p>  <img src="{%  static 'readme/image-32.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-32.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>It is also possible to modify parameters arbitrarily in the Total Params table, which allows you to set different parameters for each sequence.</p>
 </li>
 <li><p>Irradiation Params</p>
-<p>  <img src="{%  static 'readme/image-30.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-30.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>Calculation Params</p>
-<p>  <img src="{%  static 'readme/image-33.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-33.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>Sample Params</p>
-<p>  <img src="{%  static 'readme/image-34.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-34.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 </ul>
 <h3 id="recalculation">Recalculation</h3>
@@ -217,7 +218,7 @@
 <p>  For correct recalculation, specific procedures and subsequent calculations need to be selected. For example, if you modify some blank values, you need to select all the options from blank correction to age calculation, otherwise the new parameters will not really affect the final result; If you just modify the J-value, you only need to select recalculation of apparent age, the previous stage is not affected by the J-value, and you should also Reset Plot Data to recalculate plateau and isochron ages wiht the new J value</p>
 </li>
 <li><p>Reset Plot Style: reset styles of figures</p>
-<p><img src="{%  static 'readme/image-35.png' %}" alt="alt text"></p>
+<p><img src="{%  static 'readme/image-35.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 </ul>
 </li>
@@ -225,7 +226,7 @@
 <h3 id="isochron-scatter-points-selection">Isochron scatter points selection</h3>
 <ul>
 <li><p>The isochron supports two sets of point selection (Set1 and Set2), and the corresponding age plateau will be drawn in the age spectrum (the age plateau will be deducted for the air argon by the specified initial value according to the setting). The normal and inverse isochrons and plateau ages of the two point groups are displayed on the right.</p>
-<p>  <img src="{%  static 'readme/image-36.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-36.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>Clicking a scatter allows you to select or deselect a point for regression. Regression and age are automatically recalculated with each click, and response speed is related to network speed and number of stages.</p>
 </li>
@@ -238,9 +239,9 @@
 </li>
 <li><p>When the Style dialog is open, click on elements, such as lines, points, or texts, to set styles of the corresponding elements.</p>
 <p>  For example, after opening Style, click a Scatter to open scatter style Settings, as shown in the following figure.</p>
-<p>  <img src="{%  static 'readme/image-37.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-37.png' %}" alt="alt text" style="max-width: 800px"></p>
 <p>  Set the point size to 20:</p>
-<p>  <img src="{%  static 'readme/image-38.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-38.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 </ul>
 <h3 id="air-corrected-plateaus">Air-corrected plateaus</h3>
@@ -248,28 +249,28 @@
 <li><p>Set initial values for Set1 and Set2 in the Sample Parameter.</p>
 </li>
 <li><p>Air-corrected using the initial value of inverse isochron lines: </p>
-<p>  <img src="{%  static 'readme/image-40.png' %}" alt="alt text"></p>
-<p>  <img src="{%  static 'readme/image-39.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-40.png' %}" alt="alt text" style="max-width: 800px"></p>
+<p>  <img src="{%  static 'readme/image-39.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>Air-corrected using the specific initial values. In the following case a value same to the blank age spectra was used, so the red/blue lines and black lines overlap: </p>
-<p>  <img src="{%  static 'readme/image-42.png' %}" alt="alt text"></p>
-<p>  <img src="{%  static 'readme/image-41.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-42.png' %}" alt="alt text" style="max-width: 800px"></p>
+<p>  <img src="{%  static 'readme/image-41.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 </ul>
 <h3 id="age-distribution-figure">Age distribution figure</h3>
 <ul>
 <li><p>Age profiles are often used for single-grain Ar-Ar age analysis. Data are derived from apparent ages in the Age Spectra table. The figure includes KDE curves, bar charts, and age boxes.</p>
-<p>  <img src="{%  static 'readme/image-43.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-43.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>After opening Style, click on the red KDE curve to set the properties and KDE parameters:
   Normal probability density function is often used. Scott and Silverman are two methods to calculate bandwidth automatically. Or setting Auto Width to <em>none</em> and entering bandwidth. </p>
-<p>  <img src="{%  static 'readme/image-44.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-44.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 </ul>
 <h3 id="save-and-export">Save and export</h3>
 <ul>
 <li><p>Click Export to open the Export dialog. </p>
-<p>  <img src="{%  static 'readme/image-45.png' %}" alt="alt text"></p>
+<p>  <img src="{%  static 'readme/image-45.png' %}" alt="alt text" style="max-width: 800px"></p>
 </li>
 <li><p>To download the arr file, click <em>sample_name.arr</em> or right-click to save it.</p>
 </li>

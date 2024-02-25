@@ -26,15 +26,15 @@
 
 ### General procedure
 
-1. **导入数据**
+1. **Input data**
 
-* Support to read the original mass spectrometer output file: See [Import raw data](#import-raw-data).
-
-* Open arr files: arr is the format with which WebArAr saves Sample objects. See [Arr files](#arr-files).
-
-* Open files of ArArCALC software, including age and xls files.
-
-* Create a new object: See [Create new sample](#create-new-sample). 
+    * Support to read the original mass spectrometer output file: See [Import raw data](#import-raw-data).
+    
+    * Open arr files: arr is the format with which WebArAr saves Sample objects. See [Arr files](#arr-files).
+    
+    * Open files of ArArCALC software, including age and xls files.
+    
+    * Create a new object: See [Create new sample](#create-new-sample). 
 
 2. **View, modify, and calculate for a open sample object**
 
@@ -44,7 +44,7 @@
 
     Any files that have been opened will no longer be associated with the user's local file, the Sample object is passed between the server and the client in the form of data streams, and will be not automatically saved, so unless the user downloads the arr file, all operations will be lost when the page is closed.
 
-    The actions that can be performed on the object page include:: 
+    The actions that can be performed on the object page include:
 
     * Edit tables: 
 
@@ -58,7 +58,7 @@
 
         - Set parameters by three parameter sets, namely Irra Params, Calc Params, and Smp Params. This will change parameters of all **sequences**. See [Setting parameters](#set-parameters)
 
-    * interaction with figures:
+    * Interaction with figures:
 
         All figures are rendered by Echarts and therefore have Echarts features and attributes. Some commonly used properties are editable. See [Change figure styles](#change-figure-styles).
 
