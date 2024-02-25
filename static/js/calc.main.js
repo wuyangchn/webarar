@@ -138,6 +138,9 @@ function myParse(myString) {
 }
 
 const stringToBoolean = (stringValue) => {
+    if (typeof stringValue === "boolean") {
+        return stringValue;
+    }
     switch(stringValue?.toLowerCase().trim()){
         case "true":
         case "1":
