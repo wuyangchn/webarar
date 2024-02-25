@@ -3,7 +3,17 @@
 
 [English](README.md)
 
-## Introduciton
+### 目录
+
+1. [介绍](#介绍)
+2. [背景](#背景)
+3. [使用](#使用)
+4. [功能](#功能)
+5. [更新记录](#更新记录)
+6. [引用 WebArAr 或 ArArPy](#引用-webarar-或-ararpy)
+7. [参考资料](#参考资料)
+
+## 介绍
 
 WebArAr是一个基于[Django](https://www.djangoproject.com/) 框架的网络应用程序，用于
 <sup>40</sup>Ar/<sup>39</sup>Ar 地质年代学数据处理。

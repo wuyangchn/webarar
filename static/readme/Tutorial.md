@@ -22,7 +22,7 @@
 11. [Change figures styles](#change-figure-styles)
 12. [Air-corrected plateaus](#air-corrected-plateaus)
 13. [Age distribution figure](#age-distribution-figure)
-14. [Save and export](#Save-and-export)
+14. [Save and export](#save-and-export)
 
 ### General procedure
 

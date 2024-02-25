@@ -3,6 +3,16 @@
 
 [简体中文](README_zh_CN.md)
 
+### Content
+
+1. [Introduction](#introduction)
+2. [Background](#background)
+3. [Usage](#usage)
+4. [Features](#features)
+5. [Update Log](#update-log)
+6. [Citing WebArAr or ArArPy](#citing-webarar-or-ararpy)
+7. [Reference](#reference)
+
 ## Introduction
 
 WebArAr is a web-based application based on [Django](https://www.djangoproject.com/) 
