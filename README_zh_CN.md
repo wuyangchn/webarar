@@ -18,8 +18,7 @@
 WebArAr是一个基于[Django](https://www.djangoproject.com/) 框架的网络应用程序，用于
 <sup>40</sup>Ar/<sup>39</sup>Ar 地质年代学数据处理。
 
-* 后端的主要程序打包成名为 [ArArPy](https://github.com/wuyangchn/ararpy.git) 的Python库，
-已经发布到 [PyPi](https://pypi.org/project/ararpy/) ，可通过pip安装。
+* 后端的主要程序已打包为 [ArArPy](https://github.com/wuyangchn/ararpy.git) ，可通过pip安装，参见 [PyPi](https://pypi.org/project/ararpy/) 。
 * Django框架、Bootstrap、Echarts、Bootstrap-table 等提供了直观的交互界面。
 
 访问 [WebArAr](https://www.webarar.net)
@@ -28,15 +27,15 @@ WebArAr是一个基于[Django](https://www.djangoproject.com/) 框架的网络�
 
 本项目源于更新和增强现有的 <sup>40</sup>Ar/<sup>39</sup>Ar 测年数据处理工具的需要。
 总的来说，ArArCALC 和 Isoplot/IsoplotR 已在该领域得到广泛应用。
-然而，有几个因素使得这些工具不足以满足不断变化的需求：
+然而，有几个因素使得这些工具显现出不足：
 (1) ArArCALC 和 Isoplot 是为 Microsoft Excel 早期版本（如 Excel 2003）开发的宏工具，现已缺乏更新，
 Isoplot 已不再维护；
-(2) 数据处理软件需要新的功能，例如砸碎实验中氯校正的重要性日益显现，ArArCALC 不足以处理 Cl 相关的图解；
+(2) 数据处理软件需要新的功能，例如砸碎实验中的氯校正相关图解；
 (3) IsoplotR 非常适合绘图，但缺乏对 <sup>40</sup>Ar/<sup>39</sup>Ar 数据校正和相对复杂计算的支持，例如更改参数重新计算等。
 此外，ArArCALC 和 Isoplot/IsoplotR的等时线回归方式有所不同。
 
-WebArAr 的主要目的是更进 <sup>40</sup>Ar/<sup>39</sup>Ar 定年新的需求，
-平衡 ArArCALC 和 IsoplotR 的使用体验，并将根据需求不断更新，以服务社区。
+WebArAr 的主要目的是跟进 <sup>40</sup>Ar/<sup>39</sup>Ar 定年新的需求，
+平衡 ArArCALC 和 IsoplotR 的使用体验，以服务社区。
 
 ## 使用
 
@@ -44,7 +43,7 @@ WebArAr 的主要目的是更进 <sup>40</sup>Ar/<sup>39</sup>Ar 定年新的需
 * 详细使用指导请参阅 [教程](/static/readme/Tutorial_zh_CN.md)。
 * （可选）在您的计算机上部署并启动 WebArAr 以供离线使用。请参阅 [部署](/static/readme/Deployment_zh_CN.md).
 * （可选）用任意 Python IDE 引用 ArArPy 以使用处理处理功能。请参阅 [ArArPy](#ararpy).
-<!-- * [Vedio examples]() -->
+<!-- * [Video examples]() -->
 
 
 ## 功能
@@ -86,7 +85,7 @@ WebArAr 的主要目的是更进 <sup>40</sup>Ar/<sup>39</sup>Ar 定年新的需
 
 ## 更新记录
 
-请查看 [更新记录](/../CHANGE_LOG.md)
+请查看 [更新记录](CHANGE_LOG.md)
 
 ## 引用 WebArAr 或 ArArPy
 
