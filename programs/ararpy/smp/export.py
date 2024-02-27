@@ -939,314 +939,30 @@ class CreateOriginGraph:
 
 class CreatePDF:
     def __init__(self, **kwargs):
-        self.name = "PDF"
-        self.sample = Sample()
-        self.figure = Plot()
         self.filepath = ""
-        self.page_size = [595, 842]
-        self.data_bytes = b""
-        self.component = []
-        self.text = []
-        self.frame = []
-        self.axis_area = [138, 400, 360, 270]  # x0, y0, w, h
-        # with open(os.path.join(SETTINGS_ROOT, 'PDF_Template.txt'), 'rb') as f:
-        #     self.data_str: str = f.read().decode('utf-8')
+        self.sample = Sample()
+        # self.name = "PDF"
+        # self.figure = Plot()
+        # self.page_size = [595, 842]
+        # self.data_bytes = b""
+        # self.component = []
+        # self.text = []
+        # self.frame = []
+        # self.axis_area = [138, 400, 360, 270]  # x0, y0, w, h
+
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def _xmin(self):
-        return float(self.figure.xaxis.min)
+    def color_hex_to_rgb(self, color: str):
+        if color.startswith("#"):
+            color = color[1:]
+        r = int(color[:2], 16)
+        g = int(color[2:4], 16)
+        b = int(color[4:6], 16)
+        return r, g, b
 
-    def _xmax(self):
-        return float(self.figure.xaxis.max)
-
-    def _ymin(self):
-        return float(self.figure.yaxis.min)
-
-    def _ymax(self):
-        return float(self.figure.yaxis.max)
-
-    def _get_transfer_pos(self, x, y):
-        x0, y0, w, h = self.axis_area
-        x = (x - self._xmin()) / (self._xmax() - self._xmin()) * w + x0
-        y = (y - self._ymin()) / (self._ymax() - self._ymin()) * h + y0
-        return [x, y]
-
-    def _get_isochron_line(self, point1, point2, color='1 0 0', width=1):
-        line_str = ''
-        if not len(point1) == len(point2) == 2:
-            return line_str
-        x0, y0, w, h = self.axis_area
-
-        def _get_line_points(k, m):
-            if k == 0:
-                return [
-                    [x0, m], [x0 + w, m]
-                ]
-            return [
-                [x0, x0 * k + m], [x0 + w, (x0 + w) * k + m],
-                [(y0 - m) / k, y0], [(y0 + h - m) / k, y0 + h]
-            ]
-
-        point_1 = self._get_transfer_pos(*point1)
-        point_2 = self._get_transfer_pos(*point2)
-        k = (point_2[1] - point_1[1]) / (point_2[0] - point_1[0])
-        m = point_2[1] - point_2[0] * k
-        line = []
-        for point in _get_line_points(k, m):
-            if self.is_in_area(*point):
-                line.append(point)
-        if len(line) == 2:
-            line_str = f'{width} w\r{color} RG\r{line[0][0]} {line[0][1]} m {line[1][0]} {line[1][1]} l S\r'
-        return line_str
-
-    def _get_spectra_line(self, data, width=1, color='1 0 0'):
-        """
-        data = [[x1, x2, ..., xn], [y1, y2, ..., yn]]
-        """
-        x0, y0, w, h = self.axis_area
-        num = 0
-        line_str = ''
-        if not data:
-            return line_str
-        data = arr.transpose(data)
-        for index, point in enumerate(data):
-            point = self._get_transfer_pos(*point)
-            if not self.is_in_area(*point):
-                if index == 0 and self.is_in_area(*self._get_transfer_pos(*data[index + 1])):
-                    point[0] = x0
-                elif index == (len(data) - 1) and self.is_in_area(*self._get_transfer_pos(*data[index - 1])):
-                    point[0] = x0 + w
-                elif 0 < index < (len(data) - 1) and (
-                        self.is_in_area(*self._get_transfer_pos(*data[index + 1])) or self.is_in_area(
-                    *self._get_transfer_pos(*data[index - 1]))):
-                    if x0 < point[0] < (x0 + w):
-                        point[1] = [y0, y0 + h][point[1] >= y0 + h]
-                    else:
-                        point[0] = [x0, x0 + w][point[0] >= x0 + w]
-                else:
-                    continue
-            line_str = line_str + f'{point[0]} {point[1]} {"m " if num == 0 else "l "}'
-            num += 1
-        line_str = f'{width} w\r{color} RG\r' + line_str + 'S\r'
-        return line_str
-
-    def is_in_area(self, x, y):
-        x0, y0, w, h = self.axis_area
-        if x == -999:
-            x = x0
-        if y == -999:
-            y = y0
-        return x0 <= x <= x0 + w and y0 <= y <= y0 + h
-
-    def set_axis_frame(self):
-        from decimal import Decimal
-        frame = ''
-        x0, y0, w, h = self.axis_area
-        frame += f'1 w\r0 0 0 RG\r{x0} {y0} {w} {h} re S\r'  # % 四个参数：最小x，最小y，宽度和高度
-
-        xmin, xmax = float(self.figure.xaxis.min), float(self.figure.xaxis.max)
-        nx, dx = int(self.figure.xaxis.split_number), float(self.figure.xaxis.interval)
-        ymin, ymax = float(self.figure.yaxis.min), float(self.figure.yaxis.max)
-        ny, dy = int(self.figure.yaxis.split_number), float(self.figure.yaxis.interval)
-
-        for i in range(ny + 1):
-            yi = y0 + i * h * dy / (ymax - ymin)
-            if self.is_in_area(-999, yi):
-                frame += f'{x0} {yi} m {x0 - 4} {yi} l S\r'
-                frame += f'BT\r1 0 0 1 {x0 - 4 - 32} {yi - 4} Tm\r/F1 12 Tf\r0 0 0 rg\r({Decimal(str(ymin)) + i * Decimal(str(dy))}) Tj\rET\r'
-        for i in range(nx + 1):
-            xi = x0 + i * w * dx / (xmax - xmin)
-            if self.is_in_area(xi, -999):
-                frame += f'{xi} {y0} m {xi} {y0 - 4} l S\r'
-                frame += f'BT\r1 0 0 1 {xi - 12} {y0 - 16} Tm\r/F1 12 Tf\r0 0 0 rg\r({Decimal(str(xmin)) + i * Decimal(str(dx))}) Tj\rET\r'
-        self.frame.append(frame)
-        return frame
-
-    def set_main_content(self):
-        content = ''
-        if self.figure.type == 'isochron':
-            scatter_w, scatter_h = 5, 5
-            if not arr.is_empty(self.figure.line1.info):
-                content += self._get_isochron_line(*self.figure.line1.data, width=1, color='1 0 0')
-            if not arr.is_empty(self.figure.line2.info):
-                content += self._get_isochron_line(*self.figure.line2.data, width=1, color='0 0 1')
-            for point in arr.transpose(self.figure.data):
-                x, y = self._get_transfer_pos(point[0], point[2])
-                if self.is_in_area(x, y):
-                    if int(point[5]) - 1 in self.sample.SelectedSequence1:
-                        color = '0 0 0 RG\r1 0 0 rg\r'
-                    elif int(point[5]) - 1 in self.sample.SelectedSequence2:
-                        color = '0 0 0 RG\r0 0 1 rg\r'
-                    else:
-                        color = '0 0 0 RG\r1 1 1 rg\r'
-                    content = content + color + \
-                              f'{x - scatter_w / 2} {y - scatter_h / 2} {scatter_w} {scatter_h} re b\r'
-        elif self.figure.type == 'spectra':
-            for index, data in enumerate([self.figure.data, self.figure.set1.data, self.figure.set2.data]):
-                color = ['0 0 0', '1 0 0', '0 0 1'][index]
-                data = arr.transpose(data)
-                content = content + self._get_spectra_line(data[:2], color=color) + \
-                          self._get_spectra_line([data[0], data[2]], color=color)
-        self.component.append(content)
-        return content
-
-    def set_text(self):
-        text = ''
-        x0, y0, w, h = self.axis_area
-        # Figure Title
-        text += f'BT\r1 0 0 1 {x0 + 10} {y0 - 20 + h} Tm\n/F1 12 Tf\r({self.sample.Info.sample.name}) Tj\rET\r'
-        if self.figure.type == 'isochron':
-            xaxis_title_number = ''.join(list(filter(str.isdigit, self.figure.xaxis.title.text)))
-            yaxis_title_number = ''.join(list(filter(str.isdigit, self.figure.yaxis.title.text)))
-            # X axis title
-            x_title_length = 5 * 12  # length * font point size
-            text += '\n'.join([
-                'BT', f'1 0 0 1 {x0 + w / 2 - x_title_length / 2} {y0 - 30} Tm',
-                # % 使用Tm将文本位置设置为（35,530）前四个参数是cosx, sinx, -sinx, cosx表示逆时针旋转弧度
-                '/F1 8 Tf', '5 Ts', f'({xaxis_title_number[:2]}) Tj', '/F1 12 Tf', '0 Ts', '(Ar / ) Tj',
-                '/F1 8 Tf', '5 Ts', f'({xaxis_title_number[2:4]}) Tj', '/F1 12 Tf', '0 Ts', '(Ar) Tj', 'ET',
-            ])
-            # Y axis title
-            y_title_length = 5 * 12  # length * font point size
-            text += '\n'.join([
-                'BT', f'0 1 -1 0 {x0 - 40} {y0 + h / 2 - y_title_length / 2} Tm',
-                # % 使用Tm将文本位置设置为（35,530）前四个参数是cosx, sinx, -sinx, cosx表示逆时针旋转弧度
-                '/F1 8 Tf', '5 Ts', f'({yaxis_title_number[:2]}) Tj', '/F1 12 Tf', '0 Ts', '(Ar / ) Tj',
-                '/F1 8 Tf', '5 Ts', f'({yaxis_title_number[2:4]}) Tj', '/F1 12 Tf', '0 Ts', '(Ar) Tj', 'ET',
-            ])
-
-        elif self.figure.type == 'spectra':
-            # X axis title
-            x_title_length = 13 * 12  # length * font point size
-            text += '\n'.join([
-                'BT', f'1 0 0 1 {x0 + w / 2 - x_title_length / 2} {y0 - 30} Tm',
-                '/F1 12 Tf', '0 Ts', '(Cumulative ) Tj', '/F1 8 Tf', '5 Ts', f'(39) Tj',
-                '/F1 12 Tf', '0 Ts', '(Ar Released (%)) Tj', 'ET',
-            ])
-            # Y axis title
-            y_title_length = 9 * 12  # length * font point size
-            text += '\n'.join([
-                'BT', f'0 1 -1 0 {x0 - 40} {y0 + h / 2 - y_title_length / 2} Tm',
-                '/F1 12 Tf', '0 Ts', f'(Apparent Age (Ma)) Tj', 'ET',
-            ])
-            # Text 1
-            info = self.figure.set1.info
-            if len(info) == 8 and self.figure.text1.text != '':
-                sum39 = findall('∑{sup|39}Ar = (.*)', self.figure.text1.text)[1]
-                text += '\n'.join([
-                    'BT', f'1 0 0 1 {x0 + w / 4} {y0 + h / 2} Tm',
-                    '/F1 12 Tf', '0 Ts', f'(t) Tj', '/F1 8 Tf', '-2 Ts', f'(p) Tj',
-                    '/F1 12 Tf', '0 Ts',
-                    f'( = {info[4]:.2f} <261> {info[6]:.2f} Ma, MSMD = {info[3]:.2f}, ∑) Tj',
-                    '/F1 8 Tf', '5 Ts', f'(39) Tj',
-                    '/F1 12 Tf', '0 Ts',
-                    f'(Ar = {sum39}) Tj',
-                    'ET',
-                ])
-            # Text 2
-            text2 = findall('∑{sup|39}Ar = (.*)', self.figure.text2.text)[1]
-
-        self.text.append(text)
-        return text
-
-    def set_split_line(self):
-        others = []
-        for i in range(200):
-            if i * 50 >= self.page_size[0]:
-                break
-            others.append(f'[2] 0 d\n{i * 50} 0 m {i * 50} {self.page_size[1]} l S')
-        for i in range(200):
-            if i * 50 >= self.page_size[1]:
-                break
-            others.append(f'[2] 0 d\n0 {i * 50} m {self.page_size[0]} {i * 50} l S')
-        self.data_str = self.data_str.replace(
-            '% <flag: others>\r',
-            '% <flag: others>\r' + '0.75 G\n' + '\n'.join(others),
-        )
-
-    def set_info(self):
-        from datetime import datetime, timezone, timedelta
-        date = str(datetime.now(tz=timezone(offset=timedelta(hours=8))))
-        date = findall('(.*)-(.*)-(.*) (.*):(.*):(.*)\.(.*)', date)[0]
-        date = ''.join(date[0:6])
-        date = 'D:' + date + "+08'00'"
-        self.data_str = self.data_str.replace(
-            '% <flag: info CreationDate>',
-            f"{date}",
-        )
-        self.data_str = self.data_str.replace(
-            '% <flag: info ModDate>',
-            f"{date}",
-        )
-
-        self.data_str = self.data_str.replace(
-            '% <flag: info Title>',
-            f'{self.sample.Info.sample.name} - {self.figure.name}'
-        )
-        self.data_str = self.data_str.replace(
-            '% <flag: page title>\r',
-            '% <flag: page title>\r' +
-            f'(<This is a demo of the exported PDF.>) Tj T*\n'
-            f'(<The PDFs can be freely edited in Adobe Illustrator.>) Tj\n'
-        )
-
-    def set_replace(self):
-        self.data_str = self.data_str.replace(
-            '% <main contents>\r',
-            '% <main contents>\r' + '\r\n'.join(self.component)
-        )
-        self.data_str = self.data_str.replace(
-            '% <frames>\r',
-            '% <frames>\r' + '\r\n'.join(self.frame)
-        )
-        self.data_str = self.data_str.replace(
-            '% <texts>\r',
-            '% <texts>\r' + '\r\n'.join(self.text)
-        )
-
-    def get_pdf(self):
-        self.do_function(
-            self.set_main_content,
-            self.set_axis_frame,
-            self.set_text,
-            self.set_info,
-            self.set_replace,
-            # self.set_split_line,
-            self.toBetys,
-            self.save,
-        )
-
-    def get_contents(self):
-        self.do_function(
-            self.set_main_content,
-            self.set_axis_frame,
-            self.set_text,
-        )
-        return {
-            'component': self.component,
-            'frame': self.frame,
-            'text': self.text,
-        }
-
-    def toBetys(self):
-        self.data_bytes = self.data_str.encode('utf-8')
-        return self.data_bytes
-
-    # def save(self):
-    #     with open(self.filepath, 'wb') as f:
-    #         f.write(self.data_bytes)
-
-    def do_function(self, *handlers):
-        for handler in handlers:
-            try:
-                handler()
-            except Exception:
-                print(traceback.format_exc())
-                continue
-
-    def create_pdf(self):
-        pass
+    def color_rgb_normalized(self, rgb):
+        return [round(i / 255, 6) for i in rgb]
 
     def save(self, figure: str = "figure_3", use_split_number: bool = True):
 
@@ -1319,9 +1035,26 @@ class CreatePDF:
 
         # isochron scatters
         data = arr.transpose(plot.data)
+        colors = [
+            self.color_rgb_normalized(self.color_hex_to_rgb(plot.set1.color)),
+            self.color_rgb_normalized(self.color_hex_to_rgb(plot.set2.color)),
+            self.color_rgb_normalized(self.color_hex_to_rgb(plot.set3.color)),
+        ]
+        border_colors = [
+            self.color_rgb_normalized(self.color_hex_to_rgb(plot.set1.border_color)),
+            self.color_rgb_normalized(self.color_hex_to_rgb(plot.set2.border_color)),
+            self.color_rgb_normalized(self.color_hex_to_rgb(plot.set3.border_color))
+        ]
         for (x, sx, y, sy, r, i) in data:
-            pt.scatter(x, y, fill_color="red" if (i - 1) in set1.data else "blue" if (i - 1) in set2.data else "white",
-                       size=2)
+            if (i - 1) in set1.data:
+                pt.scatter(x, y, color=border_colors[0], fill_color=colors[0], line_width=int(float(plot.set1.border_width) / 2),
+                           size=int(float(plot.set1.symbol_size) / 3), z_index=10)
+            elif (i - 1) in set2.data:
+                pt.scatter(x, y, color=border_colors[1], fill_color=colors[1], line_width=int(float(plot.set2.border_width) / 2),
+                           size=int(float(plot.set2.symbol_size) / 3), z_index=10)
+            else:
+                pt.scatter(x, y, color=border_colors[2], fill_color=colors[2], line_width=int(float(plot.set3.border_width) / 2),
+                           size=int(float(plot.set3.symbol_size) / 3), z_index=10)
 
         # split sticks
         # xaxis.interval = (xaxis_max - xaxis_min) / xaxis.split_number
@@ -1331,30 +1064,36 @@ class CreatePDF:
             end = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
             end = (end[0], start[1] - 5)
             if not pt.is_out_side(*start):
-                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=100)
                 pt.text(x=start[0], y=end[1] - 15, clip=False, coordinate="pt", h_align="middle",
-                        text=f"{Decimal(str(xaxis_min)) + Decimal(str(xaxis.interval)) * Decimal(str(i))}")
+                        text=f"{Decimal(str(xaxis_min)) + Decimal(str(xaxis.interval)) * Decimal(str(i))}", z_index=150)
         for i in range(yaxis.split_number + 1):
             start = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = (start[0] - 5, end[1])
             if not pt.is_out_side(*start):
-                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=100)
                 pt.text(x=end[0] - 5, y=end[1], clip=False, coordinate="pt", h_align="right", v_align="center",
-                        text=f"{Decimal(str(yaxis_min)) + Decimal(str(yaxis.interval)) * Decimal(str(i))}")
+                        text=f"{Decimal(str(yaxis_min)) + Decimal(str(yaxis.interval)) * Decimal(str(i))}", z_index=150)
 
         # axis titles
         p = pt.scale_to_points((xaxis_max + xaxis_min) / 2, yaxis_min)
-        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
+        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt",
+                h_align="middle", v_align="top", z_index=150)
         p = pt.scale_to_points(xaxis_min, (yaxis_max + yaxis_min) / 2)
         pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
-                h_align="middle", v_align="bottom", rotate=90)
+                h_align="middle", v_align="bottom", rotate=90, z_index=150)
 
         # inside text
+        colors = [self.color_rgb_normalized(self.color_hex_to_rgb(plot.line1.color)),
+                  self.color_rgb_normalized(self.color_hex_to_rgb(plot.line2.color))]
+        widths = [int(float(plot.line1.line_width) / 2), int(float(plot.line2.line_width) / 2)]
+        styles = [plot.line1.line_type, plot.line2.line_type]
         for index, data in enumerate([plot.line1.data, plot.line2.data]):
             # isochron line
             try:
-                pt.line(start=data[0], end=data[1], clip=True, width=1, color=colors[index])
+                pt.line(start=data[0], end=data[1], clip=True, color=colors[index],
+                        width=widths[index], line_style=styles[index], line_caps='square', z_index=50)
             except IndexError:
                 pass
             if data != []:
@@ -1365,7 +1104,7 @@ class CreatePDF:
                         y=(yaxis_max - yaxis_min) * 0.7 + yaxis_min,
                         text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>F = {F} {chr(0xb1)} {sF}<r>"
                              f"R<sub>0</sub> = {R0} {chr(0xb1)} {sR0}",
-                        clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0)
+                        clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0, z_index=150)
         return cv
 
     def plot_spectra(self, smp: Sample = None, figure: str = "figure_1"):
@@ -1393,7 +1132,6 @@ class CreatePDF:
         yaxis_max = float(yaxis.max)
 
         plot_scale = (xaxis_min, xaxis_max, yaxis_min, yaxis_max)
-        colors = ['red', 'color']
 
         # create a canvas
         cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
@@ -1403,21 +1141,41 @@ class CreatePDF:
 
         # spectra lines
         data = plot.data
+        colors = [
+            self.color_rgb_normalized(self.color_hex_to_rgb(plot.line1.color)),
+            self.color_rgb_normalized(self.color_hex_to_rgb(plot.line2.color)),
+        ]
+        widths = [int(float(plot.line1.line_width) / 2), int(float(plot.line2.line_width) / 2)]
+        styles = [plot.line1.line_type, plot.line2.line_type]
         for index in range(len(data) - 1):
             pt.line(start=(data[index][0], data[index][1]), end=(data[index + 1][0], data[index + 1][1]),
-                    clip=True, width=1, color='black', line_caps="square")
+                    width=widths[0], line_style=styles[0], color=colors[0],
+                    clip=True, line_caps="square", z_index=9)
             pt.line(start=(data[index][0], data[index][2]), end=(data[index + 1][0], data[index + 1][2]),
-                    clip=True, width=1, color='black', line_caps="square")
+                    width=widths[1], line_style=styles[1], color=colors[1],
+                    clip=True, line_caps="square", z_index=9)
 
+        colors = [
+            [self.color_rgb_normalized(self.color_hex_to_rgb(plot.line3.color)),
+             self.color_rgb_normalized(self.color_hex_to_rgb(plot.line4.color))],
+            [self.color_rgb_normalized(self.color_hex_to_rgb(plot.line5.color)),
+             self.color_rgb_normalized(self.color_hex_to_rgb(plot.line6.color))]
+        ]
+        widths = [
+            [int(float(plot.line3.line_width) / 2), int(float(plot.line4.line_width) / 2)],
+            [int(float(plot.line5.line_width) / 2), int(float(plot.line6.line_width) / 2)]
+        ]
+        styles = [[plot.line3.line_type, plot.line4.line_type], [plot.line5.line_type, plot.line6.line_type]]
         for index, data in enumerate([plot.set1.data, plot.set2.data]):
             if not data:
                 continue
-            color = colors[index]
             for i in range(len(data) - 1):
                 pt.line(start=(data[i][0], data[i][1]), end=(data[i + 1][0], data[i + 1][1]),
-                        clip=True, width=1, color=color, line_caps="square")
+                        width=widths[index][0], line_style=styles[index][0], color=colors[index][0],
+                        clip=True, line_caps="square", z_index=99)
                 pt.line(start=(data[i][0], data[i][2]), end=(data[i + 1][0], data[i + 1][2]),
-                            clip=True, width=1, color=color, line_caps="square")
+                        width=widths[index][1], line_style=styles[index][1], color=colors[index][1],
+                        clip=True, line_caps="square", z_index=99)
             age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
             F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
             Num = int(age_results[index]['Num'])
@@ -1428,7 +1186,7 @@ class CreatePDF:
                     text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>WMF = {F} {chr(0xb1)} {sF}, n = {Num}<r>"
                          f"MSWD = {MSWD}, <sup>39</sup>Ar = {Ar39}%<r>"
                          f"Chisq = {Chisq}, p = {Pvalue}",
-                    clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0)
+                    clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0, z_index=150)
 
         # split sticks
         for i in range(xaxis.split_number + 1):
@@ -1436,24 +1194,25 @@ class CreatePDF:
             end = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
             end = (end[0], start[1] - 5)
             if not pt.is_out_side(*start):
-                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=100)
                 pt.text(x=start[0], y=end[1] - 15, text=f"{xaxis_min + xaxis.interval * i}", clip=False,
-                        coordinate="pt", h_align="middle")
+                        coordinate="pt", h_align="middle", z_index=150)
         for i in range(yaxis.split_number + 1):
             start = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = (start[0] - 5, end[1])
             if not pt.is_out_side(*start):
-                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=100)
                 pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis_min + yaxis.interval * i}", clip=False,
-                        coordinate="pt", h_align="right", v_align="center")
+                        coordinate="pt", h_align="right", v_align="center", z_index=150)
 
         # axis titles
         p = pt.scale_to_points((xaxis_max + xaxis_min) / 2, yaxis_min)
-        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
+        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt",
+                h_align="middle", v_align="top", z_index=150)
         p = pt.scale_to_points(xaxis_min, (yaxis_max + yaxis_min) / 2)
         pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
-                h_align="middle", v_align="bottom", rotate=90)
+                h_align="middle", v_align="bottom", rotate=90, z_index=150)
 
         return cv
 
@@ -1553,38 +1312,54 @@ class CreatePDF:
         yaxis_max = float(yaxis.max)
         plot_scale = (xaxis_min, xaxis_max, yaxis_min, yaxis_max)
 
-        colors = ['red', 'color']
-
         cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
         # change frame outline style
         cv.show_frame(color="grey", line_width=0.5)
         pt = cv.add_plot_area(name="Plot1", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=plot_scale, show_frame=True)
 
         # histogram
+        color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.set1.border_color))
+        fill_color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.set1.color))
         for i in range(plot.set1.bin_count):
-            pt.rect(left_bottom=[plot.set1.data[2][i][0], 0], width=plot.set1.bin_width,
-                    height=plot.set1.data[1][i], coordinate='scale')
+            pt.rect(left_bottom=[plot.set1.data[2][i][0], 0], width=plot.set1.bin_width, height=plot.set1.data[1][i],
+                    line_width=0, color=fill_color, fill_color=fill_color, fill=True, coordinate='scale', z_index=0)
+            pt.line(start=[plot.set1.data[2][i][0], 0], end=[plot.set1.data[2][i][0], plot.set1.data[1][i]],
+                    color=color, line_style=plot.set1.border_type, width=plot.set1.border_width,
+                    coordinate='scale', z_index=1)
+            pt.line(start=[plot.set1.data[2][i][0], plot.set1.data[1][i]],
+                    end=[plot.set1.data[2][i][0] + plot.set1.bin_width, plot.set1.data[1][i]],
+                    color=color, line_style=plot.set1.border_type, width=plot.set1.border_width,
+                    coordinate='scale', z_index=1)
+            pt.line(start=[plot.set1.data[2][i][0] + plot.set1.bin_width, plot.set1.data[1][i]],
+                    end=[plot.set1.data[2][i][0] + plot.set1.bin_width, 0],
+                    color=color, line_style=plot.set1.border_type, width=plot.set1.border_width,
+                    coordinate='scale', z_index=1)
 
         # KDE
         scale = max(plot.set1.data[1]) / max(plot.set2.data[1])
+        color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.set2.color))
         for i in range(plot.set2.band_points):
             pt.line(start=[plot.set2.data[0][i], plot.set2.data[1][i] * scale],
                     end=[plot.set2.data[0][i + 1], plot.set2.data[1][i + 1] * scale],
-                    color='red', coordinate='scale')
+                    color=color, line_style=plot.set2.line_type, width=plot.set2.line_width,
+                    coordinate='scale', z_index=5)
 
         # age bars
         ages = sorted(zip(*plot.set3.data), key=lambda x: x[0])
+        color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.set3.color))
+        fill_color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.set3.border_color))
         ppu_y = pt.ppu("y")
         height = float(plot.set3.bar_height) / ppu_y
         interval = float(plot.set3.bar_interval) / ppu_y if plot.set3.vertical_align == "bottom" else ((yaxis_max - yaxis_min) - height * len(ages)) / (len(ages) + 1)
         for index, age in enumerate(ages):
             pt.rect(left_bottom=[age[0] - age[1], interval + index * (interval + height)],
-                    width=age[1] * 2, height=height, fill_color='black', fill=True, coordinate='scale')
+                    width=age[1] * 2, height=height, color=color, fill_color=fill_color, fill=True,
+                    line_width=plot.set3.border_width, coordinate='scale', z_index=1)
 
         text = plot.text1.text.replace('\n', '<r>')
         pt.text(x=(xaxis_max - xaxis_min) * 0.6 + xaxis_min,
                 y=(yaxis_max - yaxis_min) * 0.7 + yaxis_min,
-                text=text, clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0)
+                text=text, clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0, z_index=100)
 
         # split sticks
         for i in range(xaxis.split_number + 1):
@@ -1592,24 +1367,25 @@ class CreatePDF:
             end = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
             end = (end[0], start[1] - 5)
             if not pt.is_out_side(*start):
-                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=50)
                 pt.text(x=start[0], y=end[1] - 15, text=f"{int(xaxis_min + xaxis.interval * i)}", clip=False,
-                        coordinate="pt", h_align="middle")
+                        coordinate="pt", h_align="middle", z_index=100)
         for i in range(yaxis.split_number + 1):
             start = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
             end = (start[0] - 5, end[1])
             if not pt.is_out_side(*start):
-                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=50)
                 pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis_min + yaxis.interval * i}", clip=False,
-                        coordinate="pt", h_align="right", v_align="center")
+                        coordinate="pt", h_align="right", v_align="center", z_index=100)
 
         # axis titles
         p = pt.scale_to_points((xaxis_max + xaxis_min) / 2, yaxis_min)
-        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
+        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt",
+                h_align="middle", v_align="top", z_index=150)
         p = pt.scale_to_points(xaxis_min, (yaxis_max + yaxis_min) / 2)
         pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
-                h_align="middle", v_align="bottom", rotate=90)
+                h_align="middle", v_align="bottom", rotate=90, z_index=150)
 
         return cv
 
