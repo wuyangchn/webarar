@@ -860,49 +860,10 @@ class ApiView(http_funcs.ArArView):
         name = f"{self.sample.Info.sample.name}_{figure.name}"
         export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{name}.pdf")
 
-        # filepath = 'D:\\Downloads\\2.pdf'
-        # with open(filepath, 'rb') as f:
-        #     pdf_data: bytes = f.read()
-
-        # Do something for PDF BODY
         if not merged_pdf:
-            # ap.smp.export.CreatePDF(
-            #     name=f"{self.sample.Info.sample.name}_export",
-            #     export_filepath=export_filepath,
-            #     sample=self.sample,
-            #     figure=figure,
-            # ).get_pdf()
             ap.smp.export.to_pdf(export_filepath, figure_id, self.sample)
         else:
-            pdf1 = ap.smp.export.CreatePDF(
-                name=f"{self.sample.Info.sample.name}_export",
-                export_filepath=export_filepath,
-                sample=self.sample,
-                figure=ap.smp.basic.get_component_byid(self.sample, 'figure_1'),
-                axis_area=[60, 400, 200, 160]
-            ).get_contents()
-
-            pdf2 = ap.smp.export.CreatePDF(
-                name=f"{self.sample.Info.sample.name}_export",
-                export_filepath=export_filepath,
-                sample=self.sample,
-                figure=ap.smp.basic.get_component_byid(self.sample, 'figure_2'),
-                axis_area=[320, 400, 200, 160]
-            ).get_contents()
-
-            pdf3 = ap.smp.export.CreatePDF(
-                name=f"{self.sample.Info.sample.name}_export",
-                export_filepath=export_filepath,
-                sample=self.sample,
-                figure=ap.smp.Plot(name='Merged'),
-                component=pdf1['component'] + pdf2['component'],
-                text=pdf1['text'] + pdf2['text'],
-                frame=pdf1['frame'] + pdf2['frame']
-            )
-            pdf3.set_info()
-            pdf3.set_replace()
-            pdf3.toBetys()
-            pdf3.save()
+            pass
 
         export_href = '/' + settings.DOWNLOAD_URL + f"{name}.pdf"
 
