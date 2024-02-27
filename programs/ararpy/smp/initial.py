@@ -248,9 +248,6 @@ def check_version(smp: Sample):
     -------
 
     """
-    print(smp.version)
-    print(samples.VERSION)
-    print(smp.version != samples.VERSION)
     if smp.version != samples.VERSION:
         re_set_smp(smp)
     return smp
@@ -290,8 +287,10 @@ def from_arr_files(file_path, sample_name: str = ""):
             renamed_module = module
             if '.sample' in module and module != SAMPLE_MODULE:
                 renamed_module = SAMPLE_MODULE
-
-            return super(RenameUnpickler, self).find_class(renamed_module, name)
+            try:
+                return super(RenameUnpickler, self).find_class(renamed_module, name)
+            except AttributeError:
+                return super(RenameUnpickler, self).find_class(renamed_module, 'ArArBasic')
 
     def renamed_load(file_obj):
         return RenameUnpickler(file_obj).load()
