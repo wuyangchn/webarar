@@ -5,7 +5,6 @@ from . import (
 )
 
 Sample = samples.Sample
-Info = samples.Info
 Table = samples.Table
 Plot = samples.Plot
 Set = samples.Plot.Set

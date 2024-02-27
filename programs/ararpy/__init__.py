@@ -32,7 +32,6 @@ from_empty = smp.initial.from_empty
 """ Classes """
 
 Sample = smp.Sample
-Info = smp.Info
 Table = smp.Table
 Plot = smp.Plot
 Set = smp.Set

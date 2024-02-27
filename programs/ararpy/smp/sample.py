@@ -1031,15 +1031,6 @@ class Plot:
                 setattr(self, k, v)
 
 
-class Info:
-    def __init__(self, id='', name='', type='Info', **kwargs):
-        self.id = id
-        self.name = name
-        self.type = type
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-
 class Sequence:
     def __init__(self, index=None, data=None, flag=None, name=None, datetime=None,
                  type_str=None, results=None, coefficients=None, fitting_method=None,

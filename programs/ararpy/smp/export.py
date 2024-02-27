@@ -40,6 +40,7 @@ def to_pdf(file_path: str, figure: str, smp: Sample):
     pdf = CreatePDF(filepath=file_path, sample=smp)
     pdf.save(figure=figure)
 
+
 class ExcelTemplate:
     def __init__(self, **kwargs):
         self.name = ""
@@ -1534,10 +1535,69 @@ class CreatePDF:
 
         return cv
 
-    def plot_age_distribution(self, figure: str = 'figure_9'):        # create a canvas
+    def plot_age_distribution(self, smp: Sample = None, figure: str = 'figure_9'):
+        if smp is None:
+            smp = self.sample
+        if figure != "figure_9":
+            raise ValueError
+
+        plot: Plot = smp.AgeDistributionPlot
+        title = plot.title.text
+        xaxis: Plot.Axis = plot.xaxis
+        yaxis: Plot.Axis = plot.yaxis
+        x_title = f"<sup>40</sup>Ar/<sup>39</sup>Ar Age (Ma)"
+        y_title = yaxis.title.text
+        xaxis_min = float(xaxis.min)
+        xaxis_max = float(xaxis.max)
+        yaxis_min = float(yaxis.min)
+        yaxis_max = float(yaxis.max)
+        plot_scale = (xaxis_min, xaxis_max, yaxis_min, yaxis_max)
+
+        colors = ['red', 'color']
+
         cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
         # change frame outline style
         cv.show_frame(color="grey", line_width=0.5)
+        pt = cv.add_plot_area(name="Plot1", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=plot_scale, show_frame=True)
+
+        # histogram
+        for i in range(plot.set1.bin_count):
+            pt.rect(left_bottom=[plot.set1.data[2][i][0], 0], width=plot.set1.bin_width,
+                    height=plot.set1.data[1][i], coordinate='scale')
+
+        # KDE
+        scale = max(plot.set1.data[1]) / max(plot.set2.data[1])
+        for i in range(plot.set2.band_points):
+            pt.line(start=[plot.set2.data[0][i], plot.set2.data[1][i] * scale],
+                    end=[plot.set2.data[0][i + 1], plot.set2.data[1][i + 1] * scale],
+                    color='red', coordinate='scale')
+
+
+        # split sticks
+        for i in range(xaxis.split_number + 1):
+            start = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
+            end = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)
+            end = (end[0], start[1] - 5)
+            if not pt.is_out_side(*start):
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.text(x=start[0], y=end[1] - 15, text=f"{int(xaxis_min + xaxis.interval * i)}", clip=False,
+                        coordinate="pt", h_align="middle")
+        for i in range(yaxis.split_number + 1):
+            start = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
+            end = pt.scale_to_points(xaxis_min, yaxis_min + yaxis.interval * i)
+            end = (start[0] - 5, end[1])
+            if not pt.is_out_side(*start):
+                pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt")
+                pt.text(x=end[0] - 5, y=end[1], text=f"{yaxis_min + yaxis.interval * i}", clip=False,
+                        coordinate="pt", h_align="right", v_align="center")
+
+        # axis titles
+        p = pt.scale_to_points((xaxis_max + xaxis_min) / 2, yaxis_min)
+        pt.text(x=p[0], y=p[1] - 30, text=x_title, clip=False, coordinate="pt", h_align="middle", v_align="top")
+        p = pt.scale_to_points(xaxis_min, (yaxis_max + yaxis_min) / 2)
+        pt.text(x=p[0] - 50, y=p[1], text=y_title, clip=False, coordinate="pt",
+                h_align="middle", v_align="bottom", rotate=90)
+
         return cv
 
 

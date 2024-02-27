@@ -248,6 +248,9 @@ def check_version(smp: Sample):
     -------
 
     """
+    print(smp.version)
+    print(samples.VERSION)
+    print(smp.version != samples.VERSION)
     if smp.version != samples.VERSION:
         re_set_smp(smp)
     return smp

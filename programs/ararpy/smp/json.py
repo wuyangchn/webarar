@@ -13,7 +13,7 @@
 import json
 import numpy as np
 import pandas as pd
-from .sample import Sample, Info, Table, Plot, RawData, Sequence, ArArBasic
+from .sample import Sample, Table, Plot, RawData, Sequence, ArArBasic
 
 
 def dumps(a):
@@ -41,7 +41,7 @@ class MyEncoder(json.JSONEncoder):
         if isinstance(obj, (np.int8, np.int16, np.int32, np.int64)):
             return int(obj)
         # sample or raw instance
-        if isinstance(obj, (Sample, Info, Plot, Table, Plot.Text, Plot.Axis, Plot.Label,
+        if isinstance(obj, (Sample, Plot, Table, Plot.Text, Plot.Axis, Plot.Label,
                             Plot.Set, Plot.BasicAttr, RawData, Sequence, ArArBasic)):
             if isinstance(obj, Sequence):
                 return dict(obj.__dict__, **{
