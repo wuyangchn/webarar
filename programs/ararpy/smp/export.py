@@ -1581,6 +1581,11 @@ class CreatePDF:
             pt.rect(left_bottom=[age[0] - age[1], interval + index * (interval + height)],
                     width=age[1] * 2, height=height, fill_color='black', fill=True, coordinate='scale')
 
+        text = plot.text1.text.replace('\n', '<r>')
+        pt.text(x=(xaxis_max - xaxis_min) * 0.6 + xaxis_min,
+                y=(yaxis_max - yaxis_min) * 0.7 + yaxis_min,
+                text=text, clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0)
+
         # split sticks
         for i in range(xaxis.split_number + 1):
             start = pt.scale_to_points(xaxis_min + xaxis.interval * i, yaxis_min)

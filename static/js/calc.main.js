@@ -2519,6 +2519,7 @@ function applySettingDialog() {
                 splitLine: {show: figure.yaxis.show_splitline}
             }
         };
+        showPage(getCurrentTableId());
     }
     if (current_component==='histogram-setting-in-dialog'){
         let set1 = getSetById(getCurrentTableId(), 'Histogram');
