@@ -5,13 +5,13 @@ import pickle
 import traceback
 import re
 
-from math import ceil
+# from math import ceil
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
 import numpy as np
-import time
+# import time
 from . import models
 from programs import http_funcs, log_funcs, ap
 from django.core.cache import cache
@@ -378,7 +378,6 @@ class RawFileView(http_funcs.ArArView):
 
     def raw_files_changed(self, request, *args, **kwargs):
         files = []
-        filter = request.POST.get('fileOptionsRadios')
         names = list(models.InputFilterParams.objects.values_list('name', flat=True))
         for file in request.FILES.getlist('raw_file'):
             try:
@@ -389,7 +388,7 @@ class RawFileView(http_funcs.ArArView):
             else:
                 files.append({
                     'name': file_name, 'extension': suffix, 'path': web_file_path,
-                    'filter': suffix[1:] if filter == 'auto' else filter,
+                    'filter': suffix[1:],
                     'filter_list': names
                 })
         return JsonResponse({'files': files})

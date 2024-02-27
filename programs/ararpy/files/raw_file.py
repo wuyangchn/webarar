@@ -14,6 +14,7 @@ from typing import List, Union
 import traceback
 import os
 import re
+import pickle
 import chardet
 from xlrd import open_workbook
 from datetime import datetime
@@ -55,13 +56,13 @@ def open_file(file_path: str, input_filter: List[Union[str, int, bool]]):
     """
     extension = str(os.path.split(file_path)[-1]).split('.')[-1]
     try:
-        handler = {'txt': open_raw_txt, 'excel': open_raw_xls, 'Qtegra Exported XLS': open_argus_exported_xls}[
-            ['txt', 'excel', 'Qtegra Exported XLS'][int(input_filter[1])]]
+        handler = {'txt': open_raw_txt, 'excel': open_raw_xls,
+                   'Qtegra Exported XLS': open_argus_exported_xls, 'Seq': open_raw_seq}[
+            ['txt', 'excel', 'Qtegra Exported XLS', 'Seq'][int(input_filter[1])]]
     except KeyError:
         print(traceback.format_exc())
         raise FileNotFoundError("Wrong File.")
-    data, _ = handler(file_path, input_filter)
-    return {'data': data, 'type': extension}
+    return handler(file_path, input_filter)
 
 
 def open_argus_exported_xls(filepath, input_filter=None):
@@ -106,7 +107,7 @@ def open_argus_exported_xls(filepath, input_filter=None):
     except Exception as e:
         raise ValueError('Error in opening the original file: %s' % str(e))
     else:
-        return step_list, {}
+        return {'data': step_list}
 
 
 def open_raw_txt(file_path, input_filter: List[Union[str, int]]):
@@ -135,8 +136,7 @@ def open_raw_txt(file_path, input_filter: List[Union[str, int]]):
     file_name = os.path.basename(file_path).rstrip(os.path.splitext(file_path)[-1])
     sample_info = get_sample_info([lines], input_filter)
     step_list = get_raw_data([lines], input_filter, file_name=file_name)
-
-    return step_list, sample_info
+    return {'data': step_list}
 
 
 def open_raw_xls(file_path, input_filter: List[Union[str, int]]):
@@ -172,6 +172,12 @@ def open_raw_xls(file_path, input_filter: List[Union[str, int]]):
     step_list = get_raw_data(contents, input_filter, file_name=file_name)
 
     return step_list, sample_info
+
+
+def open_raw_seq(file_path, input_filter=None):
+    with open(file_path, 'rb') as f:
+        sequences = pickle.load(f)
+    return {'sequences': sequences}
 
 
 def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], input_filter: list,

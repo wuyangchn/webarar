@@ -49,10 +49,13 @@ def to_raw(file_path: Union[str, List[str]], input_filter_path: Union[str, List[
         raw = concatenate([to_raw(file, input_filter_path[index]) for index, file in enumerate(file_path)])
     elif isinstance(file_path, str) and isinstance(input_filter_path, str):
         input_filter = read_params(input_filter_path)
-        res = raw_file.open_file(file_path, input_filter)
         file_name = str(os.path.split(file_path)[-1]).split('.')[0]
-        raw = RawData(name=file_name, data=res['data'], isotopic_num=10, sequence_num=len(res['data']),
-                      source=[file_path])
+        res = raw_file.open_file(file_path, input_filter)
+        data = res.get('data', None)
+        sequences = res.get('sequences', None)
+        sequence_num = len(data) if data is not None else len(sequences)
+        raw = RawData(name=file_name, data=data, isotopic_num=10, sequence_num=sequence_num,
+                      source=[file_path], sequence=sequences)
     else:
         raise ValueError("File path and input filter should be both string or list with a same length.")
     return raw
@@ -126,7 +129,6 @@ def do_regression(raw: RawData, sequence_index: Optional[List] = None, isotopic_
     raw
     sequence_index
     isotopic_index
-    flag
 
     Returns
     -------
