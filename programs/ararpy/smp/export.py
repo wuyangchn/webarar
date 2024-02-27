@@ -1572,6 +1572,14 @@ class CreatePDF:
                     end=[plot.set2.data[0][i + 1], plot.set2.data[1][i + 1] * scale],
                     color='red', coordinate='scale')
 
+        # age bars
+        ages = sorted(zip(*plot.set3.data), key=lambda x: x[0])
+        ppu_y = pt.ppu("y")
+        height = float(plot.set3.bar_height) / ppu_y
+        interval = float(plot.set3.bar_interval) / ppu_y if plot.set3.vertical_align == "bottom" else ((yaxis_max - yaxis_min) - height * len(ages)) / (len(ages) + 1)
+        for index, age in enumerate(ages):
+            pt.rect(left_bottom=[age[0] - age[1], interval + index * (interval + height)],
+                    width=age[1] * 2, height=height, fill_color='black', fill=True, coordinate='scale')
 
         # split sticks
         for i in range(xaxis.split_number + 1):
