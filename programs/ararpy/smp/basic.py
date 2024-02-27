@@ -18,7 +18,7 @@ import copy
 from typing import Optional, Union, List
 from .. import calc
 from ..files.basic import (read as read_params)
-from .sample import Sample, Info, Table, Plot, ArArData, ArArBasic, Sequence, RawData
+from .sample import Sample, Table, Plot, ArArData, ArArBasic, Sequence, RawData
 
 Set = Plot.Set
 Label = Plot.Label
@@ -156,7 +156,7 @@ def get_content_dict(smp: Sample):
     ))
 
 
-def get_dict_from_obj(obj: (Sample, Info, Plot, Table, Set, Label, Axis, Text,
+def get_dict_from_obj(obj: (Sample, Plot, Table, Set, Label, Axis, Text,
                             ArArBasic, ArArData, Sequence, RawData)):
     """
 
@@ -170,7 +170,7 @@ def get_dict_from_obj(obj: (Sample, Info, Plot, Table, Set, Label, Axis, Text,
     """
     res = {}
     for key, attr in obj.__dict__.items():
-        if not isinstance(attr, (Sample, Info, Plot, Table, Set, Label, Axis, Text,
+        if not isinstance(attr, (Sample, Plot, Table, Set, Label, Axis, Text,
                                  ArArBasic, ArArData, Sequence, RawData)):
             res.update({key: attr})
         else:
@@ -213,7 +213,7 @@ def get_component_byid(smp: Sample, comp_id: str):
 
     """
     for key, val in smp.__dict__.items():
-        if isinstance(val, (Plot, Table, Info, ArArBasic)) and getattr(val, 'id') == comp_id:
+        if isinstance(val, (Plot, Table, ArArBasic)) and getattr(val, 'id') == comp_id:
             return val
 
 
@@ -307,9 +307,12 @@ def get_merged_smp(a: Sample, b: (Sample, dict)):
 
     for name, attr in b.items():
         if hasattr(a, name):
-            if isinstance(attr, (Plot, Table, Info, Plot.BasicAttr)):
+            if isinstance(attr, (Plot, Table, ArArBasic, Plot.BasicAttr)):
                 if not type(getattr(a, name)) == type(attr):
-                    setattr(a, name, type(attr)())
+                    if isinstance(getattr(a, name), dict):
+                        setattr(a, name, type(attr)(**getattr(a, name)))
+                    else:
+                        setattr(a, name, type(attr)())
                 get_merged_smp(getattr(a, name), attr)
             if isinstance(attr, dict) and isinstance(getattr(a, name), dict):
                 setattr(a, name, calc.basic.merge_dicts(getattr(a, name), attr))
@@ -376,7 +379,7 @@ def get_diff_smp(backup: (dict, Sample), smp: (dict, Sample)):
                 res.update({name: attr})
             continue
         if isinstance(attr, (Plot, Table, Plot.Text, Plot.Axis, Plot.Set,
-                             Plot.Label, Plot.BasicAttr, Info, ArArBasic, ArArData)):
+                             Plot.Label, Plot.BasicAttr, ArArBasic, ArArData)):
             _res = get_diff_smp(backup[name].__dict__, attr.__dict__)
             if _res != {}:
                 res.update({name: _res})

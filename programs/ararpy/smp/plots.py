@@ -17,7 +17,7 @@ from scipy.signal import find_peaks
 
 
 from .. import calc
-from .sample import Sample, Info, Table, Plot
+from .sample import Sample, Table, Plot
 from . import basic, initial
 
 Set = Plot.Set
