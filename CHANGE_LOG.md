@@ -5,7 +5,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 ## to do
 
 * Error type selection
+* open seq files as raw data
 
+# v0.0.34 2024-02-27
+* Add supports to open Seq files as raw data
 
 # v0.0.33 2024-02-23
 * Fix bug of display checkboxes of setting parameters

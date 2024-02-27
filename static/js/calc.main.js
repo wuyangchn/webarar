@@ -268,8 +268,12 @@ function rawFilesChanged() {
                     row: {
                         'file_name': file.name, 'file_path': file.path,
                         // 'filter': file.filter,
-                        'filter': `<select class="input-sm input-filter-selection" style="width: 200px" onchange="change_input_filter(this)">${file.filter_list.map((item, _) => 
-                            "<option>" + item + "</option>").join("")}$</select>`,
+                        'filter': `<select class="input-sm input-filter-selection" style="width: 200px" onchange="change_input_filter(this)">${file.filter_list.map((item, _) => {
+                            if (item.toUpperCase() === file.filter.toUpperCase()) {
+                                return "<option selected>" + item + "</option>"
+                            }
+                            return "<option>" + item + "</option>"
+                        }).join("")}$</select>`,
                         'operation': '<button type="button" class="btn btn-danger" onclick="removeRawFile(id)" ' +
                             'id="btn-raw-file-' + data.length +'">Remove</button>',
                     }
