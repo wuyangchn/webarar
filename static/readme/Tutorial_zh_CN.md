@@ -317,9 +317,13 @@
 
 ### 示例
 
-#### 示例 1：绘制年龄谱
+#### 示例 1：打开文件
 
-如果我们有如下数据，age 列是一系列表观年龄，sage 为对应的误差，39ArK 为每个阶段释放的39ArK占总39ArK的百分数。则可以绘制出年龄谱图
+![alt text](gif.02.gif)
+
+#### 示例 2：绘制年龄谱
+
+如果我们有如下数据，age 列是一系列表观年龄，sage 为对应的误差，39ArK 为每个阶段释放的39ArK占总39ArK的百分数。则可以绘制出年龄谱图。
 
     ages        sages                   39ArK
     ---------------------------------------------
@@ -351,10 +355,11 @@
     18.49410	0.547799				0.351599
     18.04896	0.498315				0.314126
 
-点击 WebArAr Calc 页面的 **New** 按钮，创建空白对象，在 **Age Spectra** 表格响应位置粘贴这三行数据。点击 **Save Changes** 保存。
+*New* -> *Age Spectra* -> *粘贴或键入数据* -> *Save Changes* -> *Recalculate* -> *选择 Reset Plot Data 和 Reset Figure Style* -> *Apply*
 
-![alt text](image-12.png)
+![alt text](gif.01.gif)
 
-之后点击 Recalcualtion 选择 **Reset Plot Data** 和 **Reset Figure Style**，前者将根据表格数据计算图谱中线的坐标，后者将重置图形样式（此处主要是重置坐标范围），点击 **Apply**。等待片刻，切换到 Age Spectra 图谱页面将看到 年龄谱图。
+如果我们有如下数据，age 列是一系列表观年龄，sage 为对应的误差，39ArK 为每个阶段释放的39ArK占总39ArK的百分数。则可以绘制出年龄谱图。
 
-![alt text](image-46.png)
+#### 示例 3：绘制年龄谱
+
