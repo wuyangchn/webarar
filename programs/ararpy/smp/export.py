@@ -980,8 +980,10 @@ class CreatePDF:
         file = pm.NewPDF(filepath=self.filepath)
         # rich text tags should follow this priority: color > script > break
         file.text(page=0, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
-                  text=f"The PDF can be edited with Adobe Acrobat and Illustrator.<r>"
-                       f"<r><sup>40</sup>Ar/<sup>39</sup>Ar Plot")
+                  text=f"The PDF can be edited with Adobe Acrobat, Illustrator and CorelDRAW.<r>"
+                       f"<r> Sample Name: {self.sample.name()}"
+                       f"<r> Figure Title: {basic.get_component_byid(self.sample, figure).name}",
+                  )
         file.canvas(page=1, margin_top=5, canvas=cv, unit="cm", h_align="middle")
 
         # save pdf
@@ -1040,20 +1042,20 @@ class CreatePDF:
             self.color_rgb_normalized(self.color_hex_to_rgb(plot.set2.color)),
             self.color_rgb_normalized(self.color_hex_to_rgb(plot.set3.color)),
         ]
-        border_colors = [
+        stroke_colors = [
             self.color_rgb_normalized(self.color_hex_to_rgb(plot.set1.border_color)),
             self.color_rgb_normalized(self.color_hex_to_rgb(plot.set2.border_color)),
             self.color_rgb_normalized(self.color_hex_to_rgb(plot.set3.border_color))
         ]
         for (x, sx, y, sy, r, i) in data:
             if (i - 1) in set1.data:
-                pt.scatter(x, y, color=border_colors[0], fill_color=colors[0], line_width=int(float(plot.set1.border_width) / 2),
+                pt.scatter(x, y, stroke_color=stroke_colors[0], fill_color=colors[0], line_width=int(float(plot.set1.border_width) / 2),
                            size=int(float(plot.set1.symbol_size) / 3), z_index=10)
             elif (i - 1) in set2.data:
-                pt.scatter(x, y, color=border_colors[1], fill_color=colors[1], line_width=int(float(plot.set2.border_width) / 2),
+                pt.scatter(x, y, stroke_color=stroke_colors[1], fill_color=colors[1], line_width=int(float(plot.set2.border_width) / 2),
                            size=int(float(plot.set2.symbol_size) / 3), z_index=10)
             else:
-                pt.scatter(x, y, color=border_colors[2], fill_color=colors[2], line_width=int(float(plot.set3.border_width) / 2),
+                pt.scatter(x, y, stroke_color=stroke_colors[2], fill_color=colors[2], line_width=int(float(plot.set3.border_width) / 2),
                            size=int(float(plot.set3.symbol_size) / 3), z_index=10)
 
         # split sticks
@@ -1097,14 +1099,25 @@ class CreatePDF:
             except IndexError:
                 pass
             if data != []:
+                if index == 0:
+                    pos = [round(i / 100, 2) for i in plot.text1.pos]
+                elif index == 1:
+                    pos = [round(i / 100, 2) for i in plot.text2.pos]
+                else:
+                    pos = (0.6, 0.7)
                 age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
                 F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
                 R0, sR0 = round(age_results[index]['initial'], 2), round(age_results[index]['sinitial'], 2)
-                pt.text(x=(xaxis_max - xaxis_min) * 0.6 + xaxis_min,
-                        y=(yaxis_max - yaxis_min) * 0.7 + yaxis_min,
+                MSWD, R2 = round(age_results[index]['MSWD'], 2), round(age_results[index]['R2'], 2)
+                Chisq, p = round(age_results[index]['Chisq'], 2), round(age_results[index]['Pvalue'], 2)
+                pt.text(x=(xaxis_max - xaxis_min) * pos[0] + xaxis_min,
+                        y=(yaxis_max - yaxis_min) * pos[1] + yaxis_min,
                         text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>F = {F} {chr(0xb1)} {sF}<r>"
-                             f"R<sub>0</sub> = {R0} {chr(0xb1)} {sR0}",
-                        clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0, z_index=150)
+                             f"R<sub>0</sub> = {R0} {chr(0xb1)} {sR0}<r>"
+                             f"{MSWD = }, R<sup>2</sup> = {R2}<r>"
+                             f"{Chisq = }, {p = }",
+                        size=10, clip=True, coordinate="scale", h_align="left", v_align="bottom",
+                        rotate=0, z_index=150)
         return cv
 
     def plot_spectra(self, smp: Sample = None, figure: str = "figure_1"):
@@ -1176,17 +1189,24 @@ class CreatePDF:
                 pt.line(start=(data[i][0], data[i][2]), end=(data[i + 1][0], data[i + 1][2]),
                         width=widths[index][1], line_style=styles[index][1], color=colors[index][1],
                         clip=True, line_caps="square", z_index=99)
+            if index == 0:
+                pos = [round(i / 100, 2) for i in plot.text1.pos]
+            elif index == 1:
+                pos = [round(i / 100, 2) for i in plot.text2.pos]
+            else:
+                pos = (0.6, 0.7)
             age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
             F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
             Num = int(age_results[index]['Num'])
             MSWD, Ar39 = round(age_results[index]['MSWD'], 2), round(age_results[index]['Ar39'], 2)
             Chisq, Pvalue = round(age_results[index]['Chisq'], 2), round(age_results[index]['Pvalue'], 2)
-            pt.text(x=(xaxis_max - xaxis_min) * 0.6 + xaxis_min,
-                    y=(yaxis_max - yaxis_min) * 0.7 + yaxis_min,
+            pt.text(x=(xaxis_max - xaxis_min) * pos[0] + xaxis_min,
+                    y=(yaxis_max - yaxis_min) * pos[1] + yaxis_min,
                     text=f"Age ={age} {chr(0xb1)} {sage} Ma<r>WMF = {F} {chr(0xb1)} {sF}, n = {Num}<r>"
                          f"MSWD = {MSWD}, <sup>39</sup>Ar = {Ar39}%<r>"
                          f"Chisq = {Chisq}, p = {Pvalue}",
-                    clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0, z_index=150)
+                    size=10, clip=True, coordinate="scale", h_align="middle", v_align="center",
+                    rotate=0, z_index=150)
 
         # split sticks
         for i in range(xaxis.split_number + 1):
@@ -1356,10 +1376,12 @@ class CreatePDF:
                     width=age[1] * 2, height=height, color=color, fill_color=fill_color, fill=True,
                     line_width=plot.set3.border_width, coordinate='scale', z_index=1)
 
+        pos = [round(i / 100, 2) for i in plot.text1.pos]
         text = plot.text1.text.replace('\n', '<r>')
-        pt.text(x=(xaxis_max - xaxis_min) * 0.6 + xaxis_min,
-                y=(yaxis_max - yaxis_min) * 0.7 + yaxis_min,
-                text=text, clip=True, coordinate="scale", h_align="middle", v_align="center", rotate=0, z_index=100)
+        pt.text(x=(xaxis_max - xaxis_min) * pos[0] + xaxis_min,
+                y=(yaxis_max - yaxis_min) * pos[1] + yaxis_min,
+                text=text, size=10, clip=True, coordinate="scale", h_align="middle", v_align="center",
+                rotate=0, z_index=100)
 
         # split sticks
         for i in range(xaxis.split_number + 1):
