@@ -1101,10 +1101,13 @@ class CreatePDF:
             if data != []:
                 if index == 0:
                     pos = [round(i / 100, 2) for i in plot.text1.pos]
+                    color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.text1.color))
                 elif index == 1:
                     pos = [round(i / 100, 2) for i in plot.text2.pos]
+                    color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.text2.color))
                 else:
                     pos = (0.6, 0.7)
+                    color = "black"
                 age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
                 F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
                 R0, sR0 = round(age_results[index]['initial'], 2), round(age_results[index]['sinitial'], 2)
@@ -1117,7 +1120,7 @@ class CreatePDF:
                              f"{MSWD = }, R<sup>2</sup> = {R2}<r>"
                              f"{Chisq = }, {p = }",
                         size=10, clip=True, coordinate="scale", h_align="left", v_align="bottom",
-                        rotate=0, z_index=150)
+                        color=color, rotate=0, z_index=150)
         return cv
 
     def plot_spectra(self, smp: Sample = None, figure: str = "figure_1"):
@@ -1191,8 +1194,10 @@ class CreatePDF:
                         clip=True, line_caps="square", z_index=99)
             if index == 0:
                 pos = [round(i / 100, 2) for i in plot.text1.pos]
+                color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.text1.color))
             elif index == 1:
                 pos = [round(i / 100, 2) for i in plot.text2.pos]
+                color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.text2.color))
             else:
                 pos = (0.6, 0.7)
             age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
@@ -1206,7 +1211,7 @@ class CreatePDF:
                          f"MSWD = {MSWD}, <sup>39</sup>Ar = {Ar39}%<r>"
                          f"Chisq = {Chisq}, p = {Pvalue}",
                     size=10, clip=True, coordinate="scale", h_align="middle", v_align="center",
-                    rotate=0, z_index=150)
+                    color=color, rotate=0, z_index=150)
 
         # split sticks
         for i in range(xaxis.split_number + 1):
@@ -1377,11 +1382,12 @@ class CreatePDF:
                     line_width=plot.set3.border_width, coordinate='scale', z_index=1)
 
         pos = [round(i / 100, 2) for i in plot.text1.pos]
+        color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.text1.color))
         text = plot.text1.text.replace('\n', '<r>')
         pt.text(x=(xaxis_max - xaxis_min) * pos[0] + xaxis_min,
                 y=(yaxis_max - yaxis_min) * pos[1] + yaxis_min,
-                text=text, size=10, clip=True, coordinate="scale", h_align="middle", v_align="center",
-                rotate=0, z_index=100)
+                text=text, size=10, clip=True, coordinate="scale", color=color,
+                h_align="middle", v_align="center", rotate=0, z_index=100)
 
         # split sticks
         for i in range(xaxis.split_number + 1):
