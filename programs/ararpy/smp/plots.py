@@ -246,8 +246,11 @@ def get_isochron_results(data: list, sample, sequence, figure_type: int = 0):
             iso_res.update(zip(['initial', 'sinitial'], york_res[2:4]))
             iso_res.update(zip(['F', 'sF'], york_res[0:2]))
     # age, analytical err, internal err, full external err
-    age = basic.calc_age([iso_res['F'], iso_res['sF']], smp=sample)
-    iso_res.update(dict(zip(age_res_index, age)))
+    try:
+        age = basic.calc_age([iso_res['F'], iso_res['sF']], smp=sample)
+        iso_res.update(dict(zip(age_res_index, age)))
+    except ValueError:
+        pass
     return iso_res
 
 
