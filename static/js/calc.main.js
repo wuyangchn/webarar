@@ -2177,7 +2177,9 @@ function setRightSideText() {
         let inv_res_set2 = sampleComponents[0].results.isochron.figure_3[1];
         let plateau_set1 = sampleComponents[0].results.age_plateau[0];
         let plateau_set2 = sampleComponents[0].results.age_plateau[1];
-        let total_age = sampleComponents[0].results.age_spectra;
+        let age_spectra_set1 = sampleComponents[0].results.age_spectra[0];
+        let age_spectra_set2 = sampleComponents[0].results.age_spectra[1];
+        let total_age = sampleComponents[0].results.age_spectra.TGA;
         let line_coeffs = sampleComponents[0].results.isochron[figure];
         let line1, line2;
         if (figure !== 'figure_1') {
@@ -2190,12 +2192,14 @@ function setRightSideText() {
         text_list = [
             `Normal Isochron`, `${nor_res_set1.age.toFixed(2)} ± ${nor_res_set1.s2.toFixed(2)}`,
             `Inverse Isochron`, `${inv_res_set1.age.toFixed(2)} ± ${inv_res_set1.s2.toFixed(2)}`,
-            `Weighted Plateau`, `${plateau_set1.age.toFixed(2)} ± ${plateau_set1.s2.toFixed(2)}`,
+            `Weighted Age`, `${age_spectra_set1.age.toFixed(2)} ± ${age_spectra_set1.s1.toFixed(2)}`,
+            `Initial Ratio Corrected`, `${plateau_set1.age.toFixed(2)} ± ${plateau_set1.s2.toFixed(2)}`,
             `Regression Line`, line1,
 
             `Normal Isochron`, `${nor_res_set2.age.toFixed(2)} ± ${nor_res_set2.s2.toFixed(2)}`,
             `Inverse Isochron`, `${inv_res_set2.age.toFixed(2)} ± ${inv_res_set2.s2.toFixed(2)}`,
-            `Weighted Plateau`, `${plateau_set2.age.toFixed(2)} ± ${plateau_set2.s2.toFixed(2)}`,
+            `Weighted Age`, `${age_spectra_set2.age.toFixed(2)} ± ${age_spectra_set2.s1.toFixed(2)}`,
+            `Initial Ratio Corrected`, `${plateau_set2.age.toFixed(2)} ± ${plateau_set2.s2.toFixed(2)}`,
             `Regression Line`, line2,
 
             `Total Age`, `${total_age.age.toFixed(2)} ± ${total_age.s2.toFixed(2)}`,
@@ -2389,7 +2393,7 @@ function initialSettingDialog(table_id=null) {
         }
         if (!$('#texts-setting-in-dialog').is(':hidden')) {
             series_name = $("#text-element-name").html();
-            let set = getSetById(table_id===null?getCurrentTableId():table_id, series_name)
+            let set = getSetById(table_id===null?getCurrentTableId():table_id, series_name);
             $("#texts-setting-in-dialog select[name='textWeight']").val(set.font_weight);
             $("#texts-setting-in-dialog :input[name='textSize']").val(set.font_size);
             $("#texts-setting-in-dialog :input[name='textFamily']").val(set.font_family);
@@ -2947,15 +2951,14 @@ function getIsochronEchart(chart, figure_id, animation) {
                     fontSize: figure.text1.font_size, fontFamily: figure.text1.font_family,
                     fontWeight: figure.text1.font_weight, rich: rich_format,
                     // formatter: figure.text1.text,
-                    formatter: `
-                    t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma
-                    ${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = `+
-                    `${res[0]['initial'].toFixed(2)} ± ${res[0]['sinitial'].toFixed(2)}
-                    MSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}
-                    χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}
-                    avg error = ${res[0]['rs'].toFixed(4)}%`
+                    formatter: (params) => {
+                        if (figure.text1.text === "") {
+                            figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[0]['initial'].toFixed(2)} ± ${res[0]['sinitial'].toFixed(2)}\nMSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}\navg error = ${res[0]['rs'].toFixed(4)}%`;
+                        }
+                        return figure.text1.text
                     },
                 },
+            },
             {
                 id: 'Text for Set 2', name: 'Text for Set 2', yAxisIndex: 2, xAxisIndex: 2,
                 type: 'scatter', symbol: 'circle',
@@ -2966,15 +2969,14 @@ function getIsochronEchart(chart, figure_id, animation) {
                     position: 'inside', color: figure.text2.color,
                     fontSize: figure.text2.font_size, fontFamily: figure.text2.font_family,
                     fontWeight: figure.text2.font_weight, rich: rich_format,
-                    formatter: `
-                    t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma
-                    ${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = `+
-                    `${res[1]['initial'].toFixed(2)} ± ${res[1]['sinitial'].toFixed(2)}
-                    MSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}
-                    χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}
-                    avg error = ${res[1]['rs'].toFixed(4)}%`
+                    formatter: (params) => {
+                        if (figure.text2.text === "") {
+                            figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${res[1]['sinitial'].toFixed(2)}\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
+                        }
+                        return figure.text2.text
                     },
                 },
+            },
         ],
         animation: animation,
         animationDuration: 500
@@ -3287,13 +3289,14 @@ function getSpectraEchart(chart, figure_id, animation) {
                     fontSize: figure.text1.font_size, fontFamily: figure.text1.font_family,
                     fontWeight: figure.text1.font_weight, rich: rich_format,
                     // formatter: figure.text1.text,
-                    formatter: `
-                        t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma
-                        WMF = ${res[0]['F'].toFixed(2)} ± ${res[0]['sF'].toFixed(2)}, n = ${res[0]['Num']}
-                        MSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%
-                        χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`
+                    formatter: (params) => {
+                        if (figure.text1.text === "") {
+                            figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma\nWMF = ${res[0]['F'].toFixed(2)} ± ${res[0]['sF'].toFixed(2)}, n = ${res[0]['Num']}\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                        }
+                        return figure.text1.text
                     },
                 },
+            },
             {
                 id: 'Text for Set 2', name: 'Text for Set 2', yAxisIndex: 2, xAxisIndex: 2,
                 type: 'scatter', symbol: 'circle', z: 5,
@@ -3304,19 +3307,18 @@ function getSpectraEchart(chart, figure_id, animation) {
                     fontSize: figure.text2.font_size, fontFamily: figure.text2.font_family,
                     fontWeight: figure.text2.font_weight, rich: rich_format,
                     // formatter: figure.text2.text,
-                    formatter: `
-                        t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma
-                        WMF = ${res[1]['F'].toFixed(2)} ± ${res[1]['sF'].toFixed(2)}, n = ${res[1]['Num']}
-                        MSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%
-                        χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
-                        // avg error = ${res[1]['rs'].toFixed(4)}%
-                        // ${res[1]['initial'].toFixed(2)} ± ${res[1]['sinitial'].toFixed(2)}
+                    formatter: (params) => {
+                        if (figure.text2.text === "") {
+                            figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma\nWMF = ${res[1]['F'].toFixed(2)} ± ${res[1]['sF'].toFixed(2)}, n = ${res[1]['Num']}\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
+                        }
+                        return figure.text2.text
                     },
                 },
+            },
         ],
         animation: animation,
         animationDuration: 500
-    };
+    }
     chart.setOption(option);
     return chart;
 }

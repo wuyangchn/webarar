@@ -31,7 +31,7 @@ plateau_res_keys = [
     'F', 'sF', 'Num', 'MSWD', 'Chisq', 'Pvalue', 'age', 's1', 's2', 's3', 'Ar39',
     'rs',  # 'rs' means relative error of the total sum
 ]
-PLATEAU_RES = dict(zip(plateau_res_keys, [np.nan] * len(plateau_res_keys)))
+PLATEAU_RES = dict(zip(plateau_res_keys, [np.nan for i in plateau_res_keys]))
 iso_res_keys = [
     'k', 'sk', 'm1', 'sm1',
     'MSWD', 'abs_conv', 'iter', 'mag', 'R2', 'Chisq', 'Pvalue',
@@ -40,7 +40,14 @@ iso_res_keys = [
     'conv', 'initial', 'sinitial', 'F', 'sF',
 ]
 ISO_RES = dict(zip(
-    iso_res_keys, [np.nan] * len(iso_res_keys))
+    iso_res_keys, [np.nan for i in iso_res_keys])
+)
+spectra_res_keys = [
+    'F', 'sF', 'Num', 'MSWD', 'Chisq', 'Pvalue', 'age', 's1', 's2', 's3', 'Ar39',
+    'rs',  # 'rs' means relative error of the total sum
+]
+SPECTRA_RES = dict(zip(
+    spectra_res_keys, [np.nan for i in iso_res_keys])
 )
 
 
@@ -152,7 +159,10 @@ def initial(smp: Sample):
             },
             age_plateau={
                 0: copy.deepcopy(PLATEAU_RES), 1: copy.deepcopy(PLATEAU_RES), 2: copy.deepcopy(PLATEAU_RES)},
-            age_spectra={},
+            age_spectra={
+                'TGA': copy.deepcopy(SPECTRA_RES),
+                0: copy.deepcopy(SPECTRA_RES), 1: copy.deepcopy(SPECTRA_RES), 2: copy.deepcopy(SPECTRA_RES),
+            },
         ),
         reference=ArArBasic(
             name='REFERENCE', journal='JOURNAL', doi='DOI'

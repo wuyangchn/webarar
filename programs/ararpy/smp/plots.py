@@ -125,7 +125,7 @@ def initial_plot_data(sample: Sample):
     except (Exception, BaseException):
         print(traceback.format_exc())
         total_age = [np.nan] * 4
-    sample.Info.results.age_spectra.update(dict(zip(['age', 's1', 's2', 's3'], total_age)))
+    sample.Info.results.age_spectra['TGA'].update(dict(zip(['age', 's1', 's2', 's3'], total_age)))
     try:
         sample.AgeSpectraPlot.data = calc.spectra.get_data(
             *sample.ApparentAgeValues[2:4], sample.ApparentAgeValues[7])
@@ -329,6 +329,7 @@ def reset_isochron_line_data(smp: Sample):
                 coeffs = [smp.Info.results.isochron[k][index]['k'], smp.Info.results.isochron[k][index]['m1']]
                 line_point = calc.isochron.get_line_points(xscale, yscale, coeffs)
                 setattr(getattr(v, ['line1', 'line2'][index]), 'data', line_point)
+                setattr(getattr(v, ['text1', 'text2'][index]), 'text', "")  # 注意和js的配合，js那边根据text是否为空判断是否重新生成文字
             except Exception:
                 # print(traceback.format_exc())
                 continue
@@ -409,18 +410,38 @@ def recalc_plateaus(sample: Sample, **kwargs):
         set1_res, set1_age, set1_data = \
             get_plateau_results(sample, sample.SelectedSequence1, calc_ar40ar39(*ratio_set1, smp=sample))
     except ValueError:
-        raise ValueError(f"Set 1 Plateau results calculation error.")
+        pass
+        # raise ValueError(f"Set 1 Plateau results calculation error.")
     else:
         sample.Info.results.age_plateau.update({0: set1_res})
         sample.AgeSpectraPlot.set1.data = calc.arr.transpose(set1_data)
+        sample.AgeSpectraPlot.text1.text = ""  # 注意和js的配合，js那边根据text是否为空判断是否重新生成文字
     try:
         set2_res, set2_age, set2_data = \
             get_plateau_results(sample, sample.SelectedSequence2, calc_ar40ar39(*ratio_set2, smp=sample))
     except ValueError:
-        raise ValueError(f"Set 2 Plateau results calculation error.")
+        pass
+        # raise ValueError(f"Set 2 Plateau results calculation error.")
     else:
         sample.Info.results.age_plateau.update({1: set2_res})
         sample.AgeSpectraPlot.set2.data = calc.arr.transpose(set2_data)
+        sample.AgeSpectraPlot.text2.text = ""  # 注意和js的配合，js那边根据text是否为空判断是否重新生成文字
+
+    # Get weighted mean ages of two sets
+    try:
+        set1_res = get_wma_results(sample, sample.SelectedSequence1)
+    except ValueError:
+        pass
+        # raise ValueError(f"Set 1 WMA calculation error.")
+    else:
+        sample.Info.results.age_spectra.update({0: set1_res})
+    try:
+        set2_res = get_wma_results(sample, sample.SelectedSequence2)
+    except ValueError:
+        pass
+        # raise ValueError(f"Set 2 WMA calculation error.")
+    else:
+        sample.Info.results.age_spectra.update({1: set2_res})
 
     # # """3D corrected plateaus"""
     # # 3D ratio, 36Ar(a+cl)/40Ar(a+r), 38Ar(a+cl)/40Ar(a+r), 39Ar(k)/40Ar(a+r),
@@ -553,7 +574,7 @@ def get_plateau_results(sample: Sample, sequence: list, ar40rar39k: list = None,
         'F', 'sF', 'Num', 'MSWD', 'Chisq', 'Pvalue', 'age', 's1', 's2', 's3', 'Ar39',
         'rs',  # 'rs' means relative error of the total sum
     ]
-    plateau_res = dict(zip(plateau_res_keys, [np.nan] * len(plateau_res_keys)))
+    plateau_res = dict(zip(plateau_res_keys, [np.nan for i in plateau_res_keys]))
 
     def _get_partial(points, *args):
         return [arg[min(points): max(points) + 1] for arg in args]
@@ -577,6 +598,44 @@ def get_plateau_results(sample: Sample, sequence: list, ar40rar39k: list = None,
         plateau_res_keys, [*wmf, *wmage, sum_ar39k, np.nan]
     )))
     return plateau_res, age, plot_data
+
+
+def get_wma_results(sample: Sample, sequence: list, ages: list = None, sages: list = None):
+    """
+    Get initial ratio re-corrected plateau results
+    Parameters
+    ----------
+    sample : sample instance
+    sequence : data slice index
+    ages :
+    sages :
+
+    Returns
+    -------
+    three itmes tuple, result dict, age, and plot data, results keys = [
+        'F', 'sF', 'Num', 'MSWD', 'Chisq', 'Pvalue',
+        'age', 's1', 's2', 's3', 'Ar39', 'rs'
+    ]
+    """
+    spectra_res = initial.SPECTRA_RES
+
+    def _get_partial(points, *args):
+        return [arg[min(points): max(points) + 1] for arg in args]
+
+    if len(sequence) > 0:
+        if ages is None:
+            ages = sample.ApparentAgeValues[2]
+        if sages is None:
+            sages = sample.ApparentAgeValues[3]
+
+        ages = _get_partial(sequence, ages)[0]
+        sages = _get_partial(sequence, sages)[0]
+        wma, swma, num, mswd, chisq, p = calc.arr.wtd_mean(ages, sages)
+
+        spectra_res.update({
+            'age': wma, 's1': swma, 'Num': num, 'MSWD': mswd, 'Chisq': chisq, 'Pvalue': p
+        })
+    return spectra_res
 
 
 # =======================

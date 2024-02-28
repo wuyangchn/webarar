@@ -146,7 +146,7 @@
         <div id="figure_3D_container" class="col-xs-8 col-md-7" style="position: relative;float: left; left: 5%; height: 100%;overflow: hidden;display: inline-block;" hidden></div>
         <div id="figure_right_container" class="col-xs-1 col-md-2" style="float: right; border: #ddd 1px solid;height: 720px; margin-top: 40px; margin-right: 20px">
             <div class="text-left" style="height: 100%">
-                <div class="radio-div-red" style="height: 40%;">
+                <div class="radio-div-red" style="height: 46%;">
                     <label class="radio-inline" style="display:inline-block; vertical-align:top; line-height:22px">
                         <input type="radio" name="inlineRadioOptions" id="isochronSetRadio1" value="Set 1" checked="checked"><p><span></span></p><span style="font-weight: bolder; font-size: 1.5em"> Set 1</span>
                     </label>
@@ -155,14 +155,16 @@
                         <h4 class="right-info">...</h4>
                         <h4 class="right-info">Inverse Isochron</h4>
                         <h4 class="right-info">...</h4>
-                        <h4 class="right-info">Weighted Plateau</h4>
+                        <h4 class="right-info">Weighted Age</h4>
+                        <h4 class="right-info">...</h4>
+                        <h4 class="right-info">Initial Ratio Corrected</h4>
                         <h4 class="right-info">...</h4>
                         <h4 class="right-info">York Regress Line</h4>
-                        <h4 class="right-info" id="line_quation_1">...</h4>
+                        <h4 class="right-info" id="line_equation_1">...</h4>
                     </div>
                 </div>
 
-                <div class="radio-div-blue" style="height: 40%;">
+                <div class="radio-div-blue" style="height: 46%;">
                     <label class="radio-inline" style="display:inline-block; vertical-align:top; line-height:22px">
                         <input type="radio" name="inlineRadioOptions" id="isochronSetRadio2" value="Set 2"><p><span></span></p><span style="font-weight: bolder; font-size: 1.5em"> Set 2</span>
                     </label>
@@ -171,10 +173,12 @@
                         <h4 class="right-info">...</h4>
                         <h4 class="right-info">Inverse Isochron</h4>
                         <h4 class="right-info">...</h4>
-                        <h4 class="right-info">Weighted Plateau</h4>
+                        <h4 class="right-info">Weighted Age</h4>
+                        <h4 class="right-info">...</h4>
+                        <h4 class="right-info">Initial Ratio Corrected</h4>
                         <h4 class="right-info">...</h4>
                         <h4 class="right-info">York Regress Line</h4>
-                        <h4 class="right-info" id="line_quation_2">...</h4>
+                        <h4 class="right-info" id="line_equation_2">...</h4>
                     </div>
                 </div>
                 <h4 class="right-info">Total Age</h4>
@@ -210,7 +214,7 @@
                     <label class="checkbox">Show Data Labels:
                         <input type="checkbox" style="width: 70px;" name="showLabel" checked></label>
                 </div>
-                <div id="scatters-setting-in-dialog" class="setting-dialog"  style="height: 500px" hidden>
+                <div id="scatters-setting-in-dialog" class="setting-dialog" style="height: 500px" hidden>
                     <h4 id="scatter-series-name">Series Name</h4><label style="color:gray;"><small>(series name)</small></label><br>
                     <label>Size <input type="number" name="symbolSize" min="1"></label><br>
                     <label>Color <input type="color" name="fillingColor"></label>
@@ -222,7 +226,7 @@
                     <label class="checkbox">Show Error Ellipse:
                         <input type="checkbox" style="width: 70px;" name="showEllipse" checked></label>
                 </div>
-                <div id="lines-setting-in-dialog" class="setting-dialog"  style="height: 50px" hidden>
+                <div id="lines-setting-in-dialog" class="setting-dialog"  style="height: 500px" hidden>
                     <h4 id="line-series-name">Series Name</h4><label style="color:gray;"><small>(series name)</small></label><br>
                     <label>Width <input type="number" name="lineWidth" min="1"></label>
                     <label>Color <input type="color" name="lineColor"></label>
@@ -232,7 +236,7 @@
                         <option value="dotted">dotted</option>
                     </select></label>
                 </div>
-                <div id="texts-setting-in-dialog" class="setting-dialog"  style="height: 50px" hidden>
+                <div id="texts-setting-in-dialog" class="setting-dialog"  style="height: 500px" hidden>
                     <h4 id="text-element-name">Series Name</h4><label style="color:gray;"><small>(series name)</small></label><br>
                     <label>Bold <select name="textWeight">
                         <option value="bold">bold</option>
@@ -245,7 +249,7 @@
                     <label>Color <input type="color" name="textColor"></label>
                     <label>Content <textarea name="textContent" rows="6"></textarea></label>
                 </div>
-                <div id="custom-setting-in-dialog" class="setting-dialog"  style="height: 50px" hidden>
+                <div id="custom-setting-in-dialog" class="setting-dialog"  style="height: 500px" hidden>
                     <h4 id="custom-series-name">Series Name</h4><label style="color:gray;"><small>(series name)</small></label><br>
 {#                    <label>Width <input type="number" name="errLineWidth" min="1"></label>#}
                     <label>Color <input type="color" name="errLineColor"></label>
@@ -780,7 +784,7 @@
         chart_3D.resize();
     };
     // 鼠标响应事件
-    chart.on('click', function (params) {
+    let chart_on_clicked = function (params) {
         {#let dialog = document.getElementById('figurePropertiesDialog');#}
         {#let figure_9_dialog = document.getElementById('ageDistributionPropertiesDialog');#}
         let has_dialog_opened = false;
@@ -802,7 +806,8 @@
                 clickPoints(params)
             } else {}
         }
-    });
+    }
+    chart.on('click', chart_on_clicked);
     chart.on('mouseover', 'series.line', function (params) {
         if (['figure_1'].includes(getCurrentTableId())) {
             //pass
@@ -828,9 +833,11 @@
         tooltipText = '';
     });
     chart.on('mousedown', {seriesId: 'Text for Set 1'}, function (params) {
+        chart_on_clicked(params);
         text_set1_ondragging = true;
     });
     chart.on('mousedown', {seriesId: 'Text for Set 2'}, function (params) {
+        chart_on_clicked(params);
         text_set2_ondragging = true;
     });
     chart.getZr().on('mousemove', function (params) {
