@@ -48,8 +48,8 @@ def set_plot_style(smp: Sample):
     reset_plot_scale(smp)
     # Reset isochron data
     plots.reset_isochron_line_data(smp)
-    # Auto position of text
-    reset_text_position(smp)
+    # Auto position and contents of texts
+    reset_text(smp)
     # Set title, which are deleted in initializing
     suffix = f"{smp.Info.sample.name} {smp.Info.sample.material}"
     for figure_id, figure in basic.get_components(smp).items():
@@ -141,7 +141,7 @@ def reset_plot_scale(smp: Sample, only_figure: str = None):
             return xscale, yscale
 
 
-def reset_text_position(smp: Sample, only_figure: str = None):
+def reset_text(smp: Sample, only_figure: str = None):
     """
     Reset text position to default, if only figure is defined, only this figure will be reset.
     Parameters
@@ -160,9 +160,11 @@ def reset_text_position(smp: Sample, only_figure: str = None):
         text_1 = basic.get_plot_set(figure, 'Text for Set 1')
         if text_1 is not None:
             setattr(text_1, 'pos', [20, 40])
+            setattr(text_1, 'text', "")
         text_2 = basic.get_plot_set(figure, 'Text for Set 2')
         if text_2 is not None:
             setattr(text_2, 'pos', [70, 40])
+            setattr(text_2, 'text', "")
 
 
 # =======================

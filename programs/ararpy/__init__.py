@@ -94,6 +94,9 @@ Sample.set_params = smp.basic.set_params
 
 Sample.set_info = lambda _smp, info: setattr(_smp, 'Info', smp.basic.update_plot_from_dict(_smp.Info, info))
 
+# getter
+Sample.get_comp = lambda _smp, _name: smp.basic.get_component_byid(_smp, comp_id=_name)
+
 Sample.recalculate = lambda _smp, *args, **kwargs: smp.calculation.recalculate(_smp, *args, **kwargs)
 Sample.plot_init = lambda _smp: smp.calculation.recalculate(
     _smp, re_plot=True, isIsochron=False, isInit=True, isPlateau=False)

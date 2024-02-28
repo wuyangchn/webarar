@@ -7,6 +7,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * open seq files as raw data
 
+# v0.0.35 2024-02-28
+* Fix issues in editing texts in figures
+* Add weighted mean ages and initial air corrected ages to the right side information
+
 # v0.0.34 2024-02-27
 * Add supports to open Seq files as raw data
 
