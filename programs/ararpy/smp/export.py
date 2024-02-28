@@ -1111,7 +1111,7 @@ class CreatePDF:
                 age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
                 F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
                 R0, sR0 = round(age_results[index]['initial'], 2), round(age_results[index]['sinitial'], 2)
-                MSWD, R2 = round(age_results[index]['MSWD'], 2), round(age_results[index]['R2'], 2)
+                MSWD, R2 = round(age_results[index]['MSWD'], 2), round(age_results[index]['R2'], 4)
                 Chisq, p = round(age_results[index]['Chisq'], 2), round(age_results[index]['Pvalue'], 2)
                 pt.text(x=(xaxis_max - xaxis_min) * pos[0] + xaxis_min,
                         y=(yaxis_max - yaxis_min) * pos[1] + yaxis_min,
@@ -1200,6 +1200,7 @@ class CreatePDF:
                 color = self.color_rgb_normalized(self.color_hex_to_rgb(plot.text2.color))
             else:
                 pos = (0.6, 0.7)
+                color = "black"
             age, sage = round(age_results[index]['age'], 2), round(age_results[index]['s2'], 2)
             F, sF = round(age_results[index]['F'], 2), round(age_results[index]['sF'], 2)
             Num = int(age_results[index]['Num'])
