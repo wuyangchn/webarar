@@ -204,7 +204,7 @@ input.input-filter-params {
 }
 
 .doc-content {
-    width: 300px;
+    width: 350px;
     height: 700px;
     background-color: #f4f4f4;
     padding: 20px;
@@ -213,4 +213,16 @@ input.input-filter-params {
     left: 0;
     bottom: 0;
     overflow-y: auto;
+}
+
+.right-content {
+    width: 350px;
+    height: 50px;
+    background-color: #ffffff;
+    padding: 20px;
+    position: fixed;
+    top: 750px;
+    right: 0;
+    bottom: 0;
+    overflow-y: -moz-scrollbars-none;
 }
