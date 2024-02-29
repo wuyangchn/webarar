@@ -171,7 +171,7 @@ def open_raw_xls(file_path, input_filter: List[Union[str, int]]):
     sample_info = get_sample_info(contents, input_filter)
     step_list = get_raw_data(contents, input_filter, file_name=file_name)
 
-    return step_list, sample_info
+    return {'data': step_list}
 
 
 def open_raw_seq(file_path, input_filter=None):

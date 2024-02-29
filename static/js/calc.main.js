@@ -629,6 +629,15 @@ function editParams(flag) {
             // initialize input
             $('#modal-submit').find($('input:not(:empty)')).val('');
             $('#modal-save').find($('input:not(:empty)')).val('');
+            if (flag.flag === 'create') {
+                alert('Params set created!')
+            }
+            if (flag.flag === 'delete') {
+                alert('Params set deleted!')
+            }
+            if (flag.flag === 'update') {
+                alert('Params set updated!')
+            }
         },
         error: function(res) {
             alert(res.responseJSON.error);
