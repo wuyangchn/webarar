@@ -8,6 +8,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * open seq files as raw data
 
 # v0.0.35 2024-02-28
+* Add OLST as isochron regression methods
+
+# v0.0.35 2024-02-28
 * Fix issues in editing texts in figures
 * Add weighted mean ages and initial air corrected ages to the right side information
 

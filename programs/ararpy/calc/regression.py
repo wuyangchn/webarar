@@ -18,7 +18,11 @@ import pandas as pd
 from scipy.stats import distributions
 from scipy.optimize import fsolve
 import warnings
+from scipy.optimize import minimize
 warnings.simplefilter(action="ignore", category=RuntimeWarning)
+
+
+""" regression functions for isochrons """
 
 
 def york2(x: list, sx: list, y: list, sy: list, ri: list, f: int = 1,
@@ -400,6 +404,62 @@ def wtd_3D_regression_df(data: pd.DataFrame, f: int = 1, convergence: float = 0.
     ]
     res = pd.DataFrame([list(res_list)], columns=columns)
     return res
+
+
+def max_likelihood(x: list, sx: list, y: list, sy: list, ri: list):
+    """
+    Parameters
+    ----------
+    x
+    sx
+    y
+    sy
+    ri
+
+    Returns
+    -------
+
+    """
+
+    # 定义线性模型
+    def linear_model(params, _x):
+        return params[0] * _x + params[1]
+
+    # 定义负对数似然函数
+    def negative_log_likelihood(params, _x, _y):
+        predicted_y = linear_model(params, _x)
+        # 使用高斯误差进行似然计算
+        errors = predicted_y - _y
+        likelihood = np.sum(-0.5 * np.log(2 * np.pi) - 0.5 * errors ** 2)
+        return -likelihood
+
+    initial = linest(y, x)[5]
+    res = minimize(negative_log_likelihood, initial, args=(np.array(x), np.array(y)))
+    slope, intercept = res.x
+    return intercept, 0, slope, 0, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+
+
+def olst(x: list, sx: list, y: list, sy: list, ri: list):
+    """
+    Parameters
+    ----------
+    x
+    sx
+    y
+    sy
+    ri
+
+    Returns
+    -------
+
+    """
+
+    res = linest(y, x)
+    # b, sb, m, sm, mswd, m - last m, Di, k, r2,
+    return *res[:2], res[5][1], res[6][1], np.nan, np.nan, np.nan, np.nan, res[3], np.nan, np.nan, np.nan
+
+
+""" regression functions for raw data """
 
 
 def linest(a0: list, a1: list, *args):

@@ -190,20 +190,20 @@ def recalc_isochrons(sample: Sample, **kwargs):
                 sample.IsochronValues, rows=sequence, cols=list(range(*val['data_index'])))
             if key != 'figure_7':
                 iso_res = get_isochron_results(
-                    set_data, figure_type=val["figure_type"], sample=sample, sequence=sequence)
+                    set_data, figure_type=val["figure_type"], smp=sample, sequence=sequence)
                 sample.Info.results.isochron[figure.id].update({index: iso_res})
             else:
                 iso_res = get_3D_results(data=set_data, sequence=sequence, sample=sample)
                 sample.Info.results.isochron[figure.id].update({index: iso_res})
 
 
-def get_isochron_results(data: list, sample, sequence, figure_type: int = 0):
+def get_isochron_results(data: list, smp: Sample, sequence, figure_type: int = 0):
     """
     Get isochron figure results based on figure type.
     Parameters
     ----------
     data : isochron figure data, 5 columns list
-    sample : sample instance
+    smp : sample instance
     sequence : data section index
     figure_type : int, 0 for normal isochron, 1 for inverse isochron, 2 for K-Cl-Ar plot 3
 
@@ -227,27 +227,29 @@ def get_isochron_results(data: list, sample, sequence, figure_type: int = 0):
 
     if len(sequence) < 3:
         return iso_res
-
+    regression_method = {
+        "york-2": calc.regression.york2, "olst": calc.regression.olst
+    }.get(smp.TotalParam[97][min(sequence)].lower(), calc.regression.york2)
     try:
-        york_res = calc.regression.york2(*data[0:5])
+        regression_res = regression_method(*data[:5])
     except (Exception, BaseException):
         print(f"Warning: {traceback.format_exc()}")
         return iso_res
     else:
-        iso_res.update(dict(zip(reg_res_index, calc.regression.york2(*data[0:5]))))
+        iso_res.update(dict(zip(reg_res_index, regression_res)))
         if figure_type == 1:
-            iso_res.update(zip(['initial', 'sinitial'], york_res[0:2]))
-            iso_res.update(zip(['F', 'sF'], york_res[2:4]))
+            iso_res.update(zip(['initial', 'sinitial'], regression_res[0:2]))
+            iso_res.update(zip(['F', 'sF'], regression_res[2:4]))
         elif figure_type == 2:
-            iso_res.update(zip(['initial', 'sinitial'], calc.arr.rec(york_res[0:2])))
-            k = calc.regression.york2(*data[2:4], *data[0:2], data[4])
+            iso_res.update(zip(['initial', 'sinitial'], calc.arr.rec(regression_res[0:2])))
+            k = regression_method(*data[2:4], *data[0:2], data[4])
             iso_res.update(zip(['F', 'sF'], calc.arr.rec(k[0:2])))
         elif figure_type == 3:
-            iso_res.update(zip(['initial', 'sinitial'], york_res[2:4]))
-            iso_res.update(zip(['F', 'sF'], york_res[0:2]))
+            iso_res.update(zip(['initial', 'sinitial'], regression_res[2:4]))
+            iso_res.update(zip(['F', 'sF'], regression_res[0:2]))
     # age, analytical err, internal err, full external err
     try:
-        age = basic.calc_age([iso_res['F'], iso_res['sF']], smp=sample)
+        age = basic.calc_age([iso_res['F'], iso_res['sF']], smp=smp)
         iso_res.update(dict(zip(age_res_index, age)))
     except ValueError:
         pass
