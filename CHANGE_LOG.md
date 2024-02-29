@@ -5,7 +5,7 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 ## to do
 
 * Error type selection
-* open seq files as raw data
+* Add York-2004 method comparing to IsoplotR
 
 # v0.0.35 2024-02-28
 * Add OLST as isochron regression methods
