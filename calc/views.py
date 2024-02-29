@@ -62,7 +62,7 @@ class CalcHtmlView(http_funcs.ArArView):
                 ap.files.basic.upload(request.FILES.get('full_xls_file'), settings.UPLOAD_ROOT)
             file_name = file_name if '.full' not in file_name else file_name.split('.full')[0]
             sample = ap.from_full(file_path=web_file_path, sample_name=file_name)
-            # sample = file_funcs.open_full_xls(web_file_path, sample_name=file_name)
+            ap.smp.table.update_table_data(sample)
         except (Exception, BaseException) as e:
             return render(request, 'calc.html', {
                 'title': 'alert', 'type': 'Error', 'message': 'Fail to open the xls file\n' + str(e)

@@ -230,7 +230,7 @@ def get_irradiation_datetime_by_string(datetime_str: str):
 
     """
     res = []
-    if datetime_str == '' or datetime_str is None:
+    if datetime_str == '' or datetime_str is None or np.isnan(datetime_str):
         return ['', 0]
     cycles = datetime_str.split('S')
     for cycle in cycles:
