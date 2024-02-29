@@ -409,7 +409,18 @@ age 文件
 
 ![alt text](gif.06.gif)
 
+### 示例 6：导出到EXCEL
 
-### 示例 5：导出到EXCEL
+![alt text](gif.07.gif)
 
+### 示例 7：修改等时线样式
 
+![alt text](gif.08.gif)
+
+### 示例 7：修改图中文字
+
+![alt text](gif.09.gif)
+
+### 示例 8：修改坐标范围
+
+![alt text](gif.10.gif)
