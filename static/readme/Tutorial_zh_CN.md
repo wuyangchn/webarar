@@ -369,8 +369,6 @@ age 文件
     18.49410	0.547799				0.351599
     18.04896	0.498315				0.314126
 
-*New* -> *Age Spectra* -> *粘贴或键入数据* -> *Save Changes* -> *Recalculate* -> *选择 Reset Plot Data 和 Reset Figure Style* -> *Apply*
-
 ![alt text](gif.01.gif)
 
 #### 示例 2-2：绘制等时线
