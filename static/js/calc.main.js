@@ -1781,7 +1781,7 @@ function clickPoints(params) {
     }
 
     sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
-        item[2] = sampleComponents[current_figure].set1.data.includes(index) ? '1' : sampleComponents[current_figure].set2.data.includes(index) ? '2' : ''
+        item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
         return item
     });
 
@@ -2667,6 +2667,9 @@ function changeDegasPlot() {
 }
 function getIsochronData(arr, index, mark=5) {
     let data = transpose(arr);
+    console.log(arr);
+    console.log(index);
+    console.log(mark);
     return index.map(i => data[arr[mark].indexOf(i+1)])
     // i + 1, because sample.Sequence starts from 0, while label in isochron data[5] starts from 1
 }
