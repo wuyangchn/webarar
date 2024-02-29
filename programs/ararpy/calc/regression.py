@@ -509,7 +509,7 @@ def linest(a0: list, a1: list, *args):
         args = [[1] * len(args[0]), *args]
         return [sum([beta[i] * args[i][j] for i in range(len(beta))]) for j in range(len(args[0]))]
 
-    return beta[0], se_beta[0], rse_beta[0] * 100, r2, 'mswd', beta, se_beta, get_adjusted_y, m_ssresid
+    return beta[0], se_beta[0], rse_beta[0] * 100, r2, m_ssresid, beta, se_beta, get_adjusted_y, m_ssresid
 
 
 def average(a0: list, a1=None):
