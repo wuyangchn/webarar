@@ -213,14 +213,15 @@ def partial(a: list, rows=None, cols=None):
     except ValueError:
         # ValueError, the requested array has an inhomogeneous shape
         return partial(homo(a), rows=rows, cols=cols)
+    default_col = [np.nan for i in range(n)]
     if rows is None:
         rows = list(range(n))
     if cols is None:
         cols = list(range(m))
     if isinstance(cols, list):
-        res = [a[i] for i in cols]
+        res = [a[i] if i != -1 else default_col for i in cols]
     elif isinstance(cols, int):
-        res = a[cols]
+        res = a[cols] if cols != -1 else default_col
     if isinstance(rows, list):
         if isinstance(cols, list):
             res = [[i[j] for j in rows] for i in res]
