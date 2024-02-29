@@ -119,9 +119,9 @@ def update_handsontable(smp: Sample, data: list, id: str):
         data = _normalize_data(data, 42, 3)
         smp.IsochronValues = data
         smp.SelectedSequence1 = [
-            i for i in range(len(smp.IsochronMark)) if smp.IsochronMark[i] == 1]
+            i for i in range(len(smp.IsochronMark)) if str(smp.IsochronMark[i]) == "1"]
         smp.SelectedSequence2 = [
-            i for i in range(len(smp.IsochronMark)) if smp.IsochronMark[i] == 2]
+            i for i in range(len(smp.IsochronMark)) if str(smp.IsochronMark[i]) == "2"]
         smp.UnselectedSequence = [
             i for i in range(len(smp.IsochronMark)) if
             i not in smp.SelectedSequence1 + smp.SelectedSequence2]

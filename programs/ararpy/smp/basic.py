@@ -473,7 +473,7 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
         smp.TotalParam[120:123] = remove_none(smp.TotalParam[120:123], params[21:24], n, 123 - 120)
         smp.TotalParam[100:114] = remove_none(
             smp.TotalParam[100:114],
-            [['Linear', 'Exponential', 'Power'][params[24:27].index(True)], *params[27:]], n, 114 - 100)
+            [['Linear', 'Exponential', 'Power'][params[24:27].index(True)] if True in params[24:27] else '', *params[27:]], n, 114 - 100)
     else:
         raise KeyError(f"{flag = } is not supported. It must be 'calc' for Calc Params, "
                        f"'irra' for Irradiation Params, or 'smp' for Sample Params.")
