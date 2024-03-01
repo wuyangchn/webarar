@@ -31,7 +31,7 @@ function closePopupMessage(confirmation=true) {
     cancelButton.style.display = 'none';
     return confirmation;
 }
-function showPopupMessage(title, message, show_button=true, time=3000) {
+function showPopupMessage(title, message, show_button=true, time=undefined) {
     // 获取所需元素
     let popupContainer = document.getElementById('popupContainer');
     let popupTitle = document.getElementById('popupTitle');
@@ -49,7 +49,12 @@ function showPopupMessage(title, message, show_button=true, time=3000) {
         cancelButton.style.display = 'inline-block';
         continueButton.focus();
     } else {
-        popupContainer.onclick = () => {closePopupMessage(false)};
+        if (time === undefined) {
+            time = 1500;
+            popupContainer.onclick = () => {closePopupMessage(false)};
+        } else {
+            popupContainer.onclick = () => false;
+        }
         delay(time)
             .then((result) => {
                 console.log(result); // 输出异步操作的结果
@@ -173,11 +178,11 @@ function addNewBlankButtonClicked() {
         let new_sequence = newSequencesList.filter((v, _i) => v.name === name)[0]
         if (!new_sequence.is_blank) {
             let text = `Sequence with name ${name} is a ${new_sequence.type_str} sequence, but a blank sequence required.`;
-            showPopupMessage("Information",text, false, 1500);
+            showPopupMessage("Information",text, false);
             continue;
         }
         if (existing_blank_names.includes(name)) {
-            showPopupMessage("Information",`Blank with name ${name} exists.`, false, 1500);
+            showPopupMessage("Information",`Blank with name ${name} exists.`, false);
             continue;
         }
         addNametoBlankList(name);
@@ -580,13 +585,13 @@ function editParams(flag) {
             $('#modal-submit').find($('input:not(:empty)')).val('');
             $('#modal-save').find($('input:not(:empty)')).val('');
             if (flag.flag === 'create') {
-                showPopupMessage('Information', 'Params set created!', false, 1500);
+                showPopupMessage('Information', 'Params set created!', false);
             }
             if (flag.flag === 'delete') {
-                showPopupMessage('Information', 'Params set deleted!', false, 1500);
+                showPopupMessage('Information', 'Params set deleted!', false);
             }
             if (flag.flag === 'update') {
-                showPopupMessage('Information', 'Params set updated!', false, 1500);
+                showPopupMessage('Information', 'Params set updated!', false);
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -619,7 +624,7 @@ function getAverageofBlanks() {
         });
     } catch (e) {
         let text = "The blank sequences don\\'t exist. Please check if a whitespace may be in the names and use a semicolon as a delimiter.";
-        showPopupMessage('Information', text, false, 1500);
+        showPopupMessage('Information', text, false);
         return
     }
     $.ajax({
@@ -652,7 +657,7 @@ function getInterpolatedBlank() {
         });
     } catch (e) {
         let text = "The blank sequences don't exist. Please check if a whitespace may be in the names and use a semicolon as a delimiter.";
-        showPopupMessage('Information', text, false, 1500);
+        showPopupMessage('Information', text, false);
         return
     }
     let blank_data = blanksInfos.map(function (blank, index) {
@@ -727,7 +732,7 @@ function getInterpolatedBlank() {
                 charts[isotope+1].getOption().series).data
             if (interpolated_blank[isotope].length !== 0) {continue;}
             let text = `Results unavailable, please select another fitting method for Ar${['36', '37', '38', '39', '40'][isotope]}!`;
-            showPopupMessage('Information',text, false, 1500)
+            showPopupMessage('Information',text, false)
             return
         }
 
@@ -1584,7 +1589,7 @@ function exportSmp(url, download=true, merged_pdf=false) {
         beforeSend: function(){
             if (download) {
                 // showMessage();
-                showPopupMessage("Information", "Exporting, this may take a few moments, please waiting...", false, 60000)
+                showPopupMessage("Information", "Exporting, this may take a few moments, please waiting...", false, 300000)
             }
         },
         success: function (res) {
@@ -1595,7 +1600,7 @@ function exportSmp(url, download=true, merged_pdf=false) {
                 }
                 if (download) {
                     closePopupMessage();
-                    showPopupMessage("Information", "Exporting successfully. Starting download.", false, 1500)
+                    showPopupMessage("Information", "Exporting successfully. Starting download.", false)
                     // showMessage(, 1000);
                     document.getElementById("export_path_link").href = res.href;
                     document.getElementById("export_path_link").click();
@@ -1816,7 +1821,7 @@ function clickSaveTable() {
             assignDiff(sampleComponents, changed_components);
             if (getCurrentTableId() === "0"){$('#sample_name_title').text($('#inputName').val())}
             isochron_marks_changed = false;
-            showPopupMessage("Information", "Save Successfully!", false, 1500);
+            showPopupMessage("Information", "Save Successfully!", false);
             setConsoleText('Changes Saved!');
         }
     });
@@ -1870,7 +1875,7 @@ function clickRecalc() {
         beforeSend: function(){
             if (checked_options[11]) {
                 // showMessage();
-                showPopupMessage("Information", "Using Monte Carlo simulation, this may take a while, please waiting...", false, 60000);
+                showPopupMessage("Information", "Using Monte Carlo simulation, this may take a while, please waiting...", false, 300000);
             }
         },
         success: async function(response){
@@ -1881,7 +1886,7 @@ function clickRecalc() {
             // console.log(changed_components);
             showPage(getCurrentTableId());
             closePopupMessage();
-            showPopupMessage('Information', 'Recalculating Successfully!', false, 3000)
+            showPopupMessage('Information', 'Recalculating Successfully!', true)
             setConsoleText('Recalculation has been applied successfully');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -1940,7 +1945,7 @@ function readParams(type) {
                 // console.log(changed_components);
                 sampleComponents = assignDiff(sampleComponents, changed_components);
                 showPage(getCurrentTableId());
-                showPopupMessage("Information", "Changes have been saved!", false, 1500);
+                showPopupMessage("Information", "Changes have been saved!", false);
             } else {showPopupMessage("Error", res.msg, true);}
         }
     })
