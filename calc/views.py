@@ -686,7 +686,7 @@ class ParamsSettingView(http_funcs.ArArView):
             return JsonResponse({'status': 'success', 'param': np.nan_to_num(param).tolist()})
         except Exception as e:
             print(traceback.format_exc())
-            return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n' + str(e)})
+            return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n' + str(e)}, status=403)
 
     def edit_param_object(self, request, *args, **kwargs):
         ip = http_funcs.get_ip(request)

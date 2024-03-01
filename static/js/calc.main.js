@@ -74,7 +74,7 @@ function showPopupMessage(title, message, show_button=true, time=3000) {
 
 }
 function showErrorMessage(XMLHttpRequest, textStatus, errorThrown) {
-    let text = `Status: ${textStatus}<br>Message: ${XMLHttpRequest.responseJSON.msg}`;
+    let text = `Status: ${textStatus}<br>Message: ${XMLHttpRequest.responseJSON?.msg}`;
     showPopupMessage("Error", text, true);
 }
 const stringToBoolean = (stringValue) => {
