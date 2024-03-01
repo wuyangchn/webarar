@@ -3,125 +3,7 @@ const rich_format = {
     sub: {verticalAlign: "bottom",fontSize: 10, fontFamily: 'Microsoft Sans Serif', fontWeight: 'bold'},
     sup: {verticalAlign: "top", fontSize: 10, fontFamily: 'Microsoft Sans Serif', fontWeight: 'bold'},
 };
-function test() {
-    alert('test');
-}
 // Basic functions
-// https://stackoverflow.com/questions/5620516/how-to-get-text-bold-in-alert-or-confirm-box, Eyni Kave's answer
-function toUnicodeVariant(str, variant, flags='') {
-    let offsets = {
-        m: [0x1d670, 0x1d7f6],
-        b: [0x1d400, 0x1d7ce],
-        i: [0x1d434, 0x00030],
-        bi: [0x1d468, 0x00030],
-        c: [0x1d49c, 0x00030],
-        bc: [0x1d4d0, 0x00030],
-        g: [0x1d504, 0x00030],
-        d: [0x1d538, 0x1d7d8],
-        bg: [0x1d56c, 0x00030],
-        s: [0x1d5a0, 0x1d7e2],
-        bs: [0x1d5d4, 0x1d7ec],
-        is: [0x1d608, 0x00030],
-        bis: [0x1d63c, 0x00030],
-        o: [0x24B6, 0x2460],
-        p: [0x249C, 0x2474],
-        w: [0xff21, 0xff10],
-        u: [0x2090, 0xff10]
-    }
-
-    let variantOffsets = {
-        'monospace': 'm',
-        'bold': 'b',
-        'italic': 'i',
-        'bold italic': 'bi',
-        'script': 'c',
-        'bold script': 'bc',
-        'gothic': 'g',
-        'gothic bold': 'bg',
-        'doublestruck': 'd',
-        'sans': 's',
-        'bold sans': 'bs',
-        'italic sans': 'is',
-        'bold italic sans': 'bis',
-        'parenthesis': 'p',
-        'circled': 'o',
-        'fullwidth': 'w'
-    }
-
-    // special characters (absolute values)
-    let special = {
-        m: {
-            ' ': 0x2000,
-            '-': 0x2013
-        },
-        i: {
-            'h': 0x210e
-        },
-        g: {
-            'C': 0x212d,
-            'H': 0x210c,
-            'I': 0x2111,
-            'R': 0x211c,
-            'Z': 0x2128
-        },
-        o: {
-            '0': 0x24EA,
-            '1': 0x2460,
-            '2': 0x2461,
-            '3': 0x2462,
-            '4': 0x2463,
-            '5': 0x2464,
-            '6': 0x2465,
-            '7': 0x2466,
-            '8': 0x2467,
-            '9': 0x2468,
-        },
-        p: {},
-        w: {}
-    }
-    //support for parenthesized latin letters small cases
-    for (let i = 97; i <= 122; i++) {
-        special.p[String.fromCharCode(i)] = 0x249C + (i - 97)
-    }
-    //support for full width latin letters small cases
-    for (let i = 97; i <= 122; i++) {
-        special.w[String.fromCharCode(i)] = 0xff41 + (i - 97)
-    }
-
-    let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    let numbers = '0123456789';
-
-    let getType = function (variant) {
-        if (variantOffsets[variant]) return variantOffsets[variant]
-        if (offsets[variant]) return variant;
-        return 'm'; //monospace as default
-    }
-    let getFlag = function (flag, flags) {
-        if (!flags) return false
-        return flags.split(',').indexOf(flag) > -1
-    }
-
-    let type = getType(variant);
-    let underline = getFlag('underline', flags);
-    let strike = getFlag('strike', flags);
-    let result = '';
-
-    for (let k of str) {
-        let index
-        let c = k
-        if (special[type] && special[type][c]) c = String.fromCodePoint(special[type][c])
-        if (type && (index = chars.indexOf(c)) > -1) {
-            result += String.fromCodePoint(index + offsets[type][0])
-        } else if (type && (index = numbers.indexOf(c)) > -1) {
-            result += String.fromCodePoint(index + offsets[type][1])
-        } else {
-            result += c
-        }
-        if (underline) result += '\u0332' // add combining underline
-        if (strike) result += '\u0336' // add combining strike
-    }
-    return result
-}
 function myParse(myString) {
     // Note that \\" to keep an escape character before double quote characters
     if ( ! (typeof myString === 'string' || myString instanceof String)) {return myString}
@@ -136,7 +18,65 @@ function myParse(myString) {
         return value;
     });
 }
+function closePopupMessage(confirmation=true) {
+    let popupContainer = document.getElementById('popupContainer');
+    let popupMessage = document.getElementById('popupMessage');
+    let popupTitle = document.getElementById('popupTitle');
+    let continueButton = document.getElementById('popupContinueButton');
+    let cancelButton = document.getElementById('popupCancelButton');
+    popupContainer.style.display = 'none';
+    popupTitle.textContent = "";
+    popupMessage.textContent = "";
+    continueButton.style.display = 'none';
+    cancelButton.style.display = 'none';
+    return confirmation;
+}
+function showPopupMessage(title, message, show_button=true, time=3000) {
+    // 获取所需元素
+    let popupContainer = document.getElementById('popupContainer');
+    let popupTitle = document.getElementById('popupTitle');
+    let popupMessage = document.getElementById('popupMessage');
+    let continueButton = document.getElementById('popupContinueButton');
+    let cancelButton = document.getElementById('popupCancelButton');
 
+    // 显示弹窗
+    popupTitle.textContent = title;
+    popupMessage.innerHTML = message;
+    popupContainer.style.display = 'block';
+    if (show_button) {
+        popupContainer.onclick = () => false;
+        continueButton.style.display = 'inline-block';
+        cancelButton.style.display = 'inline-block';
+        continueButton.focus();
+    } else {
+        popupContainer.onclick = () => {closePopupMessage(false)};
+        delay(time)
+            .then((result) => {
+                console.log(result); // 输出异步操作的结果
+                closePopupMessage(true);
+            })
+            .catch((error) => {
+                console.error('Error:', error); // 输出错误信息
+                closePopupMessage(false);
+            });
+    }
+
+    return new Promise(function(resolve, reject) {
+        continueButton.addEventListener('click', function() {
+            closePopupMessage(true);
+            resolve(true);
+        })
+        cancelButton.addEventListener('click', function() {
+            closePopupMessage(false);
+            resolve(false);
+        })
+    });
+
+}
+function showErrorMessage(XMLHttpRequest, textStatus, errorThrown) {
+    let text = `Status: ${textStatus}<br>Message: ${XMLHttpRequest.responseJSON.msg}`;
+    showPopupMessage("Error", text, true);
+}
 const stringToBoolean = (stringValue) => {
     if (typeof stringValue === "boolean") {
         return stringValue;
@@ -149,7 +89,12 @@ const stringToBoolean = (stringValue) => {
           return false;
     }
 }
-const delay = ms => new Promise(res => setTimeout(res, ms));
+const delay = ms => new Promise((resolve, reject) => {
+    setTimeout((ms) => {
+        // 模拟异步操作成功的情况，返回结果
+        resolve(`Waited for some seconds.`);
+    }, ms); // 延迟2秒执行
+});
 
 class AjaxRequest {
     constructor(url, content, async) {
@@ -227,11 +172,12 @@ function addNewBlankButtonClicked() {
         let name = newNameList[i];
         let new_sequence = newSequencesList.filter((v, _i) => v.name === name)[0]
         if (!new_sequence.is_blank) {
-            alert(`Sequence with name ${name} is a ${new_sequence.type_str} sequence, but a blank sequence required.`)
+            let text = `Sequence with name ${name} is a ${new_sequence.type_str} sequence, but a blank sequence required.`;
+            showPopupMessage("Information",text, false, 1500);
             continue;
         }
         if (existing_blank_names.includes(name)) {
-            alert(`Blank with name ${name} exists.`)
+            showPopupMessage("Information",`Blank with name ${name} exists.`, false, 1500);
             continue;
         }
         addNametoBlankList(name);
@@ -345,9 +291,12 @@ function importBlank() {
             newSequencesList.push(...new_sequences);
             $('#outputBlankSequences').val(new_sequences.map((v, i) => v.name).join(';'));
         },
-        error: function (res) {
-            alert(myParse(res.responseText).error);
-        }
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
+        //     function (res) {
+        //     showPopupMessage("Information", myParse(res.responseText).error);
+        // }
     })
 }
 function export_sequence() {
@@ -478,12 +427,13 @@ function showParamProject(ele, param_type) {
                     });
                     initialRatioSelectChanged();
                 }
-            } else {alert(res.msg);}
+            } else {
+                showPopupMessage("Error", res.msg, true);
+            }
         },
-        error: function (res) {
-            console.log(res);
-            alert("error");
-        }
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
     })
 }
 function changeSubmitType() {
@@ -630,18 +580,18 @@ function editParams(flag) {
             $('#modal-submit').find($('input:not(:empty)')).val('');
             $('#modal-save').find($('input:not(:empty)')).val('');
             if (flag.flag === 'create') {
-                alert('Params set created!')
+                showPopupMessage('Information', 'Params set created!', false, 1500);
             }
             if (flag.flag === 'delete') {
-                alert('Params set deleted!')
+                showPopupMessage('Information', 'Params set deleted!', false, 1500);
             }
             if (flag.flag === 'update') {
-                alert('Params set updated!')
+                showPopupMessage('Information', 'Params set updated!', false, 1500);
             }
         },
-        error: function(res) {
-            alert(res.responseJSON.error);
-        }
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
     })
 }
 function fitMethodChanged() {
@@ -668,7 +618,8 @@ function getAverageofBlanks() {
             if (name !== '') {return getBlankInfo(name);}
         });
     } catch (e) {
-        alert("The blank sequences don't exist. Please check if a whitespace may be in the names and use a semicolon as a delimiter.")
+        let text = "The blank sequences don\\'t exist. Please check if a whitespace may be in the names and use a semicolon as a delimiter.";
+        showPopupMessage('Information', text, false, 1500);
         return
     }
     $.ajax({
@@ -700,7 +651,8 @@ function getInterpolatedBlank() {
             if (name !== '') {return getBlankInfo(name);}
         });
     } catch (e) {
-        alert("The blank sequences don't exist. Please check if a whitespace may be in the names and use a semicolon as a delimiter.")
+        let text = "The blank sequences don't exist. Please check if a whitespace may be in the names and use a semicolon as a delimiter.";
+        showPopupMessage('Information', text, false, 1500);
         return
     }
     let blank_data = blanksInfos.map(function (blank, index) {
@@ -774,7 +726,8 @@ function getInterpolatedBlank() {
                     'PowRegression', 'Average'][selects.eq(isotope).val()],
                 charts[isotope+1].getOption().series).data
             if (interpolated_blank[isotope].length !== 0) {continue;}
-            alert(`Results unavailable, please select another fitting method for Ar${['36', '37', '38', '39', '40'][isotope]}!`);
+            let text = `Results unavailable, please select another fitting method for Ar${['36', '37', '38', '39', '40'][isotope]}!`;
+            showPopupMessage('Information',text, false, 1500)
             return
         }
 
@@ -1436,9 +1389,9 @@ function getRegressionResults(data, method, x) {
         success: function(data, textStatus, jqXHR){
             result = data;
         },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            // alert("Status: " + textStatus); alert("Error: " + errorThrown);
-        }
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
     })
     return result;
 }
@@ -1572,7 +1525,7 @@ function dropHandler(ev) {
         send_erquest();
     } else {
         if (directory_entry.length > 1) {
-            alert("Only one directory on the top level is supported.");
+            showPopupMessage("Error", "Only one directory on the top level is supported.", true);
         }
         traverseDirectory(directory_entry[0]).then((files_promise)=> {
             // AT THIS POINT THE DIRECTORY SHOULD BE FULLY TRAVERSED.
@@ -1630,7 +1583,8 @@ function exportSmp(url, download=true, merged_pdf=false) {
         contentType: 'application/json',
         beforeSend: function(){
             if (download) {
-                showLoadingMessage("Exporting, this may take a few moments, please waiting...");
+                // showMessage();
+                showPopupMessage("Information", "Exporting, this may take a few moments, please waiting...", false, 60000)
             }
         },
         success: function (res) {
@@ -1640,12 +1594,16 @@ function exportSmp(url, download=true, merged_pdf=false) {
                     document.getElementById("download-arr").innerText = res.href.toString().split('/').slice(-1)[0];
                 }
                 if (download) {
-                    showLoadingMessage("Exporting successfully. Starting download.", 1000);
+                    closePopupMessage();
+                    showPopupMessage("Information", "Exporting successfully. Starting download.", false, 1500)
+                    // showMessage(, 1000);
                     document.getElementById("export_path_link").href = res.href;
                     document.getElementById("export_path_link").click();
                     setConsoleText('Export Successfully! ' + res.href);
                 }
-            } else {alert(res.msg)}
+            } else {
+                showPopupMessage("Error", res.msg, true)
+            }
             document.getElementById("export_path_link").href = '';
         }
     });
@@ -1718,31 +1676,6 @@ async function saveChart(isExport=true) {
         // let text = await (new Response(textBlob)).text();
         // console.log(text);
     }
-}
-function showLoadingMessage(message, time, bgcolor){
-    $('#promptModal').remove();
-    time = (time === undefined) ? 60000 : time;
-    bgcolor = (bgcolor === undefined) ? "#337ab7" : bgcolor;
-    $('<div id="promptModal">')
-        .appendTo('body')
-        .css({"display":"block",
-            "left":($(document.body).outerWidth(true)) / 3,
-            "top":($(document.body).outerHeight(true)) / 3,
-            "position": "absolute",
-            "padding": "10px",
-            "background-color": bgcolor,
-            "font-size": "24px",
-            "font-weight": "normal",
-            "text-align": "center",
-            "color": "white",
-            "z-index": 99999,
-            "border-radius": "5px"})
-        .html(message)
-        .show()
-        .delay(time)
-        .fadeOut(10,function(){
-            $('#promptModal').remove();
-        });
 }
 function initialRatioSelectChanged() {
     let inputs = $('.input-initial-ratio');
@@ -1883,7 +1816,7 @@ function clickSaveTable() {
             assignDiff(sampleComponents, changed_components);
             if (getCurrentTableId() === "0"){$('#sample_name_title').text($('#inputName').val())}
             isochron_marks_changed = false;
-            alert("Save Successfully!")
+            showPopupMessage("Information", "Save Successfully!", false, 1500);
             setConsoleText('Changes Saved!');
         }
     });
@@ -1936,7 +1869,8 @@ function clickRecalc() {
         contentType:'application/json',
         beforeSend: function(){
             if (checked_options[11]) {
-                showLoadingMessage("Using Monte Carlo simulation, this may take a while, please waiting...");
+                // showMessage();
+                showPopupMessage("Information", "Using Monte Carlo simulation, this may take a while, please waiting...", false, 60000);
             }
         },
         success: async function(response){
@@ -1946,12 +1880,13 @@ function clickRecalc() {
             sampleComponents = assignDiff(sampleComponents, results);
             // console.log(changed_components);
             showPage(getCurrentTableId());
-            alert("Recalculating Successfully!");
+            closePopupMessage();
+            showPopupMessage('Information', 'Recalculating Successfully!', false, 3000)
             setConsoleText('Recalculation has been applied successfully');
         },
-        error: function (res) {
-            alert(res.responseJSON.error)  // 403 Error
-        }
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
     });
 }
 function clickUploadPicture() {
@@ -2005,8 +1940,8 @@ function readParams(type) {
                 // console.log(changed_components);
                 sampleComponents = assignDiff(sampleComponents, changed_components);
                 showPage(getCurrentTableId());
-                alert("Changes have been saved!");
-            } else {alert(res.msg);}
+                showPopupMessage("Information", "Changes have been saved!", false, 1500);
+            } else {showPopupMessage("Error", res.msg, true);}
         }
     })
 }
@@ -2661,7 +2596,6 @@ function updateStyles(backup) {
                 chart.resize();
                 initialSettingDialog();
             }
-            // alert("Changes have been applied!");
             setConsoleText("Changes have been applied!");
         }
     });
@@ -2676,9 +2610,6 @@ function changeDegasPlot() {
 }
 function getIsochronData(arr, index, mark=5) {
     let data = transpose(arr);
-    console.log(arr);
-    console.log(index);
-    console.log(mark);
     return index.map(i => data[arr[mark].indexOf(i+1)])
     // i + 1, because sample.Sequence starts from 0, while label in isochron data[5] starts from 1
 }

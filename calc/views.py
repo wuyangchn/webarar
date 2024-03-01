@@ -50,7 +50,7 @@ class CalcHtmlView(http_funcs.ArArView):
         except (Exception, BaseException) as e:
             print(traceback.format_exc())
             return render(request, 'calc.html', {
-                'title': 'alert', 'type': 'Error', 'message': 'Fail to open the arr file\n' + str(e)
+                'title': 'alert', 'type': 'Error', 'msg': 'Fail to open the arr file\n' + str(e)
             })
         else:
             return http_funcs.open_object_file(request, sample, web_file_path)
@@ -65,7 +65,7 @@ class CalcHtmlView(http_funcs.ArArView):
             sample.recalculate(re_plot=True, re_plot_style=True, re_set_table=True, re_table_style=True)
         except (Exception, BaseException) as e:
             return render(request, 'calc.html', {
-                'title': 'alert', 'type': 'Error', 'message': 'Fail to open the xls file\n' + str(e)
+                'title': 'alert', 'type': 'Error', 'msg': 'Fail to open the xls file\n' + str(e)
             })
         else:
             return http_funcs.open_object_file(request, sample, web_file_path)
@@ -86,7 +86,7 @@ class CalcHtmlView(http_funcs.ArArView):
         except (Exception, BaseException) as e:
             print(traceback.format_exc())
             return render(request, 'calc.html', {
-                'title': 'alert', 'type': 'Error', 'message': 'Fail to open the age file\n' + str(e)
+                'title': 'alert', 'type': 'Error', 'msg': 'Fail to open the age file\n' + str(e)
             })
         else:
             return http_funcs.open_object_file(request, sample, web_file_path)
@@ -338,7 +338,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             # sample = ap.recalculate(sample, *checked_options)
         except Exception as e:
             log_funcs.log(traceback.format_exc())
-            return JsonResponse({'error': f'Error in recalculating: {e}'}, status=403)
+            return JsonResponse({'msg': f'Error in recalculating: {e}'}, status=403)
         ap.smp.table.update_table_data(sample)  # Update data of tables after re-calculation
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
@@ -433,7 +433,7 @@ class RawFileView(http_funcs.ArArView):
                 sequences = pickle.load(f)
         except pickle.UnpicklingError:
             return JsonResponse({
-                'error': "The file input cannot be unpicked. Please check the file format"},
+                'msg': "The file input cannot be unpicked. Please check the file format"},
                 encoder=ap.smp.json.MyEncoder, status=403)
 
         raw.sequence = ap.calc.arr.multi_append(raw.sequence, *sequences)
@@ -702,11 +702,11 @@ class ParamsSettingView(http_funcs.ArArView):
             if name == '' or pin == '':
                 log_funcs.set_info_log(
                     self.ip, '005', 'info', f'Fail to create {type.lower()} project, empty name or pin')
-                return JsonResponse({'error': 'empty name or pin'}, status=403)
+                return JsonResponse({'msg': 'empty name or pin'}, status=403)
             elif model.objects.filter(name=name).exists():
                 log_funcs.set_info_log(
                     self.ip, '005', 'info', f'Fail to create {type.lower()} project, duplicate name, name: {name}')
-                return JsonResponse({'error': 'duplicate name'}, status=403)
+                return JsonResponse({'msg': 'duplicate name'}, status=403)
             else:
                 path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{type}"), params)
                 model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip)
@@ -724,7 +724,7 @@ class ParamsSettingView(http_funcs.ArArView):
                     self.ip, '005', 'info',
                     f'Fail to change selected {type.lower()} project, '
                     f'it does not exist in the server, name: {name}')
-                return JsonResponse({'error': 'current project does not exist'}, status=403)
+                return JsonResponse({'msg': 'current project does not exist'}, status=403)
             if pin == old.pin:
                 if flag == 'update':
                     path = ap.files.basic.write(old.file_path, params)
@@ -745,9 +745,9 @@ class ParamsSettingView(http_funcs.ArArView):
                             self.ip, '005', 'info',
                             f'Fail to delete {type.lower()} projects, '
                             f'something wrong happened, name: {name}')
-                        return JsonResponse({'error': 'something wrong happened when delete params'}, status=403)
+                        return JsonResponse({'msg': 'something wrong happened when delete params'}, status=403)
             else:
-                return JsonResponse({'error': 'wrong pin'}, status=403)
+                return JsonResponse({'msg': 'wrong pin'}, status=403)
 
 
 class ApiView(http_funcs.ArArView):

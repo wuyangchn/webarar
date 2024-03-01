@@ -110,6 +110,14 @@
 </head>
 <body>
     <div id="__top__"></div>
+    <div id="popupContainer" class="popup-container" onclick="closePopupMessage()">
+        <div id="popupContent" class="popup-content">
+            <p id="popupTitle" class="popup-title"></p>
+            <p id="popupMessage" class="popup-message"></p>
+            <button id="popupCancelButton" class="btn btn-default popup-button" value="cancel">Cancel</button>
+            <button id="popupContinueButton" class="btn btn-primary popup-button" value="continue" autofocus>Continue</button>
+        </div>
+    </div>
     <nav class="navbar navbar-default">
         <div class="container-fluid" style="margin-left: 60px">
             <div class="navbar-header">

@@ -7,8 +7,12 @@
     $(document).ready(function(){
         // show confirmation dialog when clicking other navigators
         for (let id of ['a-nav-main', 'a-nav-calc', 'a-nav-doc', 'a-nav-ref']) {
-            document.getElementById(id).onclick = function () {
-                return confirm(toUnicodeVariant("Confirm close...\nAre you sure you want to continue?", 'bs'));
+            document.getElementById(id).onclick = async (event) => {
+                event.preventDefault();
+                await showPopupMessage("Please confirm ...", "Are you sure you want to leave this page?", true).then((res) => {
+                    if (res) {window.location.href = document.getElementById(id).getAttribute('href');}
+                });
+
             }
         }
         // show information page
@@ -752,7 +756,7 @@
     let default_row_count = 32;
     let colHeaders = [];
     let data = [];
-    // 创建 handsontable
+    // create handsontable
     let hot = new Handsontable(document.getElementById('table_container'), {
         data: data,  // 内容
         rowHeaders: rowHeaders,  // 行标题
@@ -834,19 +838,27 @@
     });
     chart.on('mousedown', {seriesId: 'Text for Set 1'}, function (params) {
         chart_on_clicked(params);
+        let pos = chart.convertToPixel({xAxisIndex: 2, yAxisIndex: 2}, getSeriesById('Text for Set 1', chart.getOption().series).data[0]);
+        let offsetX = params.event.offsetX - pos?.[0];
+        let offsetY = params.event.offsetY - pos?.[1];
+        offset = [offsetX, offsetY];
         text_set1_ondragging = true;
     });
     chart.on('mousedown', {seriesId: 'Text for Set 2'}, function (params) {
         chart_on_clicked(params);
+        let pos = chart.convertToPixel({xAxisIndex: 2, yAxisIndex: 2}, getSeriesById('Text for Set 2', chart.getOption().series).data[0]);
+        let offsetX = params.event.offsetX - pos?.[0];
+        let offsetY = params.event.offsetY - pos?.[1];
+        offset = [offsetX, offsetY];
         text_set2_ondragging = true;
     });
     chart.getZr().on('mousemove', function (params) {
         if (text_set1_ondragging) {
-            let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX, params.event.zrY]);
+            let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX - offset[0], params.event.zrY - offset[1]]);
             chart.setOption({series: [{id: 'Text for Set 1', data: [pos], animation: false}]});
         }
         if (text_set2_ondragging) {
-            let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX, params.event.zrY]);
+            let pos = chart.convertFromPixel({xAxisIndex: 2, yAxisIndex: 2}, [params.event.zrX - offset[0], params.event.zrY - offset[1]]);
             chart.setOption({series: [{id: 'Text for Set 2', data: [pos], animation: false}]});
         }
     });
