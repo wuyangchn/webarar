@@ -1875,7 +1875,7 @@ function clickRecalc() {
         beforeSend: function(){
             if (checked_options[11]) {
                 // showMessage();
-                showPopupMessage("Information", "Using Monte Carlo simulation, this may take a while, please waiting...", false, 300000);
+                showPopupMessage("Information", "Using Monte Carlo simulation, this may take a few minutes depending on the number of sequences involved, please wait...", false, 300000);
             }
         },
         success: async function(response){
