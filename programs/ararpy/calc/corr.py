@@ -379,9 +379,11 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
             _ar36cl = (_ar36res - _ar38res / R38v36a[i]) / (1 - 1 / (R36v38clp[i] * (1 - exp(-1 * L36cl[i] * stand_time_year)) * R38v36a[i]))
             _ar36a = _ar36res - _ar36cl
             _ar40r = (ar40m[i] - ar40b[i]) * P40Mdf - _ar36a * R40v36a[i] - _ar39k * R40v39k[i]
+            _ar40ar = (ar40m[i] - ar40b[i]) * P40Mdf - _ar39k * R40v39k[i]
             _f = _ar40r / _ar39k
             i += 1
-            yield _f, _ar36, _ar37, _ar38, _ar39, _ar40, _ar36a, _ar37ca, _ar39k, _ar40r, _ar36cl
+            # yield _f, _ar36, _ar37, _ar38, _ar39, _ar40, _ar36a, _ar37ca, _ar39k, _ar40r, _ar36cl
+            yield _f, _ar36a, _ar39k, _ar40ar
 
     simulation = do_simulation()
     F = []
@@ -396,18 +398,27 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
     ar39k = []
     ar40r = []
     ar36cl = []
+
+    nor_x = []
+    nor_y = []
+    inv_x = []
+    inv_y = []
     for each in simulation:
         F.append(each[0])
-        ar36.append(each[1])
-        ar37.append(each[2])
-        ar38.append(each[3])
-        ar39.append(each[4])
-        ar40.append(each[5])
-        ar36a.append(each[6])
-        ar37ca.append(each[7])
-        ar39k.append(each[8])
-        ar40r.append(each[9])
-        ar36cl.append(each[10])
+        nor_x.append(each[2] / each[1])
+        nor_y.append(each[3] / each[1])
+        inv_x.append(each[2] / each[3])
+        inv_y.append(each[1] / each[3])
+        # ar36.append(each[1])
+        # ar37.append(each[2])
+        # ar38.append(each[3])
+        # ar39.append(each[4])
+        # ar40.append(each[5])
+        # ar36a.append(each[6])
+        # ar37ca.append(each[7])
+        # ar39k.append(each[8])
+        # ar40r.append(each[9])
+        # ar36cl.append(each[10])
 
     # print("F = {0} ± {1}".format(np.mean(F), np.std(F)))
     #
@@ -443,8 +454,12 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
     #     f.writelines("\n".join([str(i) for i in ar39k]))
     # with open("ar40r.txt", 'w') as f:  # save serialized json data to a readable text
     #     f.writelines("\n".join([str(i) for i in ar40r]))
-
-    return np.mean(F), np.std(F)
+    # F, sF,
+    return np.mean(F), np.std(F), \
+           np.mean(nor_x), np.std(nor_x), np.mean(nor_y), np.std(nor_y), \
+           np.cov(nor_x, nor_y)[0][1] / (np.std(nor_x) * np.std(nor_y)), \
+           np.mean(inv_x), np.std(inv_x), np.mean(inv_y), np.std(inv_y), \
+           np.cov(inv_x, inv_y)[0][1] / (np.std(inv_x) * np.std(inv_y))
 
 
 

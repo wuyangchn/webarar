@@ -379,8 +379,15 @@ def calc_ratio(sample: Sample, monte_carlo: bool = False):
     if monte_carlo:
         res = monte_carlo_f(sample=sample)
         # where to display simulation results
-        age, sage = calc.arr.transpose(list(res))  # res is a generator for [age, sage]
+        res = calc.arr.transpose(list(res))  # res is a generator for [age, sage, ...]
+        age, sage = res[:2]
         sample.ApparentAgeValues[1] = sage
+
+        # isochron data
+        isochron_1 = res[2:7]
+        isochron_2 = res[7:12]
+        sample.IsochronValues[0:5] = isochron_1
+        sample.IsochronValues[6:11] = isochron_2
 
 
 def monte_carlo_f(sample: Sample):
@@ -456,7 +463,7 @@ def monte_carlo_f(sample: Sample):
 
         print(f"Monte Carlo Simulation For sequence {i + 1}")
 
-        F = calc.corr.Monte_Carlo_F(
+        res = calc.corr.Monte_Carlo_F(
             ar40m=ar40m[i], ar39m=ar39m[i], ar38m=ar38m[i], ar37m=ar37m[i], ar36m=ar36m[i],
             ar40b=ar40b[i], ar39b=ar39b[i], ar38b=ar38b[i], ar37b=ar37b[i], ar36b=ar36b[i],
             M40=M40[i], M39=M39[i], M38=M38[i], M37=M37[i], M36=M36[i],
@@ -470,4 +477,4 @@ def monte_carlo_f(sample: Sample):
             MDF=MDF[i], stand_time_year=stand_time_year[i]
         )
 
-        yield F
+        yield res
