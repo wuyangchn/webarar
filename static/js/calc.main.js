@@ -1589,7 +1589,7 @@ function exportSmp(url, download=true, merged_pdf=false) {
         beforeSend: function(){
             if (download) {
                 // showMessage();
-                showPopupMessage("Information", "Exporting, this may take a few moments, please waiting...", false, 300000)
+                showPopupMessage("Information", "Exporting, this may take a few moments, please wait...", false, 300000)
             }
         },
         success: function (res) {
