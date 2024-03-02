@@ -3,9 +3,9 @@
 {% block content %}
     {% load static %}
 
-    <div class="doc-content">
+    <div class="doc-left-sidebar">
         <p><a href="/doc/zh-cn">简体中文</a></p>
-        <h3 id="content">Content</h3>
+        <h2 id="content">Content</h2>
         <ol>
         <li><a href="#introduction">Introduction</a></li>
         <li><a href="#background">Background</a></li>
@@ -16,17 +16,21 @@
         <li><a href="#reference">Reference</a></li>
         </ol>
 
-        <h3><a href="/doc/tutorial">Tutorial</a></h3>
-        <h3><a href="/doc/deploy">Deployment</a></h3>
-
+        <h2><a href="/doc/tutorial">Tutorial</a></h2>
+        <h2><a href="/doc/deploy">Deployment</a></h2>
     </div>
 
-    <div class="container-fluid" style="height: 700px; width: 1000px">
-    {% include "doc_md.html" %}
-    </div>
+    <div class="doc-container">
 
-    <div class="right-content">
-        <a title="返回顶部" href="#__top__" type="button" class="btn btn-default glyphicon glyphicon-menu-up" aria-hidden="true"></a>
+        <div class="container-fluid article-container">
+            <div class="article-content-container">
+                {% include "doc_md.html" %}
+            </div>
+            <div class="article-right-sidebar">
+                <a title="返回顶部" href="#__top__" type="button" class="btn btn-default glyphicon glyphicon-menu-up" aria-hidden="true"></a>
+            </div>
+        </div>
+
     </div>
 
 {% endblock %}
