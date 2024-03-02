@@ -203,29 +203,88 @@ input.input-filter-params {
   border-color: #333;
 }
 
-.doc-content {
-    width: 350px;
-    height: 700px;
-    background-color: #f4f4f4;
-    padding: 20px;
-    position: fixed;
-    top: 80px;
-    left: 0;
-    bottom: 0;
-    overflow-y: auto;
+.article-content-container h1, .doc-left-sidebar h1 {
+    font-size: 36px;
+    font-weight: 300;
+    line-height: 1em;
+    margin: 1em 0;
 }
 
-.right-content {
-    width: 350px;
-    height: 50px;
-    background-color: #ffffff;
-    padding: 20px;
-    position: fixed;
-    top: 750px;
-    right: 0;
-    bottom: 0;
-    overflow-y: -moz-scrollbars-none;
+.article-content-container h2, .doc-left-sidebar h2 {
+    font-size: 1.5em;
+    font-weight: bold;
 }
+
+.article-content-container p {
+    margin: 1em;
+    font-size: 100%;
+    line-height: 1.6em;
+}
+
+.article-content-container img {
+    max-width: 700px
+}
+
+.doc-container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.doc-left-sidebar {
+    float: left;
+    width: 250px;
+    max-height: 700px;
+    overflow-y: auto;
+    position: fixed;
+    padding-left: 15px;
+    padding-top: 15px;
+    background-color: #f8f8f8;
+}
+
+.article-container {
+    margin-left: 250px;
+    max-width: 1030px;
+    display: block;
+    box-sizing: inherit;
+    background-color: #ffffff;
+}
+
+.article-content-container {
+    float: left;
+    max-width: 750px;
+}
+
+.article-right-sidebar {
+    width: 250px;
+    margin-left: 765px;
+    margin-top: 600px;
+    position: fixed;
+    padding-left: 50px;
+}
+
+/*.doc-content {*/
+/*    width: 350px;*/
+/*    height: 700px;*/
+/*    background-color: #f4f4f4;*/
+/*    padding: 20px;*/
+/*    position: fixed;*/
+/*    top: 80px;*/
+/*    left: 0;*/
+/*    bottom: 0;*/
+/*    overflow-y: auto;*/
+/*}*/
+
+/*.right-content {*/
+/*    width: 350px;*/
+/*    height: 50px;*/
+/*    background-color: #ffffff;*/
+/*    padding: 20px;*/
+/*    position: fixed;*/
+/*    top: 750px;*/
+/*    right: 0;*/
+/*    bottom: 0;*/
+/*    overflow-y: -moz-scrollbars-none;*/
+/*}*/
 
 .popup-container {
     display: none;

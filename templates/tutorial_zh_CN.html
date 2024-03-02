@@ -2,21 +2,20 @@
 
 {% block content %}
     {% load static %}
+
     <style>
 
-    img {
-        max-width: 800px
-    }
-
-    .p_content {
-        -webkit-margin-before:0;
-        -webkit-margin-after:0
-    }
+        .p_content {
+            -webkit-margin-before:0;
+            -webkit-margin-after:0;
+        }
 
     </style>
-    <div class="doc-content">
+
+    <div class="doc-left-sidebar">
+
         <p><a href="/doc/tutorial">English</a></p>
-        <h3 id="-">目录</h3>
+        <h2 id="-">目录</h2>
 
             <ol>
             <li><a href="#基本流程">基本流程</a></li>
@@ -60,19 +59,22 @@
             </li>
             </ol>
 
-        <h3><a href="/doc/zh-cn">概述</a></h3>
-        <h3><a href="/doc/deploy/zh-cn">本地部署</a></h3>
+        <h2><a href="/doc/zh-cn">概述</a></h2>
+        <h2><a href="/doc/deploy/zh-cn">本地部署</a></h2>
 
     </div>
 
-    <div class="container-fluid" style="height: 700px; width: 1000px">
+    <div class="doc-container">
 
-    {% include "tutorial_zh_CN_md.html" %}
+        <div class="container-fluid article-container">
+            <div class="article-content-container">
+                {% include "tutorial_zh_CN_md.html" %}
+            </div>
+            <div class="article-right-sidebar">
+                <a title="返回顶部" href="#__top__" type="button" class="btn btn-default glyphicon glyphicon-menu-up" aria-hidden="true"></a>
+            </div>
+        </div>
 
-    </div>
-
-    <div class="right-content">
-        <a title="返回顶部" href="#__top__" type="button" class="btn btn-default glyphicon glyphicon-menu-up" aria-hidden="true"></a>
     </div>
 
 {% endblock %}
