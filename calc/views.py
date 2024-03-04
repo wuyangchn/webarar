@@ -334,7 +334,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         others = self.content.pop('others', {})
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
-        print(f"Recalculation {sample.IsochronMark = }")
+        # print(f"Recalculation {sample.IsochronMark = }")
         try:
             # Re-calculating based on selected options
             sample.recalculate(*checked_options, **others)
@@ -346,6 +346,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
+        # print(f"{res = }")
         return JsonResponse({'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)})
 
     def flag_not_matched(self, request, *args, **kwargs):
