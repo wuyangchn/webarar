@@ -1698,26 +1698,26 @@ function clickPoints(params) {
     // console.log("=============");
     // console.log(sampleComponents[current_figure].set2.data);
 
-    // if (ctrlIsPressed || true) {
-    //     let clicked_index = params.data[5] - 1;
-    //     if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
-    //         sampleComponents[current_figure][current_set].data =
-    //             sampleComponents[current_figure][current_set].data.filter(function(item) {
-    //                 return item !== clicked_index;
-    //             })
-    //         sampleComponents[current_figure].set3.data.push(clicked_index);
-    //     } else {
-    //         for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
-    //             if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
-    //                 sampleComponents[current_figure][i].data =
-    //                 sampleComponents[current_figure][i].data.filter(function(item) {
-    //                     return item !== clicked_index;
-    //                 })
-    //             }
-    //         }
-    //         sampleComponents[current_figure][current_set].data.push(clicked_index);
-    //     }
-    // }
+    if (ctrlIsPressed || true) {
+        let clicked_index = params.data[5] - 1;
+        if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
+            sampleComponents[current_figure][current_set].data =
+                sampleComponents[current_figure][current_set].data.filter(function(item) {
+                    return item !== clicked_index;
+                })
+            sampleComponents[current_figure].set3.data.push(clicked_index);
+        } else {
+            for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
+                if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
+                    sampleComponents[current_figure][i].data =
+                    sampleComponents[current_figure][i].data.filter(function(item) {
+                        return item !== clicked_index;
+                    })
+                }
+            }
+            sampleComponents[current_figure][current_set].data.push(clicked_index);
+        }
+    }
 
     // Get new results for the current figure
     // let response = new AjaxRequest(
@@ -1735,8 +1735,8 @@ function clickPoints(params) {
         data: JSON.stringify({
             'content': {
                 'clicked_data': params.data, 'current_set': current_set,
-                // 'auto_replot': ! ctrlIsPressed,
-                'auto_replot': false,
+                'auto_replot': ! ctrlIsPressed,
+                // 'auto_replot': false,
                 'figures': first_figures,
             },
             'cache_key': cache_key,
@@ -1745,36 +1745,37 @@ function clickPoints(params) {
         async: false,
         contentType:'application/json',
         beforeSend: function() {
-            let clicked_index = params.data[5] - 1;
-            // console.log(`clicked at ${clicked_index}`);
-            if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
-                sampleComponents[current_figure][current_set].data =
-                    sampleComponents[current_figure][current_set].data.filter(function(item) {
-                        return item !== clicked_index;
-                    })
-                sampleComponents[current_figure].set3.data.push(clicked_index);
-            } else {
-                for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
-                    if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
-                        sampleComponents[current_figure][i].data =
-                        sampleComponents[current_figure][i].data.filter(function(item) {
-                            return item !== clicked_index;
-                        })
-                    }
-                }
-                sampleComponents[current_figure][current_set].data.push(clicked_index);
-            }
-            sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
-                item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
-                return item
-            });
-            showPage(current_figure);
+            // let clicked_index = params.data[5] - 1;
+            // // console.log(`clicked at ${clicked_index}`);
+            // if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
+            //     sampleComponents[current_figure][current_set].data =
+            //         sampleComponents[current_figure][current_set].data.filter(function(item) {
+            //             return item !== clicked_index;
+            //         })
+            //     sampleComponents[current_figure].set3.data.push(clicked_index);
+            // } else {
+            //     for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
+            //         if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
+            //             sampleComponents[current_figure][i].data =
+            //             sampleComponents[current_figure][i].data.filter(function(item) {
+            //                 return item !== clicked_index;
+            //             })
+            //         }
+            //     }
+            //     sampleComponents[current_figure][current_set].data.push(clicked_index);
+            // }
+            // sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
+            //     item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
+            //     return item
+            // });
+            // showPage(current_figure);
         },
         success: function(AjaxResults, textStatus, xhr){
             // console.log(sampleComponents[current_figure].set2.data);
             setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5]);
-            // let results = myParse(AjaxResults.res);
-            // sampleComponents = assignDiff(sampleComponents, results);
+            let results = myParse(AjaxResults.res);
+            sampleComponents = assignDiff(sampleComponents, results);
+            showPage(current_figure);
 
             if (! ctrlIsPressed) {
                 // Get new results for other figures
@@ -1794,6 +1795,8 @@ function clickPoints(params) {
                     async: true,
                     contentType:'application/json',
                     success: function(AjaxResults, textStatus, xhr){
+                        // console.log("===========");
+                        // console.log(AjaxResults.res);
                         sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
                         setRightSideText();
                     }
