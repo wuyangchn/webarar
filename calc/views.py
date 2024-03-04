@@ -200,7 +200,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         data_index = clicked_data[-1] - 1  # Isochron plot data label starts from 1, not 0
         sample.set_selection(data_index, [1, 2][current_set == "set2"])
-        http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
+        # http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
 
         if auto_replot:
             # Re-plot after clicking points
