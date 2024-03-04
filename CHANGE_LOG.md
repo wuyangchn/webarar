@@ -7,6 +7,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+# v0.0.38 2024-03-04
+* Fix errors in asynchronous ajax function
+* Fix errors in the right side text
+
 # v0.0.37 2024-03-01
 * Fix message dialog
 * Add zoom out feature of tutorial documentation
