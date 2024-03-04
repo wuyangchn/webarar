@@ -1699,14 +1699,16 @@ function clickPoints(params) {
     let response = new AjaxRequest(
         url_click_points, {
             'clicked_data': params.data, 'current_set': current_set,
-            'auto_replot': ! ctrlIsPressed, 'figures': first_figures,
+            // 'auto_replot': ! ctrlIsPressed,
+            'auto_replot': false,
+            'figures': first_figures,
         }, false
     )
 
     let results = myParse(response.results);
     sampleComponents = assignDiff(sampleComponents, results);
 
-    if (ctrlIsPressed) {
+    if (ctrlIsPressed || true) {
         let clicked_index = params.data[5] - 1;
         if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
             sampleComponents[current_figure][current_set].data =
