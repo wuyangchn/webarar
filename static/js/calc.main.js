@@ -1695,71 +1695,114 @@ function clickPoints(params) {
     let all_figures = ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7'];
     first_figures = [current_figure]
 
+    // console.log("=============");
+    // console.log(sampleComponents[current_figure].set2.data);
+
+    // if (ctrlIsPressed || true) {
+    //     let clicked_index = params.data[5] - 1;
+    //     if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
+    //         sampleComponents[current_figure][current_set].data =
+    //             sampleComponents[current_figure][current_set].data.filter(function(item) {
+    //                 return item !== clicked_index;
+    //             })
+    //         sampleComponents[current_figure].set3.data.push(clicked_index);
+    //     } else {
+    //         for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
+    //             if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
+    //                 sampleComponents[current_figure][i].data =
+    //                 sampleComponents[current_figure][i].data.filter(function(item) {
+    //                     return item !== clicked_index;
+    //                 })
+    //             }
+    //         }
+    //         sampleComponents[current_figure][current_set].data.push(clicked_index);
+    //     }
+    // }
+
     // Get new results for the current figure
-    let response = new AjaxRequest(
-        url_click_points, {
-            'clicked_data': params.data, 'current_set': current_set,
-            // 'auto_replot': ! ctrlIsPressed,
-            'auto_replot': false,
-            'figures': first_figures,
-        }, false
-    )
+    // let response = new AjaxRequest(
+    //     url_click_points, {
+    //         'clicked_data': params.data, 'current_set': current_set,
+    //         // 'auto_replot': ! ctrlIsPressed,
+    //         'auto_replot': false,
+    //         'figures': first_figures,
+    //     }, false
+    // )
 
-    let results = myParse(response.results);
-    sampleComponents = assignDiff(sampleComponents, results);
-
-    if (ctrlIsPressed || true) {
-        let clicked_index = params.data[5] - 1;
-        if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
-            sampleComponents[current_figure][current_set].data =
-                sampleComponents[current_figure][current_set].data.filter(function(item) {
-                    return item !== clicked_index;
-                })
-            sampleComponents[current_figure].set3.data.push(clicked_index);
-        } else {
-            for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
-                if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
-                    sampleComponents[current_figure][i].data =
-                    sampleComponents[current_figure][i].data.filter(function(item) {
+    $.ajax({
+        url: url_click_points,
+        type: 'POST',
+        data: JSON.stringify({
+            'content': {
+                'clicked_data': params.data, 'current_set': current_set,
+                // 'auto_replot': ! ctrlIsPressed,
+                'auto_replot': false,
+                'figures': first_figures,
+            },
+            'cache_key': cache_key,
+            'user_uuid': localStorage.getItem('fingerprint'),
+        }),
+        async: false,
+        contentType:'application/json',
+        beforeSend: function() {
+            let clicked_index = params.data[5] - 1;
+            // console.log(`clicked at ${clicked_index}`);
+            if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
+                sampleComponents[current_figure][current_set].data =
+                    sampleComponents[current_figure][current_set].data.filter(function(item) {
                         return item !== clicked_index;
                     })
+                sampleComponents[current_figure].set3.data.push(clicked_index);
+            } else {
+                for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
+                    if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
+                        sampleComponents[current_figure][i].data =
+                        sampleComponents[current_figure][i].data.filter(function(item) {
+                            return item !== clicked_index;
+                        })
+                    }
                 }
+                sampleComponents[current_figure][current_set].data.push(clicked_index);
             }
-            sampleComponents[current_figure][current_set].data.push(clicked_index);
-        }
-    }
+            sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
+                item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
+                return item
+            });
+            showPage(current_figure);
+        },
+        success: function(AjaxResults, textStatus, xhr){
+            // console.log(sampleComponents[current_figure].set2.data);
+            setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5]);
+            // let results = myParse(AjaxResults.res);
+            // sampleComponents = assignDiff(sampleComponents, results);
 
-    sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
-        item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
-        return item
+            if (! ctrlIsPressed) {
+                // Get new results for other figures
+                let content_2 = {
+                    'checked_options': [], 'others': {'re_plot': true, 'isInit': false,
+                    'isIsochron': true, 'isPlateau': true, 'figures': all_figures,}
+                };
+
+                $.ajax({
+                    url: url_recalculation,
+                    type: 'POST',
+                    data: JSON.stringify({
+                        'content': content_2,
+                        'cache_key': cache_key,
+                        'user_uuid': localStorage.getItem('fingerprint'),
+                    }),
+                    async: true,
+                    contentType:'application/json',
+                    success: function(AjaxResults, textStatus, xhr){
+                        sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
+                        setRightSideText();
+                    }
+                });
+            }
+        }
     });
 
-    showPage(current_figure);
-    setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5])
 
-    if (! ctrlIsPressed) {
-        // Get new results for other figures
-        let content_2 = {
-            'checked_options': [], 'others': {'re_plot': true, 'isInit': false,
-            'isIsochron': true, 'isPlateau': true, 'figures': all_figures,}
-        };
-
-        $.ajax({
-            url: url_recalculation,
-            type: 'POST',
-            data: JSON.stringify({
-                'content': content_2,
-                'cache_key': cache_key,
-                'user_uuid': localStorage.getItem('fingerprint'),
-            }),
-            async: true,
-            contentType:'application/json',
-            success: function(AjaxResults, textStatus, xhr){
-                sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
-                setRightSideText();
-            }
-        });
-    }
 
 }
 function getSetById(figure_id, set_id) {
