@@ -622,7 +622,8 @@ def get_wma_results(sample: Sample, sequence: list, ages: list = None, sages: li
         'age', 's1', 's2', 's3', 'Ar39', 'rs'
     ]
     """
-    spectra_res = initial.SPECTRA_RES
+    spectra_res = initial.SPECTRA_RES.copy()
+    # spectra_res = initial.SPECTRA_RES
 
     def _get_partial(points, *args):
         return [arg[min(points): max(points) + 1] for arg in args]
