@@ -127,7 +127,7 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="{% url 'show_home' %}" id="a-nav-main">Home</a>
             </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <div class="navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li {% if '/calc/' in request.path %} class="active" {% endif %}><a href="{% url 'calc_view' %}" id="a-nav-calc">Run</a></li>
 {#                    <li {% if request.path == '/detail/' %} class="active" {% endif %}><a href="{% url 'detail_view' %}" id="a-nav-prin">Formula</a></li>#}
