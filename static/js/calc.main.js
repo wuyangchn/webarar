@@ -2155,7 +2155,7 @@ function setRightSideText() {
             `MSWD = ${iso_res[0]['MSWD'].toFixed(2)}, r2 = ${iso_res[0]['R2'].toFixed(2)}, Di = ${iso_res[0]['iter']}, 
             χ2 = ${iso_res[0]['Chisq'].toFixed(2)}, p = ${iso_res[0]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[0]['rs'].toFixed(2)}%`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[0]['initial'].toFixed(2)} ± ${iso_res[0]['sinitial'].toFixed(2)}`,
-            "", "", "", "",
+            "", "", "", "", "", "",
 
             `z = ${iso_res[1]['m1'].toFixed(2)} x ${iso_res[1]['m2'] > 0?'+':'-'} 
             ${Math.abs(iso_res[1]['m2']).toFixed(2)} y ${iso_res[1]['k'] > 0?'+':'-'} 
@@ -2164,7 +2164,7 @@ function setRightSideText() {
             `MSWD = ${iso_res[1]['MSWD'].toFixed(2)}, r2 = ${iso_res[1]['R2'].toFixed(2)}, Di = ${iso_res[1]['iter']}, 
             χ2 = ${iso_res[1]['Chisq'].toFixed(2)}, p = ${iso_res[1]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[1]['rs'].toFixed(2)}%`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[1]['initial'].toFixed(2)} ± ${iso_res[1]['sinitial'].toFixed(2)}`,
-            "", "",
+            "",
 
             `Unselected`, `Age = ${iso_res[2]['age'].toFixed(2)} ± ${iso_res[2]['s1'].toFixed(2)}`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[2]['initial'].toFixed(2)} ± ${iso_res[2]['sinitial'].toFixed(2)}`,
