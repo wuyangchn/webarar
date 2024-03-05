@@ -1697,27 +1697,32 @@ function clickPoints(params) {
 
     // console.log("=============");
     // console.log(sampleComponents[current_figure].set2.data);
-
-    if (ctrlIsPressed || true) {
-        let clicked_index = params.data[5] - 1;
-        if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
-            sampleComponents[current_figure][current_set].data =
-                sampleComponents[current_figure][current_set].data.filter(function(item) {
-                    return item !== clicked_index;
-                })
-            sampleComponents[current_figure].set3.data.push(clicked_index);
-        } else {
-            for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
-                if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
-                    sampleComponents[current_figure][i].data =
-                    sampleComponents[current_figure][i].data.filter(function(item) {
-                        return item !== clicked_index;
-                    })
-                }
-            }
-            sampleComponents[current_figure][current_set].data.push(clicked_index);
-        }
-    }
+    //
+    // if (ctrlIsPressed || true) {
+    //     let clicked_index = params.data[5] - 1;
+    //     if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
+    //         sampleComponents[current_figure][current_set].data =
+    //             sampleComponents[current_figure][current_set].data.filter(function(item) {
+    //                 return item !== clicked_index;
+    //             })
+    //         sampleComponents[current_figure].set3.data.push(clicked_index);
+    //     } else {
+    //         for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
+    //             if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
+    //                 sampleComponents[current_figure][i].data =
+    //                 sampleComponents[current_figure][i].data.filter(function(item) {
+    //                     return item !== clicked_index;
+    //                 })
+    //             }
+    //         }
+    //         sampleComponents[current_figure][current_set].data.push(clicked_index);
+    //     }
+    // }
+    // sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
+    //     item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
+    //     return item
+    // });
+    // showPage(current_figure);
 
     // Get new results for the current figure
     // let response = new AjaxRequest(
@@ -1745,42 +1750,44 @@ function clickPoints(params) {
         async: false,
         contentType:'application/json',
         beforeSend: function() {
-            // let clicked_index = params.data[5] - 1;
-            // // console.log(`clicked at ${clicked_index}`);
-            // if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
-            //     sampleComponents[current_figure][current_set].data =
-            //         sampleComponents[current_figure][current_set].data.filter(function(item) {
-            //             return item !== clicked_index;
-            //         })
-            //     sampleComponents[current_figure].set3.data.push(clicked_index);
-            // } else {
-            //     for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
-            //         if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
-            //             sampleComponents[current_figure][i].data =
-            //             sampleComponents[current_figure][i].data.filter(function(item) {
-            //                 return item !== clicked_index;
-            //             })
-            //         }
-            //     }
-            //     sampleComponents[current_figure][current_set].data.push(clicked_index);
-            // }
-            // sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
-            //     item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
-            //     return item
-            // });
-            // showPage(current_figure);
+            if (ctrlIsPressed) {
+                let clicked_index = params.data[5] - 1;
+                // console.log(`clicked at ${clicked_index}`);
+                if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
+                    sampleComponents[current_figure][current_set].data =
+                        sampleComponents[current_figure][current_set].data.filter(function(item) {
+                            return item !== clicked_index;
+                        })
+                    sampleComponents[current_figure].set3.data.push(clicked_index);
+                } else {
+                    for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
+                        if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
+                            sampleComponents[current_figure][i].data =
+                            sampleComponents[current_figure][i].data.filter(function(item) {
+                                return item !== clicked_index;
+                            })
+                        }
+                    }
+                    sampleComponents[current_figure][current_set].data.push(clicked_index);
+                }
+            }
         },
         success: function(AjaxResults, textStatus, xhr){
             // console.log(sampleComponents[current_figure].set2.data);
             setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5]);
             let results = myParse(AjaxResults.res);
             sampleComponents = assignDiff(sampleComponents, results);
+            sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
+                item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
+                return item
+            });
             showPage(current_figure);
 
             if (! ctrlIsPressed) {
                 // Get new results for other figures
                 let content_2 = {
-                    'checked_options': [], 'others': {'re_plot': true, 'isInit': false,
+                    'checked_options': [], 'isochron_mark': transpose(sampleComponents['7'].data)[2],
+                    'others': {'re_plot': true, 'isInit': false,
                     'isIsochron': true, 'isPlateau': true, 'figures': all_figures,}
                 };
 
@@ -1804,9 +1811,6 @@ function clickPoints(params) {
             }
         }
     });
-
-
-
 }
 function getSetById(figure_id, set_id) {
     for (let [key, obj] of Object.entries(sampleComponents[figure_id])) {
