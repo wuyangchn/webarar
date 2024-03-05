@@ -1688,6 +1688,59 @@ function initialRatioSelectChanged() {
     inputs.prop('disabled', disabled);
     inputs.css('background-color', disabled?'#eee':'#fff');
 }
+
+
+// 创建一个队列数组来存储待处理的请求
+const requestQueue = [];
+// 标记当前是否有请求正在处理
+let isProcessing = false;
+
+// 添加请求到队列中
+function addToQueue(request) {
+    requestQueue.push(request);
+    // 如果没有请求正在处理，开始处理队列中的请求
+    if (!isProcessing) {
+        processQueue();
+    }
+}
+
+// 处理请求队列
+function processQueue() {
+    // 如果队列中有请求
+    if (requestQueue.length > 0) {
+        // 取出队列中的第一个请求
+        const request = requestQueue.shift();
+        isProcessing = true;
+
+        // 发送 AJAX 请求
+        $.ajax({
+            url: request.url,
+            type: request.type,
+            data: request.data,
+            async: request.async || true,
+            contentType: request.contentType || 'application/json',
+            success: function(response) {
+                // 请求成功处理
+                request.success(response);
+                // 处理下一个请求
+                processQueue();
+            },
+            error: function(xhr, status, error) {
+                // 请求失败处理
+                request.error(xhr, status, error);
+                // 处理下一个请求
+                processQueue();
+            }
+        });
+    } else {
+        // 队列为空，没有请求需要处理
+        isProcessing = false;
+    }
+}
+
+
+
+
 function clickPoints(params) {
     let current_set = ['set1', 'set2'][isochronLine1Btn.checked ? 0 : 1];
     let current_figure = getCurrentTableId();
@@ -1791,7 +1844,10 @@ function clickPoints(params) {
                     'isIsochron': true, 'isPlateau': true, 'figures': all_figures,}
                 };
 
-                $.ajax({
+
+                // 示例：添加请求到队列中
+                addToQueue(
+                    {
                     url: url_recalculation,
                     type: 'POST',
                     data: JSON.stringify({
@@ -1806,8 +1862,28 @@ function clickPoints(params) {
                         // console.log(AjaxResults.res);
                         sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
                         setRightSideText();
+                        }
                     }
-                });
+                );
+
+
+                // $.ajax({
+                //     url: url_recalculation,
+                //     type: 'POST',
+                //     data: JSON.stringify({
+                //         'content': content_2,
+                //         'cache_key': cache_key,
+                //         'user_uuid': localStorage.getItem('fingerprint'),
+                //     }),
+                //     async: true,
+                //     contentType:'application/json',
+                //     success: function(AjaxResults, textStatus, xhr){
+                //         // console.log("===========");
+                //         // console.log(AjaxResults.res);
+                //         sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
+                //         setRightSideText();
+                //     }
+                // });
             }
         }
     });
