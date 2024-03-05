@@ -332,9 +332,15 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         sample = self.sample
         checked_options = self.content['checked_options']
         others = self.content.pop('others', {})
+        isochron_mark = self.content.pop('isochron_mark', False)
+        # print(f"Recalculation Isochron Mark = {isochron_mark}")
+        if isochron_mark:
+            sample.IsochronMark = isochron_mark.copy()
+            sample.SelectedSequence1 = [index for index, item in enumerate(isochron_mark) if str(item) == '1']
+            sample.SelectedSequence2 = [index for index, item in enumerate(isochron_mark) if str(item) == '2']
+            sample.UnselectedSequence = [index for index, item in enumerate(isochron_mark) if str(item) != '2' and str(item) != '1']
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
-        # print(f"Recalculation {sample.IsochronMark = }")
         try:
             # Re-calculating based on selected options
             sample.recalculate(*checked_options, **others)
