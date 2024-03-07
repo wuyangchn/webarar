@@ -598,7 +598,7 @@ class RawFileView(http_funcs.ArArView):
         except (BaseException, Exception):
             print(traceback.format_exc())
 
-        sample.recalculate(*[True] * 12)  # Calculation after submitting row data
+        sample.recalculate(*[True] * 11, False, *[True] * 4)  # Calculation after submitting row data
         # ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
         ap.smp.table.update_table_data(sample)  # Update table after submission row data and calculation
         # update cache
