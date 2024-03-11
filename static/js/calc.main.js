@@ -2304,7 +2304,7 @@ function sendDiff(diff) {
     $.ajax({
         url: url_update_components_diff,
         type: 'POST',
-        async : true,
+        async : false,
         data: JSON.stringify({
             'diff': diff,
             'cache_key': cache_key,
@@ -3030,6 +3030,9 @@ function getIsochronEchart(chart, figure_id, animation) {
                     formatter: (params) => {
                         if (figure.text1.text === "") {
                             figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[0]['initial'].toFixed(2)} ± ${res[0]['sinitial'].toFixed(2)}\nMSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}\navg error = ${res[0]['rs'].toFixed(4)}%`;
+                            let diff = {};
+                            diff[figure_id] = {'text1': {'text': figure.text1.text}};
+                            sendDiff(diff);
                         }
                         return figure.text1.text
                     },
@@ -3048,6 +3051,9 @@ function getIsochronEchart(chart, figure_id, animation) {
                     formatter: (params) => {
                         if (figure.text2.text === "") {
                             figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${res[1]['sinitial'].toFixed(2)}\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
+                            let diff = {};
+                            diff[figure_id] = {'text2': {'text': figure.text2.text}};
+                            sendDiff(diff);
                         }
                         return figure.text2.text
                     },
