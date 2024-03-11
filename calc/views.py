@@ -177,14 +177,15 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         for figure_id, attrs in diff.items():
             ap.smp.basic.update_plot_from_dict(
                 ap.smp.basic.get_component_byid(self.sample, figure_id), attrs)
-        # Backup after changes are applied
-        components_backup = copy.deepcopy(ap.smp.basic.get_components(self.sample))
+        res = {}
         # Do something for some purpose
         if 'figure_9' in diff.keys() and not all(
                 [i not in diff.get('figure_9').keys() for i in ['set1', 'set2', 'set3']]):
+            # Backup after changes are applied
+            components_backup = copy.deepcopy(ap.smp.basic.get_components(self.sample))
             # Histogram plot, replot is required
             ap.smp.plots.recalc_agedistribution(self.sample)
-        res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(self.sample))
+            res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(self.sample))
         http_funcs.create_cache(self.sample, self.cache_key)  # Update cache
         return JsonResponse(res)
 
