@@ -111,7 +111,7 @@ def york2(x: list, sx: list, y: list, sy: list, ri: list, f: int = 1,
     chi_square = mswd * (n - 2)
     p_value = distributions.chi2.sf(chi_square, n - 2)
     # average error of S
-    err_s = lambda m, b: list(map(lambda Zi, Yi, Xi: (1 / Zi) ** 1./2. / abs(Yi - m * Xi - b), Z(m, b), y, x))
+    err_s = lambda m, b: list(map(lambda Zi, Yi, Xi: (1 / Zi) ** (1./2.) / abs(Yi - m * Xi - b), Z(m, b), y, x))
     avg_err_s = sum(err_s(m, b)) / len(x) * 100
 
     # print('----------------------------------------------------------------')

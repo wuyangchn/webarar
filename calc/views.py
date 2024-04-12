@@ -173,10 +173,11 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
     def update_components_diff(self, request, *args, **kwargs):
         diff = dict(self.body['diff'])
-        # print(f"Difference: {diff}")
-        for figure_id, attrs in diff.items():
-            ap.smp.basic.update_plot_from_dict(
-                ap.smp.basic.get_component_byid(self.sample, figure_id), attrs)
+        # print(f"{diff = }")
+        for name, attrs in diff.items():
+            ap.smp.basic.update_object_from_dict(
+                ap.smp.basic.get_component_byid(self.sample, name), attrs)
+
         res = {}
         # Do something for some purpose
         if 'figure_9' in diff.keys() and not all(
@@ -186,6 +187,12 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             # Histogram plot, replot is required
             ap.smp.plots.recalc_agedistribution(self.sample)
             res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(self.sample))
+
+        # # 2024/04/10
+        # self.sample.SelectedSequence1 = self.sample.InvIsochronPlot.set1.data.copy()
+        # self.sample.SelectedSequence2 = self.sample.InvIsochronPlot.set2.data.copy()
+        # self.sample.UnselectedSequence = self.sample.InvIsochronPlot.set3.data.copy()
+
         http_funcs.create_cache(self.sample, self.cache_key)  # Update cache
         return JsonResponse(res)
 
@@ -797,6 +804,7 @@ class ApiView(http_funcs.ArArView):
 
     def export_arr(self, request, *args, **kwargs):
         sample = self.sample
+        print(self.sample.Info.results.isochron['figure_2'])
         export_name = ap.files.arr_file.save(settings.DOWNLOAD_ROOT, sample)
         export_href = '/' + settings.DOWNLOAD_URL + export_name
         log_funcs.set_info_log(self.ip, '003', 'info',

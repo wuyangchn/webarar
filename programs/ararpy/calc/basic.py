@@ -48,10 +48,33 @@ def merge_dicts(a: dict, b: dict):
     """
     res = copy.deepcopy(a)
     for key, val in b.items():
+        if key not in res.keys() and key.isnumeric():
+            key = int(key)
         if key not in res.keys():
             res[key] = val
         elif isinstance(val, dict):
             res[key] = merge_dicts(res[key], val)
         else:
             continue
+    return res
+
+
+def update_dicts(a: dict, b: dict):
+    """
+    a and b, two dictionary. Return updated a
+        For example:
+            a = {"1": 1, "2": {"1": 1, "2": 2, "3": 3, "5": {}, "6": [1, 2]}}
+            b = {"1": 'b', "2": {"1": 'b', "2": 'b', "3": 'b', "4": 'b', "5": {"1": 'b'}, "6": [1, 2, 3]}}
+            Will return {'1': 'b', ...}
+    """
+    res = copy.deepcopy(a)
+    for key, val in b.items():
+        if key not in res.keys() and key.isnumeric():
+            key = int(key)
+        if key not in res.keys():
+            res[key] = val
+        elif isinstance(val, dict):
+            res[key] = update_dicts(res[key], val)
+        else:
+            res[key] = val
     return res

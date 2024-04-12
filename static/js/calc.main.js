@@ -1742,6 +1742,9 @@ function processQueue() {
 
 
 function clickPoints(params) {
+
+    if (isProcessing) {return}  // 判断是否还有未结束的运算，已彻底消除点击散点过快选点跳跃的问题，但是会严重影响操作时间
+
     let current_set = ['set1', 'set2'][isochronLine1Btn.checked ? 0 : 1];
     let current_figure = getCurrentTableId();
     let first_figures;
@@ -1787,107 +1790,148 @@ function clickPoints(params) {
     //     }, false
     // )
 
+    // $.ajax({
+    //     url: url_click_points,
+    //     type: 'POST',
+    //     data: JSON.stringify({
+    //         'content': {
+    //             'clicked_data': params.data, 'current_set': current_set,
+    //             'auto_replot': ! ctrlIsPressed,
+    //             // 'auto_replot': false,
+    //             'figures': first_figures,
+    //         },
+    //         'cache_key': cache_key,
+    //         'user_uuid': localStorage.getItem('fingerprint'),
+    //     }),
+    //     async: false,
+    //     contentType:'application/json',
+    //     beforeSend: function() {
+    //         if (ctrlIsPressed) {
+    //             let clicked_index = params.data[5] - 1;
+    //             // console.log(`clicked at ${clicked_index}`);
+    //             if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
+    //                 sampleComponents[current_figure][current_set].data =
+    //                     sampleComponents[current_figure][current_set].data.filter(function(item) {
+    //                         return item !== clicked_index;
+    //                     })
+    //                 sampleComponents[current_figure].set3.data.push(clicked_index);
+    //             } else {
+    //                 for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
+    //                     if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
+    //                         sampleComponents[current_figure][i].data =
+    //                         sampleComponents[current_figure][i].data.filter(function(item) {
+    //                             return item !== clicked_index;
+    //                         })
+    //                     }
+    //                 }
+    //                 sampleComponents[current_figure][current_set].data.push(clicked_index);
+    //             }
+    //         }
+    //     },
+    //     success: function(AjaxResults, textStatus, xhr){
+    //         // console.log(sampleComponents[current_figure].set2.data);
+    //         setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5]);
+    //         let results = myParse(AjaxResults.res);
+    //         sampleComponents = assignDiff(sampleComponents, results);
+    //         sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
+    //             item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
+    //             return item
+    //         });
+    //         showPage(current_figure);
+    //
+    //         if (! ctrlIsPressed) {
+    //             // Get new results for other figures
+    //             let content_2 = {
+    //                 'checked_options': [], 'isochron_mark': transpose(sampleComponents['7'].data)[2],
+    //                 'others': {'re_plot': true, 'isInit': false,
+    //                 'isIsochron': true, 'isPlateau': true, 'figures': all_figures,}
+    //             };
+    //
+    //
+    //             // 示例：添加请求到队列中
+    //             addToQueue(
+    //                 {
+    //                 url: url_recalculation,
+    //                 type: 'POST',
+    //                 data: JSON.stringify({
+    //                     'content': content_2,
+    //                     'cache_key': cache_key,
+    //                     'user_uuid': localStorage.getItem('fingerprint'),
+    //                 }),
+    //                 // async: true,
+    //                 async: false,
+    //                 contentType:'application/json',
+    //                 success: function(AjaxResults, textStatus, xhr){
+    //                     // console.log("===========");
+    //                     // console.log(AjaxResults.res);
+    //                     sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
+    //                     setRightSideText();
+    //                     }
+    //                 }
+    //             );
+    //
+    //
+    //             // $.ajax({
+    //             //     url: url_recalculation,
+    //             //     type: 'POST',
+    //             //     data: JSON.stringify({
+    //             //         'content': content_2,
+    //             //         'cache_key': cache_key,
+    //             //         'user_uuid': localStorage.getItem('fingerprint'),
+    //             //     }),
+    //             //     async: true,
+    //             //     contentType:'application/json',
+    //             //     success: function(AjaxResults, textStatus, xhr){
+    //             //         // console.log("===========");
+    //             //         // console.log(AjaxResults.res);
+    //             //         sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
+    //             //         setRightSideText();
+    //             //     }
+    //             // });
+    //         }
+    //     }
+    // });
+
+    // set selection
+    change_selection(params.data[5], current_set, 1);
+
+    // re-plot isochron
+    re_plot_isochrons();
+
+    // diff
+    const diff = findDiff(sampleComponentsBackup, sampleComponents);
+    // console.log(diff);
+
+    // send diff, update backend
     $.ajax({
-        url: url_click_points,
+        url: url_update_components_diff,
         type: 'POST',
         data: JSON.stringify({
-            'content': {
-                'clicked_data': params.data, 'current_set': current_set,
-                'auto_replot': ! ctrlIsPressed,
-                // 'auto_replot': false,
-                'figures': first_figures,
-            },
+            'diff': diff,
             'cache_key': cache_key,
-            'user_uuid': localStorage.getItem('fingerprint'),
         }),
-        async: false,
         contentType:'application/json',
-        beforeSend: function() {
-            if (ctrlIsPressed) {
-                let clicked_index = params.data[5] - 1;
-                // console.log(`clicked at ${clicked_index}`);
-                if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
-                    sampleComponents[current_figure][current_set].data =
-                        sampleComponents[current_figure][current_set].data.filter(function(item) {
-                            return item !== clicked_index;
-                        })
-                    sampleComponents[current_figure].set3.data.push(clicked_index);
-                } else {
-                    for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
-                        if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
-                            sampleComponents[current_figure][i].data =
-                            sampleComponents[current_figure][i].data.filter(function(item) {
-                                return item !== clicked_index;
-                            })
-                        }
-                    }
-                    sampleComponents[current_figure][current_set].data.push(clicked_index);
-                }
-            }
-        },
-        success: function(AjaxResults, textStatus, xhr){
-            // console.log(sampleComponents[current_figure].set2.data);
-            setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5]);
-            let results = myParse(AjaxResults.res);
-            sampleComponents = assignDiff(sampleComponents, results);
-            sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
-                item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
-                return item
-            });
-            showPage(current_figure);
-
-            if (! ctrlIsPressed) {
-                // Get new results for other figures
-                let content_2 = {
-                    'checked_options': [], 'isochron_mark': transpose(sampleComponents['7'].data)[2],
-                    'others': {'re_plot': true, 'isInit': false,
-                    'isIsochron': true, 'isPlateau': true, 'figures': all_figures,}
-                };
-
-
-                // 示例：添加请求到队列中
-                addToQueue(
-                    {
-                    url: url_recalculation,
-                    type: 'POST',
-                    data: JSON.stringify({
-                        'content': content_2,
-                        'cache_key': cache_key,
-                        'user_uuid': localStorage.getItem('fingerprint'),
-                    }),
-                    async: true,
-                    contentType:'application/json',
-                    success: function(AjaxResults, textStatus, xhr){
-                        // console.log("===========");
-                        // console.log(AjaxResults.res);
-                        sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
-                        setRightSideText();
-                        }
-                    }
-                );
-
-
-                // $.ajax({
-                //     url: url_recalculation,
-                //     type: 'POST',
-                //     data: JSON.stringify({
-                //         'content': content_2,
-                //         'cache_key': cache_key,
-                //         'user_uuid': localStorage.getItem('fingerprint'),
-                //     }),
-                //     async: true,
-                //     contentType:'application/json',
-                //     success: function(AjaxResults, textStatus, xhr){
-                //         // console.log("===========");
-                //         // console.log(AjaxResults.res);
-                //         sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
-                //         setRightSideText();
-                //     }
-                // });
-            }
+        success: function(res){
+            sampleComponentsBackup = JSON.parse(JSON.stringify(sampleComponents));
         }
     });
+
+    // refresh page
+    showPage(current_figure);
+
+    setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5]);
+
+    // 2024/04/10
+    // 问题： 选点后，python后端更新了，但是下载保存的arr有问题，选点不对，年龄文字显示也不对
+    // 04/11找到原因并解决了：主要原因是results.isochron里面的0，1，2在python是数字整型，在json传过去之后是字符，因此没有正确更新，
+    // 其次set1/set2/set3的数据没有传递和更新
+
+    // findDiff 有问题
+
 }
+
+
+
 function getSetById(figure_id, set_id) {
     for (let [key, obj] of Object.entries(sampleComponents[figure_id])) {
         if (typeof obj === 'object' && obj !== null){
@@ -2214,7 +2258,8 @@ function showUploadPictureBtn() {
     btn.is(":hidden") ? btn.show() : btn.hide();
 }
 function setConsoleText(text) {
-    exampleConsole.innerText = getTime() + ' ' + text;
+    exampleConsole.innerText = `${getTime()} ${text}`;
+    console.log(`${getTime()} ${text}`);
     document.getElementById('sample_name_console').innerText = sampleComponents['0'].sample.name;
     document.getElementById('page-title').innerText = sampleComponents['0'].sample.name;
 }
@@ -2314,6 +2359,33 @@ function sendDiff(diff) {
             assignDiff(sampleComponents, diff);
         }
     });
+}
+function findDiff(backup, current) {
+    const diff = {};
+
+    if (!isPlainObject(current)) {
+        return diff;
+    }
+
+    for (const key in current) {
+        if (current.hasOwnProperty(key)) {
+            if (!backup.hasOwnProperty(key)) {
+                diff[key] = current[key];
+            } else if (isPlainObject(current[key])) {
+                const nestedDiff = findDiff(backup[key], current[key]);
+                if (Object.keys(nestedDiff).length > 0) {
+                    diff[key] = nestedDiff;
+                }
+            } else if (JSON.stringify(backup[key]) !== JSON.stringify(current[key])) {
+                diff[key] = current[key];
+            }
+        }
+    }
+
+    return diff;
+}
+function isPlainObject(obj) {
+  return typeof obj === 'object' && obj !== null && !Array.isArray(obj);
 }
 
 // plots style setting funtions
@@ -3642,4 +3714,458 @@ function getChartInterval(chart, figure) {
     figure.yaxis.split_number = chart._model._componentsMap.get('yAxis')[0].axis.getTicksCoords().length - 1;
     figure.xaxis.interval = chart._model._componentsMap.get('xAxis')[0].axis.scale.getInterval();
     figure.yaxis.interval = chart._model._componentsMap.get('yAxis')[0].axis.scale.getInterval();
+}
+
+
+
+function change_selection(clicked_index, current_set, base = 0) {
+    clicked_index -= base;
+    if (clicked_index < 0) return;
+    if (!current_set in {'set1': 0, 'set2': 1, 'set3': 2}) return;
+    let data = {
+        'set1': [...sampleComponents["figure_2"]["set1"].data],
+        'set2': [...sampleComponents["figure_2"]["set2"].data],
+        'set3': [...sampleComponents["figure_2"]["set3"].data]
+    }
+    if (data[current_set].includes(clicked_index)) {
+        data[current_set] = data[current_set].filter(function(item) {
+            return item !== clicked_index;
+        });
+        data["set3"].push(clicked_index);
+    } else {
+        for (let [key, val] of Object.entries(data)) {
+            if (val.includes(clicked_index)) {
+                data[key] = val.filter(function(item) {
+                    return item !== clicked_index;
+                });
+            }
+        }
+        data[current_set].push(clicked_index);
+    }
+    ["figure_2", "figure_3", "figure_4", "figure_5", "figure_6", "figure_7"].forEach(figure => {
+        for (const [key, value] of Object.entries(data)) {
+            sampleComponents[figure][key].data = [...value].sort((a, b) => a - b);
+        }
+    });
+    sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
+        item[2] = data.set1.includes(index) ? 1 : data.set2.includes(index) ? 2 : ''
+        return item
+    });
+}
+
+
+function re_plot_isochrons() {
+
+    let figure_id, set, results;
+
+    let x, sx, y, sy, z, sz, pho1, pho2, pho3;
+    let k, sk, a, sa, b, sb, R2, mswd, conv, Di, mag, Chisq, p, rs, S;
+    let r, sr, f, sf, age, s1, s2, s3;
+
+    let using_Min = true;
+    let set_dict = {"set1": 0, "set2": 1, "set3": 2};
+    let x_scale, y_scale;
+
+
+    // figure_2
+
+    figure_id = "figure_2";
+    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+
+    set = "set1";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr, f, sf] = [k, sk, a, sa];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set2";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr, f, sf] = [k, sk, a, sa];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set3";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr, f, sf] = [k, sk, a, sa];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+
+    // figure_3
+
+    figure_id = "figure_3";
+    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+
+    set = "set1";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set2";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set3";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+
+    // figure_4
+
+    figure_id = "figure_4";
+    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+
+    set = "set1";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr, f, sf] = [k, sk, a, sa];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set2";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr, f, sf] = [k, sk, a, sa];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set3";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr, f, sf] = [k, sk, a, sa];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`)
+    }
+
+
+    // figure_5
+
+    figure_id = "figure_5";
+    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+
+    set = "set1";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set2";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set3";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+
+    // figure_6
+
+    figure_id = "figure_6";
+    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+
+    set = "set1";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [f, sf, r, sr] = [k, sk, a, sa];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set2";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [f, sf, r, sr] = [k, sk, a, sa];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set3";
+    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+    results = york2(x, sx, y, sy, pho1);
+    if (results !== false) {
+        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        [f, sf, r, sr] = [k, sk, a, sa];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        });
+
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+
+    // figure_7
+
+    figure_id = "figure_7";
+    set = "set1";
+    [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+    results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+    if (results !== false) {
+        [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = results;
+        [f, sf] = [k, sk];
+        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
+            "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+            "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
+        })
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set2";
+    [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+    results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+    if (results !== false) {
+        [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+        [f, sf] = [k, sk];
+        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
+            "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+            "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
+        })
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+    set = "set3";
+    [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+    results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+    if (results !== false) {
+        [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+        [f, sf] = [k, sk];
+        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
+            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
+            "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+            "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
+        })
+        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+    }
+
+}
+
+
+function calc_age(F, sF, using_Min = true, idx = 0) {
+
+    const parameters = numeric.transpose(sampleComponents[8].data);
+    const L = parameters[36];  // decay constant of 40K
+    const sL = arr_multiply_by_number(arr_mul(parameters[37], L), 1 / 100);
+    const Le = parameters[38];  // decay constant of 40K(EC)
+    const sLe = arr_multiply_by_number(arr_mul(parameters[39], Le), 1 / 100);
+    const Lb = parameters[40];  // decay constant of 40K(B-)
+    const sLb = arr_multiply_by_number(arr_mul(parameters[41], Lb), 1 / 100);
+    const A = parameters[50];  // decay activity of 40K
+    const sA = arr_multiply_by_number(arr_mul(parameters[51], A), 1 / 100);
+    const Ae = parameters[52];  // decay activity of 40K(EC)
+    const sAe = arr_multiply_by_number(arr_mul(parameters[53], Ae), 1 / 100);
+    const Ab = parameters[54];  // decay activity of 40K(B-)
+    const sAb = arr_multiply_by_number(arr_mul(parameters[55], Ab), 1 / 100);
+    const t = parameters[61];  // standard age in Ma
+    const st = arr_multiply_by_number(arr_mul(parameters[62], t), 1 / 100);
+    const J = parameters[69];  // J values
+    const sJ = arr_multiply_by_number(arr_mul(parameters[70], J), 1 / 100);
+    const W = parameters[83];  // 40K Mass
+    const sW = arr_multiply_by_number(arr_mul(parameters[84], W), 1 / 100);
+    const Y = parameters[87];  // Year constant
+    const sY = arr_multiply_by_number(arr_mul(parameters[88], Y), 1 / 100);
+    const f = parameters[89];  // 40K/K ratio
+    const sf = arr_multiply_by_number(arr_mul(parameters[90], f), 1 / 100);
+    const No = parameters[85];  // Avogadro constant
+    const sNo = arr_multiply_by_number(arr_mul(parameters[86], No), 1 / 100);
+
+    if (using_Min) {
+        let conf = {
+            'L': L[idx], 'sL': sL[idx], 'Le': Le[idx], 'sLe': sLe[idx], 'Lb': Lb[idx], 'sLb': sLb[idx],
+            'A': A[idx], 'sA': sA[idx], 'Ae': Ae[idx], 'sAe': sAe[idx], 'Ab': Ab[idx], 'sAb': sAb[idx],
+            't': t[idx], 'st': st[idx], 'J': J[idx], 'sJ': sJ[idx], 'W': W[idx], 'sW': sW[idx],
+            'No': No[idx], 'sNo': sNo[idx], 'Y': Y[idx], 'sY': sY[idx], 'f': f[idx], 'sf': sf[idx], 'Min': using_Min
+        };
+        return calcAgeMin(F, sF, conf);
+    } else {
+        return calcAgeGeneral(F, sF, J[idx], sJ[idx], L[idx], sL[idx]);
+    }
+
 }

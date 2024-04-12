@@ -736,6 +736,7 @@
 </div>
 <script>
     let sampleComponents = {{ sampleComponents | safe }};
+    let sampleComponentsBackup = JSON.parse(JSON.stringify(sampleComponents));
     console.log(sampleComponents);
     let cache_key = {{ cache_key | safe }};
     let isochronLine1Btn = document.getElementById('isochronSetRadio1');
