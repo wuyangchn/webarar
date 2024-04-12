@@ -252,7 +252,8 @@ def update_plot_from_dict(plot, attrs: dict):
             if isinstance(v1, dict):
                 if hasattr(_plot, k1):
                     if isinstance(getattr(_plot, k1), dict):
-                        setattr(_plot, k1, v1)
+                        setattr(_plot, k1, calc.basic.update_dicts(getattr(_plot, k1), v1))
+                        # setattr(_plot, k1, v1)
                     else:
                         _do(getattr(_plot, k1), v1)
             else:
@@ -260,6 +261,39 @@ def update_plot_from_dict(plot, attrs: dict):
 
     _do(_plot=plot, _attrs=attrs)
     return plot
+
+
+def update_object_from_dict(obj, attrs: dict):
+    """
+    update object
+    Parameters
+    ----------
+    obj
+    attrs
+
+    Returns
+    -------
+
+    """
+    def _do(_obj, _attrs: dict):
+
+        for k1, v1 in _attrs.items():
+            if hasattr(_obj, k1):
+                if getattr(_obj, k1) == v1:
+                    continue
+                elif isinstance(v1, dict):
+                    if isinstance(getattr(_obj, k1), dict):
+                        setattr(_obj, k1, calc.basic.update_dicts(getattr(_obj, k1), v1))
+                        # setattr(_plot, k1, v1)
+                    else:
+                        _do(getattr(_obj, k1), v1)
+                else:
+                    setattr(_obj, k1, v1)
+            else:
+                setattr(_obj, k1, v1)
+
+    _do(_obj=obj, _attrs=attrs)
+    return obj
 
 
 # =======================
