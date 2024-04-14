@@ -3809,6 +3809,7 @@ function re_plot_isochrons(options={}) {
         set = "set1";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
@@ -3819,14 +3820,15 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         set = "set2";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
@@ -3837,9 +3839,9 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         // set = "set3";
@@ -3870,6 +3872,7 @@ function re_plot_isochrons(options={}) {
         set = "set1";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
@@ -3882,14 +3885,15 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         set = "set2";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
@@ -3902,9 +3906,9 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         // set = "set3";
@@ -3936,6 +3940,7 @@ function re_plot_isochrons(options={}) {
         set = "set1";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
@@ -3946,14 +3951,15 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         set = "set2";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
@@ -3964,9 +3970,9 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         // set = "set3";
@@ -3996,6 +4002,7 @@ function re_plot_isochrons(options={}) {
         set = "set1";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
@@ -4008,14 +4015,15 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         set = "set2";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
@@ -4028,9 +4036,9 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         // set = "set3";
@@ -4062,6 +4070,7 @@ function re_plot_isochrons(options={}) {
         set = "set1";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [f, sf, r, sr] = [k, sk, a, sa];
@@ -4072,14 +4081,15 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         set = "set2";
         [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
+        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [f, sf, r, sr] = [k, sk, a, sa];
@@ -4090,9 +4100,9 @@ function re_plot_isochrons(options={}) {
                 "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
             });
             sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        } else {
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
         }
 
         // set = "set3";
