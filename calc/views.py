@@ -188,10 +188,10 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             ap.smp.plots.recalc_agedistribution(self.sample)
             res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(self.sample))
 
-        # # 2024/04/10
-        # self.sample.SelectedSequence1 = self.sample.InvIsochronPlot.set1.data.copy()
-        # self.sample.SelectedSequence2 = self.sample.InvIsochronPlot.set2.data.copy()
-        # self.sample.UnselectedSequence = self.sample.InvIsochronPlot.set3.data.copy()
+        # 2024/04/10
+        self.sample.SelectedSequence1 = self.sample.InvIsochronPlot.set1.data.copy()
+        self.sample.SelectedSequence2 = self.sample.InvIsochronPlot.set2.data.copy()
+        self.sample.UnselectedSequence = self.sample.InvIsochronPlot.set3.data.copy()
 
         http_funcs.create_cache(self.sample, self.cache_key)  # Update cache
         return JsonResponse(res)
@@ -347,6 +347,9 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             sample.SelectedSequence1 = [index for index, item in enumerate(isochron_mark) if str(item) == '1']
             sample.SelectedSequence2 = [index for index, item in enumerate(isochron_mark) if str(item) == '2']
             sample.UnselectedSequence = [index for index, item in enumerate(isochron_mark) if str(item) != '2' and str(item) != '1']
+            sample.Info.results.selection[0]['data'] = sample.SelectedSequence1
+            sample.Info.results.selection[1]['data'] = sample.SelectedSequence2
+            sample.Info.results.selection[2]['data'] = sample.UnselectedSequence
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
         try:

@@ -163,6 +163,11 @@ def initial(smp: Sample):
                 'TGA': copy.deepcopy(SPECTRA_RES),
                 0: copy.deepcopy(SPECTRA_RES), 1: copy.deepcopy(SPECTRA_RES), 2: copy.deepcopy(SPECTRA_RES),
             },
+            selection={
+                0: {'data': [], 'name': 'set1'},
+                1: {'data': [], 'name': 'set2'},
+                2: {'data': [], 'name': 'set3'}
+            }
         ),
         reference=ArArBasic(
             name='REFERENCE', journal='JOURNAL', doi='DOI'
