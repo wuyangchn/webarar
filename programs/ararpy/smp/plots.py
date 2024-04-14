@@ -124,8 +124,12 @@ def initial_plot_data(sample: Sample):
         total_age = basic.calc_age(total_f[:2], smp=sample)
     except (Exception, BaseException):
         print(traceback.format_exc())
+        total_f = [np.nan] * 2
         total_age = [np.nan] * 4
-    sample.Info.results.age_spectra['TGA'].update(dict(zip(['age', 's1', 's2', 's3'], total_age)))
+    sample.Info.results.age_spectra['TGA'].update(
+        {'Ar39': 100, 'F': total_f[0], 'sF': total_f[1], 'age': total_age[0],
+         's1': total_age[1], 's2': total_age[2], 's3': total_age[3], 'Num': len(sample.DegasValues[24])}
+    )
     try:
         sample.AgeSpectraPlot.data = calc.spectra.get_data(
             *sample.ApparentAgeValues[2:4], sample.ApparentAgeValues[7])
@@ -609,15 +613,13 @@ def get_plateau_results(sample: Sample, sequence: list, ar40rar39k: list = None,
     return plateau_res, age, plot_data
 
 
-def get_wma_results(sample: Sample, sequence: list, ages: list = None, sages: list = None):
+def get_wma_results(sample: Sample, sequence: list):
     """
     Get initial ratio re-corrected plateau results
     Parameters
     ----------
     sample : sample instance
     sequence : data slice index
-    ages :
-    sages :
 
     Returns
     -------
@@ -633,17 +635,16 @@ def get_wma_results(sample: Sample, sequence: list, ages: list = None, sages: li
         return [arg[min(points): max(points) + 1] for arg in args]
 
     if len(sequence) > 0:
-        if ages is None:
-            ages = sample.ApparentAgeValues[2]
-        if sages is None:
-            sages = sample.ApparentAgeValues[3]
+        sum_ar39k = sum(_get_partial(sequence, sample.ApparentAgeValues[7])[0])
+        fs = _get_partial(sequence, sample.ApparentAgeValues[0])[0]
+        sfs = _get_partial(sequence, sample.ApparentAgeValues[1])[0]
 
-        ages = _get_partial(sequence, ages)[0]
-        sages = _get_partial(sequence, sages)[0]
-        wma, swma, num, mswd, chisq, p = calc.arr.wtd_mean(ages, sages)
+        wmf, swmf, num, mswd, chisq, p = calc.arr.wtd_mean(fs, sfs)
+        age, s1, s2, s3 = basic.calc_age([wmf, swmf], smp=sample)
 
         spectra_res.update({
-            'age': wma, 's1': swma, 'Num': num, 'MSWD': mswd, 'Chisq': chisq, 'Pvalue': p
+            'age': age, 's1': s1, 's2': s2, 's3': s3, 'Num': num, 'MSWD': mswd, 'Chisq': chisq, 'Pvalue': p,
+            'F': wmf, 'sF': swmf, 'Ar39': sum_ar39k
         })
     return spectra_res
 
