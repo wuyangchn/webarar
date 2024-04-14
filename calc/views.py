@@ -192,6 +192,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         self.sample.SelectedSequence1 = self.sample.InvIsochronPlot.set1.data.copy()
         self.sample.SelectedSequence2 = self.sample.InvIsochronPlot.set2.data.copy()
         self.sample.UnselectedSequence = self.sample.InvIsochronPlot.set3.data.copy()
+        self.sample.IsochronMark = [v[2] for i, v in enumerate(self.sample.IsochronsTable.data)]
 
         http_funcs.create_cache(self.sample, self.cache_key)  # Update cache
         return JsonResponse(res)
