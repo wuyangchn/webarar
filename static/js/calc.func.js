@@ -62,10 +62,10 @@ function arr_diag(matrix) {
     return matrix.map((row, index) => row[index]);
 }
 
-function arr_slice(array, rows, base= 1) {
+function arr_slice(array, rows, base= 0) {
     // array is a 2D array, index is rows
     if (rows.length > 0) {
-        return numeric.transpose(numeric.transpose(array).filter((value, index) => rows.includes(index + base - 1)));
+        return numeric.transpose(numeric.transpose(array).filter((value, index) => rows.includes(index - base)));
     } else {
         return [[], [], [], [], [], [], [], [], [], [], [], []];
     }
@@ -79,9 +79,20 @@ function dict_update(dict, x = {}) {
             dict[key] = value
         }
     }
+    return dict;
 }
 
 
+// error propagation
+function errAdd(...s) {
+    return Math.sqrt(s.reduce((acc, val) => acc + val ** 2, 0))
+}
+function errMul(a, sa, b, sb) {
+    return Math.sqrt(b ** 2 * sa ** 2 + a ** 2 * sb ** 2)
+}
+function errDiv(a, sa, b, sb) {
+    return Math.sqrt(1/b ** 2 * sa ** 2 + a ** 2 * sb ** 2 / b ** 4)
+}
 
 
 // regression
@@ -542,3 +553,66 @@ function getLinePoints(xscale, yscale, coeffs) {
     return res;
 }
 
+
+function stepLinePoints(x, y) {
+    // input:
+    // x: array, y: array
+    // output: points [x1, y1], [x1+x2, y1], [x1+x2, y2], ....
+    const n = x.length;
+    x = Array.from(
+        {length: n + 1},
+        (_, i) => i === 0 ? 0 : arr_sum(x.slice(0, i))
+    );
+    return Array.from(
+        {length: n * 2},
+        (_, i) => i % 2 === 0?[x[i/2], y[i/2]]:[x[(i+1)/2], y[(i-1)/2]]
+    );
+}
+
+
+function ageSpectraPoints(ar39, age, sage, rows=null) {
+
+    const age_1 = age.map((v, i) => i%2===0?v - sage[i]:v + sage[i]);
+    const age_2 = age.map((v, i) => i%2===0?v + sage[i]:v - sage[i]);
+
+    const step_points_1 = stepLinePoints(ar39, age_1);
+    const step_points_2 = stepLinePoints(ar39, age_2);
+
+    rows = rows ? rows : ar39.map((_, i) => i);
+    const base = 0;
+    const step_points = step_points_1.map((v, i) => [...v, step_points_2[i][1]]).filter((value, index) => {
+        const row = Math.trunc(index / 2);
+        return row >= Math.min(...rows) && row <= Math.max(...rows);
+    })
+
+    step_points.splice(0, 0,
+        [step_points[0][0], step_points[0][2], step_points[0][1]]);
+    step_points.push([step_points[step_points.length - 1][0],
+        step_points[step_points.length - 1][2], step_points[step_points.length - 1][1]]);
+
+    return step_points
+}
+
+
+function calcAr40r_39k(r, sr, ar36a, sar36a, ar39k, sar39k, ar40, sar40, ar40k, sar40k) {
+    const ar40a = ar36a * r;
+    const ar40r = ar40 - ar40k - ar40a
+    return [
+        ar40r / ar39k,
+        errDiv(ar40r, errAdd(sar40, sar40k, errMul(ar36a, sar36a, r, sr)), ar39k, sar39k)
+    ]
+
+}
+
+function weightedMeanValue(array_values, array_errors, adjust_error = true) {
+    const weights = array_errors.map(v => 1 / v ** 2);
+    const total_weight = arr_sum(weights);
+    const df = array_values.length - 1;
+    const k2 = array_values.length;
+    const k0 = arr_sum(array_values.map((v, i) => v * weights[i] / total_weight)); // mean
+    const k4 = arr_sum(array_values.map((v, i) => (v - k0) ** 2 * weights[i])); // chi_square
+    const k3 = k4 / df; // MSWD mentioned in Min et al., 2000
+    const k1 = adjust_error ? Math.sqrt(k3 / total_weight) : Math.sqrt(1 / total_weight);  // error
+    const k5 = 1 - jStat.chisquare.cdf(k4, df);  // p value
+    return [k0, k1, k2, k3, k4, k5]
+}

@@ -368,6 +368,10 @@ def set_selection(smp: Sample, index: int, mark: int):
     smp.IsochronMark = [
         1 if i in smp.SelectedSequence1 else 2 if i in smp.SelectedSequence2 else '' for i in
         range(len(smp.IsochronValues[2]))]
+    #
+    smp.Info.results.selection[0]['data'] = smp.SelectedSequence1
+    smp.Info.results.selection[1]['data'] = smp.SelectedSequence2
+    smp.Info.results.selection[2]['data'] = smp.UnselectedSequence
 
 
 # =======================

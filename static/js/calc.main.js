@@ -1898,6 +1898,9 @@ function clickPoints(params) {
     // re-plot isochron
     re_plot_isochrons();
 
+    // age spectra
+    re_plot_age_spectra();
+
     // diff
     const diff = findDiff(sampleComponentsBackup, sampleComponents);
     // console.log(diff);
@@ -3742,15 +3745,20 @@ function change_selection(clicked_index, current_set, base = 0) {
         }
         data[current_set].push(clicked_index);
     }
+    for (const [key, value] of Object.entries(data)) {
+        data[key] = [...value].sort((a, b) => a - b);
+    }
     ["figure_2", "figure_3", "figure_4", "figure_5", "figure_6", "figure_7"].forEach(figure => {
         for (const [key, value] of Object.entries(data)) {
-            sampleComponents[figure][key].data = [...value].sort((a, b) => a - b);
+            sampleComponents[figure][key].data = [...value];
         }
     });
     sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
         item[2] = data.set1.includes(index) ? 1 : data.set2.includes(index) ? 2 : ''
         return item
     });
+    sampleComponents[0].results.selection = dict_update(sampleComponents[0].results.selection,
+        {0: {data: data.set1}, 1: {data: data.set2}, 2: {data: data.set3}});
 }
 
 
@@ -4124,6 +4132,102 @@ function re_plot_isochrons() {
         })
         // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
     }
+
+}
+
+
+function re_plot_age_spectra() {
+
+    // default age spectra
+    const spectra_values = numeric.transpose(sampleComponents[6].data);
+    sampleComponents["figure_1"].data = ageSpectraPoints(spectra_values[9], spectra_values[4], spectra_values[5]);
+
+    let get_partial_data = (array, rows) => array.map((v, i) => {
+        if (i >= Math.min(...rows) && i <= Math.max(...rows)) { return v }
+    }).filter((v, _) => v !== undefined);
+
+    let f, sf, age, s1, s2, s3, num, mswd, chi_square, p_value, f_array;
+    let line_points_set1, line_points_set2
+
+    // set1
+    f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set1"].data));
+    [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
+    [age, s1, s2, s3] = calc_age(f, sf);
+    dict_update(sampleComponents[0]["results"]["age_spectra"][0], {
+        "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set1"].data)),
+        "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+        "rs": NaN, "Chisq": chi_square
+    });
+
+    // set2
+    f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set2"].data));
+    [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
+    [age, s1, s2, s3] = calc_age(f, sf);
+    dict_update(sampleComponents[0]["results"]["age_spectra"][1], {
+        "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set2"].data)),
+        "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+        "rs": NaN, "Chisq": chi_square
+    });
+
+
+
+    // age spectra for set1 and set2
+    const parameters = numeric.transpose(sampleComponents[8].data);
+    const r_model = parameters[117];  // 0 for inverse, 1 for normal, 2 for input
+    const r1 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][0]["initial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][0]["initial"] : parameters[118][i])
+    const sr1 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][0]["sinitial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][0]["sinitial"] : parameters[119][i])
+    const r2 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][1]["initial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][1]["initial"] : parameters[120][i])
+    const sr2 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][1]["sinitial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][1]["sinitial"] : parameters[121][i])
+    const degas_values = numeric.transpose(sampleComponents[4].data);
+    const total_values = numeric.transpose(sampleComponents[3].data);
+    const ar40 = total_values[10];
+    const sar40 = total_values[11];
+    const ar36a = degas_values[2];
+    const sar36a = degas_values[3];
+    const ar40k = degas_values[32];
+    const sar40k = degas_values[33];
+    const ar39k = degas_values[22];
+    const sar39k = degas_values[23];
+    const f_set1 = ar40.map((_, i) => calcAr40r_39k(r1[i], sr1[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
+            ar40[i], sar40[i], ar40k[i], sar40k[i]));
+    const f_set2 = ar40.map((_, i) => calcAr40r_39k(r2[i], sr2[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
+            ar40[i], sar40[i], ar40k[i], sar40k[i]));
+    const age_set1 = numeric.transpose(ar40.map((_, i) => calc_age(...f_set1[i], true, i)));
+    const age_set2 = numeric.transpose(ar40.map((_, i) => calc_age(...f_set2[i], true, i)));
+
+    line_points_set1 = ageSpectraPoints(spectra_values[9], age_set1[0], age_set1[2], sampleComponents["figure_2"]["set1"].data);
+    line_points_set2 = ageSpectraPoints(spectra_values[9], age_set2[0], age_set2[2], sampleComponents["figure_2"]["set2"].data);
+
+    // assign
+    sampleComponents["figure_1"]["set1"].data = line_points_set1;
+    sampleComponents["figure_1"]["set2"].data = line_points_set2;
+
+    // calc mean age
+    // set1
+    f_array = numeric.transpose(f_set1.map((v, i) => {
+        if (i >= Math.min(...sampleComponents["figure_2"]["set1"].data) && i <= Math.max(...sampleComponents["figure_2"]["set1"].data)) { return v }
+    }).filter((v, _) => v !== undefined));
+    [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
+    [age, s1, s2, s3] = calc_age(f, sf);
+    dict_update(sampleComponents[0]["results"]["age_plateau"][0], {
+        "Ar39": line_points_set1[line_points_set1.length-1][0] - line_points_set1[0][0],
+        "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+        "rs": NaN, "Chisq": chi_square
+    });
+    sampleComponents["figure_1"]["text1"].text = "";
+
+    // set2
+    f_array = numeric.transpose(f_set2.map((v, i) => {
+        if (i >= Math.min(...sampleComponents["figure_2"]["set2"].data) && i <= Math.max(...sampleComponents["figure_2"]["set2"].data)) { return v }
+    }).filter((v, _) => v !== undefined));
+    [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
+    [age, s1, s2, s3] = calc_age(f, sf);
+    dict_update(sampleComponents[0]["results"]["age_plateau"][1], {
+        "Ar39": line_points_set2[line_points_set2.length-1][0] - line_points_set2[0][0],
+        "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+        "rs": NaN, "Chisq": chi_square
+    });
+    sampleComponents["figure_1"]["text2"].text = "";
 
 }
 
