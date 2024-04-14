@@ -1741,7 +1741,7 @@ function processQueue() {
 
 
 
-function clickPoints(params) {
+async function clickPoints(params) {
 
     if (isProcessing) {return}  // 判断是否还有未结束的运算，已彻底消除点击散点过快选点跳跃的问题，但是会严重影响操作时间
 
@@ -1896,7 +1896,37 @@ function clickPoints(params) {
     change_selection(params.data[5], current_set, 1);
 
     // re-plot isochron
-    re_plot_isochrons();
+    // const re_plot_isochron_sync = () => re_plot_isochrons();
+    // const re_plot_isochron_async = async () => {
+    //     return new Promise((resolve, reject) => {
+    //         // 在Promise的执行函数中调用耗时的同步函数
+    //         setTimeout(() => {
+    //             const result = re_plot_isochrons({calc_figure_2: false, calc_figure_3: false,
+    //                 calc_figure_4: true, calc_figure_5: true, calc_figure_6: true, calc_figure_7: true});
+    //             resolve(result);
+    //         }, 0); // 将同步函数调用放在setTimeout中，确保它在下一个事件循环中执行，避免阻塞主线程
+    //     });
+    // }
+    //
+    // re_plot_isochron_sync();
+    //
+    // re_plot_isochron_async().then(result => {
+    //     // send diff, update backend
+    //     $.ajax({
+    //         url: url_update_components_diff,
+    //         type: 'POST',
+    //         data: JSON.stringify({
+    //             'diff': findDiff(sampleComponentsBackup, sampleComponents),
+    //             'cache_key': cache_key,
+    //         }),
+    //         contentType:'application/json',
+    //         success: function(res){
+    //             sampleComponentsBackup = JSON.parse(JSON.stringify(sampleComponents));
+    //         }
+    //     });
+    // });
+    re_plot_isochrons({calc_figure_2: true, calc_figure_3: true, calc_figure_4: true,
+        calc_figure_5: true, calc_figure_6: true, calc_figure_7: true})
 
     // age spectra
     re_plot_age_spectra();
@@ -1923,13 +1953,6 @@ function clickPoints(params) {
     showPage(current_figure);
 
     setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5]);
-
-    // 2024/04/10
-    // 问题： 选点后，python后端更新了，但是下载保存的arr有问题，选点不对，年龄文字显示也不对
-    // 04/11找到原因并解决了：主要原因是results.isochron里面的0，1，2在python是数字整型，在json传过去之后是字符，因此没有正确更新，
-    // 其次set1/set2/set3的数据没有传递和更新
-
-    // findDiff 有问题
 
 }
 
@@ -3762,7 +3785,9 @@ function change_selection(clicked_index, current_set, base = 0) {
 }
 
 
-function re_plot_isochrons() {
+function re_plot_isochrons(options={}) {
+    const {calc_figure_2 = true, calc_figure_3 = true, calc_figure_4 = false,
+        calc_figure_5 = false, calc_figure_6 = false, calc_figure_7 = false} = options;
 
     let figure_id, set, results;
 
@@ -3776,362 +3801,371 @@ function re_plot_isochrons() {
 
 
     // figure_2
+    if (calc_figure_2) {
+        figure_id = "figure_2";
+        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
-    figure_id = "figure_2";
-    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+        set = "set1";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [r, sr, f, sf] = [k, sk, a, sa];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set1";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr, f, sf] = [k, sk, a, sa];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
+        set = "set2";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [r, sr, f, sf] = [k, sk, a, sa];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set2";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr, f, sf] = [k, sk, a, sa];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
+        // set = "set3";
+        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        // results = york2(x, sx, y, sy, pho1);
+        // if (results !== false) {
+        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        //     [r, sr, f, sf] = [k, sk, a, sa];
+        //     [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        //     });
+        //
+        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        // }
 
-    set = "set3";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr, f, sf] = [k, sk, a, sa];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
     }
 
 
     // figure_3
+    if (calc_figure_3) {
+        figure_id = "figure_3";
+        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
-    figure_id = "figure_3";
-    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+        set = "set1";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+            [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set1";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
+        set = "set2";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+            [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set2";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
-
-    set = "set3";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        // set = "set3";
+        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        // results = york2(x, sx, y, sy, pho1);
+        // if (results !== false) {
+        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        //     [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+        //     [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+        //     [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        //     [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        //     });
+        //
+        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        // }
     }
 
 
     // figure_4
+    if (calc_figure_4) {
+        figure_id = "figure_4";
+        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
-    figure_id = "figure_4";
-    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+        set = "set1";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [r, sr, f, sf] = [k, sk, a, sa];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set1";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr, f, sf] = [k, sk, a, sa];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
+        set = "set2";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [r, sr, f, sf] = [k, sk, a, sa];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set2";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr, f, sf] = [k, sk, a, sa];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
-
-    set = "set3";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr, f, sf] = [k, sk, a, sa];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`)
+        // set = "set3";
+        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        // results = york2(x, sx, y, sy, pho1);
+        // if (results !== false) {
+        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        //     [r, sr, f, sf] = [k, sk, a, sa];
+        //     [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        //     });
+        //
+        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`)
+        // }
     }
 
 
     // figure_5
+    if (calc_figure_5) {
+        figure_id = "figure_5";
+        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
-    figure_id = "figure_5";
-    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+        set = "set1";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+            [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set1";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
+        set = "set2";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+            [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set2";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
-
-    set = "set3";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-        [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        // set = "set3";
+        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        // results = york2(x, sx, y, sy, pho1);
+        // if (results !== false) {
+        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        //     [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
+        //     [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
+        //     [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        //     [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        //     });
+        //
+        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        // }
     }
 
 
     // figure_6
+    if (calc_figure_6) {
+        figure_id = "figure_6";
+        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
+        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
-    figure_id = "figure_6";
-    x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-    y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
+        set = "set1";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [f, sf, r, sr] = [k, sk, a, sa];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set1";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [f, sf, r, sr] = [k, sk, a, sa];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
+        set = "set2";
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        results = york2(x, sx, y, sy, pho1);
+        if (results !== false) {
+            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+            [f, sf, r, sr] = [k, sk, a, sa];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+            });
+            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
+            sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
 
-    set = "set2";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [f, sf, r, sr] = [k, sk, a, sa];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-        sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
-
-    set = "set3";
-    [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-    results = york2(x, sx, y, sy, pho1);
-    if (results !== false) {
-        [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        [f, sf, r, sr] = [k, sk, a, sa];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-            "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-            "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        });
-
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        // set = "set3";
+        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        // results = york2(x, sx, y, sy, pho1);
+        // if (results !== false) {
+        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
+        //     [f, sf, r, sr] = [k, sk, a, sa];
+        //     [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
+        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
+        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
+        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
+        //     });
+        //
+        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        // }
     }
 
 
     // figure_7
+    if (calc_figure_7) {
+        figure_id = "figure_7";
+        set = "set1";
+        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+        results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+        if (results !== false) {
+            [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = results;
+            [f, sf] = [k, sk];
+            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
+                "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+                "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
+            })
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
 
-    figure_id = "figure_7";
-    set = "set1";
-    [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
-    results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-    if (results !== false) {
-        [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = results;
-        [f, sf] = [k, sk];
-        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
-            "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-            "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
-        })
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        set = "set2";
+        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+        results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+        if (results !== false) {
+            [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+            [f, sf] = [k, sk];
+            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
+                "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+                "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
+            })
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
+
+        // set = "set3";
+        // [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+        // results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+        // if (results !== false) {
+        //     [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+        //     [f, sf] = [k, sk];
+        //     [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        //     [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+        //     dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
+        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
+        //         "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+        //         "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
+        //     })
+        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        // }
     }
 
-    set = "set2";
-    [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
-    results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-    if (results !== false) {
-        [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-        [f, sf] = [k, sk];
-        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
-            "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-            "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
-        })
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
-
-    set = "set3";
-    [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
-    results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-    if (results !== false) {
-        [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-        [f, sf] = [k, sk];
-        [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
-            "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
-            "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-            "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
-        })
-        // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-    }
+    setConsoleText(`Replot isochron completed.`);
 
 }
 
@@ -4147,28 +4181,35 @@ function re_plot_age_spectra() {
     }).filter((v, _) => v !== undefined);
 
     let f, sf, age, s1, s2, s3, num, mswd, chi_square, p_value, f_array;
-    let line_points_set1, line_points_set2
 
     // set1
-    f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set1"].data));
-    [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-    [age, s1, s2, s3] = calc_age(f, sf);
-    dict_update(sampleComponents[0]["results"]["age_spectra"][0], {
-        "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set1"].data)),
-        "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-        "rs": NaN, "Chisq": chi_square
-    });
+    try {
+        f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set1"].data));
+        [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
+        [age, s1, s2, s3] = calc_age(f, sf);
+        dict_update(sampleComponents[0]["results"]["age_spectra"][0], {
+            "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set1"].data)),
+            "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+            "rs": NaN, "Chisq": chi_square
+        });
+    } catch (e) {
+        console.log(`${e.name}: ${e.message}`);
+    }
+
 
     // set2
-    f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set2"].data));
-    [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-    [age, s1, s2, s3] = calc_age(f, sf);
-    dict_update(sampleComponents[0]["results"]["age_spectra"][1], {
-        "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set2"].data)),
-        "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-        "rs": NaN, "Chisq": chi_square
-    });
-
+    try {
+        f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set2"].data));
+        [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
+        [age, s1, s2, s3] = calc_age(f, sf);
+        dict_update(sampleComponents[0]["results"]["age_spectra"][1], {
+            "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set2"].data)),
+            "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+            "rs": NaN, "Chisq": chi_square
+        });
+    } catch (e) {
+        console.log(`${e.name}: ${e.message}`);
+    }
 
 
     // age spectra for set1 and set2
@@ -4188,46 +4229,55 @@ function re_plot_age_spectra() {
     const sar40k = degas_values[33];
     const ar39k = degas_values[22];
     const sar39k = degas_values[23];
-    const f_set1 = ar40.map((_, i) => calcAr40r_39k(r1[i], sr1[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
-            ar40[i], sar40[i], ar40k[i], sar40k[i]));
-    const f_set2 = ar40.map((_, i) => calcAr40r_39k(r2[i], sr2[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
-            ar40[i], sar40[i], ar40k[i], sar40k[i]));
-    const age_set1 = numeric.transpose(ar40.map((_, i) => calc_age(...f_set1[i], true, i)));
-    const age_set2 = numeric.transpose(ar40.map((_, i) => calc_age(...f_set2[i], true, i)));
-
-    line_points_set1 = ageSpectraPoints(spectra_values[9], age_set1[0], age_set1[2], sampleComponents["figure_2"]["set1"].data);
-    line_points_set2 = ageSpectraPoints(spectra_values[9], age_set2[0], age_set2[2], sampleComponents["figure_2"]["set2"].data);
-
-    // assign
-    sampleComponents["figure_1"]["set1"].data = line_points_set1;
-    sampleComponents["figure_1"]["set2"].data = line_points_set2;
+    let line_points, ages, set;
 
     // calc mean age
     // set1
-    f_array = numeric.transpose(f_set1.map((v, i) => {
-        if (i >= Math.min(...sampleComponents["figure_2"]["set1"].data) && i <= Math.max(...sampleComponents["figure_2"]["set1"].data)) { return v }
-    }).filter((v, _) => v !== undefined));
-    [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-    [age, s1, s2, s3] = calc_age(f, sf);
-    dict_update(sampleComponents[0]["results"]["age_plateau"][0], {
-        "Ar39": line_points_set1[line_points_set1.length-1][0] - line_points_set1[0][0],
-        "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-        "rs": NaN, "Chisq": chi_square
-    });
-    sampleComponents["figure_1"]["text1"].text = "";
+    try {
+        set = 'set1';
+        f_array = ar40.map((_, i) => calcAr40r_39k(r1[i], sr1[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
+            ar40[i], sar40[i], ar40k[i], sar40k[i]));
+        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], true, i)));
+        line_points = ageSpectraPoints(spectra_values[9], ages[0], ages[2], sampleComponents["figure_2"][set].data);
+        sampleComponents["figure_1"][set].data = line_points;
+        f_array = numeric.transpose(f_array.map((v, i) => {
+            if (i >= Math.min(...sampleComponents["figure_2"][set].data) && i <= Math.max(...sampleComponents["figure_2"][set].data)) { return v }
+        }).filter((v, _) => v !== undefined));
+        [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
+        [age, s1, s2, s3] = calc_age(f, sf);
+        dict_update(sampleComponents[0]["results"]["age_plateau"][0], {
+            "Ar39": line_points[line_points.length-1][0] - line_points[0][0],
+            "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+            "rs": NaN, "Chisq": chi_square
+        });
+        sampleComponents["figure_1"]["text1"].text = "";
+    } catch (e) {
+        console.log(`${e.name}: ${e.message}`);
+    }
+
 
     // set2
-    f_array = numeric.transpose(f_set2.map((v, i) => {
-        if (i >= Math.min(...sampleComponents["figure_2"]["set2"].data) && i <= Math.max(...sampleComponents["figure_2"]["set2"].data)) { return v }
-    }).filter((v, _) => v !== undefined));
-    [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-    [age, s1, s2, s3] = calc_age(f, sf);
-    dict_update(sampleComponents[0]["results"]["age_plateau"][1], {
-        "Ar39": line_points_set2[line_points_set2.length-1][0] - line_points_set2[0][0],
-        "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-        "rs": NaN, "Chisq": chi_square
-    });
-    sampleComponents["figure_1"]["text2"].text = "";
+    try {
+        set = 'set2';
+        f_array = ar40.map((_, i) => calcAr40r_39k(r2[i], sr2[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
+            ar40[i], sar40[i], ar40k[i], sar40k[i]));
+        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], true, i)));
+        line_points = ageSpectraPoints(spectra_values[9], ages[0], ages[2], sampleComponents["figure_2"][set].data);
+        sampleComponents["figure_1"][set].data = line_points;
+        f_array = numeric.transpose(f_array.map((v, i) => {
+            if (i >= Math.min(...sampleComponents["figure_2"][set].data) && i <= Math.max(...sampleComponents["figure_2"][set].data)) { return v }
+        }).filter((v, _) => v !== undefined));
+        [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
+        [age, s1, s2, s3] = calc_age(f, sf);
+        dict_update(sampleComponents[0]["results"]["age_plateau"][1], {
+            "Ar39": line_points[line_points.length-1][0] - line_points[0][0],
+            "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+            "rs": NaN, "Chisq": chi_square
+        });
+        sampleComponents["figure_1"]["text2"].text = "";
+    } catch (e) {
+        console.log(`${e.name}: ${e.message}`);
+    }
 
 }
 
