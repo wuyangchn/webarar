@@ -4158,21 +4158,21 @@ function re_plot_isochrons(options={}) {
             // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
         }
 
-        // set = "set3";
-        // [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
-        // results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-        // if (results !== false) {
-        //     [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-        //     [f, sf] = [k, sk];
-        //     [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        //     [age, s1, s2, s3] = calc_age(f, sf, using_Min);
-        //     dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
-        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
-        //         "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-        //         "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
-        //     })
-        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        // }
+        set = "set3";
+        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+        results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+        if (results !== false) {
+            [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, chisq, p, rs] = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+            [f, sf] = [k, sk];
+            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+            [age, s1, s2, s3] = calc_age(f, sf, using_Min);
+            dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
+                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
+                "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+                "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
+            })
+            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        }
     }
 
     setConsoleText(`Replot isochron completed.`);

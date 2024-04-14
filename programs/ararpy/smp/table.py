@@ -125,6 +125,10 @@ def update_handsontable(smp: Sample, data: list, id: str):
         smp.UnselectedSequence = [
             i for i in range(len(smp.IsochronMark)) if
             i not in smp.SelectedSequence1 + smp.SelectedSequence2]
+        #
+        smp.Info.results.selection[0]['data'] = smp.SelectedSequence1
+        smp.Info.results.selection[1]['data'] = smp.SelectedSequence2
+        smp.Info.results.selection[2]['data'] = smp.UnselectedSequence
     elif id == '8':  # 总参数
         data = _normalize_data(data, 125, 2)
         data[103: 115] = [_strToBool(i) for i in data[103: 115]]

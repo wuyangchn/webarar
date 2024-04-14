@@ -9,6 +9,8 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 # v0.0.40 2024-04-12
 * Add calculation function in javascript
+* 注意：散点点击之后的响应函数被改写到了js，因此不再需要传回后台python处理，为了加快响应速度，
+一般只有set1和set2进行拟合计算，但三维图set1/set2/set3三个组分都进行了拟合。
 
 # v0.0.38 2024-03-04
 * Fix errors in asynchronous ajax function
