@@ -47,7 +47,7 @@ spectra_res_keys = [
     'rs',  # 'rs' means relative error of the total sum
 ]
 SPECTRA_RES = dict(zip(
-    spectra_res_keys, [np.nan for i in iso_res_keys])
+    spectra_res_keys, [np.nan for i in spectra_res_keys])
 )
 
 
