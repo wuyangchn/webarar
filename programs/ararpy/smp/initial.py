@@ -107,6 +107,10 @@ def create_sample_from_dict(content: dict, smp_info: dict):
     smp.SelectedSequence1 = [index for index, item in enumerate(smp.IsochronMark) if item == 1]
     smp.SelectedSequence2 = [index for index, item in enumerate(smp.IsochronMark) if item == 2]
     smp.UnselectedSequence = [index for index, item in enumerate(smp.IsochronMark) if item not in [1, 2]]
+    #
+    smp.Info.results.selection[0]['data'] = smp.SelectedSequence1
+    smp.Info.results.selection[1]['data'] = smp.SelectedSequence2
+    smp.Info.results.selection[2]['data'] = smp.UnselectedSequence
 
     return smp
 
@@ -424,6 +428,10 @@ def from_raw_data(raw: RawData, mapping: Optional[List[dict]] = None) -> Sample:
     sample.UnselectedSequence = list(range(len(sample.SequenceName)))
     sample.SelectedSequence1 = []
     sample.SelectedSequence2 = []
+    #
+    sample.Info.results.selection[0]['data'] = sample.SelectedSequence1
+    sample.Info.results.selection[1]['data'] = sample.SelectedSequence2
+    sample.Info.results.selection[2]['data'] = sample.UnselectedSequence
 
     table.update_table_data(sample)  # Update table after submission row data and calculation
 
