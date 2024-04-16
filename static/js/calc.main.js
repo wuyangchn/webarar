@@ -3811,7 +3811,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3830,7 +3830,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3874,7 +3874,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3895,7 +3895,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3942,7 +3942,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3961,7 +3961,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4004,7 +4004,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4025,7 +4025,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4072,7 +4072,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4091,7 +4091,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4134,7 +4134,7 @@ function re_plot_isochrons(options={}) {
         const sar38ar36 = ar38ar36 * total_params[7][0] / 100;
         figure_id = "figure_7";
         set = "set1";
-        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
         results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
         if (results !== false) {
             [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, Chisq, p, rs] = results;
@@ -4151,7 +4151,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
         results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
         if (results !== false) {
             [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, Chisq, p, rs] = results;
