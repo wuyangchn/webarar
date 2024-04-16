@@ -2841,8 +2841,12 @@ function changeDegasPlot() {
 }
 function getIsochronData(arr, index, mark=5) {
     let data = transpose(arr);
-    return index.map(i => data[arr[mark].indexOf(i+1)])
-    // i + 1, because sample.Sequence starts from 0, while label in isochron data[5] starts from 1
+    if (data.length === 0) {
+        return [];
+    } else {
+        return index.map(i => data[arr[mark].indexOf(i+1)]);
+        // i + 1, because sample.Sequence starts from 0, while label in isochron data[5] starts from 1
+    }
 }
 function getAgeBarData(arr) {
     if (arr.length === 2){
@@ -3807,7 +3811,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3826,7 +3830,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3870,7 +3874,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3891,7 +3895,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3938,7 +3942,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -3957,7 +3961,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4000,7 +4004,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4021,7 +4025,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4068,7 +4072,7 @@ function re_plot_isochrons(options={}) {
         y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
 
         set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4087,7 +4091,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
+        [x, sx, y, sy, pho1] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
         results = york2(x, sx, y, sy, pho1);
         sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
         if (results !== false) {
@@ -4130,7 +4134,7 @@ function re_plot_isochrons(options={}) {
         const sar38ar36 = ar38ar36 * total_params[7][0] / 100;
         figure_id = "figure_7";
         set = "set1";
-        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
         results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
         if (results !== false) {
             [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, Chisq, p, rs] = results;
@@ -4147,7 +4151,7 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set2";
-        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = get_isochron_data_by_rows(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
         results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
         if (results !== false) {
             [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, Chisq, p, rs] = results;
@@ -4164,21 +4168,26 @@ function re_plot_isochrons(options={}) {
         }
 
         set = "set3";
-        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
-        results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-        if (results !== false) {
-            [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, Chisq, p, rs] = results;
-            [r, sr] = [(a + b * ar38ar36) * (-1 / k), errDiv(a + b * ar38ar36, errAdd(sa, errMul(b, sb, ar38ar36, sar38ar36)), -k, sk)];
-            [f, sf] = [k, sk];
-            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf);
-            dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
-                "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-                "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
-            })
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        }
+        // [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
+        // results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
+        // if (results !== false) {
+        //     [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, Chisq, p, rs] = results;
+        //     [r, sr] = [(a + b * ar38ar36) * (-1 / k), errDiv(a + b * ar38ar36, errAdd(sa, errMul(b, sb, ar38ar36, sar38ar36)), -k, sk)];
+        //     [f, sf] = [k, sk];
+        //     [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
+        //     [age, s1, s2, s3] = calc_age(f, sf);
+        //     dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
+        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
+        //         "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
+        //         "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
+        //     })
+        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
+        // }
+        dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
+            "Chisq":NaN, "F":NaN, "MSWD":NaN, "Pvalue": NaN, "R2": NaN, "abs_conv": NaN, "age": NaN, "conv": NaN,
+            "initial":NaN, "iter":NaN, "k":NaN, "m1": NaN, "mag": NaN, "rs": NaN, "s1": NaN, "s2": NaN, "s3": NaN, "sF": NaN,
+            "sinitial":NaN, "sk":NaN, "sm1":NaN, "S": NaN, "m2": NaN, "sm2": NaN
+        })
     }
 
     setConsoleText(`Replot isochron completed.`);
