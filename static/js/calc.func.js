@@ -62,10 +62,43 @@ function arr_diag(matrix) {
     return matrix.map((row, index) => row[index]);
 }
 
-function arr_slice(array, rows, base= 0) {
-    // array is a 2D array, index is rows
+// function get_isochron_data_by_rows(array, rows, base= 0) {
+//     // array is a 2D array, index is rows
+//     if (rows.length > 0) {
+//         return numeric.transpose(numeric.transpose(array).filter((value, index) => rows.includes(index - base)));
+//     } else {
+//         return [[], [], [], [], [], [], [], [], [], [], [], []];
+//     }
+// }
+
+function arr_remove_string(array) {
+    // array is a 2-dimensional array
+    const data = numeric.transpose(array).filter((row, idx) => {
+        for (let i=0;i<row.length;i++) {
+            if (typeof row[i] === 'string' || row[i] instanceof String) { return false }
+        }
+        return true;
+    });
+    if (data.length > 0) {
+        return numeric.transpose(data);
+    } else {
+        return [[], [], [], [], [], [], [], [], [], [], [], []];
+    }
+}
+
+function get_isochron_data_by_rows(array, rows, base= 0) {
+    let data = [];
     if (rows.length > 0) {
-        return numeric.transpose(numeric.transpose(array).filter((value, index) => rows.includes(index - base)));
+        data = numeric.transpose(array).filter((row, idx) => {
+            if (!rows.includes(idx - base)) { return false }
+            for (let i=0;i<row.length;i++) {
+                if (typeof row[i] === 'string' || row[i] instanceof String) { return false }
+            }
+            return true;
+        });
+    }
+    if (data.length > 0) {
+        return numeric.transpose(data);
     } else {
         return [[], [], [], [], [], [], [], [], [], [], [], []];
     }
