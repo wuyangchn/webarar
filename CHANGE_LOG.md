@@ -7,6 +7,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+# v0.0.40 2024-04-23
+* Add furnace heating log analysis
+
 # v0.0.40 2024-04-12
 * Add calculation function in javascript
 * 注意：散点点击之后的响应函数被改写到了js，因此不再需要传回后台python处理，为了加快响应速度，
