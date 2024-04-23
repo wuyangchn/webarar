@@ -13,8 +13,10 @@ from programs import ap
 def detail(request):
     return render(request, 'detail.html')
 
+
 def lov_view(request):
     return render(request, 'heating_log.html')
+
 
 def experiment_log(request):
     file = request.FILES.get(str(0))
@@ -34,6 +36,7 @@ def experiment_log(request):
     res = ''  # no need to return content
     return JsonResponse({'text': res, 'data': data})
 
+
 def get_log_data(text: str):
     import re
     data = [[], []]
@@ -49,6 +52,7 @@ def get_log_data(text: str):
             data[1].append([datetime, ap])
     return data
 
+
 def updating_log(request):
     text = json.loads(request.body.decode('utf-8'))['text']
     filename = json.loads(request.body.decode('utf-8'))['filename']
@@ -58,4 +62,27 @@ def updating_log(request):
     with open(filepath, 'w') as f:
         f.write(text)
     # file_funcs.save_txt_file(filepath, text)
+    return JsonResponse({})
+
+
+def update_oven_log_results(request):
+    data = json.loads(request.body.decode('utf-8'))['data']
+    filename = f'Oven_log_regression_results_temp.txt'
+    filepath = os.path.join(settings.SETTINGS_ROOT, filename)
+
+    write_header = True
+    if os.path.exists(filepath):
+        for line in open(filepath, 'r'):
+            write_header = not line.startswith("SP")
+            break
+    file = open(filepath, 'a+')
+    keys = []
+    values = []
+    for each in data:
+        keys = each.keys()
+        value = list(map(lambda x: str(x), each.values()))
+        values.append(','.join(value))
+    if write_header:
+        file.write(','.join(keys) + '\n')
+    file.write('\n'.join(values) + '\n')
     return JsonResponse({})
