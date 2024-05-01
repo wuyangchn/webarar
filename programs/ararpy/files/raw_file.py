@@ -57,7 +57,7 @@ def open_file(file_path: str, input_filter: List[Union[str, int, bool]]):
     extension = str(os.path.split(file_path)[-1]).split('.')[-1]
     try:
         handler = {'txt': open_raw_txt, 'excel': open_raw_xls,
-                   'Qtegra Exported XLS': open_argus_exported_xls, 'Seq': open_raw_seq}[
+                   'Qtegra Exported XLS': open_qtegra_exported_xls, 'Seq': open_raw_seq}[
             ['txt', 'excel', 'Qtegra Exported XLS', 'Seq'][int(input_filter[1])]]
     except KeyError:
         print(traceback.format_exc())
@@ -65,7 +65,7 @@ def open_file(file_path: str, input_filter: List[Union[str, int, bool]]):
     return handler(file_path, input_filter)
 
 
-def open_argus_exported_xls(filepath, input_filter=None):
+def open_qtegra_exported_xls(filepath, input_filter=None):
     if input_filter is None:
         input_filter = []
     try:
@@ -86,7 +86,10 @@ def open_argus_exported_xls(filepath, input_filter=None):
             # if the first item of each row is float (1.0, 2.0, ...) this row is the header of a step.
             if isinstance(each_row[0], float):
                 each_row[0] = int(each_row[0])
-                each_row[1] = datetime.strptime(each_row[1], '%m/%d/%Y  %H:%M:%S').isoformat(timespec='seconds')
+                if "M" in each_row[1].upper():
+                    each_row[1] = datetime.strptime(each_row[1], '%m/%d/%Y  %I:%M:%S %p').isoformat(timespec='seconds')
+                else:
+                    each_row[1] = datetime.strptime(each_row[1], '%m/%d/%Y  %H:%M:%S').isoformat(timespec='seconds')
                 step_header.append(each_row)
         for step_index, each_step_header in enumerate(step_header):
             row_start_number = value.index(each_step_header)
