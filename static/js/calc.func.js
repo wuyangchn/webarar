@@ -117,9 +117,12 @@ function linest(a0, a1, ...args) {
     } else {
         x = numeric.transpose([[...Array(a1.length).fill(1)], a1, ...args]);
     }
-    const n = x[0].length; // number of unknown x, constant is seen as x^0
+    if (x.length === 0) {
+        return false  // cl的图经常会有xy为空数组的情况会报错
+    }
     const m = x.length; // number of data
     // const y = a0.map(val => [val]);
+    const n = x[0].length; // number of unknown x, constant is seen as x^0
     const y = numeric.transpose([a0]);
     let inv_xtx;
     try {
