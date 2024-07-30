@@ -58,13 +58,15 @@ def corr_massdiscr(sample: Sample):
     mdf_corrected = [[]] * 10
     try:
         for i in range(5):
+            if len(sample.BlankCorrected[i * 2:2 + i * 2]) == 0:
+                raise ValueError("sample.BlankCorrected is empty.")
             mdf_corrected[i * 2:2 + i * 2] = calc.corr.discr(
                 *sample.BlankCorrected[i * 2:2 + i * 2],
                 *sample.TotalParam[69:71], m=MASS[i * 2], m40=MASS[8], isRelative=True,
                 method=sample.TotalParam[100][0])
     except Exception as e:
         print(traceback.format_exc())
-        raise ValueError('Mass discrimination correction error')
+        raise ValueError(f'Mass discrimination correction error: {e}')
     sample.MassDiscrCorrected = mdf_corrected
     sample.CorrectedValues = copy.deepcopy(sample.MassDiscrCorrected)
 
