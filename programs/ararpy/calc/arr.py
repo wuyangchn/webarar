@@ -40,15 +40,13 @@ def mul(*args):
     -------
     2D list, [values, errors]
     """
-    n = np.shape([args])[-1]
-    k0, k1 = [1] * n, [0] * n
-    k2 = []
-    for i in range(n):
-        for arg in args:
-            k0[i] = np.multiply(k0[i], arg[0][i])
-            k1[i] = k1[i] + np.divide(arg[1][i] ** 2, arg[0][i] ** 2)
-        k2.append(abs(k0[i]) * k1[i] ** .5)
-    return [k0, k2]
+    v = np.array(args)
+    res = np.zeros([2, v.shape[-1]], dtype=np.float64)
+    for i in range(v.shape[-1]):
+        res[0, i] = np.prod(v[:, 0, i])
+        res[1, i] = err.mul(*v[:, :, i])
+
+    return res
 
 
 def div(a, b):
