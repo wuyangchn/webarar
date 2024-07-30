@@ -174,9 +174,11 @@
         );
         $('#raw_file_list').on('all.bs.table', (e, arg1, arg2) => {
             let filters = [];
+            // console.log($('#raw_file_list').bootstrapTable('getData'));
+            // console.log($('#raw_file_list').bootstrapTable('getData')[0].checked);
             $('.input-filter-selection').each((index, ele) => {
                 filters[index] = ele.options[ele.selectedIndex].innerText;
-            })
+            });
             $('#raw-file-table-input').val(JSON.stringify({
                 'files': $('#raw_file_list').bootstrapTable('getData').map((item, index) => {
                     return {

@@ -22,16 +22,22 @@ from types import MethodType
 import pandas as pd
 
 SAMPLE_INTERCEPT_HEADERS = [
-    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
-    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
+    'Sequence', '',  # 0-1
+    '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',  # 2-5
+    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3',  # 6-9
+    '\u2074\u2070Ar', '1\u03C3',  # 10-11
 ]
 BLANK_INTERCEPT_HEADERS = [
-    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
-    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
+    'Sequence', '',  # 0-1
+    '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',  # 2-5
+    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3',  # 6-9
+    '\u2074\u2070Ar', '1\u03C3',  # 10-11
 ]
 CORRECTED_HEADERS = [
-    'Sequence', '', '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',
-    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3', '\u2074\u2070Ar', '1\u03C3'
+    'Sequence', '',  # 0-1
+    '\u00B3\u2076Ar', '1\u03C3', '\u00B3\u2077Ar', '1\u03C3',  # 2-5
+    '\u00B3\u2078Ar', '1\u03C3', '\u00B3\u2079Ar', '1\u03C3',  # 6-9
+    '\u2074\u2070Ar', '1\u03C3',  # 10-11
 ]
 DEGAS_HEADERS = [
     'Sequence', '',  # 0-1
@@ -42,16 +48,20 @@ DEGAS_HEADERS = [
     '\u00B3\u2078Ar[K]', '1\u03C3', '\u00B3\u2078Ar[Ca]', '1\u03C3',  # 18-21
     '\u00B3\u2079Ar[K]', '1\u03C3', '\u00B3\u2079Ar[Ca]', '1\u03C3',  # 22-25
     '\u2074\u2070Ar[r]', '1\u03C3', '\u2074\u2070Ar[a]', '1\u03C3',  # 26-29
-    '\u2074\u2070Ar[c]', '1\u03C3', '\u2074\u2070Ar[K]', '1\u03C3'  # 29-32
+    '\u2074\u2070Ar[c]', '1\u03C3', '\u2074\u2070Ar[K]', '1\u03C3'  # 30-33
 ]
 PUBLISH_TABLE_HEADERS = [
-    'Sequence', '', '\u00B3\u2076Ar[a]', '\u00B3\u2077Ar[Ca]', '\u00B3\u2078Ar[Cl]',
-    '\u00B3\u2079Ar[K]', '\u2074\u2070Ar[r]', 'Apparent Age', '1\u03C3', '\u2074\u2070Arr%',
-    '\u00B3\u2079ArK%', 'Ca/K', '1\u03C3'
+    'Sequence', '',  # 0-1
+    '\u00B3\u2076Ar[a]', '\u00B3\u2077Ar[Ca]', '\u00B3\u2078Ar[Cl]',  # 2-4
+    '\u00B3\u2079Ar[K]', '\u2074\u2070Ar[r]',  # 5-6
+    'Apparent Age', '1\u03C3', '\u2074\u2070Arr%', '\u00B3\u2079ArK%',  # 7-10
+    'Ca/K', '1\u03C3',  # 11-12
 ]
 SPECTRUM_TABLE_HEADERS = [
-    'Sequence', '', '\u2074\u2070Ar/\u00B3\u2079Ar', '1\u03C3', 'Apparent Age',
-    '1\u03C3', '1\u03C3', '1\u03C3', '\u2074\u2070Ar[r]%', '\u00B3\u2079Ar[K]%'
+    'Sequence', '',  # 0-1
+    '\u2074\u2070Ar/\u00B3\u2079Ar', '1\u03C3',  # 2-3
+    'Apparent Age', '1\u03C3', '1\u03C3', '1\u03C3',  # 4-7
+    '\u2074\u2070Ar[r]%', '\u00B3\u2079Ar[K]%',  # 8-9
 ]
 ISOCHRON_TABLE_HEADERS = [
     'Sequence', '', 'Mark',  # 0-2
@@ -124,6 +134,7 @@ TOTAL_PARAMS_HEADERS = [
     'Isotopic Errors',  # 122
     'Parameter Errors',  # 123
     'Plot Errors',  # 124
+    'Heating Time (m)',  # 125
 ]
 
 SAMPLE_INTERCEPT_SHORT_HEADERS = [
@@ -229,6 +240,7 @@ TOTAL_PARAMS_SHORT_HEADERS = [
     'IsotopicErrors',  # 122
     'ParameterErrors',  # 123
     'PlotErrors',  # 124
+    'HeatingTime',  # 124
 ]
 
 DEFAULT_PLOT_STYLES = {
@@ -715,7 +727,7 @@ DEFAULT_PLOT_STYLES = {
     },
 }
 
-VERSION = '20231208'
+VERSION = '20240729'
 
 NAMED_DICT = {
     "unknown": {"header": SAMPLE_INTERCEPT_HEADERS.copy()},
@@ -815,7 +827,8 @@ class Sample:
         # self.__version = '20230724'  # change header
         # self.__version = '20230730'  # delete calcparams attribute
         # self.__version = '20230827'  # using merge smp to update arr version
-        self.__version = '20231116'  # change smp parameters
+        # self.__version = '20231116'  # change smp parameters
+        self.__version = '20240729'  # change parameter table for thermo calculation
 
     @property
     def version(self):

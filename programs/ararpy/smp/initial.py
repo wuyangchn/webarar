@@ -117,15 +117,15 @@ def create_sample_from_dict(content: dict, smp_info: dict):
 
 def initial(smp: Sample):
     # 已更新 2023/7/4
-    smp.TotalParam = arr.create_arr((123, 0))
-    smp.BlankIntercept = arr.create_arr((10, 0))
-    smp.SampleIntercept = arr.create_arr((10, 0))
-    smp.PublishValues = arr.create_arr((11, 0))
+    smp.TotalParam = arr.create_arr((len(samples.TOTAL_PARAMS_HEADERS) - 2, 0))
+    smp.BlankIntercept = arr.create_arr((len(samples.BLANK_INTERCEPT_HEADERS) - 2, 0))
+    smp.SampleIntercept = arr.create_arr((len(samples.SAMPLE_INTERCEPT_HEADERS) - 2, 0))
+    smp.PublishValues = arr.create_arr((len(samples.PUBLISH_TABLE_HEADERS) - 2, 0))
     smp.DecayCorrected = arr.create_arr((10, 0))
-    smp.CorrectedValues = arr.create_arr((10, 0))
-    smp.DegasValues = arr.create_arr((32, 0))
-    smp.ApparentAgeValues = arr.create_arr((8, 0))
-    smp.IsochronValues = arr.create_arr((47, 0))
+    smp.CorrectedValues = arr.create_arr((len(samples.CORRECTED_HEADERS) - 2, 0))
+    smp.DegasValues = arr.create_arr((len(samples.DEGAS_HEADERS) - 2, 0))
+    smp.ApparentAgeValues = arr.create_arr((len(samples.SPECTRUM_TABLE_HEADERS) - 2, 0))
+    smp.IsochronValues = arr.create_arr((len(samples.ISOCHRON_TABLE_HEADERS) - 3, 0))
 
     # Doi
     if not hasattr(smp, 'Doi') or getattr(smp, 'Doi') in (None, ""):
@@ -133,7 +133,7 @@ def initial(smp: Sample):
 
     # Info
     setattr(smp, 'Info', ArArBasic(
-        id='0', name='info', attr_name='Info',
+        id='0', name='info', attr_name='Info', arr_version=samples.VERSION,
         sample=ArArBasic(
             name='SAMPLE NAME', material='MATERIAL', location='LOCATION'
         ),
