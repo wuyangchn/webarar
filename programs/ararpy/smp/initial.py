@@ -261,7 +261,7 @@ def check_version(smp: Sample):
 
     Parameters
     ----------
-    sample
+    smp
 
     Returns
     -------
