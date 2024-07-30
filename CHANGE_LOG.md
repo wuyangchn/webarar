@@ -7,6 +7,15 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+# v0.0.42 2024-07-30
+* Some changes. PDF preview to be finished.
+
+# v0.0.41 2024-05-12
+* Fixed bugs (linest function empty inputs)
+
+# v0.0.40 2024-05-01
+* Fixed 12-hour or 24-hour clock issues in opening Qtegra exported files 
+
 # v0.0.40 2024-04-23
 * Add furnace heating log analysis
 

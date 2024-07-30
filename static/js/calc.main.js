@@ -367,6 +367,11 @@ function export_sequence_deselect_all() {
 }
 
 
+// export to pdf
+function filesToExportChanged() {
+    //
+}
+
 function createSmChart(container, option) {
     let chart = echarts.init(container, null, {renderer: 'svg'});
     chart.setOption(getExtrapolateDefaultOption());

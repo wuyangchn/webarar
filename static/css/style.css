@@ -56,7 +56,7 @@
     top: 1px;
 }
 
-.irra-params, .calc-params, .smp-params, .sample-info, .input-filter-params {
+.irra-params, .calc-params, .smp-params, .sample-info, .input-filter-params, .export-params {
     width: 100%;
     height: 30px;
     padding: 6px 12px;
@@ -76,8 +76,12 @@ input.input-filter-params {
     padding-left: 2px;
     text-align: center;
 }
+input.export-params {
+    float: right;
+    width: 60px;
+}
 
-.irra-params:focus, .calc-params:focus, .smp-params:focus, .sample-info, .input-filter-params:focus {
+.irra-params:focus, .calc-params:focus, .smp-params:focus, .sample-info, .input-filter-params, .export-params:focus {
     border-color: #66afe9;
     outline: 0;
 }
@@ -88,6 +92,8 @@ input.input-filter-params {
 .calc-params::-webkit-inner-spin-button,
 .smp-params::-webkit-outer-spin-button,
 .smp-params::-webkit-inner-spin-button,
+.export-params::-webkit-outer-spin-button,
+.export-params::-webkit-inner-spin-button,
 .sample-info::-webkit-outer-spin-button,
 .sample-info::-webkit-inner-spin-button,
 .input-filter-params::-webkit-outer-spin-button,
@@ -329,3 +335,16 @@ input.input-filter-params {
     border-radius: 7px;
 }
 
+.table-export-to-pdf tbody tr td {
+    border: 1px solid black;
+    padding-right: 20px;
+    padding-left: 5px;
+}
+
+.label-left {
+    width: 45%;
+    margin-right: 5%;
+}
+.label-right {
+    width: 45%;
+}

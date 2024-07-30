@@ -682,6 +682,11 @@ class ParamsSettingView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '005', 'info', f'Show input filter project names: {names}')
         return render(request, 'input_filter_setting.html', {'allInputFilterNames': names})
 
+    def show_export_pdf(self, request, *args, **kwargs):
+        names = list(models.ExportPDFParams.objects.values_list('name', flat=True))
+        log_funcs.set_info_log(self.ip, '005', 'info', f'Show export PDF project names: {names}')
+        return render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
+
     def change_param_objects(self, request, *args, **kwargs):
         type = str(self.body['type'])  # type = irra, calc, smp
         model_name = f"{''.join([i.capitalize() for i in type.split('-')])}Params"
