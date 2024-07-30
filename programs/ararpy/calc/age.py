@@ -111,9 +111,9 @@ def calc_age_min(F, sF, **kwargs) -> tuple:
 
     # change to Ma
     # analytical error, error of 40Ar/39Ar only
-    s1 = np.sqrt((V * KK * R / (R * XX)) ** 2 * sR_2 ** 2) / 1000000
+    s1 = np.sqrt((V * KK * BB / XX) ** 2 * sR_2 ** 2) / 1000000
     # internal error, errors of 40Ar/39Ar and J value
-    s2 = np.sqrt((V * KK * R / (R * XX)) ** 2 * sR_1 ** 2) / 1000000
+    s2 = np.sqrt((V * KK * BB / XX) ** 2 * sR_1 ** 2) / 1000000
     # total external error
     s3 = np.sqrt(e1 + e2 + e3 + e4 + e5 + e6 + e7 + e8 + e9) / 1000000
     age = k0 / 1000000
