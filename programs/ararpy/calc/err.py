@@ -36,8 +36,15 @@ def mul(*args: tuple) -> float:
     Returns: float, propagated error
 
     """
-    k = abs(np.prod([arg[0] for arg in args])) * sum([np.divide(arg[1] ** 2, arg[0] ** 2) for arg in args]) ** .5
-    return k
+    # k = abs(np.prod([arg[0] for arg in args])) * sum([np.divide(arg[1] ** 2, arg[0] ** 2) for arg in args]) ** .5
+    v = np.ma.array(args, mask=False)
+    k = 0
+    for i in range(v.shape[0]):
+        v.mask[i, 0] = True
+        k += np.prod(v[:, 0]) ** 2 * v[i, 1] ** 2
+        v.mask[i, 0] = False
+
+    return np.sqrt(k)
 
 
 def rec(a: tuple) -> float:
