@@ -134,7 +134,9 @@ TOTAL_PARAMS_HEADERS = [
     'Isotopic Errors',  # 122
     'Parameter Errors',  # 123
     'Plot Errors',  # 124
-    'Heating Time (m)',  # 125
+    'Heating Time (s)',  # 125
+    'Heating Actual Temp (C)',  # 126
+    'Heating AT 1\u03C3',  # 127
 ]
 
 SAMPLE_INTERCEPT_SHORT_HEADERS = [
@@ -240,7 +242,9 @@ TOTAL_PARAMS_SHORT_HEADERS = [
     'IsotopicErrors',  # 122
     'ParameterErrors',  # 123
     'PlotErrors',  # 124
-    'HeatingTime',  # 124
+    'HeatingTime',  # 125
+    'HeatingActualTemp',  # 126
+    'HeatingActualTempError',  # 127
 ]
 
 DEFAULT_PLOT_STYLES = {
@@ -727,7 +731,7 @@ DEFAULT_PLOT_STYLES = {
     },
 }
 
-VERSION = '20240729'
+VERSION = '20240730'
 
 NAMED_DICT = {
     "unknown": {"header": SAMPLE_INTERCEPT_HEADERS.copy()},
@@ -828,7 +832,7 @@ class Sample:
         # self.__version = '20230730'  # delete calcparams attribute
         # self.__version = '20230827'  # using merge smp to update arr version
         # self.__version = '20231116'  # change smp parameters
-        self.__version = '20240729'  # change parameter table for thermo calculation
+        self.__version = '20240730'  # change parameter table for thermo calculation
 
     @property
     def version(self):

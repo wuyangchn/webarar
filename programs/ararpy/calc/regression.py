@@ -755,10 +755,10 @@ def polynomial(a0: list, a1: list, degree: int = 5):
     """
     # y = b + m1 * x + m2 * x ^ 2 + ... + m[n] * x ^ n
     k = list(linest(a0, *[[j ** (i + 1) for j in a1] for i in range(degree)]))
-    b, seb, rseb, r2, mswd, [b, m], [seb, sem] = k[0:7]
+    b, seb, rseb, r2, mswd, beta, se_beta = k[0:7]
 
     def get_adjusted_y(x: list):
-        return [b + sum([m * _x ** (i + 1) for i in range(degree)]) for _x in x]
+        return [sum([beta[i] * _x ** i for i in range(degree + 1)]) for _x in x]
 
     k[7] = get_adjusted_y
 

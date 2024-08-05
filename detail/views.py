@@ -53,15 +53,14 @@ def get_log_data(text: str):
     return data
 
 
-def updating_log(request):
+def update_log(request):
     text = json.loads(request.body.decode('utf-8'))['text']
     filename = json.loads(request.body.decode('utf-8'))['filename']
     if filename == "":
-        filename = 'inside_temeprature_log'
+        filename = 'inside_temperature_log'
     filepath = os.path.join(settings.SETTINGS_ROOT, f'{filename}.log')
     with open(filepath, 'w') as f:
         f.write(text)
-    # file_funcs.save_txt_file(filepath, text)
     return JsonResponse({})
 
 
@@ -85,4 +84,5 @@ def update_oven_log_results(request):
     if write_header:
         file.write(','.join(keys) + '\n')
     file.write('\n'.join(values) + '\n')
+    file.close()
     return JsonResponse({})

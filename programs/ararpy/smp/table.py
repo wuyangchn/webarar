@@ -92,31 +92,37 @@ def update_handsontable(smp: Sample, data: list, id: str):
         smp.SequenceName = data[0]
     except IndexError:
         pass
+
+    update_all_table = False
     try:
-        smp.SequenceValue = data[1]
+        if data[1] != smp.SequenceValue:
+            smp.SequenceValue = data[1]
     except IndexError:
         pass
+    else:
+        update_all_table = True
+
     if id == '1':  # 样品值
-        data = _normalize_data(data, 12, 2)
+        data = _normalize_data(data, len(samples.SAMPLE_INTERCEPT_HEADERS), 2)
         smp.SampleIntercept = data
     elif id == '2':  # 本底值
-        data = _normalize_data(data, 12, 2)
+        data = _normalize_data(data, len(samples.BLANK_INTERCEPT_HEADERS), 2)
         smp.BlankIntercept = data
     elif id == '3':  # 校正值
-        data = _normalize_data(data, 12, 2)
+        data = _normalize_data(data, len(samples.CORRECTED_HEADERS), 2)
         smp.CorrectedValues = data
-    elif id == '4':  #
-        data = _normalize_data(data, 34, 2)
+    elif id == '4':  # Degas table
+        data = _normalize_data(data, len(samples.DEGAS_HEADERS), 2)
         smp.DegasValues = data
     elif id == '5':  # 发行表
-        data = _normalize_data(data, 13, 2)
+        data = _normalize_data(data, len(samples.PUBLISH_TABLE_HEADERS), 2)
         smp.PublishValues = data
     elif id == '6':  # 年龄谱
-        data = _normalize_data(data, 10, 2)
+        data = _normalize_data(data, len(samples.SPECTRUM_TABLE_HEADERS), 2)
         smp.ApparentAgeValues = data
     elif id == '7':  # 等时线
         smp.IsochronMark = data[2]
-        data = _normalize_data(data, 42, 3)
+        data = _normalize_data(data, len(samples.ISOCHRON_TABLE_HEADERS), 3)
         smp.IsochronValues = data
         smp.SelectedSequence1 = [
             i for i in range(len(smp.IsochronMark)) if str(smp.IsochronMark[i]) == "1"]
@@ -130,11 +136,14 @@ def update_handsontable(smp: Sample, data: list, id: str):
         smp.Info.results.selection[1]['data'] = smp.SelectedSequence2
         smp.Info.results.selection[2]['data'] = smp.UnselectedSequence
     elif id == '8':  # 总参数
-        data = _normalize_data(data, 125, 2)
+        data = _normalize_data(data, len(samples.TOTAL_PARAMS_HEADERS), 2)
         data[103: 115] = [_strToBool(i) for i in data[103: 115]]
         smp.TotalParam = data
     else:
         raise ValueError(f"{id = }, The table id is not supported.")
-    update_table_data(smp, only_table=id)  # Update data of tables after changes of a table
+    if update_all_table:
+        update_table_data(smp)
+    else:
+        update_table_data(smp, only_table=id)  # Update data of tables after changes of a table
 
 
