@@ -94,6 +94,7 @@
             <label><input id="filename" type="text" class="button" style="width: 200px">Filename</label>
             <button value="send" style="float: right" onclick="sendInputData()">Send</button>
             <label><input id="check_remove_data" type="checkbox" class="button" style="margin-right: 10px">Relative heating time</label>
+            <label><input id="check_update_charts" type="checkbox" class="button" style="margin-right: 10px">Update Charts</label>
             <label for="input_text_area"></label>
             <textarea id="input_text_area" class="container" style="height: 545px" onchange="inputDataChanged()"></textarea>
         </div>
@@ -208,6 +209,8 @@
         let data = checked_data.map(val => [(Number(parseDate(val[0])) - start_timestamp) / 1000, val[1]]);
         data = numeric.transpose(data);
 
+        const max_x = Math.max(...data[0]);
+
         const x = [data[0],  // x
             data[0].map(val => val ** 2), data[0].map(val => val ** 3),  // x^2, x^3
             data[0].map(val => val ** 4), data[0].map(val => val ** 5),  // x^2, x^3
@@ -268,7 +271,8 @@
         return [
             regression, df, lb,  // regression data, df data, lower boundary data
             checked_data[0][0], equilibrium_time, lower_limit,  // start_time, equilibrium time, lb
-            keys
+            keys, res[5], res[3],  // factors, coefficients, r2
+            max_x  // maximum of x
         ];
     }
     
@@ -283,83 +287,98 @@
                 }
             })
         });
-        oven_log_chart.setOption({
-            series: inputdata.map((data, index) => {
-                return {
-                    id: `Inside-${index}`, name: `Inside-${index}`,
-                    type: 'line', symbolSize: 6, z: 2, silent: true,
-                    data: normalizeDataTime(data),
-                    lineStyle: {width: 1, type: 'solid'},
-                    itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
-                    label: {show: false, formatter: '{@[1]}'},
-                }
-            })
-        });
+        let doChart = $('#check_update_charts').is(':checked');
+        if (doChart) {
+            oven_log_chart.setOption({
+                series: inputdata.map((data, index) => {
+                    return {
+                        id: `Inside-${index}`, name: `Inside-${index}`,
+                        type: 'line', symbolSize: 6, z: 2, silent: true,
+                        data: normalizeDataTime(data),
+                        lineStyle: {width: 1, type: 'solid'},
+                        itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
+                        label: {show: false, formatter: '{@[1]}'},
+                    }
+                })
+            });
+        }
         const regression_results = [];
+        let last_sp = 0;
         inputdata.forEach((data, index) => {
             const regression_data = regressHeatingLog(normalizeDataTime(data));
             if (regression_data === false) {
                 //
             } else {
                 const sp = data[0][2].split("***")[1];
+                const increment = sp - last_sp;
+                const isIncrease = increment > 0;
+                last_sp = sp;
                 const start_time = data[0][0];
                 const equilibrium_time = regression_data[4];
                 const lower_boundary = regression_data[5];
                 const keys = regression_data[6];
+                const coeffs = regression_data[7];
+                const r2 = regression_data[8];
+                const max_x = regression_data[9];
                 const title = `Time = ${start_time}, SP = ${sp}, Eq_time = ${parseFloat(equilibrium_time).toFixed(2)} mins, Strategy = ${lower_boundary} ℃/min
                 Before ET: ${parseFloat(keys[2]).toFixed(2)} ± ${parseFloat(2 * keys[3]).toFixed(2)}
                 After ET: ${parseFloat(keys[6]).toFixed(2)} ± ${parseFloat(2 * keys[7]).toFixed(2)}`;
                 regression_results.push({
                     SP: sp, ST: start_time, ET: equilibrium_time, LB: lower_boundary,
                     LMin: keys[0], LMax: keys[1], LMean: keys[2], LSD: keys[3],
-                    UMin: keys[4], UMax: keys[5], UMean: keys[6], USD: keys[7]
+                    UMin: keys[4], UMax: keys[5], UMean: keys[6], USD: keys[7],
+                    x0: coeffs[0], x1: coeffs[1], x2: coeffs[2], x3: coeffs[3],
+                    x4: coeffs[4], x5: coeffs[5], x6: coeffs[6], r2: r2, Rise: isIncrease,
+                    Increment: increment, MaxTime: max_x
                 });
-                charts[index + 1].setOption({
-                    series: {
-                        id: `Data-${index}`, name: `Data-${index}`,
-                        type: 'line', symbolSize: 0, z: 2, silent: true,
-                        data: normalizeDataTime(data),
-                        lineStyle: {width: 1, type: 'solid'},
-                        itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
-                        label: {show: false, formatter: '{@[1]}'},
-                    }
-                });
-                charts[index + 1].setOption({
-                    series: {
-                        id: `Regression-${index}`, name: `Regression-${index}`,
-                        type: 'line', symbolSize: 0, z: 2, silent: true,
-                        data: regression_data[0],
-                        lineStyle: {width: 1, type: 'solid'},
-                        itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
-                        label: {show: false, formatter: 'Regression Line'},
-                    }
-                });
-                charts[index + 1].setOption({
-                    series: {
-                        id: `Rate-${index}`, name: `Rate-${index}`,
-                        type: 'line', symbolSize: 0, z: 2, silent: true,
-                        data: regression_data[1],
-                        yAxisIndex: 1,
-                        lineStyle: {width: 1, type: 'solid'},
-                        itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
-                        label: {show: false, formatter: 'Regression Line'},
-                    }
-                });
-                charts[index + 1].setOption({
-                    series: {
-                        id: `Baseline-${index}`, name: `Baseline-${index}`,
-                        type: 'line', symbolSize: 0, z: 2, silent: true,
-                        data: regression_data[2],
-                        yAxisIndex: 1,
-                        lineStyle: {width: 1, type: 'solid', color: '#ff0000'},
-                        itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
-                        label: {show: false, formatter: 'Regression Line'},
-                    },
-                    title: {
-                        show: true, text: title
-                    }
-                });
-                charts[index + 1].resize();
+                if (doChart) {
+                    charts[index + 1].setOption({
+                        series: {
+                            id: `Data-${index}`, name: `Data-${index}`,
+                            type: 'line', symbolSize: 0, z: 2, silent: true,
+                            data: normalizeDataTime(data),
+                            lineStyle: {width: 1, type: 'solid'},
+                            itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
+                            label: {show: false, formatter: '{@[1]}'},
+                        }
+                    });
+                    charts[index + 1].setOption({
+                        series: {
+                            id: `Regression-${index}`, name: `Regression-${index}`,
+                            type: 'line', symbolSize: 0, z: 2, silent: true,
+                            data: regression_data[0],
+                            lineStyle: {width: 1, type: 'solid'},
+                            itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
+                            label: {show: false, formatter: 'Regression Line'},
+                        }
+                    });
+                    charts[index + 1].setOption({
+                        series: {
+                            id: `Rate-${index}`, name: `Rate-${index}`,
+                            type: 'line', symbolSize: 0, z: 2, silent: true,
+                            data: regression_data[1],
+                            yAxisIndex: 1,
+                            lineStyle: {width: 1, type: 'solid'},
+                            itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
+                            label: {show: false, formatter: 'Regression Line'},
+                        }
+                    });
+                    charts[index + 1].setOption({
+                        series: {
+                            id: `Baseline-${index}`, name: `Baseline-${index}`,
+                            type: 'line', symbolSize: 0, z: 2, silent: true,
+                            data: regression_data[2],
+                            yAxisIndex: 1,
+                            lineStyle: {width: 1, type: 'solid', color: '#ff0000'},
+                            itemStyle: {borderWidth: 2, opacity: 0.8},  // borderColor: '#222',
+                            label: {show: false, formatter: 'Regression Line'},
+                        },
+                        title: {
+                            show: true, text: title
+                        }
+                    });
+                    charts[index + 1].resize();
+                }
             }
         });
         console.log(regression_results);
@@ -387,20 +406,27 @@
         {#        }#}
         {#    })#}
 //        });
-        oven_log_chart.resize();
-        $.ajax({
-            url: url_reference_update_log,
-            type: 'POST',
-            async: false,
-            data: JSON.stringify({
-                'text': inputtext,
-                'filename': $('#filename').val(),
-            }),
-            contentType:'application/json',
-            success: function(res){
-                //
-            }
-        })
+        if (doChart) {
+            oven_log_chart.resize();
+        } else {
+            showPopupMessage('Information', 'Completed!', false);
+        }
+
+        // send to save inputted data
+        // $.ajax({
+        //     url: url_reference_update_log,
+        //     type: 'POST',
+        //     async: false,
+        //     data: JSON.stringify({
+        //         'text': inputtext,
+        //         'filename': $('#filename').val(),
+        //     }),
+        //     contentType:'application/json',
+        //     success: function(res){
+        //         //
+        //     }
+        // })
+
     }
 
     function _dropHandler(ev) {

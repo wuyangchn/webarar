@@ -7,6 +7,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+# v0.0.42 2024-08-05
+* Fix issues and some changes.
+
 # v0.0.42 2024-07-30
 * Some changes. PDF preview to be finished.
 
