@@ -4469,9 +4469,6 @@ def run_agemon_dll(sample: Sample, source_dll_path: str, loc: str, data, max_age
     new_dll_path = os.path.join(loc, f"{base_name}{ext}")
     # 复制并重命名 DLL 文件
     shutil.copy(source_dll_path, new_dll_path)
-    mylib = ctypes.CDLL(new_dll_path)
-    run = mylib.run
-    run.restype = None
 
     agemon = DiffAgemonFuncs(smp=sample, loc=loc)
 
@@ -4531,30 +4528,31 @@ def run_agemon_dll(sample: Sample, source_dll_path: str, loc: str, data, max_age
     filepath = bytes(loc, "utf-8")
     samplename = bytes(sample.name(), "utf-8")
 
-    print(f"Start.")
-    s = time.time()
-
-    result = run(
-        (ctypes.c_double * len(xs))(*xs), ctypes.c_int(len(xs)),
-        (ctypes.c_double * len(age))(*age), ctypes.c_int(len(age)),
-        (ctypes.c_double * len(sig))(*sig), ctypes.c_int(len(sig)),
-        (ctypes.c_double * len(e))(*e), ctypes.c_int(len(e)),
-        (ctypes.c_double * len(d0_flatten))(*d0_flatten), ctypes.c_int(d0.shape[0]), ctypes.c_int(d0.shape[1]),
-        (ctypes.c_double * len(vc_flatten))(*vc_flatten), ctypes.c_int(vc.shape[0]), ctypes.c_int(vc.shape[1]),
-        (ctypes.c_int * len(nsts))(*nsts), ctypes.c_int(len(nsts)),
-        (ctypes.c_double * len(temp))(*temp), ctypes.c_int(len(temp)),
-        (ctypes.c_double * len(heating_time))(*heating_time), ctypes.c_int(len(heating_time)),
-        ctypes.c_int(kk),
-        ctypes.c_double(max_age),
-        ctypes.c_int(nsteps),
-        ctypes.c_char_p(filepath),
-        ctypes.c_char_p(samplename)
-    )
-
-    print(f"time run: {time.time() - s}")
-
-    del mylib
-    gc.collect()
+    mylib = ctypes.CDLL(new_dll_path)
+    try:
+        run = mylib.run
+        run.restype = None
+        result = run(
+            (ctypes.c_double * len(xs))(*xs), ctypes.c_int(len(xs)),
+            (ctypes.c_double * len(age))(*age), ctypes.c_int(len(age)),
+            (ctypes.c_double * len(sig))(*sig), ctypes.c_int(len(sig)),
+            (ctypes.c_double * len(e))(*e), ctypes.c_int(len(e)),
+            (ctypes.c_double * len(d0_flatten))(*d0_flatten), ctypes.c_int(d0.shape[0]), ctypes.c_int(d0.shape[1]),
+            (ctypes.c_double * len(vc_flatten))(*vc_flatten), ctypes.c_int(vc.shape[0]), ctypes.c_int(vc.shape[1]),
+            (ctypes.c_int * len(nsts))(*nsts), ctypes.c_int(len(nsts)),
+            (ctypes.c_double * len(temp))(*temp), ctypes.c_int(len(temp)),
+            (ctypes.c_double * len(heating_time))(*heating_time), ctypes.c_int(len(heating_time)),
+            ctypes.c_int(kk),
+            ctypes.c_double(max_age),
+            ctypes.c_int(nsteps),
+            ctypes.c_char_p(filepath),
+            ctypes.c_char_p(samplename)
+        )
+    except:
+        pass
+    else:
+        del mylib
+        gc.collect()
 
     return
 
