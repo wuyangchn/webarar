@@ -96,6 +96,16 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label for="inputType" class="col-sm-2 control-label">Type</label>
+                        <div class="col-sm-10">
+                            <label><select id="inputType" class="form-control" style="font-weight: normal">
+                                <option value="Unknown">Unknown</option>
+                                <option value="Standard">Standard</option>
+                                <option value="Air">Air</option>
+                            </select></label>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="inputMaterial" class="col-sm-2 control-label">Material</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="inputMaterial" name="Material" value="Material">
@@ -757,12 +767,21 @@
     let default_row_count = 32;
     let colHeaders = [];
     let data = [];
-    // create handsontable
+    // create handsontableW
+    let rows_to_delete = [];
     let hot = new Handsontable(document.getElementById('table_container'), {
         data: data,  // 内容
         rowHeaders: rowHeaders,  // 行标题
         colHeaders: colHeaders,  // 列标题
-        contextMenu: true,  // 右键菜单
+        // contextMenu: true,  // 右键菜单
+        contextMenu: {
+            items: {
+                "remove_row" : {
+                    name: "Remove row",
+                    callback: handsontableRemoveRow,
+                }
+            }
+        },
         licenseKey: 'non-commercial-and-evaluation',
         className: 'htLeft htMiddle',
         renderAllRows: true,

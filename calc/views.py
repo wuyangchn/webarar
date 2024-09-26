@@ -4,14 +4,16 @@ import json
 import pickle
 import traceback
 import re
+import ctypes
+import numpy as np
+import time
+import gc
 
 # from math import ceil
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
-import numpy as np
-# import time
 from . import models
 from programs import http_funcs, log_funcs, ap
 from django.core.cache import cache
@@ -178,8 +180,22 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             ap.smp.basic.update_object_from_dict(
                 ap.smp.basic.get_component_byid(self.sample, name), attrs)
 
+        self.sample.SequenceName = [v[0] for i, v in enumerate(self.sample.IsochronsTable.data)]
+        self.sample.SequenceValue = [v[1] for i, v in enumerate(self.sample.IsochronsTable.data)]
+        self.sample.IsochronMark = [v[2] for i, v in enumerate(self.sample.IsochronsTable.data)]
+
+        ap.smp.table.update_data_from_table(self.sample)
+
+        # self.sample.UnknownTable.data = ap.calc.arr.transpose(self.sample.UnknownTable.data)
+        # self.sample.BlankTable.data = ap.calc.arr.transpose(self.sample.BlankTable.data)
+        # self.sample.CorrectedTable.data = ap.calc.arr.transpose(self.sample.CorrectedTable.data)
+        # self.sample.DegasPatternTable.data = ap.calc.arr.transpose(self.sample.DegasPatternTable.data)
+        # self.sample.PublishTable.data = ap.calc.arr.transpose(self.sample.PublishTable.data)
+        # self.sample.AgeSpectraPlot.data = ap.calc.arr.transpose(self.sample.AgeSpectraPlot.data)
+        # self.sample.IsochronsTable.data = ap.calc.arr.transpose(self.sample.IsochronsTable.data)
+        # self.sample.TotalParamsTable.data = ap.calc.arr.transpose(self.sample.TotalParamsTable.data)
+
         res = {}
-        # Do something for some purpose
         if 'figure_9' in diff.keys() and not all(
                 [i not in diff.get('figure_9').keys() for i in ['set1', 'set2', 'set3']]):
             # Backup after changes are applied
@@ -189,10 +205,20 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(self.sample))
 
         # 2024/04/10
-        self.sample.SelectedSequence1 = self.sample.InvIsochronPlot.set1.data.copy()
-        self.sample.SelectedSequence2 = self.sample.InvIsochronPlot.set2.data.copy()
-        self.sample.UnselectedSequence = self.sample.InvIsochronPlot.set3.data.copy()
-        self.sample.IsochronMark = [v[2] for i, v in enumerate(self.sample.IsochronsTable.data)]
+        self.sample.SelectedSequence1 = [
+            i for i in range(len(self.sample.IsochronMark)) if str(self.sample.IsochronMark[i]) == "1"]
+        self.sample.SelectedSequence2 = [
+            i for i in range(len(self.sample.IsochronMark)) if str(self.sample.IsochronMark[i]) == "2"]
+        self.sample.UnselectedSequence = [
+            i for i in range(len(self.sample.IsochronMark)) if
+            i not in self.sample.SelectedSequence1 + self.sample.SelectedSequence2]
+        # self.sample.SelectedSequence1 = self.sample.InvIsochronPlot.set1.data.copy()
+        # self.sample.SelectedSequence2 = self.sample.InvIsochronPlot.set2.data.copy()
+        # self.sample.UnselectedSequence = self.sample.InvIsochronPlot.set3.data.copy()
+
+        self.sample.Info.results.selection[0]['data'] = self.sample.SelectedSequence1
+        self.sample.Info.results.selection[1]['data'] = self.sample.SelectedSequence2
+        self.sample.Info.results.selection[2]['data'] = self.sample.UnselectedSequence
 
         http_funcs.create_cache(self.sample, self.cache_key)  # Update cache
         return JsonResponse(res)
@@ -422,6 +448,7 @@ class RawFileView(http_funcs.ArArView):
         filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_name]
         try:
             raw = ap.smp.raw.to_raw(file_path=file_path, input_filter_path=filter_paths)
+            print("before do regression")
             raw.do_regression()
 
             allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
@@ -437,10 +464,12 @@ class RawFileView(http_funcs.ArArView):
         except FileNotFoundError as e:
             messages.error(request, e)
         except ValueError as e:
+            print(traceback.format_exc())
             messages.error(request, e)
         except (Exception, BaseException):
             print(traceback.format_exc())
             messages.error(request, traceback.format_exc())
+        print("Render")
         return render(request, 'raw_filter.html')
 
     def import_blank_file(self, request, *args, **kwargs):
@@ -492,6 +521,27 @@ class RawFileView(http_funcs.ArArView):
 
         return JsonResponse({'new_sequence': new_sequence},
                             encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
+
+    def change_seq_fitting_method(self, request, *args, **kwargs):
+        raw: ap.RawData = self.sample
+        seq_idx = self.body['sequence_index']
+        iso_idx = self.body['isotope_index']
+        fit_idx = self.body['fitting_index']
+        # print(f"{seq_idx = }, {iso_idx = }, {fit_idx = }")
+        raw.get_sequence(seq_idx).fitting_method[iso_idx] = fit_idx
+        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
+        return JsonResponse({})
+
+    def change_seq_state(self, request, *args, **kwargs):
+        raw: ap.RawData = self.sample
+        seq_idx = self.body['sequence_index']
+        is_blank = self.body['is_blank']
+        is_removed = self.body['is_removed']
+        seq = raw.get_sequence(seq_idx)
+        seq.as_type(is_blank and "blank")
+        seq.is_removed = is_removed
+        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
+        return JsonResponse({})
 
     def to_project_view(self, request, *args, **kwargs):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Upload raw project')
@@ -597,9 +647,9 @@ class RawFileView(http_funcs.ArArView):
         sample = raw.to_sample(selectedSequences)
 
         info = {
-            'sample': {'name': sampleInfo[0], 'material': sampleInfo[1], 'location': sampleInfo[2]},
-            'researcher': {'name': sampleInfo[3]},
-            'laboratory': {'name': sampleInfo[4], 'info': sampleInfo[5], 'analyst': sampleInfo[6]}
+            'sample': {'name': sampleInfo[0], 'type': sampleInfo[1], 'material': sampleInfo[2], 'location': sampleInfo[3]},
+            'researcher': {'name': sampleInfo[4]},
+            'laboratory': {'name': sampleInfo[5], 'info': sampleInfo[6], 'analyst': sampleInfo[7]}
         }
         sample.set_info(info=info)
 
@@ -775,6 +825,239 @@ class ParamsSettingView(http_funcs.ArArView):
                         return JsonResponse({'msg': 'something wrong happened when delete params'}, status=403)
             else:
                 return JsonResponse({'msg': 'wrong pin'}, status=403)
+
+
+class ThermoView(http_funcs.ArArView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.dispatch_post_method_name = []
+
+    # /calc/thermo
+    def get(self, request, *args, **kwargs):
+        # names = list(models.IrraParams.objects.values_list('name', flat=True))
+        # log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
+        return render(request, 'thermo.html')
+
+    # /calc/arr_input
+    def arr_input(self, request, *args, **kwargs):
+        file = request.FILES.get(str(0))
+        name = ''
+        file_name = ''
+        destination_folder, random_index = ap.smp.diffusion_funcs.get_random_dir(settings.MDD_ROOT, length=7)
+        try:
+            web_file_path, file_name, suffix = ap.files.basic.upload(file, destination_folder)
+        except (Exception, BaseException) as e:
+            pass
+        else:
+            sample = ap.from_arr(file_path=web_file_path)
+            name = sample.name()
+
+        return JsonResponse({'sample_name': name, "file_name": file_name, "random_index": random_index})
+
+    # /calc/check_sample
+    def check_sample(self, request, *args, **kwargs):
+        # names = list(models.IrraParams.objects.values_list('name', flat=True))
+        # log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
+
+        name = self.body['name']
+        file_name = self.body['file_name']
+        random_index = self.body['random_index']
+        loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
+        if not os.path.exists(loc) or random_index == "":
+            return JsonResponse({}, status=403)
+
+        mch_out = os.path.join(loc, f'{file_name}_mch-out.dat')
+        mages_out = os.path.join(loc, f'{file_name}_mages-out.dat')
+        ages_sd = os.path.join(loc, f'{file_name}_ages-sd.samp')
+        file_path = os.path.join(loc, f"{file_name}.arr")
+
+        sample = ap.from_arr(file_path=file_path)
+        sequence = sample.sequence()
+        nsteps = sequence.size
+        te = np.array(sample.TotalParam[124], dtype=np.float64)
+        ti = (np.array(sample.TotalParam[123], dtype=np.float64) / 60).round(2)  # time in minute
+        ar = np.array(sample.DegasValues[20], dtype=np.float64)  # 20-21 Ar39
+        sar = np.array(sample.DegasValues[21], dtype=np.float64)
+        age = np.array(sample.ApparentAgeValues[2], dtype=np.float64)  # 2-3 age
+        sage = np.array(sample.ApparentAgeValues[3], dtype=np.float64)
+        f = np.cumsum(ar) / ar.sum()
+
+        # dr2, ln_dr2 = ap.smp.diffusion_funcs.dr2_popov(f, ti)
+        # dr2, ln_dr2 = ap.smp.diffusion_funcs.dr2_yang(f, ti)
+        dr2, ln_dr2, wt = ap.smp.diffusion_funcs.dr2_lovera(f, ti, ar, sar)
+
+        data = np.array([
+            sequence.value, te, ti, age, sage, ar, sar, f, dr2, ln_dr2, wt
+        ]).tolist()
+        data.insert(0, [True for i in range(nsteps)])
+        data.insert(1, [1 for i in range(nsteps)])
+
+        res = False
+        if os.path.isfile(mch_out) and os.path.isfile(mages_out) and os.path.isfile(ages_sd):
+            res = True
+
+        return JsonResponse({'status': 'success', 'has_files': res, 'data': ap.smp.json.dumps(data)})
+
+
+    def run_arrmulti(self, request, *args, **kwargs):
+        sample_name = self.body['sample_name']
+        file_name = self.body['file_name']
+        random_index = self.body['random_index']
+        max_age = self.body['max_age']
+        data = self.body['data']
+        loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
+        if not os.path.exists(loc) or random_index == "":
+            return JsonResponse({"random_index": random_index}, status=403)
+
+        file_path = os.path.join(loc, f"{file_name}.arr")
+        sample = ap.from_arr(file_path=file_path)
+
+        arr = ap.smp.diffusion_funcs.DiffArrmultiFunc(smp=sample, loc=loc)
+        arr.ni = len(data)
+        data = ap.calc.arr.transpose(data)
+        arr.telab = [i + 273.15 for i in data[3]]
+        arr.tilab = [i * 60 for i in data[4]]
+        arr.ya = data[5]
+        arr.sig = data[6]
+        arr.a39 = data[7]
+        arr.sig39 = data[8]
+        arr.f = data[9]
+        arr.f[-1] = 0.9999999999999999 if arr.f[-1] >= 1 else arr.f[-1]
+        arr.f.insert(0, 0)
+        arr.xlogd = data[11]
+        arr.wt = data[12]
+        arr.main()
+
+        return JsonResponse({})
+
+
+    def run_agemon(self, request, *args, **kwargs):
+        sample_name = self.body['sample_name']
+        file_name = self.body['file_name']
+        random_index = self.body['random_index']
+        max_age = self.body['max_age']
+        data = self.body['data']
+        loc = os.path.join(settings.MDD_ROOT, random_index)
+        if not os.path.exists(loc) or random_index == "":
+            return JsonResponse({}, status=403)
+
+        file_path = os.path.join(loc, f"{file_name}.arr")
+        sample = ap.from_arr(file_path=file_path)
+
+        use_dll = True
+        # use_dll = False
+
+        if use_dll:
+            ap.smp.diffusion_funcs.run_agemon_dll(sample, settings.MDD_ROOT, loc, data, float(max_age))
+        else:
+            agemon = ap.smp.diffusion_funcs.DiffAgemonFuncs(smp=sample, loc=loc)
+
+            agemon.max_plateau_age = float(max_age)
+            agemon.ni = len(data)
+            agemon.nit = agemon.ni
+            data = ap.calc.arr.transpose(data)
+            agemon.r39 = np.zeros(agemon.nit + 1, dtype=np.float64)
+            agemon.telab = np.zeros(100, dtype=np.float64)
+            agemon.tilab = np.zeros(100, dtype=np.float64)
+            agemon.ya = np.zeros(100, dtype=np.float64)
+            agemon.sig = np.zeros(100, dtype=np.float64)
+            agemon.a39 = np.zeros(100, dtype=np.float64)
+            agemon.sig39 = np.zeros(100, dtype=np.float64)
+            agemon.xs = np.zeros(100, dtype=np.float64)
+
+            for i in range(agemon.nit):
+                agemon.ya[i + 1] = data[5][i]
+                agemon.sig[i] = data[6][i]
+                agemon.a39[i] = data[7][i]
+                agemon.sig39[i] = data[8][i]
+                agemon.xs[i + 1] = data[9][i]
+                agemon.telab[i] = data[3][i] + 273.15
+                agemon.tilab[i] = data[4][i] / 5.256E+11
+
+            agemon.xs[-1] = 0.9999999999999999 if agemon.xs[-1] >= 1 else agemon.xs[-1]
+
+            for i in range(agemon.nit):
+                if agemon.telab[i] > 1373:
+                    agemon.ni = i
+                    break
+
+            agemon.main()
+
+
+
+        return JsonResponse({})
+
+
+    def plot_agemon(self, request, *args, **kwargs):
+        # names = list(models.IrraParams.objects.values_list('name', flat=True))
+        # log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
+        sample_name = self.body['sample_name']
+        file_name = self.body['file_name']
+        random_index = self.body['random_index']
+        data = self.body['data']
+        loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
+        if not os.path.exists(loc) or random_index == "":
+            return JsonResponse({}, status=403)
+
+        # read_from_ins = True
+        read_from_ins = False
+
+        k = [a, b, siga, sigb, chi2, q] = [0, 0, 0, 0, 0, 0]
+        if read_from_ins:
+            loc = r"C:\Users\Young\OneDrive\00-Projects\【2】个人项目\2024-06 MDD\MDDprograms\Sources Codes"
+            arr = ap.smp.diffusion_funcs.DiffDraw(name="Y51a", loc=loc, read_from_ins=read_from_ins)
+        else:
+            file_path = os.path.join(loc, f"{file_name}.arr")
+            sample = ap.from_arr(file_path=file_path)
+
+            arr = ap.smp.diffusion_funcs.DiffDraw(smp=sample, loc=loc)
+            arr.ni = len(data)
+            data = ap.calc.arr.transpose(data)
+            arr.telab = [i + 273.15 for i in data[3]]
+            arr.tilab = [i * 60 for i in data[4]]
+            arr.age = data[5]
+            arr.sage = data[6]
+            arr.a39 = data[7]
+            arr.sig39 = data[8]
+            arr.f = data[9]
+
+            x, y, wtx, wty = [], [], [], []
+            for i in range(arr.ni):
+                if str(data[1][i]) == "2":
+                    x.append(10000 / arr.telab[i])
+                    wtx.append(10000 * 5 / arr.telab[i] ** 2)
+                    y.append(data[11][i])
+                    wty.append(data[12][i])
+            # x = [10000 / arr.telab[i] for i in range(arr.ni) if index[i] == "1"]
+            # wtx = [10000 * 5 / arr.telab[i] ** 2 for i in range(arr.ni) if index[i] == "1"]
+            # y = data[11]
+            # wty = data[12]
+            if len(x) > 0:
+                k = [a, b, siga, sigb, chi2, q] = ap.smp.diffusion_funcs.fit(x, y, wtx, wty)
+
+        plot_data = arr.get_plot_data()
+
+        return JsonResponse({'status': 'success', 'data': ap.smp.json.dumps(plot_data),
+                             'line_data': ap.smp.json.dumps(k)})
+
+
+    def read_log(self, request, *args, **kwargs):
+        sample_name = self.body['sample_name']
+        file_name = self.body['file_name']
+        loc = f"C:\\Users\\Young\\OneDrive\\00-Projects\\【2】个人项目\\2022-05论文课题\\【3】分析测试\\ArAr\\01-VU实验数据和记录\\{sample_name}"
+        arr_path = f"C:\\Users\\Young\\OneDrive\\00-Projects\\【2】个人项目\\2022-05论文课题\\【3】分析测试\\ArAr\\01-VU实验数据和记录\\Arr Data\\{file_name}.arr"
+
+        libano_log_path = f"{loc}\\Libano-log"
+        libano_log_path = [os.path.join(libano_log_path, i) for i in os.listdir(libano_log_path)]
+        helix_log_path = f"{loc}\\LogFiles"
+        helix_log_path = [os.path.join(helix_log_path, i) for i in os.listdir(helix_log_path)]
+
+        print(libano_log_path)
+        print(helix_log_path)
+        ap.smp.diffusion_funcs.SmpTemperatureCalibration(
+            libano_log_path=libano_log_path, helix_log_path=helix_log_path, arr_path=arr_path, loc=loc, name=file_name)
+
+        return JsonResponse({})
 
 
 class ApiView(http_funcs.ArArView):

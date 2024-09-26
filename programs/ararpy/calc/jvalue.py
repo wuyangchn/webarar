@@ -12,7 +12,7 @@
 import numpy as np
 
 
-def j_value(age: float, sage: float, r: float, sr: float, f: float, rsf: float):
+def j_value(age, sage, r, sr, f, rsf):
     """ Calculate J value according to the given age and the ratio
 
     Parameters
@@ -28,11 +28,12 @@ def j_value(age: float, sage: float, r: float, sr: float, f: float, rsf: float):
     -------
     tuple of  J value and error
     """
+    age, sage, r, sr, f, rsf = np.array([age, sage, r, sr, f, rsf])
     f = f * 1000000  # exchange to unit of Ma
     rsf = f * rsf / 100  # exchange to absolute error
     k0 = (np.exp(f * age) - 1) / r
     v1 = rsf ** 2 * (age * np.exp(f * age) / r) ** 2
     v2 = sage ** 2 * (f * np.exp(f * age) / r) ** 2
     v3 = sr ** 2 * ((1 - np.exp(f * age)) / r ** 2) ** 2
-    k1 = pow(v1 + v2 + v3, 0.5)
+    k1 = np.sqrt(v1 + v2 + v3)
     return k0, k1

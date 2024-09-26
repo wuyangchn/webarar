@@ -1,7 +1,7 @@
 
 from . import (
     sample as samples, consts, json, basic, corr, raw, initial,
-    plots, style, table, calculation, export
+    plots, style, table, calculation, export, diffusion_funcs
 )
 
 Sample = samples.Sample

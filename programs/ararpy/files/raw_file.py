@@ -137,7 +137,6 @@ def open_raw_txt(file_path, input_filter: List[Union[str, int]]):
                  for line in contents.decode(encoding=encoding["encoding"]).split('\r\n')]
 
     file_name = os.path.basename(file_path).rstrip(os.path.splitext(file_path)[-1])
-    sample_info = get_sample_info([lines], input_filter)
     step_list = get_raw_data([lines], input_filter, file_name=file_name)
     return {'data': step_list}
 
@@ -165,13 +164,12 @@ def open_raw_xls(file_path, input_filter: List[Union[str, int]]):
 
     wb = open_workbook(file_path)
     used_sheet_index = set([input_filter[i] - 1 if input_filter[i] != 0 else 0 for i in
-                            [4, 34, 37, 40, 43, 46, 49, 52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85,
-                             88, 91, 94, 97, 100, 103, 106, 109, 112, 115, 118, 121, 124, 127]])
+                            [4, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, 87,
+                             90, 93, 96, 99, 102, 105, 108, 111, 114, 117, 120, 123, 126, 129]])
     contents = [[] if i not in used_sheet_index else _get_content_from_sheet(i)
                 for i in range(max(used_sheet_index) + 1)]
 
     file_name = os.path.basename(file_path).rstrip(os.path.splitext(file_path)[-1])
-    sample_info = get_sample_info(contents, input_filter)
     step_list = get_raw_data(contents, input_filter, file_name=file_name)
 
     return {'data': step_list}
@@ -180,6 +178,12 @@ def open_raw_xls(file_path, input_filter: List[Union[str, int]]):
 def open_raw_seq(file_path, input_filter=None):
     with open(file_path, 'rb') as f:
         sequences = pickle.load(f)
+    name_list = []
+    for seq in sequences:
+        while seq.name in name_list:
+            seq.name = f"{seq.name}-{seq.index}"
+        name_list.append(seq.name)
+
     return {'sequences': sequences}
 
 
@@ -196,136 +200,236 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
     -------
 
     """
-    if input_filter[131]:  # input_filter[131]: date in one string
-        if input_filter[32].strip() != "":
-            zero_date = datetime.strptime(get_item(file_contents, input_filter[46:49], based=1),
-                                          input_filter[32])
-        else:
-            zero_date = datetime_parser.parse(get_item(file_contents, input_filter[46:49], based=1))
-    else:
-        zero_date = datetime(year=get_item(file_contents, input_filter[46:49], based=1),
-                             month=get_item(file_contents, input_filter[52:55], based=1),
-                             day=get_item(file_contents, input_filter[58:61], based=1))
 
-    if input_filter[132]:  # input_filter[132]: time in one string
-        if input_filter[33].strip() != "":
-            zero_time = datetime.strptime(get_item(file_contents, input_filter[49:52], based=1),
-                                          input_filter[33])
-        else:
-            zero_time = datetime_parser.parse(get_item(file_contents, input_filter[49:52], based=1))
-    else:
-        zero_time = datetime(year=2020, month=12, day=31,
-                             hour=get_item(file_contents, input_filter[49:52], based=1),
-                             minute=get_item(file_contents, input_filter[55:58], based=1),
-                             second=get_item(file_contents, input_filter[61:64], based=1))
-
-    zero_datetime = datetime(zero_date.year, zero_date.month, zero_date.day, zero_time.hour,
-                             zero_time.minute, zero_time.second).isoformat(timespec='seconds')
-
-    # Get step name
-    experiment_name = get_item(file_contents, input_filter[34:37], default="", based=1) if input_filter[35] > 0 else ""
-    step_name = get_item(file_contents, input_filter[37:40], default="", based=1) if input_filter[38] > 0 else ""
-    if input_filter[130] and input_filter[31] != "":
-        _res = string_parser(input_filter[31], file_name)
-        if _res is not None:
-            experiment_name = _res.named.get("en", experiment_name)
-            step_index = _res.named.get("sn", step_name)
-            if step_index.isnumeric():
-                step_name = f"{experiment_name}-{int(step_index):02d}"
-            else:
-                step_name = f"{experiment_name}-{step_index}"
-    step_list = [[[step_name, zero_datetime, experiment_name]]]
-
-    break_num = 0
-    step_num = 0
-    data_content = file_contents[input_filter[4] - 1 if input_filter[4] != 0 else 0]
-    for step_index in range(2000):
-        start_row = input_filter[5] + input_filter[27] * step_num + input_filter[28] * step_num
+    def datetime_parse(string, format):
         try:
-            if data_content[start_row] == "" or data_content[start_row] == [""]:
-                break
-        except IndexError:
+            return datetime.strptime(string, format)
+        except ValueError as v:
+            if len(v.args) > 0 and v.args[0].startswith('unconverted data remains: '):
+                string = string[:-(len(v.args[0]) - 26)]
+                return datetime.strptime(string, format)
+            else:
+                raise
+
+    step_list = []
+    idx = step_index = 0
+
+    header = input_filter[5]
+    sample_info_index = input_filter[33:64]
+    isotopic_data_index = input_filter[8:28]
+
+    while True:
+        # Zero datetime
+        try:
+            if input_filter[134]:  # input_filter[134]: date in one string
+                if sample_info_index[1].strip() != "":
+                    zero_date = datetime_parse(
+                        get_item(file_contents, sample_info_index[15:18], base=[1, 1 - idx, 1]), sample_info_index[1])
+                else:
+                    zero_date = datetime_parser.parse(get_item(file_contents, sample_info_index[15:18], base=[1, 1 - idx, 1]))
+            else:
+                zero_date = datetime(year=get_item(file_contents, sample_info_index[15:18], base=1),
+                                     month=get_item(file_contents, sample_info_index[21:24], base=[1, 1 - idx, 1]),
+                                     day=get_item(file_contents, sample_info_index[27:30], base=[1, 1 - idx, 1]))
+
+            if input_filter[135]:  # input_filter[135]: time in one string
+                if sample_info_index[2].strip() != "":
+                    zero_time = datetime_parse(
+                        get_item(file_contents, sample_info_index[18:21], base=[1, 1 - idx, 1]), sample_info_index[2])
+                else:
+                    zero_time = datetime_parser.parse(get_item(file_contents, sample_info_index[18:21], base=[1, 1 - idx, 1]))
+            else:
+                zero_time = datetime(year=2020, month=12, day=31,
+                                     hour=get_item(file_contents, sample_info_index[18:21], base=[1, 1 - idx, 1]),
+                                     minute=get_item(file_contents, sample_info_index[24:27], base=[1, 1 - idx, 1]),
+                                     second=get_item(file_contents, sample_info_index[30:33], base=[1, 1 - idx, 1]))
+
+            zero_datetime = datetime(zero_date.year, zero_date.month, zero_date.day, zero_time.hour,
+                                 zero_time.minute, zero_time.second).isoformat(timespec='seconds')
+        except (TypeError, ValueError, IndexError):
+            # print(f"Cannot parse zero datetime")
+            zero_datetime = datetime(1949, 10, 1, 10, 0, 0).isoformat(timespec='seconds')
+
+        # Experiment name
+        try:
+            experiment_name = get_item(file_contents, sample_info_index[3:6], default="", base=[1, 1 - idx, 1]) if input_filter[4] > 0 else ""
+        except (TypeError, ValueError, IndexError):
+            # print(f"Cannot parse experiment name")
+            experiment_name = "ExpNameError"
+
+        # Step name
+        try:
+            step_name = get_item(file_contents, sample_info_index[6:9], default="", base=[1, 1 - idx, 1]) if input_filter[7] > 0 else ""
+            if input_filter[133] and sample_info_index[0] != "":
+                _res = string_parser(sample_info_index[0], file_name)
+                if _res is not None:
+                    experiment_name = _res.named.get("en", experiment_name)
+                    step_index = _res.named.get("sn", step_name)
+                    if step_index.isnumeric():
+                        step_name = f"{experiment_name}-{int(step_index):02d}"
+                    else:
+                        step_name = f"{experiment_name}-{step_index}"
+            if step_name == "":
+                raise ValueError(f"Step name not found")
+        except (TypeError, ValueError, IndexError):
+            # When parsing the step name fails, the end of the file has been reached
             break
-        if break_num < input_filter[28]:
-            break_num += 1
-            continue
+
+        # other information
+        options = get_sample_info(file_contents, input_filter, default="", base=[1, 1 - idx, 1])
+
+        current_step = [[step_name, zero_datetime, experiment_name, options]]
+
         break_num = 0
-        step_num += 1
-        if int(input_filter[6]) == 0:  # == 0, vertical
-            step_list[0].append([
-                str(step_num),
-                # in sequence: Ar36, Ar37, Ar38, Ar39, Ar40
-                float(data_content[start_row + input_filter[25] - 1][input_filter[26] - 1]),
-                float(data_content[start_row + input_filter[25] - 1][input_filter[24] - 1]),
-                float(data_content[start_row + input_filter[21] - 1][input_filter[22] - 1]),
-                float(data_content[start_row + input_filter[21] - 1][input_filter[20] - 1]),
-                float(data_content[start_row + input_filter[17] - 1][input_filter[18] - 1]),
-                float(data_content[start_row + input_filter[17] - 1][input_filter[16] - 1]),
-                float(data_content[start_row + input_filter[13] - 1][input_filter[14] - 1]),
-                float(data_content[start_row + input_filter[13] - 1][input_filter[12] - 1]),
-                float(data_content[start_row + input_filter[9] - 1][input_filter[10] - 1]),
-                float(data_content[start_row + input_filter[9] - 1][input_filter[8] - 1]),
-            ])
-        elif int(input_filter[6]) == 1:  # == 1, horizontal
-            step_list[0].append([
-                str(step_num),
-                # Ar36, Ar37, Ar38, Ar39, Ar40
-                float(data_content[start_row][input_filter[26] - 1]), float(data_content[start_row][input_filter[24] - 1]),
-                float(data_content[start_row][input_filter[22] - 1]), float(data_content[start_row][input_filter[20] - 1]),
-                float(data_content[start_row][input_filter[18] - 1]), float(data_content[start_row][input_filter[16] - 1]),
-                float(data_content[start_row][input_filter[14] - 1]), float(data_content[start_row][input_filter[12] - 1]),
-                float(data_content[start_row][input_filter[10] - 1]), float(data_content[start_row][input_filter[8] - 1]),
-            ])
-        else:
-            raise ValueError
+        cycle_num = 0
+        f = float(input_filter[31])
+        data_content = file_contents[input_filter[4] - 1 if input_filter[4] != 0 else 0]
+        for i in range(2000):
+            if break_num < input_filter[29]:
+                break_num += 1
+                continue
+            break_num = 0
+            if int(input_filter[6]) == 0:  # == 0, vertical
+                start_row = input_filter[28] * cycle_num + input_filter[29] * cycle_num + header + idx - 1
+                try:
+                    current_step.append([
+                        str(cycle_num + 1),
+                        # in sequence: Ar36, Ar37, Ar38, Ar39, Ar40
+                        float(data_content[start_row + isotopic_data_index[18]][isotopic_data_index[19] - 1]),
+                        float(data_content[start_row + isotopic_data_index[16]][isotopic_data_index[17] - 1]) * f,
+                        float(data_content[start_row + isotopic_data_index[14]][isotopic_data_index[15] - 1]),
+                        float(data_content[start_row + isotopic_data_index[12]][isotopic_data_index[13] - 1]) * f,
+                        float(data_content[start_row + isotopic_data_index[10]][isotopic_data_index[11] - 1]),
+                        float(data_content[start_row + isotopic_data_index[ 8]][isotopic_data_index[ 9] - 1]) * f,
+                        float(data_content[start_row + isotopic_data_index[ 6]][isotopic_data_index[ 7] - 1]),
+                        float(data_content[start_row + isotopic_data_index[ 4]][isotopic_data_index[ 5] - 1]) * f,
+                        float(data_content[start_row + isotopic_data_index[ 2]][isotopic_data_index[ 3] - 1]),
+                        float(data_content[start_row + isotopic_data_index[ 0]][isotopic_data_index[ 1] - 1]) * f,
+                    ])
+                except (ValueError, IndexError):
+                    # print(f"Cannot parse isotope data")
+                    current_step.append([
+                        str(cycle_num + 1), None, None, None, None, None, None, None, None, None, None,
+                    ])
+            elif int(input_filter[6]) == 1:  # == 1, horizontal
+                start_row = input_filter[5] + idx
+                col_inc = input_filter[28] * cycle_num + input_filter[29] * cycle_num - 1
+                try:
+                    current_step.append([
+                        str(cycle_num + 1),
+                        # Ar36, Ar37, Ar38, Ar39, Ar40
+                        float(data_content[start_row][isotopic_data_index[19] + col_inc]),
+                        float(data_content[start_row][isotopic_data_index[17] + col_inc]) * f,
+                        float(data_content[start_row][isotopic_data_index[15] + col_inc]),
+                        float(data_content[start_row][isotopic_data_index[13] + col_inc]) * f,
+                        float(data_content[start_row][isotopic_data_index[11] + col_inc]),
+                        float(data_content[start_row][isotopic_data_index[ 9] + col_inc]) * f,
+                        float(data_content[start_row][isotopic_data_index[ 7] + col_inc]),
+                        float(data_content[start_row][isotopic_data_index[ 5] + col_inc]) * f,
+                        float(data_content[start_row][isotopic_data_index[ 3] + col_inc]),
+                        float(data_content[start_row][isotopic_data_index[ 1] + col_inc]) * f,
+                    ])
+                except (ValueError, IndexError):
+                    # print(f"Cannot parse isotope data")
+                    current_step.append([
+                        str(cycle_num + 1), None, None, None, None, None, None, None, None, None, None,
+                    ])
+            else:
+                raise ValueError(f"{input_filter[6]} not in [0, 1]")
+
+            cycle_num += 1
+            if cycle_num >= input_filter[7]:
+                break
+
+        step_list.append(current_step)
+        step_index += 1
+        idx = input_filter[32] * step_index
+
+        if not input_filter[132] or step_index >= 500:  # input_filter[132]: multiple sequences
+            break
 
     return step_list
 
 
-def get_sample_info(file_contents: list, input_filter: list) -> dict:
+def get_sample_info(file_contents: list, input_filter: list, default="", base=1) -> dict:
     """
     Parameters
     ----------
     file_contents
     input_filter
+    default
+    base
 
     Returns
     -------
 
     """
+    sample_info_index = input_filter[36:132]
     sample_info = DEFAULT_SAMPLE_INFO.copy()
     sample_info.update({
-        "Experiment Name": get_item(file_contents, input_filter[34:37], default="", based=1),
-        "Step Name": get_item(file_contents, input_filter[37:40], default="", based=1),
-        "Sample Type": get_item(file_contents, input_filter[40:43], default="", based=1),
-        "Step Label": get_item(file_contents, input_filter[43:46], default="", based=1),
-        "Zero Date Year": get_item(file_contents, input_filter[46:49], default="", based=1),
-        "Zero Time Hour": get_item(file_contents, input_filter[49:52], default="", based=1),
-        "Zero Date Month": get_item(file_contents, input_filter[52:55], default="", based=1),
-        "Zero Time Minute": get_item(file_contents, input_filter[55:58], default="", based=1),
-        "Zero Date Day": get_item(file_contents, input_filter[58:61], default="", based=1),
-        "Zero Time Second": get_item(file_contents, input_filter[61:64], default="", based=1),
-        "Sample Name": get_item(file_contents, input_filter[64:67], default="", based=1),
-        "Sample location": get_item(file_contents, input_filter[67:70], default="", based=1),
-        "Sample Material": get_item(file_contents, input_filter[70:73], default="", based=1),
-        "Experiment Type": get_item(file_contents, input_filter[73:76], default="", based=1),
-        "Sample Weight": get_item(file_contents, input_filter[76:79], default="", based=1),
-        "Step unit": get_item(file_contents, input_filter[79:82], default="", based=1),
-        "Heating time": get_item(file_contents, input_filter[82:85], default="", based=1),
-        "Instrument name": get_item(file_contents, input_filter[85:88], default="", based=1),
-        "Researcher": get_item(file_contents, input_filter[88:91], default="", based=1),
-        "Analyst": get_item(file_contents, input_filter[91:94], default="", based=1),
-        "Laboratory": get_item(file_contents, input_filter[94:97], default="", based=1),
-        "J value": get_item(file_contents, input_filter[97:100], default="", based=1),
-        "J value error": get_item(file_contents, input_filter[100:103], default="", based=1),
-        "Calc params": get_item(file_contents, input_filter[103:106], default="", based=1),
-        "Irra name": get_item(file_contents, input_filter[106:109], default="", based=1),
-        "Irra label": get_item(file_contents, input_filter[109:112], default="", based=1),
-        "Irra position H": get_item(file_contents, input_filter[112:115], default="", based=1),
-        "Irra position X": get_item(file_contents, input_filter[115:118], default="", based=1),
-        "Irra position Y": get_item(file_contents, input_filter[118:121], default="", based=1),
-        "Standard name": get_item(file_contents, input_filter[121:124], default="", based=1),
-        "Standard age": get_item(file_contents, input_filter[124:127], default="", based=1),
-        "Standard age error": get_item(file_contents, input_filter[127:130], default="", based=1)
+        "ExpName": get_item(file_contents, sample_info_index[0:3], default=default, base=base),
+        "StepName": get_item(file_contents, sample_info_index[3:6], default=default, base=base),
+        "SmpType": get_item(file_contents, sample_info_index[6:9], default=default, base=base),
+        "StepLabel": get_item(file_contents, sample_info_index[9:12], default=default, base=base),
+        "ZeroYear": get_item(file_contents, sample_info_index[12:15], default=default, base=base),  # year
+        "ZeroHour": get_item(file_contents, sample_info_index[15:18], default=default, base=base),  # hour
+        "ZeroMon": get_item(file_contents, sample_info_index[18:21], default=default, base=base),  # month
+        "ZeroMin": get_item(file_contents, sample_info_index[21:24], default=default, base=base),  # minute
+        "ZeroDay": get_item(file_contents, sample_info_index[24:27], default=default, base=base),  # day
+        "ZeroSec": get_item(file_contents, sample_info_index[27:30], default=default, base=base),  # second
+        "SmpName": get_item(file_contents, sample_info_index[30:33], default=default, base=base),
+        "SmpLoc": get_item(file_contents, sample_info_index[33:36], default=default, base=base),
+        "SmpMatr": get_item(file_contents, sample_info_index[36:39], default=default, base=base),
+        "ExpType": get_item(file_contents, sample_info_index[39:42], default=default, base=base),
+        "SmpWeight": get_item(file_contents, sample_info_index[42:45], default=default, base=base),
+        "Stepunit": get_item(file_contents, sample_info_index[45:48], default=default, base=base),
+        "HeatingTime": get_item(file_contents, sample_info_index[48:51], default=default, base=base),
+        "InstrName": get_item(file_contents, sample_info_index[51:54], default=default, base=base),
+        "Researcher": get_item(file_contents, sample_info_index[54:57], default=default, base=base),
+        "Analyst": get_item(file_contents, sample_info_index[57:60], default=default, base=base),
+        "Lab": get_item(file_contents, sample_info_index[60:63], default=default, base=base),
+        "Jv": get_item(file_contents, sample_info_index[63:66], default=default, base=base),
+        "Jsig": get_item(file_contents, sample_info_index[66:69], default=default, base=base),
+        "CalcName": get_item(file_contents, sample_info_index[69:72], default=default, base=base),
+        "IrraName": get_item(file_contents, sample_info_index[72:75], default=default, base=base),
+        "IrraLabel": get_item(file_contents, sample_info_index[75:78], default=default, base=base),
+        "IrraPosH": get_item(file_contents, sample_info_index[78:81], default=default, base=base),
+        "IrraPosX": get_item(file_contents, sample_info_index[81:84], default=default, base=base),
+        "IrraPosY": get_item(file_contents, sample_info_index[84:87], default=default, base=base),
+        "StdName": get_item(file_contents, sample_info_index[87:90], default=default, base=base),
+        "StdAge": get_item(file_contents, sample_info_index[90:93], default=default, base=base),
+        "StdAgeSig": get_item(file_contents, sample_info_index[93:96], default=default, base=base),
+        # "Experiment Name": get_item(file_contents, sample_info_index[0:3], default=default, base=base),
+        # "Step Name": get_item(file_contents, sample_info_index[3:6], default=default, base=base),
+        # "Sample Type": get_item(file_contents, sample_info_index[6:9], default=default, base=base),
+        # "Step Label": get_item(file_contents, sample_info_index[9:12], default=default, base=base),
+        # "Zero Date Year": get_item(file_contents, sample_info_index[12:15], default=default, base=base),
+        # "Zero Time Hour": get_item(file_contents, sample_info_index[15:18], default=default, base=base),
+        # "Zero Date Month": get_item(file_contents, sample_info_index[18:21], default=default, base=base),
+        # "Zero Time Minute": get_item(file_contents, sample_info_index[21:24], default=default, base=base),
+        # "Zero Date Day": get_item(file_contents, sample_info_index[24:27], default=default, base=base),
+        # "Zero Time Second": get_item(file_contents, sample_info_index[27:30], default=default, base=base),
+        # "Sample Name": get_item(file_contents, sample_info_index[30:33], default=default, base=base),
+        # "Sample location": get_item(file_contents, sample_info_index[33:36], default=default, base=base),
+        # "Sample Material": get_item(file_contents, sample_info_index[36:39], default=default, base=base),
+        # "Experiment Type": get_item(file_contents, sample_info_index[39:42], default=default, base=base),
+        # "Sample Weight": get_item(file_contents, sample_info_index[42:45], default=default, base=base),
+        # "Step unit": get_item(file_contents, sample_info_index[45:48], default=default, base=base),
+        # "Heating time": get_item(file_contents, sample_info_index[48:51], default=default, base=base),
+        # "Instrument name": get_item(file_contents, sample_info_index[51:54], default=default, base=base),
+        # "Researcher": get_item(file_contents, sample_info_index[54:57], default=default, base=base),
+        # "Analyst": get_item(file_contents, sample_info_index[57:60], default=default, base=base),
+        # "Laboratory": get_item(file_contents, sample_info_index[60:63], default=default, base=base),
+        # "J value": get_item(file_contents, sample_info_index[63:66], default=default, base=base),
+        # "J value error": get_item(file_contents, sample_info_index[66:69], default=default, base=base),
+        # "Calc params": get_item(file_contents, sample_info_index[69:72], default=default, base=base),
+        # "Irra name": get_item(file_contents, sample_info_index[72:75], default=default, base=base),
+        # "Irra label": get_item(file_contents, sample_info_index[75:78], default=default, base=base),
+        # "Irra position H": get_item(file_contents, sample_info_index[78:81], default=default, base=base),
+        # "Irra position X": get_item(file_contents, sample_info_index[81:84], default=default, base=base),
+        # "Irra position Y": get_item(file_contents, sample_info_index[84:87], default=default, base=base),
+        # "Standard name": get_item(file_contents, sample_info_index[87:90], default=default, base=base),
+        # "Standard age": get_item(file_contents, sample_info_index[90:93], default=default, base=base),
+        # "Standard age error": get_item(file_contents, sample_info_index[93:96], default=default, base=base),
     })
     return sample_info

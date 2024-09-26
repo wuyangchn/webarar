@@ -195,6 +195,8 @@ DOWNLOAD_ROOT = os.path.join(STATIC_DIR, 'download')
 PRIVATE_DIR = os.path.join(BASE_DIR, 'private')
 UPLOAD_URL = 'private/upload/'
 UPLOAD_ROOT = os.path.join(PRIVATE_DIR, 'upload')
+MDD_URL = 'private/mdd/'
+MDD_ROOT = os.path.join(PRIVATE_DIR, 'mdd')
 # 设置文件地址
 SETTINGS_URL = 'static/settings/'
 SETTINGS_ROOT = os.path.join(STATIC_DIR, 'settings')

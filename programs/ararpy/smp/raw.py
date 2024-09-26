@@ -41,10 +41,6 @@ def to_raw(file_path: Union[str, List[str]], input_filter_path: Union[str, List[
     -------
 
     """
-    if isinstance(input_filter_path, list) and len(input_filter_path) == 1:
-        input_filter_path: str = input_filter_path[0]
-    if isinstance(file_path, list) and len(file_path) == 1:
-        file_path: str = file_path[0]
     if isinstance(file_path, list) and isinstance(input_filter_path, list):
         raw = concatenate([to_raw(file, input_filter_path[index]) for index, file in enumerate(file_path)])
     elif isinstance(file_path, str) and isinstance(input_filter_path, str):
@@ -55,7 +51,7 @@ def to_raw(file_path: Union[str, List[str]], input_filter_path: Union[str, List[
         sequences = res.get('sequences', None)
         sequence_num = len(data) if data is not None else len(sequences)
         raw = RawData(name=file_name, data=data, isotopic_num=10, sequence_num=sequence_num,
-                      source=[file_path], sequence=sequences)
+                      source=[file_path], sequence=sequences, unit=str(input_filter[30]))
     else:
         raise ValueError("File path and input filter should be both string or list with a same length.")
     return raw
@@ -71,23 +67,30 @@ def concatenate(raws: List[RawData]):
     -------
 
     """
-    name = []
+    step_names = []
 
     def resort_sequence(seq: Sequence, index):
         count = 0
-        while seq.name in name:
+        while seq.name in step_names:
             # rename
+            if count == 0:
+                seq.name = f"{seq.name}-{index + 1}"
+            else:
+                seq.name = f"{seq.name} ({count})"
             count = count + 1
-            seq.name = seq.name + f"({count})"
-        name.append(seq.name)
+        step_names.append(seq.name)
         seq.index = index
+        seq.is_removed = hasattr(seq, "is_removed") and seq.is_removed is True
         return seq
 
     source = [_source for _raw in raws for _source in _raw.source]
+    unit = set([_raw.unit for _raw in raws])
+    unit = list(unit)[0] if len(unit) == 1 else 'Unknown Unit'
     sequence = [resort_sequence(seq, index) for index, seq in enumerate([i for _raw in raws for i in _raw.sequence])]
     sequence_num = len(sequence)
-    return RawData(name='concatenated', source=source, isotopic_num=10, sequence_num=sequence_num,
-                   sequence=sequence)
+    exp_names = list(set([_raw.name for _raw in raws]))
+    return RawData(name='&'.join(exp_names), source=source, isotopic_num=10,
+                   sequence_num=sequence_num, sequence=sequence, unit=unit)
 
 
 def get_sequence(raw: RawData, index: Optional[Union[list, int, str, bool]] = None,
@@ -149,6 +152,7 @@ def do_regression(raw: RawData, sequence_index: Optional[List] = None, isotopic_
         for index, isotope in enumerate(selected):
             if hasattr(isotopic_index, '__getitem__') and index not in isotopic_index:
                 continue
+            # print(f"regression for {sequence.name = }, isotope {index = }")
             res = raw_funcs.get_raw_data_regression_results(isotope)
             try:
                 sequence.results[index] = res[1]

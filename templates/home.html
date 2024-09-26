@@ -78,10 +78,19 @@
         const url_raw_import_blank_file = "{% url 'raw_views' 'import_blank_file' %}";
         const url_raw_files_changed = "{% url 'raw_views' 'raw_files_changed' %}";
         const url_raw_export_sequence = "{% url 'raw_views' 'export_sequence' %}";
+        const url_raw_change_fitting_method = "{% url 'raw_views' 'change_seq_fitting_method' %}";
+        const url_raw_change_seq_state = "{% url 'raw_views' 'change_seq_state' %}";
 
         const url_reference_log = "{% url 'experiment_log' %}";
         const url_reference_update_log = "{% url 'oven_update_log' %}";
         const url_update_oven_log_results = "{% url 'update_oven_log_results' %}";
+
+        const url_thermo_check_sample = "{% url 'thermo_views' 'check_sample' %}";
+        const url_thermo_arr_input = "{% url 'thermo_views' 'arr_input' %}";
+        const url_thermo_run_agemon = "{% url 'thermo_views' 'run_agemon' %}";
+        const url_thermo_run_arrmulti = "{% url 'thermo_views' 'run_arrmulti' %}";
+        const url_read_log = "{% url 'thermo_views' 'read_log' %}";
+        const url_thermo_plot = "{% url 'thermo_views' 'plot_agemon' %}";
 
         function post_fingerprint(value) {
             $.ajax({
