@@ -135,7 +135,7 @@ def initial(smp: Sample):
     setattr(smp, 'Info', ArArBasic(
         id='0', name='info', attr_name='Info', arr_version=samples.VERSION,
         sample=ArArBasic(
-            name='SAMPLE NAME', material='MATERIAL', location='LOCATION'
+            name='SAMPLE NAME', material='MATERIAL', location='LOCATION', type='Unknown'
         ),
         researcher=ArArBasic(
             name='RESEARCHER', addr='ADDRESS', email='EMAIL'
@@ -412,10 +412,8 @@ def from_raw_data(raw: RawData, mapping: Optional[List[dict]] = None) -> Sample:
         else:
             blank: Sequence = raw.get_sequence(row['blank'], flag='name')
         for i in range(5):
-            row_unknown_intercept = arr.multi_append(
-                row_unknown_intercept, *unknown.results[i][unknown.fitting_method[i]][:2])
-            row_blank_intercept = arr.multi_append(
-                row_blank_intercept, *blank.results[i][unknown.fitting_method[i]][:2])
+            row_unknown_intercept = arr.multi_append(row_unknown_intercept, *unknown.results[i][int(unknown.fitting_method[i])][:2])
+            row_blank_intercept = arr.multi_append(row_blank_intercept, *blank.results[i][int(blank.fitting_method[i])][:2])
 
         unknown_intercept.append(row_unknown_intercept)
         blank_intercept.append(row_blank_intercept)

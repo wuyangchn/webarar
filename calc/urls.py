@@ -14,6 +14,9 @@ urlpatterns = [
     path('raw/<str:flag>', views.RawFileView.as_view(), name="raw_views"),
     # /calc/params/...
     path('params/<str:flag>', views.ParamsSettingView.as_view(), name="params_views"),
+    # /calc/thermo/...
+    path('thermo', views.ThermoView.as_view(), name="thermo_home"),
+    path('thermo/<str:flag>', views.ThermoView.as_view(), name="thermo_views"),
     # api
     path('api/<str:flag>', views.ApiView.as_view(), name="api_views"),
 ]

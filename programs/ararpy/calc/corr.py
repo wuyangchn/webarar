@@ -51,7 +51,7 @@ def mdf(rm: float, srm: float, m1: float, m2: float, ra: float = 298.56,
     if isAapkop:
         # line
         k1 = (ra / rm + delta_m - 1) / delta_m  # A.A.P.Koppers
-        k2 = arr.div(((ra / rm + delta_m - 1), arr.div((ra, sra), (rm, srm))), (delta_m, sdelta_m))
+        k2 = err.div(((ra / rm + delta_m - 1), err.div((ra, sra), (rm, srm))), (delta_m, sdelta_m))
         # exp
         try:
             k3 = (np.log(ra / rm) / np.log(ratio_m)) * (1 / m1) + 1  # A.A.P.Koppers

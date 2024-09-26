@@ -382,6 +382,15 @@ def set_selection(smp: Sample, index: int, mark: int):
 # Age spectra results
 # =======================
 def recalc_plateaus(sample: Sample, **kwargs):
+    if sample.Info.sample.type == "Unknown":
+        return recalc_age_plateaus(sample, **kwargs)
+    if sample.Info.sample.type == "Standard":
+        return recalc_j_plateaus(sample, **kwargs)
+    if sample.Info.sample.type == "Air":
+        return recalc_j_plateaus(sample, **kwargs)
+
+
+def recalc_age_plateaus(sample: Sample, **kwargs):
     """
     Calculate age plateaus results
     Parameters
@@ -647,6 +656,58 @@ def get_wma_results(sample: Sample, sequence: list):
             'F': wmf, 'sF': swmf, 'Ar39': sum_ar39k
         })
     return spectra_res
+
+
+def recalc_j_plateaus(sample: Sample, **kwargs):
+
+    print(f"Recalc J plateau")
+
+    j = sample.ApparentAgeValues[2:4]
+
+    try:
+        set1_res, _, set1_data = \
+            get_j_plateau_results(sample, sample.SelectedSequence1, j)
+    except ValueError:
+        pass
+    else:
+        sample.Info.results.age_plateau.update({0: set1_res})
+        sample.AgeSpectraPlot.set1.data = calc.arr.transpose(set1_data)
+        sample.AgeSpectraPlot.text1.text = ""  # 注意和js的配合，js那边根据text是否为空判断是否重新生成文字
+
+    try:
+        set2_res, _, set2_data = \
+            get_j_plateau_results(sample, sample.SelectedSequence2, j)
+    except ValueError:
+        pass
+    else:
+        sample.Info.results.age_plateau.update({1: set2_res})
+        sample.AgeSpectraPlot.set2.data = calc.arr.transpose(set2_data)
+        sample.AgeSpectraPlot.text2.text = ""  # 注意和js的配合，js那边根据text是否为空判断是否重新生成文字
+
+
+def get_j_plateau_results(sample: Sample, sequence: list, j: list, ar39k_percentage: list = None):
+
+    def _get_partial(points, *args):
+        # return [arg[min(points): max(points) + 1] for arg in args]
+        return [[arg[i] for i in points] for arg in args]
+
+    if ar39k_percentage is None:
+        ar39k_percentage = sample.ApparentAgeValues[7]
+    sum_ar39k = sum(_get_partial(sequence, ar39k_percentage)[0])
+
+    j_values = _get_partial(sequence, *j)
+    wmj = calc.arr.wtd_mean(*j_values)
+    plot_data = [[sum(ar39k_percentage[:min(sequence)]), sum(ar39k_percentage[:max(sequence) + 1])],
+                 [wmj[0], wmj[0]]]
+
+    plateau_res_keys = [
+        'F', 'sF', 'Num', 'MSWD', 'Chisq', 'Pvalue', 'age', 's1', 's2', 's3', 'Ar39',
+        'rs',  # 'rs' means relative error of the total sum
+    ]
+    plateau_res = dict(zip(plateau_res_keys, [np.nan for i in plateau_res_keys]))
+    plateau_res.update(dict(zip(plateau_res_keys, [*wmj, np.nan, np.nan, np.nan, np.nan, sum_ar39k, np.nan])))
+
+    return plateau_res, 0, plot_data
 
 
 # =======================

@@ -1053,7 +1053,9 @@ class Plot:
 class Sequence:
     def __init__(self, index=None, data=None, flag=None, name=None, datetime=None,
                  type_str=None, results=None, coefficients=None, fitting_method=None,
-                 is_estimated=False, **kwargs):
+                 is_estimated=False, options=None, **kwargs):
+        if options is None:
+            options = {}
         self.index = index
         if name is None or not isinstance(name, str):
             name = ""
@@ -1075,6 +1077,8 @@ class Sequence:
         self.coefficients = coefficients
         self.fitting_method = fitting_method
         self.is_estimated = is_estimated
+        self.is_removed = False
+        self.options = options
 
         for k, v in kwargs.items():
             if hasattr(self, k) and type(getattr(self, k)) is MethodType:
@@ -1119,8 +1123,8 @@ class Sequence:
 
 
 class RawData:
-    def __init__(self, id='', name='', type='raw', data=None, sequence_num=0,
-                 isotopic_num=10, source=None, sequence=None, **kwargs):
+    def __init__(self, id='', name='', type='Unknown', data=None, sequence_num=0,
+                 isotopic_num=10, source=None, sequence=None, unit='fA', **kwargs):
         """
         Parameters
         ----------
@@ -1136,6 +1140,7 @@ class RawData:
         self.name = name
         self.type = type
         self.source = source
+        self.unit = unit
         self.isotopic_num = isotopic_num
         self.sequence_num = sequence_num
         self.interpolated_blank = None
@@ -1143,7 +1148,7 @@ class RawData:
             self.sequence: List[Sequence] = [
                 Sequence(index=index, name=item[0][0] if isinstance(item[0][0], str) and item[0][
                     0] != '' else f"{self.name}-{index + 1:02d}", data=item[1:], datetime=item[0][1], type_str=item[0][2],
-                         fitting_method=[0] * 5)
+                         fitting_method=[0] * 5, options=item[0][3])
                 for index, item in enumerate(data)]
         else:
             self.sequence: List[Sequence] = []

@@ -7,13 +7,18 @@ const rich_format = {
 function myParse(myString) {
     // Note that \\" to keep an escape character before double quote characters
     if ( ! (typeof myString === 'string' || myString instanceof String)) {return myString}
-    myString = myString.replace(/\bNaN\b/g, '"*isNaN*"').replace(/\bInfinity\b/g, '"*isInfinity*"');
+    myString = myString.replace(/\bNaN\b/g, '"*isNaN*"')
+                       .replace(/-\bInfinity\b/g, '"*isNegativeInfinity*"')
+                       .replace(/\bInfinity\b/g, '"*isInfinity*"');
     return JSON.parse(myString, function (key, value) {
         if (value === "*isNaN*") {
             return NaN;
         }
         if (value === "*isInfinity*") {
             return Infinity;
+        }
+        if (value === "*isNegativeInfinity*") {
+            return -Infinity;
         }
         return value;
     });
@@ -606,16 +611,30 @@ function editParams(flag) {
 }
 function fitMethodChanged() {
     let sel = $('#fitMethod');
-    if (document.getElementById("applyFitMethodToAll").checked) {
-        for (let i in [0, 1, 2, 3, 4]) {
-            for (let j=0; j<myRawData.sequence_num; j++) {
-                myRawData.sequence[j].fitting_method[i] = sel.val();
-            }
-        }
-    }
-    myRawData.sequence[current_page-1].fitting_method[getCurrentIsotope()] = sel.val();
+    // if (document.getElementById("applyFitMethodToAll").checked) {
+    //     for (let i in [0, 1, 2, 3, 4]) {
+    //         for (let j=0; j<myRawData.sequence_num; j++) {
+    //             myRawData.sequence[j].fitting_method[i] = fit_idx;
+    //         }
+    //     }
+    // }
     sel.blur();  // This is to let select element ignore key operations after changes
                  // otherwise left/right arrow key will change page and also change fitting method.
+    $.ajax({
+        url: url_raw_change_fitting_method,
+        type: 'POST',
+        data: JSON.stringify({
+            'sequence_index': current_page - 1,
+            'isotope_index':getCurrentIsotope(),
+            'fitting_index': Number(sel.val()),
+            'cache_key': myRawCacheKey}),
+        processData : false,
+        contentType : false,
+        mimeType: "multipart/form-data",
+        success: function(res){
+            myRawData.sequence[current_page-1].fitting_method[getCurrentIsotope()] = Number(sel.val());
+        }
+    })
 }
 function getAverageofBlanks() {
     let names = document.getElementById('inputBlankSequences').value;
@@ -885,7 +904,7 @@ function initialTable(blankNameList) {
             clickToSelect: false,                //是否启用点击选中行
             uniqueId: "id",                     //每一行的唯一标识，一般为主键列
             columns: [
-                {field: 'checked', checkbox: true, width: 20, formatter: function () {return true}},
+                {field: 'checked', checkbox: true, width: 20},
                 {field: 'id', title: 'Sequence', width: 20,},
                 {field: 'label', title: 'Label', width: 50,},
                 {field: 'unknown', title: 'Unknown', width: 200,},
@@ -928,8 +947,25 @@ function irradiationCyclesChanged(num) {
         '<input type="number" class="irra-params" style="width: 100px;">hour(s)</label></div>'
     }
 }
-function isBlankLabelChanged() {
-    myRawData.sequence[current_page-1].is_blank = $('#isBlank').is(':checked');
+function seqStateChanged() {
+    let is_blank = $('#isBlank').is(':checked');
+    let is_removed = $('#isRemoved').is(':checked');
+    $.ajax({
+        url: url_raw_change_seq_state,
+        type: 'POST',
+        data: JSON.stringify({
+            'sequence_index': current_page - 1,
+            'is_blank': is_blank,
+            'is_removed': is_removed,
+            'cache_key': myRawCacheKey}),
+        processData : false,
+        contentType : false,
+        mimeType: "multipart/form-data",
+        success: function(res){
+            myRawData.sequence[current_page-1].is_blank = is_blank;
+            myRawData.sequence[current_page-1].is_removed = is_removed;
+        }
+    })
 }
 function lastSequence() {
     if (current_page - 1 > 0){
@@ -974,12 +1010,15 @@ function showModalDialog(id) {
 function showSequence(page) {
     let btns = document.getElementsByName('sequenceBtn');
     for (let i=0;i<btns.length;i++){
+        btns[i].className = 'btn btn-default btn-no-outline';
+        if (myRawData.sequence[i].is_blank) {
+            btns[i].className = 'btn btn-grey btn-no-outline';
+        }
+        if (myRawData.sequence[i].is_removed) {
+            btns[i].className = 'btn btn-danger btn-no-outline';
+        }
         if (btns[i].innerText === page.toString()){
             btns[i].className = 'btn btn-primary';
-        } else if (myRawData.sequence[i].is_blank) {
-            btns[i].className = 'btn btn-grey btn-no-outline';
-        } else {
-            btns[i].className = 'btn btn-default btn-no-outline';
         }
     }
     current_page = page;
@@ -997,6 +1036,7 @@ function showSequence(page) {
     updateCharts(smCharts, chartBig, page-1, true);
     $('#fitMethod').val(myRawData.sequence[page-1].fitting_method[getCurrentIsotope()]);
     $('#isBlank').prop("checked", myRawData.sequence[page-1].is_blank);
+    $('#isRemoved').prop("checked", myRawData.sequence[page-1].is_removed);
     // console.log(chartBig.getOption());
 }
 function submitDelete() {
@@ -1023,10 +1063,9 @@ function submitExtrapolate() {
             }
         })
     }
-    console.log(myRawData.sequence);
     // 初始化表格+
     $('#table-sequences').bootstrapTable('destroy');
-    initialTable(blank_sequence.map((seq, index) => seq.name));
+    initialTable(blank_sequence.filter(seq => !seq.is_removed).map((seq, index) => seq.name));
     updateSequenceTable();
     corrBlankMethodChanged(blank_sequence);
     // 初始化本底列表
@@ -1086,6 +1125,7 @@ function submitRawData() {
             'sampleParams': sample_params,
             'sampleInfo': sample_info,
             'selectedSequences': selectedSequences,
+            'fittingMethod': myRawData,
             'cache_key': myRawCacheKey,
             'fingerprint': localStorage.getItem('fingerprint'),
         }),
@@ -1174,7 +1214,8 @@ function updateSequenceTable() {
     let unknown_sequence = myRawData.sequence.filter((seq, index) => !seq.is_blank);
     for (let i=0; i<unknown_sequence.length; i++){
         tableData.push({
-            'id': i+1, 'unknown': unknown_sequence[i].name, 'label': unknown_sequence[i].type_str
+            'checked': !unknown_sequence[i].is_removed, 'id': i+1,
+            'unknown': unknown_sequence[i].name, 'label': unknown_sequence[i].type_str
         });
     }
     $('#table-sequences').bootstrapTable('load', tableData);
@@ -1991,14 +2032,16 @@ function apply3DSetting() {
         showPage(getCurrentTableId());
     }
 }
-function clickSaveTable() {
+async function clickSaveTable() {
     let table_data;
+    let input_type = document.getElementById("inputType");
     if (getCurrentTableId() === "0"){
         table_data = {
             "sample": {
-                "name": $('#inputName').val(), "material": $('#inputMaterial').val(),
-                "location": $('#inputLocation').val()}, "researcher" : {"name": $('#inputResearcher').val(),
+                "name": $('#inputName').val(), "type": $("#inputType option:selected").text(),
+                "material": $('#inputMaterial').val(), "location": $('#inputLocation').val()
             },
+            "researcher" : {"name": $('#inputResearcher').val(),},
             "laboratory": {
                 "name": $('#inputLaboratory').val(), "info": $('#inputLaboratoryMore').val(),
                 "analyst": $('#inputAnalyst').val()
@@ -2006,7 +2049,38 @@ function clickSaveTable() {
         }
     } else {
         table_data = hot.getSourceData();
+        if (rows_to_delete.length > 0) {
+            await showPopupMessage("Please confirm ...",
+                `The following rows will be deleted: ${rows_to_delete}`, true).then((res) => {
+                    for (let table_id of ["1", "2", "3", "4", "5", "6", "7", "8"]) {
+                        if (table_id === getCurrentTableId()) {
+                            sampleComponents[table_id].data = table_data.filter((v, i) => v.length > 1);
+                            continue;
+                        }
+                        sampleComponents[table_id].data = sampleComponents[table_id].data.filter(
+                            (v, i) => ! rows_to_delete.includes(i) && v.length > 1);
+                    }
+                        rows_to_delete = [];
+                        const diff = findDiff(sampleComponentsBackup, sampleComponents);
+                        $.ajax({
+                            url: url_update_components_diff,
+                            type: 'POST',
+                            data: JSON.stringify({
+                                'diff': diff,
+                                'cache_key': cache_key,
+                            }),
+                            contentType:'application/json',
+                            success: function(res){
+                                sampleComponentsBackup = JSON.parse(JSON.stringify(sampleComponents));
+                                showPopupMessage("Information", "Successfully saved!", false);
+                                setConsoleText('Changes Saved');
+                            }
+                        });
+                });
+            return;
+        }
     }
+
     $.ajax({
         url: url_update_handsontable,
         type: 'POST',
@@ -2016,16 +2090,20 @@ function clickSaveTable() {
             'recalculate': false,
             'cache_key': cache_key,
             'user_uuid': localStorage.getItem('fingerprint'),
-            'data': table_data
+            'data': table_data,
+            'rows_to_delete': rows_to_delete,
         }),
         contentType:'application/json',
+        beforeSend: function(){
+            showPopupMessage("Information", "Saving, please wait...", false, 300000);
+        },
         success: function(res){
             let changed_components = myParse(res.changed_components);
             assignDiff(sampleComponents, changed_components);
             if (getCurrentTableId() === "0"){$('#sample_name_title').text($('#inputName').val())}
             isochron_marks_changed = false;
-            showPopupMessage("Information", "Save Successfully!", false);
-            setConsoleText('Changes Saved!');
+            showPopupMessage("Information", "Successfully saved!", false);
+            setConsoleText('Changes Saved');
         }
     });
 }
@@ -2079,6 +2157,8 @@ function clickRecalc() {
             if (checked_options[11]) {
                 // showMessage();
                 showPopupMessage("Information", "Using Monte Carlo simulation, this may take a few minutes depending on the number of sequences involved, please wait...", false, 300000);
+            } else {
+                showPopupMessage("Information", "Recalculation starts, please wait...", false, 300000);
             }
         },
         success: async function(response){
@@ -2089,8 +2169,8 @@ function clickRecalc() {
             // console.log(changed_components);
             showPage(getCurrentTableId());
             closePopupMessage();
-            showPopupMessage('Information', 'Recalculating Successfully!', true)
-            setConsoleText('Recalculation has been applied successfully');
+            showPopupMessage('Information', 'Recalculation was successfully finished!', true)
+            setConsoleText('Recalculation was successful');
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
@@ -2202,6 +2282,8 @@ function showPage(table_id) {
             // update sample information
             $('#sample_name_title').text(sampleComponents['0'].sample.name);
             $('#inputName').val(sampleComponents['0'].sample.name);
+            $('#inputType').val(sampleComponents['0'].sample.type);
+            //document.getElementById('inputType').value=sampleComponents['0'].sample.type;
             $('#inputMaterial').val(sampleComponents['0'].sample.material);
             $('#inputLocation').val(sampleComponents['0'].sample.location);
             $('#inputResearcher').val(sampleComponents['0'].researcher.name);
@@ -3481,16 +3563,25 @@ function getSpectraEchart(chart, figure_id, animation) {
                 type: 'scatter', symbol: 'circle', z: 5,
                 data: [figure.text1.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
-                    show: figure.set1.data.length >= 3 ? figure.text1.show : false,
+                    show: sampleComponents['0'].sample.type === "Unknown" ? figure.set1.data.length >= 3 ? figure.text1.show : false : true,
                     position: 'inside', color: figure.text1.color,
                     fontSize: figure.text1.font_size, fontFamily: figure.text1.font_family,
                     fontWeight: figure.text1.font_weight, rich: rich_format,
                     // formatter: figure.text1.text,
                     formatter: (params) => {
                         if (figure.text1.text === "") {
-                            figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma\nWMF = ${res[0]['F'].toFixed(2)} ± ${res[0]['sF'].toFixed(2)}, n = ${res[0]['Num']}\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                            if (sampleComponents['0'].sample.type === "Unknown") {
+                                figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma\nWMF = ${res[0]['F'].toFixed(2)} ± ${res[0]['sF'].toFixed(2)}, n = ${res[0]['Num']}\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                            }
+                            if (sampleComponents['0'].sample.type === "Standard") {
+                                figure.text1.text = `WMJ = ${res[0]['F'].toFixed(8)} ± ${res[0]['sF'].toFixed(8)} \nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                            }
+                            if (sampleComponents['0'].sample.type === "Air") {
+                                figure.text1.text = `WMMDF = ${res[0]['F'].toFixed(8)} ± ${res[0]['sF'].toFixed(8)} \nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                                // figure.text1.text = "";
+                            }
                         }
-                        return figure.text1.text
+                        return figure.text1.text;
                     },
                 },
             },
@@ -3499,16 +3590,26 @@ function getSpectraEchart(chart, figure_id, animation) {
                 type: 'scatter', symbol: 'circle', z: 5,
                 data: [figure.text2.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
-                    show: figure.set2.data.length >= 3 ? figure.text2.show : false,
+                    show: sampleComponents['0'].sample.type === "Unknown" ? figure.set2.data.length >= 3 ? figure.text2.show : false : true,
                     position: 'inside', color: figure.text2.color,
                     fontSize: figure.text2.font_size, fontFamily: figure.text2.font_family,
                     fontWeight: figure.text2.font_weight, rich: rich_format,
                     // formatter: figure.text2.text,
                     formatter: (params) => {
                         if (figure.text2.text === "") {
-                            figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma\nWMF = ${res[1]['F'].toFixed(2)} ± ${res[1]['sF'].toFixed(2)}, n = ${res[1]['Num']}\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
+                            console.log(sampleComponents['0'].sample.type);
+                            if (sampleComponents['0'].sample.type === "Unknown") {
+                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma\nWMF = ${res[1]['F'].toFixed(2)} ± ${res[1]['sF'].toFixed(2)}, n = ${res[1]['Num']}\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
+                            }
+                            if (sampleComponents['0'].sample.type === "Standard") {
+                                figure.text2.text = `WMJ = ${res[1]['F'].toFixed(8)} ± ${res[1]['sF'].toFixed(8)} \nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
+                            }
+                            if (sampleComponents['0'].sample.type === "Air") {
+                                // figure.text2.text = `WMJ = ${res[1]['F'].toFixed(8)} ± ${res[1]['sF'].toFixed(8)} \nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
+                                figure.text2.text = "";
+                            }
                         }
-                        return figure.text2.text
+                        return figure.text2.text;
                     },
                 },
             },
@@ -4355,4 +4456,128 @@ function calc_age(F, sF, using_Min = true, idx = 0, auto_change_to_general = tru
     } else {
         return calcAgeGeneral(F, sF, J[idx], sJ[idx], L[idx], sL[idx]);
     }
+}
+
+
+function deepMerge(target, source) {
+    if (source.constructor === Array) {
+        return source;
+    }
+    for (let key in source) {
+        if (key in target && source[key] instanceof Object) {
+            target[key] = deepMerge(target[key], source[key]);
+        } else {
+            target[key] = source[key];
+        }
+    }
+    return target;
+}
+
+function extendChartFuncs(chart) {
+    chart.addSeries = (newSeries, resize=true) => {
+        let option = chart.getOption();
+        let series = option.series;
+        series.push(newSeries);
+        chart.setOption({series: series})
+        if (resize) {
+            chart.resize();
+        }
+    };
+    chart.updateSeries = (newSeries, resize=true) => {
+        const id = newSeries.id === undefined ? "" : newSeries.id;
+        const name = newSeries.name === undefined ? "" : newSeries.name;
+        try {
+            let series = deepMerge(chart.getSeries(id, name), newSeries);
+            chart.setOption({series: series});
+            if (resize) {
+                chart.resize();
+            }
+        } catch (e) {
+            // console.log(e);
+            chart.addSeries(newSeries, resize);
+        }
+    };
+    chart.showLegend = (showLegend=true) => {
+        chart.setOption({legend: {show: showLegend}})
+        chart.resize();
+    };
+    chart.getSeries = (id="", name="") => {
+        for (let se of chart.getOption().series) {
+            if (se.hasOwnProperty("id") || se.hasOwnProperty("name")) {
+                if (se.id === id || se.name === name) {
+                    return se;
+                }
+            }
+        }
+        throw new Error(`No series found by id = ${id} or name = ${name}`);
+    }
+
+    chart.registerDrag = (seriesId, func) => {
+        chart.on('mousedown', {seriesId: seriesId}, function (params) {
+            const series = chart.getSeries(seriesId);
+            if (series.draggable) {
+                let pos = chart.convertToPixel({xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex}, series.data[0]);
+                let offsetX = params.event.offsetX - pos?.[0];
+                let offsetY = params.event.offsetY - pos?.[1];
+                chart.updateSeries({id: seriesId, onDragged: true, dragOffset: [offsetX, offsetY]}, false);
+                func(params);
+            }
+        });
+        chart.getZr().on('mousemove', function (params) {
+            const series = chart.getSeries(seriesId);
+            if (series.onDragged) {
+                const offset = series.dragOffset;
+                let pos = chart.convertFromPixel(
+                    {xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex},
+                    [params.event.zrX - offset?.[0], params.event.zrY - offset?.[1]]
+                );
+                chart.updateSeries({id: seriesId, data: [pos], animation: false}, false);
+            }
+        });
+        chart.getZr().on('mouseup', function (params) {
+            const series = chart.getSeries(seriesId);
+            chart.updateSeries({id: seriesId, onDragged: false, animation: false}, false);
+        });
+    }
+
+    //
+
+}
+
+function splitByConsecutive(arr) {
+    return arr.reduce((result, num, i) => {
+        if (i === 0 || num !== arr[i - 1] + 1) {
+            result.push([]);
+            if (result.length > 1) { result[result.length - 1].push(...result[result.length - 2]) }
+        }
+        result[result.length - 1].push(num);
+        return result;
+    }, []);
+}
+
+function handsontableRemoveRow(key, options) {
+    const rows = [];
+    const arr = splitByConsecutive(rows_to_delete);
+    options.forEach(item => {
+        for (let i = Math.min(item.start.row, item.end.row); i <= Math.max(item.start.row, item.end.row); i++) {
+            rows.push(i);
+            let flag = false;
+            for (let j = arr.length - 1; j >= 0; j--) {
+                if (i > Math.max(...arr[j]) - arr[j].length) { rows_to_delete.push(i + arr[j].length); flag = true; break; }
+            }
+            if (!flag) { rows_to_delete.push(i); }
+
+        }
+    });
+
+    rows_to_delete.sort((a, b) => a - b);
+    console.log(`The following rows will be deleted: ${rows_to_delete}`);
+    let table = sampleComponents[getCurrentTableId()];
+    let data = hot.getSourceData().filter((v, i) => ! rows.includes(i));
+    hot.updateSettings({
+        colHeaders: table.header,
+        data: extendData(data),
+        columns: table.coltypes
+    });
+
 }

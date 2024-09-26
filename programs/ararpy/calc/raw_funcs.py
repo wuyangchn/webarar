@@ -33,7 +33,6 @@ def get_raw_data_regression_results(points_data, unselected: list = None):
     #     unselected = []
     # linesData = []
     linesResults, regCoeffs = [], []
-    x, y = transpose(points_data)
     # un_x = transpose(unselected)[0] if is_twoD(unselected) else []
     reg_handler = [
         regression.linest, regression.quadratic, regression.exponential,
@@ -42,6 +41,7 @@ def get_raw_data_regression_results(points_data, unselected: list = None):
     # lines_x = [(max(x + un_x) - 0) / size * i for i in range(size + 1)]
     for i in range(len(reg_handler)):
         try:
+            x, y = transpose(points_data, ignore=False)
             res = reg_handler[i](a0=y, a1=x)
             # line_data = transpose([lines_x, res[7](lines_x)])
             line_results = res[0:4]

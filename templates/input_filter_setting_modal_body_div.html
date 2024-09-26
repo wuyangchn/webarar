@@ -28,21 +28,23 @@
                 <label><input type="text" class="input-filter-params" style="width: 50px;" value=""></label>
             </div><br>
 
-            <label style="width: 400px; text-align: left; font-weight: bold">Data Structure</label>
+            <label style="width: 400px; text-align: left; font-weight: bold">Isotopic Data</label>
 
             <div class="form-inline">
-                <label style="width: 150px; text-align: left">Data Excel Sheet Index</label>
+                <label style="width: 154px; text-align: left">Data Excel Sheet Index</label>
                 <label><input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="1"></label>
-                <label style="width: 104px; text-align: right">Header Rows</label>
+                <label style="width: 100px; text-align: right">Header Rows</label>
                 <label><input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="0"></label>
             </div>
 
             <div class="form-inline">
                 <label style="width: 100px; text-align: left">Data Direction</label>
-                <label><select class="input-filter-params" style="width: 150px;">
+                <label><select class="input-filter-params" style="width: 105px; padding-right: 0px">
                     <option value="0">Vertical</option>
                     <option value="1">Horizontal</option>
                 </select></label>
+                <label style="width: 100px; text-align: right">Cycle Num</label>
+                <label><input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="0"></label>
             </div>
 
             <div>
@@ -107,7 +109,7 @@
                     </label>
                 </div>
                 <div class="form-inline">
-                    <label style="width: 154px; text-align: left">Lines of each Cycle</label>
+                    <label style="width: 154px; text-align: left">Lines of Each Cycle</label>
                     <label><input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="5"></label>
                     <label style="width: 100px; text-align: right">Break Lines</label>
                     <label><input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="0"></label>
@@ -121,6 +123,14 @@
                 <label style="width: 154px; text-align: right">Intensity Scale Factor</label>
                 <label><input type="number" min="0" step="1" class="input-filter-params" style="width: 100px;" value="1"></label>
             </div>
+
+
+            <div class="checkbox" style="margin-top: 10px; margin-bottom: 0">
+                <label style="margin-top: -10px; width: 200px"><input type="checkbox" value="" class="input-filter-check-box" style="margin-top: 10px">
+                    Multiple Experimental Steps</label>
+            </div>
+            <label style="width: 154px; text-align: left">Lines of Each Step</label>
+            <label><input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="0"></label>
 
         </div>
 

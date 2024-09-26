@@ -85,7 +85,7 @@ def update_handsontable(smp: Sample, data: list, id: str):
 
     def _strToBool(cols):
         bools_dict = {
-            'true': True, 'false': False, '1': True, '0': False, 'none': False,
+            'true': True, 'false': False, 'True': True, 'False': False, '1': True, '0': False, 'none': False,
         }
         return [bools_dict.get(str(col).lower(), False) for col in cols]
     try:
@@ -137,7 +137,7 @@ def update_handsontable(smp: Sample, data: list, id: str):
         smp.Info.results.selection[2]['data'] = smp.UnselectedSequence
     elif id == '8':  # 总参数
         data = _normalize_data(data, len(samples.TOTAL_PARAMS_HEADERS), 2)
-        data[103: 115] = [_strToBool(i) for i in data[103: 115]]
+        data[101: 112] = [_strToBool(i) for i in data[101: 112]]
         smp.TotalParam = data
     else:
         raise ValueError(f"{id = }, The table id is not supported.")
@@ -145,5 +145,43 @@ def update_handsontable(smp: Sample, data: list, id: str):
         update_table_data(smp)
     else:
         update_table_data(smp, only_table=id)  # Update data of tables after changes of a table
+
+
+def update_data_from_table(smp: Sample, only_table: str = None):
+    """
+    Update table data
+    Parameters
+    ----------
+    smp
+    only_table
+
+    Returns
+    -------
+
+    """
+    for key, comp in basic.get_components(smp).items():
+        if not isinstance(comp, Table):
+            continue
+        if only_table is not None and key != only_table:
+            continue
+        if key == '1':
+            smp.SampleIntercept = calc.arr.transpose(comp.data)[2:]
+        elif key == '2':
+            smp.BlankIntercept = calc.arr.transpose(comp.data)[2:]
+        elif key == '3':
+            smp.CorrectedValues = calc.arr.transpose(comp.data)[2:]
+        elif key == '4':
+            smp.DegasValues = calc.arr.transpose(comp.data)[2:]
+        elif key == '5':
+            smp.PublishValues = calc.arr.transpose(comp.data)[2:]
+        elif key == '6':
+            smp.ApparentAgeValues = calc.arr.transpose(comp.data)[2:]
+        elif key == '7':
+            smp.IsochronValues = calc.arr.transpose(comp.data)[3:]
+        elif key == '8':
+            smp.TotalParam = calc.arr.transpose(comp.data)[2:]
+        else:
+            pass
+
 
 

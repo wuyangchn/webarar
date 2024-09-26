@@ -25,11 +25,10 @@ from .sample import Sample
 def corr_blank(sample: Sample):
     """Blank Correction"""
     corrBlank = sample.TotalParam[102][0]
-    set_negative_zero = sample.TotalParam[101][0]
-    if not corrBlank:
-        sample.BlankCorrected = copy.deepcopy(sample.SampleIntercept)
-        sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
-        return
+    # if not corrBlank:
+    #     sample.BlankCorrected = copy.deepcopy(sample.SampleIntercept)
+    #     sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
+    #     return
     blank_corrected = [[]] * 10
     try:
         for i in range(5):
@@ -38,8 +37,10 @@ def corr_blank(sample: Sample):
     except Exception as e:
         print(traceback.format_exc())
         raise ValueError('Blank correction error')
-    if set_negative_zero:
-        blank_corrected[0] = [i if i >= 0 else 0 for i in blank_corrected[0]]
+    for i in range(0, 10, 2):
+        blank_corrected[i] = [blank_corrected[i][index] if sample.TotalParam[102][index] else j for index, j in enumerate(sample.SampleIntercept[i])]
+        blank_corrected[i + 1] = [blank_corrected[i + 1][index] if sample.TotalParam[102][index] else j for index, j in enumerate(sample.SampleIntercept[i + 1])]
+        blank_corrected[i] = [0 if j < 0 and sample.TotalParam[101][index] else j for index, j in enumerate(blank_corrected[i])]
     sample.BlankCorrected = blank_corrected
     sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
 
@@ -103,12 +104,12 @@ def corr_decay(sample: Sample):
         print(traceback.format_exc())
         raise ValueError('Decay correction correction error')
 
-    corrDecay37 = sample.TotalParam[104][0]
-    corrDecay39 = sample.TotalParam[105][0]
-    if corrDecay37:
-        sample.CorrectedValues[2:4] = copy.deepcopy(decay_corrected[2:4])
-    if corrDecay39:
-        sample.CorrectedValues[6:8] = copy.deepcopy(decay_corrected[6:8])
+    corrDecay37 = sample.TotalParam[104]
+    corrDecay39 = sample.TotalParam[105]
+    sample.CorrectedValues[2] = [val if corrDecay37[idx] else 0 for idx, val in enumerate(decay_corrected[2])]
+    sample.CorrectedValues[3] = [val if corrDecay37[idx] else 0 for idx, val in enumerate(decay_corrected[3])]
+    sample.CorrectedValues[6] = [val if corrDecay39[idx] else 0 for idx, val in enumerate(decay_corrected[6])]
+    sample.CorrectedValues[7] = [val if corrDecay39[idx] else 0 for idx, val in enumerate(decay_corrected[7])]
 
 
 # =======================
@@ -124,17 +125,23 @@ def calc_degas_ca(sample: Sample):
     -------
 
     """
-    corrDecasCa = sample.TotalParam[106][0]
-    n = len(sample.CorrectedValues[2])
+    corrDecasCa = sample.TotalParam[106]
+    # n = len(sample.CorrectedValues[2])
     ar37ca = sample.CorrectedValues[2:4]
     ar39ca = calc.arr.mul_factor(ar37ca, sample.TotalParam[8:10], isRelative=True)
     ar38ca = calc.arr.mul_factor(ar37ca, sample.TotalParam[10:12], isRelative=True)
     ar36ca = calc.arr.mul_factor(ar37ca, sample.TotalParam[12:14], isRelative=True)
-    sample.DegasValues[8:10] = ar37ca
-    sample.DegasValues[22:24] = ar39ca if corrDecasCa else [[0] * n, [0] * n]
-    sample.DegasValues[18:20] = ar38ca if corrDecasCa else [[0] * n, [0] * n]
-    sample.DegasValues[4:6] = ar36ca if corrDecasCa else [[0] * n, [0] * n]
-    sample.PublishValues[1] = ar37ca[0]
+    sample.DegasValues[8:10] = copy.deepcopy(ar37ca)
+    # sample.DegasValues[22:24] = ar39ca if corrDecasCa else [[0] * n, [0] * n]
+    # sample.DegasValues[18:20] = ar38ca if corrDecasCa else [[0] * n, [0] * n]
+    # sample.DegasValues[4:6] = ar36ca if corrDecasCa else [[0] * n, [0] * n]
+    sample.DegasValues[ 4] = [val if corrDecasCa[idx] else 0 for idx, val in enumerate(ar36ca[0])]
+    sample.DegasValues[ 5] = [val if corrDecasCa[idx] else 0 for idx, val in enumerate(ar36ca[1])]
+    sample.DegasValues[18] = [val if corrDecasCa[idx] else 0 for idx, val in enumerate(ar38ca[0])]
+    sample.DegasValues[19] = [val if corrDecasCa[idx] else 0 for idx, val in enumerate(ar38ca[1])]
+    sample.DegasValues[22] = [val if corrDecasCa[idx] else 0 for idx, val in enumerate(ar39ca[0])]
+    sample.DegasValues[23] = [val if corrDecasCa[idx] else 0 for idx, val in enumerate(ar39ca[1])]
+    sample.PublishValues[1] = copy.deepcopy(ar37ca[0])
 
 
 # =======================
@@ -150,18 +157,22 @@ def calc_degas_k(sample: Sample):
     -------
 
     """
-    corrDecasK = sample.TotalParam[107][0]
-    set_negative_zero = sample.TotalParam[101][0]
-    n = len(sample.CorrectedValues[6])
+    corrDecasK = sample.TotalParam[107]
+    set_negative_zero = sample.TotalParam[101]
+    # n = len(sample.CorrectedValues[6])
     ar39k = calc.arr.sub(sample.CorrectedValues[6:8], sample.DegasValues[22:24])
-    ar39k[0] = [0 if i < 0 and set_negative_zero else i for i in ar39k[0]]
+    ar39k[0] = [0 if val < 0 and set_negative_zero[idx] else val for idx, val in enumerate(ar39k[0])]
     ar40k = calc.arr.mul_factor(ar39k, sample.TotalParam[14:16], isRelative=True)
     ar38k = calc.arr.mul_factor(ar39k, sample.TotalParam[16:18], isRelative=True)
 
-    sample.PublishValues[3] = ar39k[0]
-    sample.DegasValues[20:22] = ar39k
-    sample.DegasValues[30:32] = ar40k if corrDecasK else [[0] * n, [0] * n]
-    sample.DegasValues[16:18] = ar38k if corrDecasK else [[0] * n, [0] * n]
+    sample.PublishValues[3] = copy.deepcopy(ar39k[0])
+    sample.DegasValues[20:22] = copy.deepcopy(ar39k)
+    # sample.DegasValues[30:32] = ar40k if corrDecasK else [[0] * n, [0] * n]
+    # sample.DegasValues[16:18] = ar38k if corrDecasK else [[0] * n, [0] * n]
+    sample.DegasValues[16] = [val if corrDecasK[idx] else 0 for idx, val in enumerate(ar38k[0])]
+    sample.DegasValues[17] = [val if corrDecasK[idx] else 0 for idx, val in enumerate(ar38k[1])]
+    sample.DegasValues[30] = [val if corrDecasK[idx] else 0 for idx, val in enumerate(ar40k[0])]
+    sample.DegasValues[31] = [val if corrDecasK[idx] else 0 for idx, val in enumerate(ar40k[1])]
 
 
 # =======================
@@ -177,12 +188,12 @@ def calc_degas_cl(sample: Sample):
     -------
 
     """
-    corrDecasCl = sample.TotalParam[108][0]
+    corrDecasCl = sample.TotalParam[108]
     decay_const = sample.TotalParam[46:48]
     cl36_cl38_p = sample.TotalParam[56:58]
     ar38ar36 = sample.TotalParam[4:6]
     stand_time_year = sample.TotalParam[32]
-    set_negative_zero = sample.TotalParam[101][0]
+    set_negative_zero = sample.TotalParam[101]
     # ============
     decay_const[1] = [decay_const[0][i] * decay_const[1][i] / 100 for i in
                       range(len(decay_const[0]))]  # convert to absolute error
@@ -196,8 +207,8 @@ def calc_degas_cl(sample: Sample):
     # 38Ar deduct K and Ca, that is sum of 38Ara and 38ArCl
     ar38acl = calc.arr.sub(calc.arr.sub(
         sample.CorrectedValues[4:6], sample.DegasValues[16:18]), sample.DegasValues[18:20])
-    if set_negative_zero:
-        for index, item in enumerate(ar36acl[0]):
+    for index, item in enumerate(ar36acl[0]):
+        if set_negative_zero[index]:
             if item < 0:
                 ar36acl[0][index] = 0
             if ar38acl[0][index] < 0:
@@ -241,9 +252,14 @@ def calc_degas_cl(sample: Sample):
         n = len(ar36acl[0])
         ar36cl = [[0] * n, [0] * n]
         ar38cl = [[0] * n, [0] * n]
-    sample.DegasValues[6:8] = ar36cl
-    sample.DegasValues[10:12] = ar38cl
-    sample.PublishValues[2] = ar38cl[0]
+
+    # sample.DegasValues[6:8] = ar36cl
+    # sample.DegasValues[10:12] = ar38cl
+    sample.PublishValues[2] = copy.deepcopy(ar38cl[0])
+    sample.DegasValues[ 6] = [val if corrDecasCl[idx] else 0 for idx, val in enumerate(ar36cl[0])]
+    sample.DegasValues[ 7] = [val if corrDecasCl[idx] else 0 for idx, val in enumerate(ar36cl[1])]
+    sample.DegasValues[10] = [val if corrDecasCl[idx] else 0 for idx, val in enumerate(ar38cl[0])]
+    sample.DegasValues[11] = [val if corrDecasCl[idx] else 0 for idx, val in enumerate(ar38cl[1])]
 
 
 # =======================
@@ -259,31 +275,37 @@ def calc_degas_atm(sample: Sample):
     -------
 
     """
-    corrDecasAtm = sample.TotalParam[109][0]
-    set_negative_zero = sample.TotalParam[101][0]
-    n = len(sample.CorrectedValues[0])
+    corrDecasAtm = sample.TotalParam[109]
+    set_negative_zero = sample.TotalParam[101]
+    # n = len(sample.CorrectedValues[0])
     # 36Ar deduct Ca, that is sum of 36Ara and 36ArCl
     ar36acl = calc.arr.sub(sample.CorrectedValues[0:2], sample.DegasValues[4:6])
-    if set_negative_zero:
-        ar36acl[0] = [i if i >= 0 else 0 for i in ar36acl[0]]
+    ar36acl[0] = [0 if val < 0 and set_negative_zero[idx] else val for idx, val in enumerate(ar36acl[0])]
     # 38Ar deduct K and Ca, that is sum of 38Ara and 38ArCl
     # ar38acl = calc.arr.sub()(
     #     calc.arr.sub()(sample.CorrectedValues[2:4], sample.DegasValues[16:18]), sample.DegasValues[18:20])
     # 36ArAir
     ar36a = calc.arr.sub(ar36acl, sample.DegasValues[6:8])
     # If ar36acl - ar36cl < 0, let ar36a = ar36 - ar36ca
-    if set_negative_zero:
-        ar36a[0] = [item if item >= 0 else ar36acl[index] for index, item in enumerate(ar36a[0])]
-    # 38ArAir
-    ar38a = calc.arr.mul_factor(ar36a, sample.TotalParam[4:6], isRelative=True)
-    print(sample.TotalParam[4:6])
-    # 40ArAir
-    ar40a = calc.arr.mul_factor(ar36a, sample.TotalParam[0:2], isRelative=True)
-    print(sample.TotalParam[0:2])
-    sample.DegasValues[0:2] = ar36a
-    sample.DegasValues[12:14] = ar38a if corrDecasAtm else [[0] * n, [0] * n]
-    sample.DegasValues[26:28] = ar40a if corrDecasAtm else [[0] * n, [0] * n]
-    sample.PublishValues[0] = ar36a[0]
+    ar36a[0] = [ar36acl[index] if item < 0 and set_negative_zero[index] else item for index, item in enumerate(ar36a[0])]
+    if sample.Info.sample.type == "Air":
+        ar38a = copy.deepcopy(sample.CorrectedValues[4:6])
+        ar40a = copy.deepcopy(sample.CorrectedValues[8:10])
+    else:
+        # 38ArAir
+        ar38a = calc.arr.mul_factor(ar36a, sample.TotalParam[4:6], isRelative=True)
+        # 40ArAir
+        ar40a = calc.arr.mul_factor(ar36a, sample.TotalParam[0:2], isRelative=True)
+
+    sample.PublishValues[0] = copy.deepcopy(ar36a[0])
+    # sample.DegasValues[12:14] = ar38a if corrDecasAtm else [[0] * n, [0] * n]
+    # sample.DegasValues[26:28] = ar40a if corrDecasAtm else [[0] * n, [0] * n]
+    sample.DegasValues[ 0] = [val if corrDecasAtm[idx] else 0 for idx, val in enumerate(ar36a[0])]
+    sample.DegasValues[ 1] = [val if corrDecasAtm[idx] else 0 for idx, val in enumerate(ar36a[1])]
+    sample.DegasValues[12] = [val if corrDecasAtm[idx] else 0 for idx, val in enumerate(ar38a[0])]
+    sample.DegasValues[13] = [val if corrDecasAtm[idx] else 0 for idx, val in enumerate(ar38a[1])]
+    sample.DegasValues[26] = [val if corrDecasAtm[idx] else 0 for idx, val in enumerate(ar40a[0])]
+    sample.DegasValues[27] = [val if corrDecasAtm[idx] else 0 for idx, val in enumerate(ar40a[1])]
 
 
 # =======================
@@ -302,8 +324,8 @@ def calc_degas_r(sample: Sample):
     ar40ar = calc.arr.sub(sample.CorrectedValues[8:10], sample.DegasValues[30:32])
     ar40r = calc.arr.sub(ar40ar, sample.DegasValues[26:28])
     ar40r[0] = [item if item >= 0 else 0 for item in ar40r[0]]
-    sample.DegasValues[24:26] = ar40r
-    sample.PublishValues[4] = ar40r[0]
+    sample.DegasValues[24:26] = copy.deepcopy(ar40r)
+    sample.PublishValues[4] = copy.deepcopy(ar40r[0])
 
 
 # =======================
@@ -325,8 +347,13 @@ def calc_ratio(sample: Sample, monte_carlo: bool = False):
                      for index, item in enumerate(sample.DegasValues[24])]
     sum_ar39k = sum(sample.DegasValues[20])
     ar39k_percent = [item / sum_ar39k * 100 if sum_ar39k != 0 else 0 for item in sample.DegasValues[20]]
+    sum_ar36a = sum(sample.DegasValues[ 0])
+    ar36a_percent = [item / sum_ar36a * 100 if sum_ar36a != 0 else 0 for item in sample.DegasValues[ 0]]
     ar40rar39k = calc.arr.mul_factor(
         sample.DegasValues[24:26], calc.arr.rec_factor(sample.DegasValues[20:22], isRelative=False),
+        isRelative=False)
+    ar40aar36a = calc.arr.mul_factor(
+        sample.DegasValues[26:28], calc.arr.rec_factor(sample.DegasValues[0:2], isRelative=False),
         isRelative=False)
     CaK = calc.arr.mul_factor(calc.arr.mul_factor(
         sample.DegasValues[8:10], calc.arr.rec_factor(sample.DegasValues[20:22], isRelative=False)),
@@ -343,8 +370,9 @@ def calc_ratio(sample: Sample, monte_carlo: bool = False):
         *sample.DegasValues[10:12], *sample.DegasValues[24:26], *sample.DegasValues[20:22])
 
     # assignation
-    sample.ApparentAgeValues[0:2] = ar40rar39k
-    sample.ApparentAgeValues[6:8] = [ar40r_percent, ar39k_percent]
+    sample.ApparentAgeValues[0:2] = ar40aar36a if sample.Info.sample.type == "Air" else ar40rar39k
+    sample.ApparentAgeValues[6] = ar40r_percent
+    sample.ApparentAgeValues[7] = ar36a_percent if sample.Info.sample.type == "Air" else ar39k_percent
     sample.PublishValues[7:11] = [ar40r_percent, ar39k_percent, *CaK]
     sample.IsochronValues[0:5] = isochron_1
     sample.IsochronValues[6:11] = isochron_2

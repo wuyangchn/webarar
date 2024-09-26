@@ -21,8 +21,8 @@ def upload(file, media_dir):
         name, suffix = os.path.splitext(file.name)
         if suffix.lower() not in [
             '.xls', '.age', '.xlsx', '.arr', '.jpg', '.png', '.txt',
-            '.log', '.seq', '.json', '.ahd']:
-            raise TypeError("Wrong File")
+            '.log', '.seq', '.json', '.ahd', '.csv']:
+            raise TypeError(f"The imported file is not supported: {suffix}")
         web_file_path = os.path.join(media_dir, file.name)
         with open(web_file_path, 'wb') as f:
             for chunk in file.chunks():

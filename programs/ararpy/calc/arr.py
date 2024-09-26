@@ -126,7 +126,7 @@ def sub(*args):
     -------
 
     """
-    args = np.array(args)
+    args = np.array(args, dtype=np.float64)
     args[np.isnan(args)] = 0
     n = np.shape(args)[-1]
     k0, k1 = [], []
@@ -492,7 +492,7 @@ def transpose(obj, ignore: bool = True):
     Parameters
     ----------
     obj : two dimensional list-like object
-    ignore : return obj if ingore error is true
+    ignore : return obj if ignore error is true
 
     Returns
     -------
@@ -505,20 +505,22 @@ def transpose(obj, ignore: bool = True):
         m, n = np.shape(obj)
         return [[obj[i][j] for i in range(m)] for j in range(n)]
     except (ValueError, TypeError):
-        # print(traceback.format_exc())
+        print(traceback.format_exc())
         if ignore:
             return obj
+        else:
+            raise ValueError
 
 
 def get_item(obj: list, loc: (list, tuple, int), default: Union[str, int, float, bool] = None,
-             based: int = 0) -> Union[str, int, float, bool]:
+             base: Union[int, tuple, list] = 0) -> Union[str, int, float, bool]:
     """ Get item from a n-dimension list
     Parameters
     ----------
     obj
     loc
     default
-    based
+    base
 
     Returns
     -------
@@ -527,13 +529,16 @@ def get_item(obj: list, loc: (list, tuple, int), default: Union[str, int, float,
         if not isinstance(obj, list):
             raise TypeError
         if isinstance(loc, int):
-            return obj[loc - based if loc - based >= 0 else 0]
+            loc = [loc]
+        if isinstance(base, int):
+            base = [base for i in range(len(loc))]
         if len(loc) == 1:
-            return obj[loc[0] - based if loc[0] - based >= 0 else 0]
-        return get_item(obj[loc[0] - based if loc[0] - based >= 0 else 0], loc[1:], based=based)
+            return obj[loc[0] - base[0]] if loc[0] - base[0] >= 0 else ""
+        if loc[0] - base[0] < 0:
+            raise IndexError
+        return get_item(obj[loc[0] - base[0]], loc[1:], base=base[1:], default=default)
     except (IndexError, TypeError, ValueError):
-        if default is not None:
-            return default
+        return default
     raise ValueError(f"Cannot get a item from {obj = }, {loc = }")
 
 

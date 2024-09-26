@@ -42,9 +42,39 @@ def calc_apparent_ages(smp: Sample):
     -------
 
     """
-    age = calc_age(smp=smp)
-    smp.ApparentAgeValues[2:6] = age
-    smp.PublishValues[5:7] = copy.deepcopy(age[0:2])
+    if smp.Info.sample.type == "Unknown":
+        age = calc_age(smp=smp)
+        smp.ApparentAgeValues[2:6] = age
+        smp.PublishValues[5:7] = copy.deepcopy(age[0:2])
+    if smp.Info.sample.type == "Standard":
+        j = calc_j(smp=smp)
+        smp.ApparentAgeValues[2:4] = j
+        smp.PublishValues[5:7] = copy.deepcopy(j[0:2])
+    if smp.Info.sample.type == "Air":
+        mdf = calc_mdf(smp=smp)
+        smp.ApparentAgeValues[2:4] = mdf
+        smp.PublishValues[5:7] = copy.deepcopy(mdf[0:2])
+
+
+def calc_j(ar40ar39=None, params: dict = None, smp: Sample = None, index: list = None):
+    std_age, std_err = smp.TotalParam[59:61]
+    r, sr = smp.ApparentAgeValues[0:2]  # ar40ar39, error
+    f, rsf = smp.TotalParam[34:36]  # L, sL
+    j, sj = calc.jvalue.j_value(std_age, std_err, r, sr, f, rsf)
+    return [j.tolist(), sj.tolist()]
+
+
+def calc_mdf(ar40ar36=None, params: dict = None, smp: Sample = None, index: list = None):
+    std_air, std_err = smp.TotalParam[93:95]
+    m36, sm36 = smp.TotalParam[71:73]
+    m40, sm40 = smp.TotalParam[79:81]
+    air, sair = smp.ApparentAgeValues[0:2]  # ar40ar36 air, error
+    discrimination_method = smp.TotalParam[100]  # L, sL
+    mdf = []
+    for i in range(len(std_air)):
+        k = calc.corr.mdf(air[i], sair[i], m36[i], m40[i], std_air[i], std_err[i])  # linear, exp, pow
+        mdf.append({"linear": k[0:2], "exp": k[2:4], "pow": k[4:6]}[discrimination_method[i].lower()])
+    return np.transpose(mdf).tolist()
 
 
 def calc_age(ar40ar39=None, params: dict = None, smp: Sample = None, index: list = None):
