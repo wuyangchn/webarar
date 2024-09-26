@@ -4461,10 +4461,9 @@ def get_random_dir(path: str, length=7, random_index = ""):
         return get_random_dir(path=path, length=length)
 
 
-def run_agemon_dll(sample: Sample, filepath: str, loc: str, data, max_age: float = 30.):
+def run_agemon_dll(sample: Sample, source_dll_path: str, loc: str, data, max_age: float = 30.):
     # 加载 DLL
     # 获取源 DLL 文件名和扩展名
-    source_dll_path = r"D:\VSProjects\mddfuncs\x64\Debug\mddfuncs.dll"
     base_name, ext = os.path.splitext(os.path.basename(source_dll_path))
     # 构建新的 DLL 文件名
     new_dll_path = os.path.join(loc, f"{base_name}{ext}")

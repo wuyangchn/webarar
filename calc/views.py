@@ -948,7 +948,8 @@ class ThermoView(http_funcs.ArArView):
         # use_dll = False
 
         if use_dll:
-            ap.smp.diffusion_funcs.run_agemon_dll(sample, settings.MDD_ROOT, loc, data, float(max_age))
+            source = os.path.join(settings.SETTINGS_ROOT, "mddfuncs.dll")
+            ap.smp.diffusion_funcs.run_agemon_dll(sample, source, loc, data, float(max_age))
         else:
             agemon = ap.smp.diffusion_funcs.DiffAgemonFuncs(smp=sample, loc=loc)
 
