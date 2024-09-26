@@ -29,6 +29,8 @@ from_full = smp.initial.from_full_files
 from_raw = smp.initial.from_raw_files
 from_empty = smp.initial.from_empty
 
+save = lambda _smp, _path: files.arr_file.save(_path, _smp)
+
 """ Classes """
 
 Sample = smp.Sample
@@ -50,7 +52,7 @@ ArArData.to_list = lambda _ad: _ad.data
 
 """ Sample Class Methods """
 
-Sample.name = lambda _smp: _smp.Info.sample.name
+Sample.name = smp.info.name
 Sample.doi = lambda _smp: _smp.Doi
 Sample.sample = lambda _smp: _smp.Info.sample
 Sample.researcher = lambda _smp: _smp.Info.researcher
@@ -93,9 +95,6 @@ Sample.calc_ratio = smp.corr.calc_ratio
 Sample.set_params = smp.basic.set_params
 
 Sample.set_info = lambda _smp, info: setattr(_smp, 'Info', smp.basic.update_plot_from_dict(_smp.Info, info))
-
-# getter
-Sample.get_comp = lambda _smp, _name: smp.basic.get_component_byid(_smp, comp_id=_name)
 
 Sample.recalculate = lambda _smp, *args, **kwargs: smp.calculation.recalculate(_smp, *args, **kwargs)
 Sample.plot_init = lambda _smp: smp.calculation.recalculate(

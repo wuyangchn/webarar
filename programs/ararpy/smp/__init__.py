@@ -1,6 +1,6 @@
 
 from . import (
-    sample as samples, consts, json, basic, corr, raw, initial,
+    sample as samples, info, consts, json, basic, corr, raw, initial,
     plots, style, table, calculation, export, diffusion_funcs
 )
 
