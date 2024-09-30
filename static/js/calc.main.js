@@ -4509,7 +4509,7 @@ function extendChartFuncs(chart) {
                 }
             }
         }
-        throw new Error(`No series found by id = ${id} or name = ${name}`);
+        return {};
     }
 
     chart.registerDrag = (seriesId, func) => {
@@ -4557,7 +4557,7 @@ function extendChartFuncs(chart) {
             }
         });
         data.series = com.get('series').map((v, i) => {
-            return {type: v.type, subType: v.subType, name: v.name, id: v.id, color: v.option.color,
+            return {type: v.type, myType: v.myType, name: v.name, id: v.id, color: v.option.color,
                 data: v.option.data.map((_v, _i) => [_v[v.option.encode.x], _v[v.option.encode.y]]) }
         });
 

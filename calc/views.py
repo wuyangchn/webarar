@@ -890,7 +890,7 @@ class ThermoView(http_funcs.ArArView):
         data = np.array([
             sequence.value, te, ti, age, sage, ar, sar, f, dr2, ln_dr2, wt
         ]).tolist()
-        data.insert(0, [True for i in range(nsteps)])
+        data.insert(0, np.where(np.array(data[3]) > 0, True, False).tolist())
         data.insert(1, [1 for i in range(nsteps)])
 
         res = False
@@ -1055,7 +1055,6 @@ class ThermoView(http_funcs.ArArView):
             print(f"FileNotFoundError")
             libano_log = [[], [], [], [], [], []]
             heating_out = []
-
         plot_data.append(libano_log)
         plot_data.append(heating_out)
 

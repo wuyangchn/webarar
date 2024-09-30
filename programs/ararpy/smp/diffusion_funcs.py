@@ -3857,7 +3857,7 @@ class SmpTemperatureCalibration:
 
         np.savetxt(os.path.join(self.loc, f"{self.name}-temp.txt"), libano_log, delimiter=',')
         heating_out = open(os.path.join(self.loc, f"{self.name}-heated-index.txt"), "w")
-        heating_out.writelines([','.join([str(j) for j in i]) for i in yellow_data_index])
+        heating_out.writelines([f'{min(i)},{max(i)}\n' for i in yellow_data_index])
         heating_out.close()
 
         plt_plot = False
