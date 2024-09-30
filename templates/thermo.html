@@ -248,6 +248,7 @@
         }],
     });
     charts[3].setOption({
+        legend: {show: false},
         title: {text: 'Heating Log'},
         xAxis: [{
             id: '1', name: 'Timestamp', min: (value) => value.min - 10000, max: (value) => value.max + 10000,
@@ -346,17 +347,18 @@
                 let k2 = data[2];
                 let k3 = data[3];
                 let k4 = transpose(data[4]);
-                let k5 = k4.filter((v, _i) => data[5].includes(_i));
 
-                plotSubPlot(oven_log_chart, "Regression", line_data, "line", "none", "black", {x: 0, y: 1}, true);
-                plotSubPlot(charts[1], "line1", k0, "line", "none", "black", {x:0, y:1});
-                plotSubPlot(charts[1], "line2", k0, "line", "none", "black", {x:0, y:2});
-                plotSubPlot(charts[3], "SP", k4, "line", "none", "green", {x:0, y:1});
-                plotSubPlot(charts[3], "AP", k4, "line", "none", "blue", {x:0, y:2});
-                plotSubPlot(charts[3], "Calibrated", k4, "line", "none", "red", {x:0, y:4});
-                plotSubPlot(charts[3], "Calibrated", k4, "line", "none", "red", {x:0, y:5});
-                plotSubPlot(charts[3], "Collected", k5, "line", "none", "yellow", {x:0, y:4});
-                plotSubPlot(charts[3], "Collected", k5, "line", "none", "yellow", {x:0, y:5});
+                plotSubPlot(oven_log_chart, "Regression", line_data, "line", "line", "none", "black", {x: 0, y: 1}, true);
+                plotSubPlot(charts[1], "line1", k0, "line", "line", "none", "black", {x:0, y:1});
+                plotSubPlot(charts[1], "line2", k0, "line", "line", "none", "black", {x:0, y:2});
+                plotSubPlot(charts[3], "SP", k4, "line", "line", "none", "green", {x:0, y:1});
+                plotSubPlot(charts[3], "AP", k4, "line", "line", "none", "blue", {x:0, y:2});
+                plotSubPlot(charts[3], "Calibrated1", k4, "line", "line", "none", "red", {x:0, y:4});
+                plotSubPlot(charts[3], "Calibrated2", k4, "line", "line", "none", "red", {x:0, y:5});
+                forEach(data[5], (v, i) => {
+                    plotSubPlot(charts[3], `Collected1_${i}`, k4.slice(v[0], v[1] + 1), "line", "line", "none", "yellow", {x:0, y:4});
+                    plotSubPlot(charts[3], `Collected2_${i}`, k4.slice(v[0], v[1] + 1), "line", "line", "none", "yellow", {x:0, y:5});
+                })
 
                 let text_data = getPercentagePos(oven_log_chart, 0.4, 0.5);
                 try {
@@ -364,34 +366,35 @@
                 } catch (e) {
                     //
                 }
-                plotSubPlot(oven_log_chart, "Text", text_data, "scatter", "circle", "none", {x: 0, y: 1}, true, true, `Intercept: ${k[0]} \n Slop: ${k[1]}`, true);
+                plotSubPlot(oven_log_chart, "Text", text_data, "scatter", "text", "circle", "none", {x: 0, y: 1}, true, true, `Intercept: ${k[0]} \n Slop: ${k[1]}`, true);
 
                 const draw_agemon = true;
                 if (draw_agemon) {
                     charts[1].showLegend(false);
                     k1.forEach((data, index) => {
                         let t = transpose(data);
-                        plotSubPlot(charts[1], index.toString(), t, "line", "none", "red", {x: 0, y: 1}, false);
+                        plotSubPlot(charts[1], index.toString(), t, "line", "line", "none", "red", {x: 0, y: 1}, false);
                         // plotSubPlot(charts[1], index.toString(), t, "line", "none", "red", {x: 0, y: 2}, false);
                     });
 
                     charts[2].showLegend(false);
                     k2.forEach((data, index) => {
                         let t = transpose(data);
-                        plotSubPlot(charts[2], index.toString(), t, "line", "none", "black", {x: 0, y: 1}, false);
+                        plotSubPlot(charts[2], index.toString(), t, "line", "line", "none", "black", {x: 0, y: 1}, false);
                     });
                 }
+                // forEach(charts, (chart, index) => { chart.resize(); });
             }
         });
 
     }
-    function plotSubPlot(chart, name, data, type, symbol, color, encode,
+    function plotSubPlot(chart, name, data, type, myType, symbol, color, encode,
                          showLegend=true, showLabel=false, labelText="", draggable=false) {
 
         let newSeries = {
             id: name, name: name, data: data,
             type: type, symbol: symbol, symbolSize: 6, z: 2,  silent: false, xAxisIndex: 0, yAxisIndex: 0,
-            encode: encode, color: color,
+            encode: encode, color: color, myType: myType,
             lineStyle: {borderColor: color, width: 1, type: 'solid'},
             itemStyle: {borderWidth: 2, opacity: 0.8, color: color},
             label: {
@@ -401,7 +404,7 @@
             },
             draggable: draggable,
         }
-        chart.updateSeries(newSeries);
+        chart.updateSeries(newSeries, true);
     }
     function getLineData(chart, intercept, slop) {
         let option = chart.getOption();

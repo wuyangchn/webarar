@@ -9,6 +9,7 @@
 #
 #
 """
+import copy
 from .. import calc
 from . import (sample as samples, basic)
 
@@ -47,6 +48,13 @@ def update_table_data(smp: Sample, only_table: str = None):
             data = calc.arr.merge(
                 smp.SequenceName, smp.SequenceValue, *smp.DegasValues)
         elif key == '5':
+            smp.PublishValues[0] = copy.deepcopy(smp.DegasValues[ 0])
+            smp.PublishValues[1] = copy.deepcopy(smp.DegasValues[ 8])
+            smp.PublishValues[2] = copy.deepcopy(smp.DegasValues[10])
+            smp.PublishValues[3] = copy.deepcopy(smp.DegasValues[20])
+            smp.PublishValues[4] = copy.deepcopy(smp.DegasValues[24])
+            smp.PublishValues[5:7] = copy.deepcopy(smp.ApparentAgeValues[2:4])
+            smp.PublishValues[7:9] = copy.deepcopy(smp.ApparentAgeValues[6:8])
             data = calc.arr.merge(
                 smp.SequenceName, smp.SequenceValue, *smp.PublishValues)
         elif key == '6':
