@@ -3677,13 +3677,10 @@ class InsideTemperatureCalibration:
 
 
 class SmpTemperatureCalibration:
-    def __init__(self, arr_path="", helix_log_path="", libano_log_path=None,
+    def __init__(self, helix_log_path="", libano_log_path=None,
                  name="smp_example", loc=r'D:\DjangoProjects\webarar\static\settings'):
 
         self.name = name
-        self.smp = ap.from_arr(file_path=arr_path)
-        if isinstance(self.smp, Sample):
-            self.name = self.smp.name()
 
         self.loc = loc
 
@@ -3858,27 +3855,28 @@ class SmpTemperatureCalibration:
 
         file_out.close()
 
-
-        fig, ax = plt.subplots()
-        fig.set_size_inches(w=12, h=10)
-
-        ax.plot(libano_log[0], libano_log[1], c='green')
-        ax.plot(libano_log[0], libano_log[2], c='blue')
-        ax.plot(libano_log[0], libano_log[4], c='red')
-        ax.plot(libano_log[0], libano_log[5], c='red')
-        for i in range(nstep):
-            _index = yellow_data_index[i]
-            ax.plot(libano_log[0, _index], libano_log[4, _index], c='yellow')
-            ax.plot(libano_log[0, _index], libano_log[5, _index], c='yellow')
-
-        fig.tight_layout()
-        plt.show()
-
-
         np.savetxt(os.path.join(self.loc, f"{self.name}-temp.txt"), libano_log, delimiter=',')
         heating_out = open(os.path.join(self.loc, f"{self.name}-heated-index.txt"), "w")
         heating_out.writelines([','.join([str(j) for j in i]) for i in yellow_data_index])
         heating_out.close()
+
+        plt_plot = False
+        if plt_plot:
+
+            fig, ax = plt.subplots()
+            fig.set_size_inches(w=12, h=10)
+
+            ax.plot(libano_log[0], libano_log[1], c='green')
+            ax.plot(libano_log[0], libano_log[2], c='blue')
+            ax.plot(libano_log[0], libano_log[4], c='red')
+            ax.plot(libano_log[0], libano_log[5], c='red')
+            for i in range(nstep):
+                _index = yellow_data_index[i]
+                ax.plot(libano_log[0, _index], libano_log[4, _index], c='yellow')
+                ax.plot(libano_log[0, _index], libano_log[5, _index], c='yellow')
+
+            fig.tight_layout()
+            plt.show()
 
 
         #

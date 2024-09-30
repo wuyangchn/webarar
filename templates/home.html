@@ -65,6 +65,7 @@
         const url_export_xls = "{% url 'api_views' 'export_xls' %}";
         const url_export_opju = "{% url 'api_views' 'export_opju' %}";
         const url_export_pdf = "{% url 'api_views' 'export_pdf' %}";
+        const url_export_chart = "{% url 'api_views' 'export_chart' %}";
 
         const url_set_params = "{% url 'object_views' 'set_params' %}";
         const url_show_param_projects = "{% url 'params_views' 'change_param_objects' %}";
@@ -129,6 +130,7 @@
 </head>
 <body>
     <div id="__top__"></div>
+    <a id="export_path_link" href="/user/SAMPLE%20NAME.arr" class="sr-only" download></a>
     <div id="popupContainer" class="popup-container" onclick="closePopupMessage()">
         <div id="popupContent" class="popup-content">
             <p id="popupTitle" class="popup-title"></p>

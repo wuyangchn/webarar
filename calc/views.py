@@ -6,6 +6,7 @@ import traceback
 import re
 import ctypes
 import numpy as np
+import pdf_maker as pm
 import time
 import gc
 
@@ -944,11 +945,18 @@ class ThermoView(http_funcs.ArArView):
         file_path = os.path.join(loc, f"{file_name}.arr")
         sample = ap.from_arr(file_path=file_path)
 
+        sample.name(file_name)
+
         use_dll = True
         # use_dll = False
 
         if use_dll:
-            source = os.path.join(settings.SETTINGS_ROOT, "mddfuncs.dll")
+            if os.name == 'nt':  # Windows system
+                source = os.path.join(settings.SETTINGS_ROOT, "mddfuncs.dll")
+            elif os.name == 'posix':  # Linux
+                source = os.path.join(settings.SETTINGS_ROOT, "mddfuncs.so")
+            else:
+                return JsonResponse({}, status=403)
             ap.smp.diffusion_funcs.run_agemon_dll(sample, source, loc, data, float(max_age))
         else:
             agemon = ap.smp.diffusion_funcs.DiffAgemonFuncs(smp=sample, loc=loc)
@@ -1036,7 +1044,20 @@ class ThermoView(http_funcs.ArArView):
             if len(x) > 0:
                 k = [a, b, siga, sigb, chi2, q] = ap.smp.diffusion_funcs.fit(x, y, wtx, wty)
 
-        plot_data = arr.get_plot_data()
+        plot_data = list(arr.get_plot_data())
+
+
+        loc = f"C:\\Users\\Young\\OneDrive\\00-Projects\\【2】个人项目\\2022-05论文课题\\【3】分析测试\\ArAr\\01-VU实验数据和记录\\{sample_name}"
+        try:
+            libano_log = np.loadtxt(os.path.join(loc, f"{file_name}-temp.txt"), delimiter=',')
+            heating_out = np.loadtxt(os.path.join(loc, f"{file_name}-heated-index.txt"), delimiter=',', dtype=int)
+        except FileNotFoundError:
+            print(f"FileNotFoundError")
+            libano_log = [[], [], [], [], [], []]
+            heating_out = []
+
+        plot_data.append(libano_log)
+        plot_data.append(heating_out)
 
         return JsonResponse({'status': 'success', 'data': ap.smp.json.dumps(plot_data),
                              'line_data': ap.smp.json.dumps(k)})
@@ -1046,17 +1067,14 @@ class ThermoView(http_funcs.ArArView):
         sample_name = self.body['sample_name']
         file_name = self.body['file_name']
         loc = f"C:\\Users\\Young\\OneDrive\\00-Projects\\【2】个人项目\\2022-05论文课题\\【3】分析测试\\ArAr\\01-VU实验数据和记录\\{sample_name}"
-        arr_path = f"C:\\Users\\Young\\OneDrive\\00-Projects\\【2】个人项目\\2022-05论文课题\\【3】分析测试\\ArAr\\01-VU实验数据和记录\\Arr Data\\{file_name}.arr"
 
         libano_log_path = f"{loc}\\Libano-log"
         libano_log_path = [os.path.join(libano_log_path, i) for i in os.listdir(libano_log_path)]
         helix_log_path = f"{loc}\\LogFiles"
         helix_log_path = [os.path.join(helix_log_path, i) for i in os.listdir(helix_log_path)]
 
-        print(libano_log_path)
-        print(helix_log_path)
         ap.smp.diffusion_funcs.SmpTemperatureCalibration(
-            libano_log_path=libano_log_path, helix_log_path=helix_log_path, arr_path=arr_path, loc=loc, name=file_name)
+            libano_log_path=libano_log_path, helix_log_path=helix_log_path, loc=loc, name=file_name)
 
         return JsonResponse({})
 
@@ -1196,3 +1214,31 @@ class ApiView(http_funcs.ArArView):
         # cp.EmptyClipboard()
         # cp.SetClipboardData(cp.RegisterClipboardFormat('Portable Document Format'), pdf_data)
         # cp.CloseClipboard()
+
+    def export_chart(self, request, *args, **kwargs):
+        data = self.body['data']
+        file_name = self.body['file_name']
+        plot_names = self.body['plot_names']
+        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{file_name}.pdf")
+
+        # write pdf
+        file = pm.NewPDF(filepath=export_filepath)
+        for index, each in enumerate(data):
+            # rich text tags should follow this priority: color > script > break
+            file.text(page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
+                      text=f"The PDF can be edited with Adobe Acrobat, Illustrator and CorelDRAW.<r>"
+                           f"<r> {file_name}"
+                           f"<r> {plot_names[index]}",
+                      )
+            cv = ap.smp.export.export_chart_to_pdf(each)
+            file.canvas(page=index, base=0, margin_top=5, canvas=cv, unit="cm", h_align="middle")
+            if index + 1 < len(data):
+                file.add_page()
+
+        # save pdf
+        file.save()
+
+        export_href = '/' + settings.DOWNLOAD_URL + f"{file_name}.pdf"
+
+        return JsonResponse({'status': 'success', 'href': export_href})
+

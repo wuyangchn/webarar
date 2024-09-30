@@ -4540,7 +4540,30 @@ function extendChartFuncs(chart) {
         });
     }
 
-    //
+    chart.getPlotData = () => {
+        console.log(chart);
+        let data = {};
+        let com = chart._model._componentsMap;
+        data.xAxis = com.get('xAxis').map((v, i) => {
+            return {
+                extent: v.axis.scale._extent, interval: v.axis.scale.getTicks().map(_v => _v.value),
+                title: v.option.name, nameLocation: v.option.nameLocation,
+            }
+        });
+        data.yAxis = com.get('yAxis').map((v, i) => {
+            return {
+                extent: v.axis.scale._extent, interval: v.axis.scale.getTicks().map(_v => _v.value),
+                title: v.option.name, nameLocation: v.option.nameLocation,
+            }
+        });
+        data.series = com.get('series').map((v, i) => {
+            return {type: v.type, subType: v.subType, name: v.name, id: v.id, color: v.option.color,
+                data: v.option.data.map((_v, _i) => [_v[v.option.encode.x], _v[v.option.encode.y]]) }
+        });
+
+        return data;
+
+    }
 
 }
 
@@ -4581,3 +4604,24 @@ function handsontableRemoveRow(key, options) {
     });
 
 }
+
+function exportChart(data, file_name, plot_names) {
+    $.ajax({
+        url: url_export_chart,
+        type: 'POST',
+        async: false,
+        data: JSON.stringify({
+            'data': data,
+            'file_name': file_name,
+            'plot_names': plot_names,
+        }),
+        contentType:'application/json',
+        success: function(res){
+            document.getElementById("export_path_link").href = res.href;
+            document.getElementById("export_path_link").click();
+            document.getElementById("export_path_link").href = '';
+        }
+    });
+}
+
+

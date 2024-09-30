@@ -41,6 +41,54 @@ def to_pdf(file_path: str, figure: str, smp: Sample):
     pdf.save(figure=figure)
 
 
+def export_chart_to_pdf(data: dict):
+    # create a canvas
+    cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
+    # change frame outline style
+    cv.show_frame(color="grey", line_width=0.5)
+    sc = (*data['xAxis'][0]['extent'], *data['yAxis'][0]['extent'])
+    pt = cv.add_plot_area(name="Plot1", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=sc, show_frame=True)
+    # draw axis
+    for stick in data['xAxis'][0]['interval']:
+        start = pt.scale_to_points(stick, sc[2])
+        end = pt.scale_to_points(stick, sc[2])
+        end = (end[0], end[1] - 5)
+        pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=100)
+        pt.text(x=start[0], y=end[1] - 15, text=f"{stick}", clip=False,
+                coordinate="pt", h_align="middle", z_index=150)
+    for stick in data['yAxis'][0]['interval']:
+        start = pt.scale_to_points(sc[0], stick)
+        end = pt.scale_to_points(sc[0], stick)
+        end = (end[0] - 5, end[1])
+        pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=100)
+        pt.text(x=end[0] - 5, y=end[1], text=f"{stick}", clip=False,
+                coordinate="pt", h_align="right", v_align="center", z_index=150)
+    # axis titles
+    nameLocation = pt.scale_to_points(sum(sc[:2]) / 2, sc[2])
+    pt.text(x=nameLocation[0], y=nameLocation[1] - 30, text=data['xAxis'][0]['title'], clip=False, coordinate="pt",
+            h_align="middle", v_align="top", z_index=150)
+    nameLocation = pt.scale_to_points(sc[0], sum(sc[2:4]) / 2)
+    pt.text(x=nameLocation[0] - 50, y=nameLocation[1], text=data['yAxis'][0]['title'], clip=False, coordinate="pt",
+            h_align="middle", v_align="bottom", rotate=90, z_index=150)
+    # draw series
+    for se in data['series']:
+        data = se.get('data', [])
+        if 'line' in se['type']:
+            for index in range(1, len(data)):
+                pt.line(start=data[index - 1], end=data[index], width=1, line_style='solid', name=se['name'],
+                        color=se.get('color', 'black'), clip=True, line_caps="square", z_index=9)
+        if 'scatter' in se['type'] and se['name'] != 'Text':
+            for each in data:
+                pt.scatter(each[0], each[1], fill_color=se.get('color', 'black'), size=2)
+        if 'scatter' in se['type'] and se['name'] == 'Text':
+            for each in data:
+                pass
+                # text
+                # pt.scatter(each[0], each[1], fill_color=se.get('color', 'black'), size=2)
+
+    return cv
+
+
 class ExcelTemplate:
     def __init__(self, **kwargs):
         self.name = ""

@@ -87,6 +87,7 @@
             <label><button class="btn-info" onclick="RunAgemon()" >RunAgemon</button></label>
             <label><button class="btn-info" onclick="ReadLog()" >ReadLog</button></label>
             <label><button id="plot_agemon" class="btn-danger" onclick="PlotAgemon()" >Plot</button></label>
+            <label><button id="export_chart" class="btn-danger" onclick="ThermoExportChart()" >Export</button></label>
             </div>
             <div id="step_table_container" class="container" style="height: 1000px; width: 800px; padding: 0 0 0 0;"></div>
         </div>
@@ -132,7 +133,7 @@
     forEach(charts, (chart, index) => {
         chart.setOption({
             title: {
-                show: true, text: 'Diffusivity diagrams', left: 'center', top: '6%',
+                show: true, text: 'Arrhenius Plot', left: 'center', top: '6%',
                 textStyle: {
                     color: '#333', fontWeight: 'bolder', fontFamily: 'Microsoft Sans Serif',
                     fontSize: 18
@@ -177,17 +178,17 @@
                         fontSize: 16, fontFamily: 'Microsoft Sans Serif',
                     },
                 },
-                {
-                    id: '2', name: 'Temperature [C]', type: 'value', nameLocation: 'start', nameGap: 0,
-                    axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
-                    axisLabel: {
-                        showMaxLabel: true, color: '#222'
-                    },
-                    axisTick: {inside: false},
-                    nameTextStyle: {
-                        fontSize: 16, fontFamily: 'Microsoft Sans Serif',
-                    },
-                },
+                // {
+                //     id: '2', name: 'Temperature [C]', type: 'value', nameLocation: 'start', nameGap: 0,
+                //     axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
+                //     axisLabel: {
+                //         showMaxLabel: true, color: '#222'
+                //     },
+                //     axisTick: {inside: false},
+                //     nameTextStyle: {
+                //         fontSize: 16, fontFamily: 'Microsoft Sans Serif',
+                //     },
+                // },
             ],
             yAxis: [
                 {
@@ -246,6 +247,16 @@
             id: '1', name: 'Temperature (℃)',
         }],
     });
+    charts[3].setOption({
+        title: {text: 'Heating Log'},
+        xAxis: [{
+            id: '1', name: 'Timestamp', min: (value) => value.min - 10000, max: (value) => value.max + 10000,
+            nameTextStyle: { fontSize: 16, fontFamily: 'Microsoft Sans Serif', },
+        }],
+        yAxis: [{
+            id: '1', name: 'Temperature (℃)',
+        }],
+    });
     oven_log_chart.registerDrag("Text", (params) => {});
 
     document.addEventListener("wheel", function(event){
@@ -276,13 +287,14 @@
                 });
                 if (res.has_files) {
                     document.getElementById('plot_agemon').className = "btn-success";
+                    document.getElementById('export_chart').className = "btn-success";
                 } else {
                     document.getElementById('plot_agemon').className = "btn-danger";
+                    document.getElementById('export_chart').className = "btn-danger";
                 }
             }
         });
     }
-
     function PlotAgemon() {
         let groups = {};
         transpose(table_data).forEach((row, index) => {
@@ -299,7 +311,7 @@
             let series = {
                 id: key, name: key, data: value.filter((v, _i) => v[0] !== Infinity && v[1] !== Infinity && v[3]),
                 color: color_map[key], type: 'scatter', symbolSize: 10, z: 2,  silent: false, opacity: 0.5,
-                xAxisIndex: 0, yAxisIndex: 0, draggable: true, onDragged: false,
+                xAxisIndex: 0, yAxisIndex: 0, draggable: true, onDragged: false, encode: {x: 0, y: 1},
                 lineStyle: {width: 1, type: 'solid'},
                 itemStyle: {
                     borderColor: color_map[key],
@@ -333,10 +345,18 @@
                 let k1 = data[1];
                 let k2 = data[2];
                 let k3 = data[3];
+                let k4 = transpose(data[4]);
+                let k5 = k4.filter((v, _i) => data[5].includes(_i));
 
                 plotSubPlot(oven_log_chart, "Regression", line_data, "line", "none", "black", {x: 0, y: 1}, true);
                 plotSubPlot(charts[1], "line1", k0, "line", "none", "black", {x:0, y:1});
                 plotSubPlot(charts[1], "line2", k0, "line", "none", "black", {x:0, y:2});
+                plotSubPlot(charts[3], "SP", k4, "line", "none", "green", {x:0, y:1});
+                plotSubPlot(charts[3], "AP", k4, "line", "none", "blue", {x:0, y:2});
+                plotSubPlot(charts[3], "Calibrated", k4, "line", "none", "red", {x:0, y:4});
+                plotSubPlot(charts[3], "Calibrated", k4, "line", "none", "red", {x:0, y:5});
+                plotSubPlot(charts[3], "Collected", k5, "line", "none", "yellow", {x:0, y:4});
+                plotSubPlot(charts[3], "Collected", k5, "line", "none", "yellow", {x:0, y:5});
 
                 let text_data = getPercentagePos(oven_log_chart, 0.4, 0.5);
                 try {
@@ -346,11 +366,8 @@
                 }
                 plotSubPlot(oven_log_chart, "Text", text_data, "scatter", "circle", "none", {x: 0, y: 1}, true, true, `Intercept: ${k[0]} \n Slop: ${k[1]}`, true);
 
-                {#const draw_agemon = false;#}
                 const draw_agemon = true;
-
                 if (draw_agemon) {
-
                     charts[1].showLegend(false);
                     k1.forEach((data, index) => {
                         let t = transpose(data);
@@ -363,9 +380,7 @@
                         let t = transpose(data);
                         plotSubPlot(charts[2], index.toString(), t, "line", "none", "black", {x: 0, y: 1}, false);
                     });
-
                 }
-
             }
         });
 
@@ -397,6 +412,9 @@
         let points = [
             [xa[0], y(xa[0])], [xa[1], y(xa[1])], [x(ya[0]), ya[0]], [x(ya[1]), ya[1]],
         ];
+        if (slop === 0) {
+            return []
+        }
         return points.filter((v, _i) =>  v[0] >= xa[0] && v[1] >= ya[0] && v[0] <= xa[1] && v[1] <= ya[1])
     }
     function getPercentagePos(chart, x, y) {
@@ -442,6 +460,13 @@
             }
         });
     }
+    function ThermoExportChart() {
+        exportChart(
+            [charts[0].getPlotData(), charts[1].getPlotData(), charts[2].getPlotData(), charts[3].getPlotData(),],
+            $('#file_name').val(),
+            ["Arrhenius Plot", "Age Spectra", "Cooling History", "Heating Log", ],
+        );
+    }
     function ReadLog() {
         $.ajax({
             url: url_read_log,
@@ -457,7 +482,6 @@
             }
         });
     }
-
     function _dropHandler(ev) {
         // Prevent default behavior (Prevent file from being opened)
         // Handle drag and drop events
