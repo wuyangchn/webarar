@@ -76,20 +76,67 @@
     </div>
     <div style="float: left; margin-left: 50px">
 {#            <label for="text_area"></label><textarea class="container" style="height: 500px; width: 500px; float: left" id="text_area"></textarea>#}
-        <div style="height: 800px; width: 400px; float: right; padding-left: 20px">
+        <div style="height: 800px; width: 600px; float: right; padding-left: 20px">
+            <div style="width: 400px">
             <label><input id="sample_name" type="text" class="button" style="width: 200px">Sample Name</label>
             <label><input id="file_name" type="text" class="button" style="width: 200px">File Name</label>
             <label><input id="random_index" type="text" class="button" style="width: 200px">Random Index</label>
             <label><input id="max_age" type="number" class="button" style="width: 200px">Max Age</label>
+            </div>
             <div>
             <label><button class="btn-info" onclick="CheckSample()" >Check</button></label>
             <label><button class="btn-info" onclick="RunArrmulti()" >RunArrmulti</button></label>
             <label><button class="btn-info" onclick="RunAgemon()" >RunAgemon</button></label>
             <label><button class="btn-info" onclick="ReadLog()" >ReadLog</button></label>
+            <label><button class="btn-info" onclick="ChangeSettings()" >Settings</button></label>
             <label><button id="plot_agemon" class="btn-danger" onclick="PlotAgemon()" >Plot</button></label>
             <label><button id="export_chart" class="btn-danger" onclick="ThermoExportChart()" >Export</button></label>
             </div>
             <div id="step_table_container" class="container" style="height: 1000px; width: 800px; padding: 0 0 0 0;"></div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editThermoParams" data-keyboard="true" tabindex="-1" role="dialog" aria-hidden="true">
+        <!-- /.modal 扩散模型参数设置 -->
+        <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-thermo-params">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Thermo Parameters</h4>
+                </div>
+                <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
+                    <div style="padding-right: 15px; padding-left: 30px;">
+                        <div class="radio form-inline">
+                            <label>
+                                <input type="radio" name="thermoParamsRadio" id="thermoParamsRadio1" value="option1" onchange="paramsRadioChanged('thermo')" checked>
+                                Use a Thermo Setting Project
+                            </label>
+                            <select class="form-control" id="thermoProjectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px; padding: 6px 12px;">
+                                {% for each in allThermoNames %}
+                                    <option>{{ each }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="thermoParamsRadio" id="thermoParamsRadio2" value="option2" onchange="paramsRadioChanged('thermo')">
+                                Use Input Params
+                            </label>
+                        </div>
+                        {% include "thermo_setting_modal_body_div.html" %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <br>
+                    <div style="text-align: center">
+                        <label>
+                            <input type="checkbox" value="" checked hidden>
+                            Attention: Recalculation will not be applied automatically, please click recalculate after parameter changes
+                        </label>
+                        <button type="button" class="btn btn-primary" value="Apply" data-dismiss="modal" onclick="">Apply</button>
+                    </div>
+
+                </div>
+            </div><!-- /.modal-content -->
         </div>
     </div>
 </div>
@@ -270,6 +317,7 @@
     $('#file-input-text').val('');
 
     function CheckSample() {
+        console.log(getParamsByObjectName('thermo'));
         //
         $.ajax({
             url: url_thermo_check_sample,
@@ -278,7 +326,8 @@
             data: JSON.stringify({
                 'name': $('#sample_name').val(),
                 'file_name': $('#file_name').val(),
-                'random_index': $('#random_index').val()
+                'random_index': $('#random_index').val(),
+                'settings': getParamsByObjectName('thermo'),
             }),
             contentType:'application/json',
             success: function(res){
@@ -335,6 +384,7 @@
                 'random_index': $('#random_index').val(),
                 'max_age': $('#max_age').val(),
                 'data': transpose(table_data).filter((v, _i) => v[0]),
+                'settings': getParamsByObjectName('thermo'),
             }),
             contentType:'application/json',
             success: function(res){
@@ -425,6 +475,9 @@
         let ya = chart._model._componentsMap.get('yAxis')[0].axis.scale._extent;
         return [[xa[0] + (xa[1] - xa[0]) * x, ya[0] + (ya[1] - ya[0]) * y]]
     }
+    function ChangeSettings() {
+        $('#editThermoParams').modal('show');
+    }
     function RunAgemon() {
         //
         $.ajax({
@@ -437,6 +490,7 @@
                 'random_index': $('#random_index').val(),
                 'max_age': $('#max_age').val(),
                 'data': transpose(table_data).filter((v, _i) => v[0]),
+                'settings': getParamsByObjectName('thermo'),
             }),
             contentType:'application/json',
             success: function(res){
@@ -456,6 +510,7 @@
                 'random_index': $('#random_index').val(),
                 'max_age': $('#max_age').val(),
                 'data': transpose(table_data).filter((v, _i) => v[0]),
+                'settings': getParamsByObjectName('thermo'),
             }),
             contentType:'application/json',
             success: function(res){
@@ -579,6 +634,9 @@
         return false;
     }
 
+    $(document).ready(function(){
+        showParamProject(document.getElementById('thermoProjectName'), 'thermo');
+    });
 
 </script>
 
