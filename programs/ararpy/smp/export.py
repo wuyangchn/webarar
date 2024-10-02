@@ -76,15 +76,12 @@ def export_chart_to_pdf(data: dict):
         if 'line' in se['type']:
             for index in range(1, len(data)):
                 pt.line(start=data[index - 1], end=data[index], width=1, line_style='solid', name=se['name'],
-                        color=se.get('color', 'black'), clip=True, line_caps="square", z_index=9)
+                        color=se.get('color', 'black'), clip=True, line_caps=se.get('line_caps', 'none'), z_index=9)
         if 'scatter' in se['type'] and se['name'] != 'Text':
             for each in data:
                 pt.scatter(each[0], each[1], fill_color=se.get('color', 'black'), size=2)
-        if 'scatter' in se['type'] and se['name'] == 'Text':
-            for each in data:
-                pass
-                # text
-                # pt.scatter(each[0], each[1], fill_color=se.get('color', 'black'), size=2)
+        if 'scatter' in se['type'] and se['name'] == 'Text' or 'text' in se['type']:
+            pt.text(*data[:2], **se)
 
     return cv
 

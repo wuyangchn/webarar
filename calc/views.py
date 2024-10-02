@@ -759,6 +759,9 @@ class ParamsSettingView(http_funcs.ArArView):
                 if 'smp' in type.lower():
                     param = [*data[67:71], *data[58:67], *data[97:100], *data[115:123],
                              *ap.calc.corr.get_method_fitting_law_by_name(data[100]), *data[101:114]]
+                if 'thermo' in type.lower():
+                    param = [*data[0:20], *data[56:58], *data[20:27],
+                             *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
             except IndexError:
                 param = []
             return JsonResponse({'status': 'success', 'param': np.nan_to_num(param).tolist()})
@@ -837,7 +840,8 @@ class ThermoView(http_funcs.ArArView):
     def get(self, request, *args, **kwargs):
         # names = list(models.IrraParams.objects.values_list('name', flat=True))
         # log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
-        return render(request, 'thermo.html')
+        allThermoNames = list(models.ThermoParams.objects.values_list('name', flat=True))
+        return render(request, 'thermo.html', {'allThermoNames': allThermoNames})
 
     # /calc/arr_input
     def arr_input(self, request, *args, **kwargs):
@@ -885,7 +889,8 @@ class ThermoView(http_funcs.ArArView):
 
         # dr2, ln_dr2 = ap.smp.diffusion_funcs.dr2_popov(f, ti)
         # dr2, ln_dr2 = ap.smp.diffusion_funcs.dr2_yang(f, ti)
-        dr2, ln_dr2, wt = ap.smp.diffusion_funcs.dr2_lovera(f, ti, ar, sar)
+        dr2, ln_dr2 = ap.smp.diffusion_funcs.dr2_lovera(f, ti, ar, sar)
+        wt = ap.smp.diffusion_funcs.errcal(f, ti, a39=ar, sig39=sar)
 
         data = np.array([
             sequence.value, te, ti, age, sage, ar, sar, f, dr2, ln_dr2, wt
@@ -1049,13 +1054,24 @@ class ThermoView(http_funcs.ArArView):
 
         loc = f"C:\\Users\\Young\\OneDrive\\00-Projects\\【2】个人项目\\2022-05论文课题\\【3】分析测试\\ArAr\\01-VU实验数据和记录\\{sample_name}"
         try:
-            libano_log = np.loadtxt(os.path.join(loc, f"{file_name}-temp.txt"), delimiter=',')
+            furnace_log = libano_log = np.loadtxt(os.path.join(loc, f"{file_name}-temp.txt"), delimiter=',')
             heating_out = np.loadtxt(os.path.join(loc, f"{file_name}-heated-index.txt"), delimiter=',', dtype=int)
         except FileNotFoundError:
             print(f"FileNotFoundError")
-            libano_log = [[], [], [], [], [], []]
+            furnace_log = [[], [], [], [], [], []]
             heating_out = []
-        plot_data.append(libano_log)
+        else:
+            # pass
+            heating_timestamp = [j for v in heating_out for j in libano_log[0, v]]  # 加热起止点的时间标签
+            furnace_log = [libano_log[:, 0]]
+            for i in range(1, libano_log.shape[1] - 1):
+                if not all([(i==i[0]).all() for i in libano_log[[1, 2, 4, 5], i-1: i+2]]) or libano_log[0, i] in heating_timestamp:
+                    furnace_log.append(libano_log[:, i])
+            furnace_log.append(libano_log[:, -1])
+            furnace_log = np.transpose(furnace_log)
+            heating_out = np.reshape([index for index, _ in enumerate(furnace_log[0]) if _ in heating_timestamp], (len(heating_timestamp) // 2, 2))
+
+        plot_data.append(furnace_log)
         plot_data.append(heating_out)
 
         return JsonResponse({'status': 'success', 'data': ap.smp.json.dumps(plot_data),

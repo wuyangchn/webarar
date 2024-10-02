@@ -409,6 +409,11 @@ function showParamProject(ele, param_type) {
             if (!$('#inputFilterParamsRadio1').is(':checked')) {
                 return
             }
+        } else if (ele.id.toString().includes('thermo')) {
+            param_type = "thermo";
+            if (!$('#thermoParamsRadio1').is(':checked')) {
+                return
+            }
         } else {
             return
         }
@@ -425,13 +430,13 @@ function showParamProject(ele, param_type) {
         success: function(res){
             if (res.status === 'success' && res.param){
                 if (param_type === "irra") {
-                    let irraInput = document.getElementsByClassName('irra-params');
+                    let irraInput = document.getElementsByClassName(`${ param_type }-params`);
                     irradiationCyclesChanged(Number(res.param[28]));
                     $.each(irraInput, function (index, each) {
                         each.value=res.param[index];
                     });
                 }
-                if (param_type === "input-filter" || param_type === "calc" || param_type === "smp") {
+                if (param_type === "input-filter" || param_type === "calc" || param_type === "smp" || param_type === "thermo") {
                     let input_box = document.getElementsByClassName(`${ param_type }-params`);
                     let check_Box = document.getElementsByClassName(`${ param_type }-check-box`);
                     $.each(input_box, function (index, each) {
@@ -874,7 +879,7 @@ function getExtrapolateDefaultOption(){
     };
 }
 function getParamsByObjectName(type) {
-    // type = 'irra' or 'calc' or 'smp'
+    // type = 'irra' or 'calc' or 'smp' or 'input-filter' or 'thermo'
     let params = [];
     let inputs = document.getElementsByClassName(`${type}-params`);
     let checkBoxes = document.getElementsByClassName(`${type}-check-box`);
@@ -4509,13 +4514,13 @@ function extendChartFuncs(chart) {
                 }
             }
         }
-        return {};
+        // throw `Not found, id = ${id}, name = ${name}`;
     }
 
     chart.registerDrag = (seriesId, func) => {
         chart.on('mousedown', {seriesId: seriesId}, function (params) {
             const series = chart.getSeries(seriesId);
-            if (series.draggable) {
+            if (series?.draggable) {
                 let pos = chart.convertToPixel({xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex}, series.data[0]);
                 let offsetX = params.event.offsetX - pos?.[0];
                 let offsetY = params.event.offsetY - pos?.[1];
@@ -4525,7 +4530,7 @@ function extendChartFuncs(chart) {
         });
         chart.getZr().on('mousemove', function (params) {
             const series = chart.getSeries(seriesId);
-            if (series.onDragged) {
+            if (series?.onDragged) {
                 const offset = series.dragOffset;
                 let pos = chart.convertFromPixel(
                     {xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex},

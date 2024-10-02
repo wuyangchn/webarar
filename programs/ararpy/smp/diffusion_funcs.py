@@ -4629,9 +4629,7 @@ def dr2_lovera(f, ti, ar, sar):
     dr2 = [(dtr2[i] - (dtr2[i - 1] if i > 0 else 0)) / ti[i] * imp ** 2 for i in range(len(dtr2))]
     xlogd = [np.log10(i) for i in dr2]
 
-    wt = errcal(f, ti, a39=ar, sig39=sar)
-
-    return dr2, xlogd, wt
+    return dr2, xlogd
 
 
 def dr2_yang(f, ti):
