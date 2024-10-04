@@ -530,14 +530,16 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
             smp.TotalParam[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
 
     elif flag == 'smp':
+        print(params)
         smp.TotalParam[67:71] = remove_none(smp.TotalParam[67:71], params[0:4], n, 71 - 67)
         smp.TotalParam[58:67] = remove_none(smp.TotalParam[58:67], params[4:13], n, 67 - 58)
         smp.TotalParam[97:100] = remove_none(smp.TotalParam[97:100], params[13:16], n, 100 - 97)
         smp.TotalParam[115:120] = remove_none(smp.TotalParam[115:120], params[16:21], n, 120 - 115)
-        smp.TotalParam[120:123] = remove_none(smp.TotalParam[120:123], params[21:24], n, 123 - 120)
+        smp.TotalParam[126:136] = remove_none(smp.TotalParam[126:136], params[21:31], n, 136 - 126)
+        smp.TotalParam[120:123] = remove_none(smp.TotalParam[120:123], params[31:34], n, 123 - 120)
         smp.TotalParam[100:114] = remove_none(
             smp.TotalParam[100:114],
-            [['Linear', 'Exponential', 'Power'][params[24:27].index(True)] if True in params[24:27] else '', *params[27:]], n, 114 - 100)
+            [['Linear', 'Exponential', 'Power'][params[34:37].index(True)] if True in params[34:37] else '', *params[37:]], n, 114 - 100)
     else:
         raise KeyError(f"{flag = } is not supported. It must be 'calc' for Calc Params, "
                        f"'irra' for Irradiation Params, or 'smp' for Sample Params.")

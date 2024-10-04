@@ -46,6 +46,32 @@ def corr_blank(sample: Sample):
 
 
 # =======================
+# Corr Blank
+# =======================
+def corr_gain(sample: Sample):
+    """Blank Correction"""
+    corrGain = True
+    # if not corrBlank:
+    #     sample.BlankCorrected = copy.deepcopy(sample.SampleIntercept)
+    #     sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
+    #     return
+    gain_corrected = [[]] * 10
+    try:
+        for i in range(5):
+            gain_corrected[i * 2:2 + i * 2] = calc.corr.gain(
+                *sample.BlankCorrected[i * 2:2 + i * 2], *sample.TotalParam[126 + i * 2:128 + i * 2])
+    except Exception as e:
+        print(f"Gain correction failed")
+        print(traceback.format_exc())
+        return
+    for i in range(0, 10, 2):
+        gain_corrected[i] = [gain_corrected[i][index] if corrGain else j for index, j in enumerate(sample.BlankCorrected[i])]
+        gain_corrected[i + 1] = [gain_corrected[i + 1][index] if corrGain else j for index, j in enumerate(sample.BlankCorrected[i + 1])]
+    sample.BlankCorrected = copy.deepcopy(gain_corrected)
+    sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
+
+
+# =======================
 # Mass Discrimination
 # =======================
 def corr_massdiscr(sample: Sample):

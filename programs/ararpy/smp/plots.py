@@ -61,16 +61,20 @@ def set_plot_data(sample: Sample, isInit: bool = True, isIsochron: bool = True,
         try:
             initial_plot_data(sample)
         except (Exception, BaseException):
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
             pass
 
     # Recalculate isochron lines
     if isIsochron:
         try:
             recalc_isochrons(sample, **kwargs)
+        except (Exception, BaseException):
+            # print(traceback.format_exc())
+            pass
+        try:
             reset_isochron_line_data(sample)
         except (Exception, BaseException):
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
             pass
 
     # Recalculate plateaus
@@ -78,7 +82,7 @@ def set_plot_data(sample: Sample, isInit: bool = True, isIsochron: bool = True,
         try:
             recalc_plateaus(sample)
         except (Exception, BaseException):
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
             pass
 
 
@@ -237,7 +241,7 @@ def get_isochron_results(data: list, smp: Sample, sequence, figure_type: int = 0
     try:
         regression_res = regression_method(*data[:5])
     except (Exception, BaseException):
-        print(f"Warning: {traceback.format_exc()}")
+        # print(f"Warning: {traceback.format_exc()}")
         return iso_res
     else:
         iso_res.update(dict(zip(reg_res_index, regression_res)))
@@ -305,11 +309,11 @@ def get_3D_results(data: list, sequence: list, sample: Sample):
             Q = 1 - np.exp(-1 * sample.TotalParam[46][0] * sum(sample.TotalParam[32]) / len(sample.TotalParam[32]))
             P = PQ / Q
         except:
-            print(f"Warning: {traceback.format_exc()}")
+            # print(f"Warning: {traceback.format_exc()}")
             P = 0
         age = basic.calc_age([f, sf], smp=sample)
     except:
-        print(f"Warning: {traceback.format_exc()}")
+        # print(f"Warning: {traceback.format_exc()}")
         k = [0] * 15
         age = [0] * 4
         ar40ar36, sar40ar36, P = 0, 0, 0

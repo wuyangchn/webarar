@@ -3066,6 +3066,8 @@ function renderAgeBarItem(param, api){
 }
 function getIsochronEchart(chart, figure_id, animation) {
     let figure = sampleComponents[figure_id];
+    console.log(figure.line1.data);
+    console.log(figure.line2.data);
     let res = sampleComponents[0].results.isochron[figure_id];
     let option = {
         title: {
@@ -4562,8 +4564,11 @@ function extendChartFuncs(chart) {
             }
         });
         data.series = com.get('series').map((v, i) => {
-            return {type: v.type, myType: v.myType, name: v.name, id: v.id, color: v.option.color,
-                data: v.option.data.map((_v, _i) => [_v[v.option.encode.x], _v[v.option.encode.y]]) }
+            return {
+                type: v.type, myType: v.myType, name: v.name, id: v.id, color: v.option.color,
+                data: v.option.data.map((_v, _i) => [_v[v.option.encode.x], _v[v.option.encode.y]]),
+                text: v.option.myText
+            }
         });
 
         return data;

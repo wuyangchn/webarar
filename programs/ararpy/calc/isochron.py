@@ -134,7 +134,7 @@ def get_ellipse(x: float, sx: float, y: float, sy: float, r: float, plt_sfactor:
     return ellipse_points
 
 
-def get_line_points(xscale, yscale, coeffs=None):
+def get_line_points(xscale, yscale, coeffs):
     """
 
     Parameters
@@ -147,7 +147,9 @@ def get_line_points(xscale, yscale, coeffs=None):
     -------
     List of data points
     """
-
+    xscale = [float(i) for i in xscale]
+    yscale = [float(i) for i in yscale]
+    coeffs = [float(i) for i in coeffs]
     if not isinstance(coeffs, list) or len(coeffs) < 2:
         raise ValueError(f"Coeffs should be a list with length with 2.")
     get_y = lambda x: coeffs[0] + coeffs[1] * x

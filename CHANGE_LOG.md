@@ -7,6 +7,12 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+## v0.1.12 2024-10-05
+* Add gain calibration.
+
+## v0.1.11 2024-09-27
+* Add multi-domain diffusion calculation
+
 # v0.0.42 2024-08-05
 * Fix issues and some changes.
 

@@ -499,6 +499,8 @@ def transpose(obj, ignore: bool = True):
 
     """
     try:
+        if len(obj) == 0:
+            return obj
         if not is_twoD(obj):
             raise ValueError("The requested object is not two dimensional.")
         obj = obj if is_homo(obj) else homo(obj)

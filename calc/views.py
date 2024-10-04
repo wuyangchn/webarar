@@ -399,9 +399,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         return http_funcs.open_last_object(request)
 
 
-""" For open raw files """
-
-
 class RawFileView(http_funcs.ArArView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -757,8 +754,9 @@ class ParamsSettingView(http_funcs.ArArView):
                 if 'calc' in type.lower():
                     param = [*data[34:56], *data[71:97]]
                 if 'smp' in type.lower():
-                    param = [*data[67:71], *data[58:67], *data[97:100], *data[115:123],
-                             *ap.calc.corr.get_method_fitting_law_by_name(data[100]), *data[101:114]]
+                    _ = [i == {'l': 0, 'e': 1, 'p': 2}.get(str(data[100]).lower()[0], -1) for i in range(3)]
+                    param = [*data[67:71], *data[58:67], *data[97:100], *data[115:120], *data[126:136],
+                             *data[120:123], *_, *data[101:114]]
                 if 'thermo' in type.lower():
                     param = [*data[0:20], *data[56:58], *data[20:27],
                              *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
@@ -846,9 +844,11 @@ class ThermoView(http_funcs.ArArView):
     # /calc/arr_input
     def arr_input(self, request, *args, **kwargs):
         file = request.FILES.get(str(0))
+        random_index = request.POST.get('random_index')
         name = ''
         file_name = ''
-        destination_folder, random_index = ap.smp.diffusion_funcs.get_random_dir(settings.MDD_ROOT, length=7)
+        destination_folder, random_index = ap.smp.diffusion_funcs.get_random_dir(
+            settings.MDD_ROOT, length=7, random_index=random_index)
         try:
             web_file_path, file_name, suffix = ap.files.basic.upload(file, destination_folder)
         except (Exception, BaseException) as e:
@@ -867,6 +867,8 @@ class ThermoView(http_funcs.ArArView):
         name = self.body['name']
         file_name = self.body['file_name']
         random_index = self.body['random_index']
+        params = self.body['settings']
+
         loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
         if not os.path.exists(loc) or random_index == "":
             return JsonResponse({}, status=403)
@@ -888,9 +890,12 @@ class ThermoView(http_funcs.ArArView):
         f = np.cumsum(ar) / ar.sum()
 
         # dr2, ln_dr2 = ap.smp.diffusion_funcs.dr2_popov(f, ti)
-        # dr2, ln_dr2 = ap.smp.diffusion_funcs.dr2_yang(f, ti)
-        dr2, ln_dr2 = ap.smp.diffusion_funcs.dr2_lovera(f, ti, ar, sar)
-        wt = ap.smp.diffusion_funcs.errcal(f, ti, a39=ar, sig39=sar)
+        if str(params[6]).lower() == 'lovera':
+            dr2, ln_dr2, wt = ap.smp.diffusion_funcs.dr2_lovera(f, ti, ar=ar, sar=sar)
+        elif str(params[6]).lower() == 'yang':
+            dr2, ln_dr2, wt = ap.smp.diffusion_funcs.dr2_yang(f, ti, ar=ar, sar=sar)
+        else:
+            return JsonResponse({}, status=403)
 
         data = np.array([
             sequence.value, te, ti, age, sage, ar, sar, f, dr2, ln_dr2, wt
@@ -911,6 +916,10 @@ class ThermoView(http_funcs.ArArView):
         random_index = self.body['random_index']
         max_age = self.body['max_age']
         data = self.body['data']
+        params = self.body['settings']
+
+        print(data)
+
         loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
         if not os.path.exists(loc) or random_index == "":
             return JsonResponse({"random_index": random_index}, status=403)
@@ -919,19 +928,25 @@ class ThermoView(http_funcs.ArArView):
         sample = ap.from_arr(file_path=file_path)
 
         arr = ap.smp.diffusion_funcs.DiffArrmultiFunc(smp=sample, loc=loc)
-        arr.ni = len(data)
+
+        print(f"{params = }")
+        # params = [8, 10, 8, 2, 0.5, 0.01, 'wt', 'xlogd', 'random', 'fit', False]
+        filtered_data = list(filter(lambda x: x[0], data))
+        filtered_index = [i for i, row in enumerate(data) if row[0]]
+        arr.ni = len(filtered_data)
         data = ap.calc.arr.transpose(data)
-        arr.telab = [i + 273.15 for i in data[3]]
-        arr.tilab = [i * 60 for i in data[4]]
-        arr.ya = data[5]
-        arr.sig = data[6]
-        arr.a39 = data[7]
-        arr.sig39 = data[8]
-        arr.f = data[9]
-        arr.f[-1] = 0.9999999999999999 if arr.f[-1] >= 1 else arr.f[-1]
+        filtered_data = ap.calc.arr.transpose(filtered_data)
+        arr.telab = [i + 273.15 for i in filtered_data[3]]
+        arr.tilab = [i * 60 for i in filtered_data[4]]
+        arr.ya = filtered_data[5]
+        arr.sig = filtered_data[6]
+        arr.a39 = filtered_data[7]
+        arr.sig39 = filtered_data[8]
+        arr.f = filtered_data[9]
+        dr2, arr.xlogd, arr.wt = ap.smp.diffusion_funcs.dr2_lovera(
+            f=arr.f, ti=filtered_data[4], ar=filtered_data[7], sar=filtered_data[8])
+
         arr.f.insert(0, 0)
-        arr.xlogd = data[11]
-        arr.wt = data[12]
         arr.main()
 
         return JsonResponse({})
@@ -954,6 +969,8 @@ class ThermoView(http_funcs.ArArView):
 
         use_dll = True
         # use_dll = False
+
+        data = list(filter(lambda x: x[0], data))
 
         if use_dll:
             if os.name == 'nt':  # Windows system
@@ -988,7 +1005,7 @@ class ThermoView(http_funcs.ArArView):
                 agemon.telab[i] = data[3][i] + 273.15
                 agemon.tilab[i] = data[4][i] / 5.256E+11
 
-            agemon.xs[-1] = 0.9999999999999999 if agemon.xs[-1] >= 1 else agemon.xs[-1]
+            agemon.xs = np.where(np.array(agemon.xs) >= 1, 0.9999999999999999, np.array(agemon.xs))
 
             for i in range(agemon.nit):
                 if agemon.telab[i] > 1373:
@@ -1009,67 +1026,74 @@ class ThermoView(http_funcs.ArArView):
         file_name = self.body['file_name']
         random_index = self.body['random_index']
         data = self.body['data']
+        params = self.body['settings']
+
         loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
         if not os.path.exists(loc) or random_index == "":
             return JsonResponse({}, status=403)
 
+        n = len(data)
+        data = ap.calc.arr.transpose(data)
+
         # read_from_ins = True
         read_from_ins = False
 
-        k = [a, b, siga, sigb, chi2, q] = [0, 0, 0, 0, 0, 0]
-        if read_from_ins:
-            loc = r"C:\Users\Young\OneDrive\00-Projects\【2】个人项目\2024-06 MDD\MDDprograms\Sources Codes"
-            arr = ap.smp.diffusion_funcs.DiffDraw(name="Y51a", loc=loc, read_from_ins=read_from_ins)
+        if params[12] and params[13]:
+            if read_from_ins:
+                loc = r"C:\Users\Young\OneDrive\00-Projects\【2】个人项目\2024-06 MDD\MDDprograms\Sources Codes"
+                arr = ap.smp.diffusion_funcs.DiffDraw(name="Y51a", loc=loc, read_from_ins=read_from_ins)
+            else:
+                file_path = os.path.join(loc, f"{file_name}.arr")
+                sample = ap.from_arr(file_path=file_path)
+
+                arr = ap.smp.diffusion_funcs.DiffDraw(smp=sample, loc=loc)
+                arr.ni = n
+                arr.telab = [i + 273.15 for i in data[3]]
+                arr.tilab = [i * 60 for i in data[4]]
+                arr.age = data[5]
+                arr.sage = data[6]
+                arr.a39 = data[7]
+                arr.sig39 = data[8]
+                arr.f = data[9]
+            plot_data = list(arr.get_plot_data())
         else:
-            file_path = os.path.join(loc, f"{file_name}.arr")
-            sample = ap.from_arr(file_path=file_path)
+            plot_data = [[], [], [], []]
 
-            arr = ap.smp.diffusion_funcs.DiffDraw(smp=sample, loc=loc)
-            arr.ni = len(data)
-            data = ap.calc.arr.transpose(data)
-            arr.telab = [i + 273.15 for i in data[3]]
-            arr.tilab = [i * 60 for i in data[4]]
-            arr.age = data[5]
-            arr.sage = data[6]
-            arr.a39 = data[7]
-            arr.sig39 = data[8]
-            arr.f = data[9]
-
+        k = [a, b, siga, sigb, chi2, q] = [0, 0, 0, 0, 0, 0]
+        if params[11]:
+            ti = [i + 273.15 for i in data[3]]
             x, y, wtx, wty = [], [], [], []
-            for i in range(arr.ni):
+            for i in range(len(data)):
                 if str(data[1][i]) == "2":
-                    x.append(10000 / arr.telab[i])
-                    wtx.append(10000 * 5 / arr.telab[i] ** 2)
+                    x.append(10000 / ti[i])
+                    wtx.append(10000 * 5 / ti[i] ** 2)
                     y.append(data[11][i])
                     wty.append(data[12][i])
-            # x = [10000 / arr.telab[i] for i in range(arr.ni) if index[i] == "1"]
-            # wtx = [10000 * 5 / arr.telab[i] ** 2 for i in range(arr.ni) if index[i] == "1"]
-            # y = data[11]
-            # wty = data[12]
             if len(x) > 0:
                 k = [a, b, siga, sigb, chi2, q] = ap.smp.diffusion_funcs.fit(x, y, wtx, wty)
 
-        plot_data = list(arr.get_plot_data())
-
-
-        loc = f"C:\\Users\\Young\\OneDrive\\00-Projects\\【2】个人项目\\2022-05论文课题\\【3】分析测试\\ArAr\\01-VU实验数据和记录\\{sample_name}"
-        try:
-            furnace_log = libano_log = np.loadtxt(os.path.join(loc, f"{file_name}-temp.txt"), delimiter=',')
-            heating_out = np.loadtxt(os.path.join(loc, f"{file_name}-heated-index.txt"), delimiter=',', dtype=int)
-        except FileNotFoundError:
-            print(f"FileNotFoundError")
-            furnace_log = [[], [], [], [], [], []]
-            heating_out = []
+        if params[14]:
+            loc = f"C:\\Users\\Young\\OneDrive\\00-Projects\\【2】个人项目\\2022-05论文课题\\【3】分析测试\\ArAr\\01-VU实验数据和记录\\{sample_name}"
+            try:
+                furnace_log = libano_log = np.loadtxt(os.path.join(loc, f"{file_name}-temp.txt"), delimiter=',')
+                heating_out = np.loadtxt(os.path.join(loc, f"{file_name}-heated-index.txt"), delimiter=',', dtype=int)
+            except FileNotFoundError:
+                print(f"FileNotFoundError")
+                furnace_log = [[], [], [], [], [], []]
+                heating_out = []
+            else:
+                # pass
+                heating_timestamp = [j for v in heating_out for j in libano_log[0, v]]  # 加热起止点的时间标签
+                furnace_log = [libano_log[:, 0]]
+                for i in range(1, libano_log.shape[1] - 1):
+                    if not all([(i==i[0]).all() for i in libano_log[[1, 2, 4, 5], i-1: i+2]]) or libano_log[0, i] in heating_timestamp:
+                        furnace_log.append(libano_log[:, i])
+                furnace_log.append(libano_log[:, -1])
+                furnace_log = np.transpose(furnace_log)
+                heating_out = np.reshape([index for index, _ in enumerate(furnace_log[0]) if _ in heating_timestamp], (len(heating_timestamp) // 2, 2))
         else:
-            # pass
-            heating_timestamp = [j for v in heating_out for j in libano_log[0, v]]  # 加热起止点的时间标签
-            furnace_log = [libano_log[:, 0]]
-            for i in range(1, libano_log.shape[1] - 1):
-                if not all([(i==i[0]).all() for i in libano_log[[1, 2, 4, 5], i-1: i+2]]) or libano_log[0, i] in heating_timestamp:
-                    furnace_log.append(libano_log[:, i])
-            furnace_log.append(libano_log[:, -1])
-            furnace_log = np.transpose(furnace_log)
-            heating_out = np.reshape([index for index, _ in enumerate(furnace_log[0]) if _ in heating_timestamp], (len(heating_timestamp) // 2, 2))
+            furnace_log = []
+            heating_out = []
 
         plot_data.append(furnace_log)
         plot_data.append(heating_out)

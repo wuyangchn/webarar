@@ -119,8 +119,8 @@ TOTAL_PARAMS_HEADERS = [
     '\u2074\u2070Ar/\u00B3\u2076Ar air', '%1\u03C3',
     '\u00B3\u2078Ar/\u00B3\u2076Ar air', '%1\u03C3',  # 95-98
     'Isochron Fitting', 'Convergence', 'Iteration', 'Discrimination',  # 99-102
-    'Not Zero', 'Corr Blank', 'Corr Discr', 'Corr \u00B3\u2077Ar Decay',
-    'Corr \u00B3\u2079Ar Decay',  # 103-107
+    'Not Zero', 'Corr Blank', 'Corr Discr', 'Corr \u00B3\u2077Ar Decay',  # 103-106
+    'Corr \u00B3\u2079Ar Decay',  # 107
     'Ca Degassing', 'K Degassing', 'Cl Degassing', 'Trap Degassing',  # 108-111
     'Using Min Equation',
     # 'Recalibration', 'Using Std Age', 'Use Std Ratio',  # 112-115  to be completed
@@ -137,6 +137,11 @@ TOTAL_PARAMS_HEADERS = [
     'Heating Time (s)',  # 125
     'Heating Actual Temp (C)',  # 126
     'Heating AT 1\u03C3',  # 127
+    '36Ar Gain', '1\u03C3',  # 128-129
+    '37Ar Gain', '1\u03C3',  # 130-131
+    '38Ar Gain', '1\u03C3',  # 132-133
+    '39Ar Gain', '1\u03C3',  # 134-135
+    '40Ar Gain', '1\u03C3',  # 136-137
 ]
 
 SAMPLE_INTERCEPT_SHORT_HEADERS = [
@@ -245,6 +250,11 @@ TOTAL_PARAMS_SHORT_HEADERS = [
     'HeatingTime',  # 125
     'HeatingActualTemp',  # 126
     'HeatingActualTempError',  # 127
+    '36Gain', '1s',  # 128-129
+    '37Gain', '1s',  # 130-131
+    '38Gain', '1s',  # 132-133
+    '39Gain', '1s',  # 134-135
+    '40Gain', '1s',  # 136-137
 ]
 
 DEFAULT_PLOT_STYLES = {
@@ -731,7 +741,7 @@ DEFAULT_PLOT_STYLES = {
     },
 }
 
-VERSION = '20240730'
+VERSION = '20240930'
 
 NAMED_DICT = {
     "unknown": {"header": SAMPLE_INTERCEPT_HEADERS.copy()},
@@ -854,7 +864,7 @@ class Sample:
 
     def sequence(self) -> ArArBasic: ...
 
-    def recalculate(self, *args): ...
+    def recalculate(self, *args, **kwargs): ...
 
     def plot_age_plateau(self): ...
 

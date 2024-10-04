@@ -167,7 +167,7 @@ class DiffArrmultiFunc(DiffSample):
         print(f"{self.telab = }")
         print(f"{self.tilab = }")
 
-    def main(self):
+    def main(self, **params):
 
         print(f"\n======================================")
         print(f"Run Arrmulti Main | ")
@@ -1436,7 +1436,7 @@ class DiffArrmultiFunc(DiffSample):
         return xran, yran
 
     def arr(self, e, ord, dzx, fmod, f, telab, tilab, xlogd,
-            ns=200, r=1.987e-3, pi=3.141592654, ee=0.4342944879, acut=0, b=1, imp=1):
+            ns=200, r=1.987e-3, pi=3.141592654, ee=0.4342944879, acut=0.5, b=8, imp=2):
 
         # print(f"{e = }")
         # print(f"{ord = }")
@@ -4611,15 +4611,15 @@ def dr2_lovera(f, ti, ar, sar):
     # Lovera
     f = np.array(f)
     ti = np.array(ti)
-    ar = np.array(ar)
-    sar = np.array(sar)
+    # ar = np.array(ar)
+    # sar = np.array(sar)
     ti = ti * 60  # in seconds
     pi = math.pi
     pi = 3.141592654
 
     # sf = sqrt(b ** 2 * siga ** 2 + a ** 2 * sigb ** 2) / (a + b) ** 2
-    sf = [math.sqrt(sar[i + 1:].sum() ** 2 * (sar[:i + 1] ** 2).sum() + ar[:i + 1].sum() ** 2 * (sar[i + 1:] ** 2).sum()) / ar.sum() ** 2 for i in range(len(ar) - 1)]
-    sf.append(0)
+    # sf = [math.sqrt(sar[i + 1:].sum() ** 2 * (sar[:i + 1] ** 2).sum() + ar[:i + 1].sum() ** 2 * (sar[i + 1:] ** 2).sum()) / ar.sum() ** 2 for i in range(len(ar) - 1)]
+    # sf.append(0)
 
     f = np.where(f >= 1, 0.9999999999999999, f)
 
@@ -4629,39 +4629,67 @@ def dr2_lovera(f, ti, ar, sar):
     dr2 = [(dtr2[i] - (dtr2[i - 1] if i > 0 else 0)) / ti[i] * imp ** 2 for i in range(len(dtr2))]
     xlogd = [np.log10(i) for i in dr2]
 
-    return dr2, xlogd
+    wt = errcal(f, ti, ar, sar)
+
+    return dr2, xlogd, wt
 
 
-def dr2_yang(f, ti):
-    f = np.array(f)
-    ti = np.array(ti)
-    n = min(len(f), len(ti))
-    ti = ti * 60  # in seconds
-    pi = math.pi
-    pi = 3.141592654
-    dr2 = np.zeros(n)
+def dr2_yang(f, ti, ar, sar):
+    """
 
-    if f[-1] >= 1:
-        f[-1] = 0.99999999
-
-    def _dr2(_fi):
-        if _fi <= 0.85:
-            return (1 - math.sqrt(1 - pi * _fi / 3)) ** 2 / pi
-        else:
-            return math.log((1 - _fi) / (6 / pi ** 2)) / - (pi ** 2)
-
-    for i in range(len(f)):
         if i == 0:
             dr2[i] = _dr2(f[i]) / ti[i]
         else:
             dr2[i] = _dr2((f[i] - f[i - 1]) / (1 - f[i - 1])) / ti[i]
 
+    Parameters
+    ----------
+    f: array NOTE：这里的 f 既不是释放百分数也不是累积百分数，而是各个阶段释放量占其及后续所有气体的分数，即占释放前的比例
+    ti
+
+    Returns
+    -------
+
+    """
+    f = np.array(f)
+    ti = np.array(ti)
+    n = min(len(f), len(ti))
+    ti = ti * 60  # in seconds
+    sti = 5.
+    pi = math.pi
+    pi = 3.141592654
+    ee = 0.4342944819
+    dr2 = np.zeros(n)
+    sdr2 = np.zeros(n)
+
+    f = np.where(f >= 1, 0.9999999999999999, f)
+
+    def _dr2(_fi):
+        # return: dr2, dy/df
+        if _fi <= 0.85:
+            return (1 - math.sqrt(1 - pi * _fi / 3)) ** 2 / pi, 1 / (3 * math.sqrt(1 - pi * _fi / 3)) - 1 / 3
+        else:
+            return math.log((1 - _fi) / (6 / pi ** 2)) / - (pi ** 2), 1 / (pi ** 2 * (1 - _fi))
+
+    for i in range(n):
+        dtr2, d = _dr2((f[i] - (f[i-1] if i > 0 else 0)) / (1 - (f[i-1] if i > 0 else 0)))
+        # sf 中 f = (f[i] - f[i - 1]) / (1 - f[i - 1])
+        sf = sum([ar[i] ** 2 * sar[j] ** 2 / sum(ar[i:]) ** 4 for j in range(i+1, n)]) + sum(ar[i+1:]) ** 2 * sar[i] ** 2 / sum(ar[i:]) ** 4
+        sdtr2 = math.sqrt(d ** 2 * sf)
+        dr2[i] = dtr2 / ti[i]
+        sdr2[i] = ap.calc.err.div((dtr2, sdtr2), (ti[i], sti))
+
+    xlogd = np.log(dr2)
+    sxlogd = np.abs(sdr2 / dr2)
+
     print(f"yang {dr2 = }")
+    print(f"yang {xlogd = }")
+    print(f"yang {sxlogd = }")
 
-    return dr2, np.log(dr2)
+    return dr2, xlogd, sxlogd
 
 
-def errcal(f, ti, a39, sig39):
+def errcal(f, ti, ar, sar):
 
     # ns = 200
     # r = 1.987E-3
@@ -4677,9 +4705,9 @@ def errcal(f, ti, a39, sig39):
     sigt0 = 90.
 
     ni = len(f)
-    sumat = sum(a39)
-    sigsm = [i / sumat for i in sig39]
-    siga = [sig39[i] / a39[i] for i in range(ni)]
+    sumat = sum(ar)
+    sigsm = [i / sumat for i in sar]
+    siga = [sar[i] / ar[i] for i in range(ni)]
 
     an1 = math.pi ** 2
     sigat = 0.
