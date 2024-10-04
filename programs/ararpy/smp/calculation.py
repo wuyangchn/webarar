@@ -47,6 +47,7 @@ def recalculate(
     re_plot_style
     re_set_table
     re_table_style
+    re_corr_gain
     kwargs
 
     Returns
@@ -59,11 +60,14 @@ def recalculate(
     # print(f"{sample.SelectedSequence1 = }")
     # print(f"{sample.SelectedSequence2 = }")
     # --- initializing ---
+    re_corr_gain = re_corr_blank
     if re_initial:  # 1
         initial.re_set_smp(sample)
     # --- calculating ---
     if re_corr_blank:  # 2
         corr.corr_blank(sample)
+    if re_corr_gain:  # 2 2024-10-04 add
+        corr.corr_gain(sample)
     if re_corr_massdiscr:  # 3
         corr.corr_massdiscr(sample)
     if re_corr_decay:  # 4

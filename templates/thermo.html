@@ -76,7 +76,7 @@
     </div>
     <div style="float: left; margin-left: 50px">
 {#            <label for="text_area"></label><textarea class="container" style="height: 500px; width: 500px; float: left" id="text_area"></textarea>#}
-        <div style="height: 800px; width: 600px; float: right; padding-left: 20px">
+        <div style="height: 800px; width: 500px; float: right; padding-left: 20px">
             <div style="width: 400px">
             <label><input id="sample_name" type="text" class="button" style="width: 200px">Sample Name</label>
             <label><input id="file_name" type="text" class="button" style="width: 200px">File Name</label>
@@ -89,6 +89,8 @@
             <label><button class="btn-info" onclick="RunAgemon()" >RunAgemon</button></label>
             <label><button class="btn-info" onclick="ReadLog()" >ReadLog</button></label>
             <label><button class="btn-info" onclick="ChangeSettings()" >Settings</button></label>
+            </div>
+            <div>
             <label><button id="plot_agemon" class="btn-danger" onclick="PlotAgemon()" >Plot</button></label>
             <label><button id="export_chart" class="btn-danger" onclick="ThermoExportChart()" >Export</button></label>
             </div>
@@ -383,7 +385,8 @@
                 'file_name': $('#file_name').val(),
                 'random_index': $('#random_index').val(),
                 'max_age': $('#max_age').val(),
-                'data': transpose(table_data).filter((v, _i) => v[0]),
+                // 'data': transpose(table_data).filter((v, _i) => v[0]),
+                'data': transpose(table_data),
                 'settings': getParamsByObjectName('thermo'),
             }),
             contentType:'application/json',
@@ -444,7 +447,7 @@
         let newSeries = {
             id: name, name: name, data: data,
             type: type, symbol: symbol, symbolSize: 6, z: 2,  silent: false, xAxisIndex: 0, yAxisIndex: 0,
-            encode: encode, color: color, myType: myType,
+            encode: encode, color: color, myType: myType, myText: labelText,
             lineStyle: {borderColor: color, width: 1, type: 'solid'},
             itemStyle: {borderWidth: 2, opacity: 0.8, color: color},
             label: {
@@ -489,7 +492,8 @@
                 'file_name': $('#file_name').val(),
                 'random_index': $('#random_index').val(),
                 'max_age': $('#max_age').val(),
-                'data': transpose(table_data).filter((v, _i) => v[0]),
+                //'data': transpose(table_data).filter((v, _i) => v[0]),
+                'data': transpose(table_data),
                 'settings': getParamsByObjectName('thermo'),
             }),
             contentType:'application/json',
@@ -509,7 +513,8 @@
                 'file_name': $('#file_name').val(),
                 'random_index': $('#random_index').val(),
                 'max_age': $('#max_age').val(),
-                'data': transpose(table_data).filter((v, _i) => v[0]),
+                //'data': transpose(table_data).filter((v, _i) => v[0]),
+                'data': transpose(table_data),
                 'settings': getParamsByObjectName('thermo'),
             }),
             contentType:'application/json',
@@ -570,6 +575,7 @@
         }
         getFileFormdata(files);
         let send_erquest = () => {
+            formData.append('random_index', $('#random_index').val());
             $.ajax({
                 url: url_thermo_arr_input,
                 type: 'POST',

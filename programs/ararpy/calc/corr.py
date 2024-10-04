@@ -30,6 +30,22 @@ def blank(a0: list, e0: list, a1: list, e1: list):
     return arr.sub((a0, e0), (a1, e1))
 
 
+def gain(a0: list, e0: list, a1: list, e1: list):
+    """
+    :param a0: a list of tested isotope value
+    :param e0: 1 sigma error of a0, list type
+    :param a1: a list of blank isotope value
+    :param e1: 1 sigma error of a1, list type
+    :return: list of corrected data | error list
+    """
+    # Do not force negative value to zero in correcting blank...
+    print(f"{a1 = }")
+    print(f"{e1 = }")
+    print(f"{np.all(np.array(a1)==np.nan)}")
+    print(f"{np.all(np.array(e1)==np.nan)}")
+    return arr.div((a0, e0), (a1, e1))
+
+
 def mdf(rm: float, srm: float, m1: float, m2: float, ra: float = 298.56,
         sra: float = 0):
     """

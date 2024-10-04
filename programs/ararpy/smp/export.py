@@ -81,7 +81,9 @@ def export_chart_to_pdf(data: dict):
             for each in data:
                 pt.scatter(each[0], each[1], fill_color=se.get('color', 'black'), size=2)
         if 'scatter' in se['type'] and se['name'] == 'Text' or 'text' in se['type']:
-            pt.text(*data[:2], **se)
+            print(se)
+            for each in data:
+                pt.text(*each[:2], **se)
 
     return cv
 
