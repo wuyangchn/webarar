@@ -53,14 +53,14 @@ def export_chart_to_pdf(data: dict):
         start = pt.scale_to_points(stick, sc[2])
         end = pt.scale_to_points(stick, sc[2])
         end = (end[0], end[1] - 5)
-        pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=100)
+        pt.line(start=start, end=end, width=1, line_style="solid", y_clip=False, coordinate="pt", z_index=100)
         pt.text(x=start[0], y=end[1] - 15, text=f"{stick}", clip=False,
                 coordinate="pt", h_align="middle", z_index=150)
     for stick in data['yAxis'][0]['interval']:
         start = pt.scale_to_points(sc[0], stick)
         end = pt.scale_to_points(sc[0], stick)
         end = (end[0] - 5, end[1])
-        pt.line(start=start, end=end, width=1, line_style="solid", clip=False, coordinate="pt", z_index=100)
+        pt.line(start=start, end=end, width=1, line_style="solid", x_clip=False, coordinate="pt", z_index=100)
         pt.text(x=end[0] - 5, y=end[1], text=f"{stick}", clip=False,
                 coordinate="pt", h_align="right", v_align="center", z_index=150)
     # axis titles

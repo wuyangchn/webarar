@@ -1133,8 +1133,10 @@ class ExportView(http_funcs.ArArView):
         files = json.loads(self.body['json_string'])['files']
         file_names = [each['file_name'] for each in files if each['checked']]
         file_paths = [each['file_path'] for each in files if each['checked']]
+        diagrams = [each['diagram'] for each in files if each['checked']]
         print(f"{file_names = }")
         print(f"{file_paths = }")
+        print(f"{diagrams = }")
 
         colors = ['#1f3c40', '#e35000', '#e1ae0f', '#3d8ebf', '#77dd83', '#c7ae88', '#83d6bb', '#653013', '#cc5f16',
                   '#d0b269']
