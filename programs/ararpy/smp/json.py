@@ -22,7 +22,8 @@ def dumps(a):
 
 
 def loads(a):
-    return json.loads(a)
+    # null will be converted to None by default, replace None with np.nan
+    return json.loads(a, object_hook=myHook)
 
 
 class MyEncoder(json.JSONEncoder):
@@ -51,3 +52,13 @@ class MyEncoder(json.JSONEncoder):
         if not isinstance(obj, (int, str, list, dict, tuple, float)):
             print(f"Special type, {type(obj) = }, {obj = }")
         return super(MyEncoder, self).default(obj)
+
+
+def myHook(obj):
+    if isinstance(obj, dict):
+        return {k: myHook(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [myHook(v) for v in obj]
+    elif obj is None:
+        return np.nan
+    return obj

@@ -186,3 +186,12 @@ ol,ul {
 .x-tree-node-active {
     display: block;
 }
+
+.x-tree-node-input {
+    border-bottom: 2px solid #eee;
+    border-left-width: 0;
+    border-top-width: 0;
+    border-right-width: 0;
+    outline: none;
+}
+

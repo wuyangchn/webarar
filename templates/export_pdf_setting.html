@@ -12,11 +12,12 @@
 
 function getPlotDataToExport() {
     let data = {};
+    let diagrams = (ele) => ele.options[ele.selectedIndex].innerText;
     let json_string = JSON.stringify({
         'files': $('#export_arr_file_list').bootstrapTable('getData').map((item, index) => {
             return {
                 'checked': item['checked'], 'file_name': item['file_name'],
-                'file_path': item['file_path']
+                'file_path': item['file_path'], 'diagram': diagrams($('.input-filter-selection')[index]),
             }
         })
     });
@@ -32,7 +33,8 @@ function getPlotDataToExport() {
 
             // 获取目标容器并将生成的树状结构插入到页面中
             const treeContainer = document.querySelector('.x-tree-div');
-
+            treeContainer.innerHTML = ''; // This removes all child elements
+            
             let ul = document.createElement('ul');
             ul.classList.add('x-tree-root-ct', 'x-tree-lines', 'x-tree-node-active');
 
@@ -60,7 +62,7 @@ function Tree2Json(treeNode, order=0, isArray=false) {
             const key = text.split(':').map(s => s.trim())[0];
             if (input) {
                 let value = input.value;
-                value = Number.isNaN(Number(value)) ? value : Number(value);
+                value = Number.isNaN(Number(value)) && value.toLowerCase() !== 'nan'? value : Number(value);
                 if (isArray) {
                     array.push(value);
                 } else {
@@ -107,7 +109,7 @@ function Json2Tree(key, value, order=0) {
     text.classList.add('x-tree-node-key');
     // 如果value是基本类型（字符串、数字、布尔值等），直接显示key: value
     if (typeof value !== 'object' || value === null) {
-        text.innerHTML = `${key} : <input type="text" value="${value}">`;
+        text.innerHTML = `${key} : <input class="x-tree-node-input" type="text" value="${value}">`;
         img_1.classList.add('x-tree-ec-icon', 'x-tree-elbow-end');
         img_2.classList.add('x-tree-node-icon', 'x-tree-node-inline-icon');
         div.appendChild(span);
@@ -204,6 +206,7 @@ $('#export_arr_file_list').bootstrapTable(
             {field: 'checked', checkbox: true, width: 20, formatter: function () {return true}},
             {field: 'file_name', title: 'File name', width: 20, },
             {field: 'file_path', title: 'File path', width: 200, },
+            {field: 'diagram', title: 'Diagram', width: 150, },
         ]
     }
 );
@@ -265,10 +268,18 @@ function _dropHandler(ev) {
                 let files = JSON.parse(res).files;
                 let table = $('#export_arr_file_list');
                 let data = table.bootstrapTable('getData');
+                let diagram_list = ['Age Spectra'];
+                let diagram = 'Age Spectra';
                 $.each(files, function (index, file) {
                     table.bootstrapTable('insertRow', {index: data.length + index,
                         row: {
                             'file_name': file.name, 'file_path': file.path,
+                            'diagram': `<select class="input-sm input-filter-selection" style="width: 150px">${diagram_list.map((item, _) => {
+                                if (item.toUpperCase() === diagram.toUpperCase()) {
+                                    return "<option selected>" + item + "</option>"
+                                }
+                                return "<option>" + item + "</option>"
+                            }).join("")}$</select>`
                         }
                     })
                 })
