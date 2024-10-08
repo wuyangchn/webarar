@@ -730,10 +730,10 @@ class ParamsSettingView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '005', 'info', f'Show input filter project names: {names}')
         return render(request, 'input_filter_setting.html', {'allInputFilterNames': names})
 
-    def show_export_pdf(self, request, *args, **kwargs):
-        names = list(models.ExportPDFParams.objects.values_list('name', flat=True))
-        log_funcs.set_info_log(self.ip, '005', 'info', f'Show export PDF project names: {names}')
-        return render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
+    # def show_export_pdf(self, request, *args, **kwargs):
+    #     names = list(models.ExportPDFParams.objects.values_list('name', flat=True))
+    #     log_funcs.set_info_log(self.ip, '005', 'info', f'Show export PDF project names: {names}')
+    #     return render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
 
     def change_param_objects(self, request, *args, **kwargs):
         type = str(self.body['type'])  # type = irra, calc, smp
@@ -841,7 +841,7 @@ class ThermoView(http_funcs.ArArView):
         allThermoNames = list(models.ThermoParams.objects.values_list('name', flat=True))
         return render(request, 'thermo.html', {'allThermoNames': allThermoNames})
 
-    # /calc/arr_input
+    # /calc/thermo/arr_input
     def arr_input(self, request, *args, **kwargs):
         file = request.FILES.get(str(0))
         random_index = request.POST.get('random_index')
@@ -859,7 +859,7 @@ class ThermoView(http_funcs.ArArView):
 
         return JsonResponse({'sample_name': name, "file_name": file_name, "random_index": random_index})
 
-    # /calc/check_sample
+    # /calc/thermo/check_sample
     def check_sample(self, request, *args, **kwargs):
         # names = list(models.IrraParams.objects.values_list('name', flat=True))
         # log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
@@ -1118,6 +1118,87 @@ class ThermoView(http_funcs.ArArView):
         return JsonResponse({})
 
 
+class ExportView(http_funcs.ArArView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.dispatch_post_method_name = []
+
+    # /calc/export
+    def get(self, request, *args, **kwargs):
+        names = list(models.ExportPDFParams.objects.values_list('name', flat=True))
+        log_funcs.set_info_log(self.ip, '005', 'info', f'Show export PDF project names: {names}')
+        return render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
+
+    def get_plotdata(self, request, *args, **kwargs):
+        files = json.loads(self.body['json_string'])['files']
+        file_names = [each['file_name'] for each in files if each['checked']]
+        file_paths = [each['file_path'] for each in files if each['checked']]
+        print(f"{file_names = }")
+        print(f"{file_paths = }")
+
+        colors = ['#1f3c40', '#e35000', '#e1ae0f', '#3d8ebf', '#77dd83', '#c7ae88', '#83d6bb', '#653013', '#cc5f16',
+                  '#d0b269']
+        series = []
+
+        # ------ 构建数据 -------
+        for index, file in enumerate(file_paths):
+            _, ext = os.path.splitext(file)
+            if ext[1:] not in ['arr', 'age']:
+                continue
+            smp = (ap.from_arr if ext[1:] == 'arr' else ap.from_age)(file_path=file)
+            age = smp.ApparentAgeValues[2:4]
+            ar = smp.DegasValues[20]
+            data = ap.calc.spectra.get_data(*age, ar, cumulative=False)
+            series.append({
+                'type': 'series.line', 'id': f'line{index * 2 + 0}', 'name': f'line{index * 2 + 0}',
+                'color': colors[index],
+                'data': np.transpose([data[0], data[1]]).tolist(), 'line_caps': 'square',
+            })
+            series.append({
+                'type': 'series.line', 'id': f'line{index * 2 + 1}', 'name': f'line{index * 2 + 1}',
+                'color': colors[index],
+                'data': np.transpose([data[0], data[2]]).tolist(), 'line_caps': 'square',
+            })
+            series.append({
+                'type': 'text', 'id': f'text{index * 2 + 0}', 'name': f'text{index * 2 + 0}', 'color': colors[index],
+                'text': f'{smp.name()}<r>{round(smp.Info.results.age_plateau[0]["age"], 2)}', 'size': 10,
+                'data': [[index * 15 + 5, 23]],
+            })
+        data = {
+            "data": [
+                {
+                    'xAxis': [{'extent': [0, 100], 'interval': [0, 20, 40, 60, 80, 100],
+                               'title': 'Cumulative <sup>39</sup>Ar Released (%)', 'nameLocation': 'middle', }],
+                    'yAxis': [{'extent': [0, 25], 'interval': [0, 5, 10, 15, 20, 25],
+                               'title': 'Apparent Age (Ma)', 'nameLocation': 'middle', }],
+                    'series': series
+                }
+            ],
+            "file_name": "WHA",
+            "plot_names": ["all age plateaus"],
+        }
+
+        file_name = data["file_name"]
+        plot_data = data["data"]
+        # write pdf
+        file = pm.NewPDF(filepath=f"{settings.DOWNLOAD_URL}{file_name}.pdf")
+        for index, each in enumerate(plot_data):
+            # rich text tags should follow this priority: color > script > break
+            file.text(page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
+                      text=f"The PDF can be edited with Adobe Acrobat, Illustrator and CorelDRAW")
+            cv = ap.smp.export.export_chart_to_pdf(each)
+            file.canvas(page=index, base=0, margin_top=5, canvas=cv, unit="cm", h_align="middle")
+            if index + 1 < len(plot_data):
+                file.add_page()
+
+        # save pdf
+        file.save()
+
+        export_href = '/' + settings.DOWNLOAD_URL + f"{file_name}.pdf"
+
+        return JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
+
+
 class ApiView(http_funcs.ArArView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1151,6 +1232,28 @@ class ApiView(http_funcs.ArArView):
     @staticmethod
     def open_multi(request, *args, **kwargs):
         return CalcHtmlView().open_multi_files(request, *args, **kwargs)
+
+    @staticmethod
+    def multi_files(request, *args, **kwargs):
+        res = []
+        try:
+            length = int(request.POST.get('length'))
+        except TypeError:
+            files = request.FILES.getlist('files')
+        else:
+            files = [request.FILES.get(str(i)) for i in range(length)]
+        print(f"Number of files: {len(files)}")
+        for file in files:
+            try:
+                web_file_path, file_name, suffix = ap.files.basic.upload(
+                    file, settings.UPLOAD_ROOT)
+            except (Exception, BaseException):
+                continue
+            else:
+                res.append({
+                    'name': file_name, 'extension': suffix, 'path': web_file_path,
+                })
+        return JsonResponse({'files': res})
 
     def export_arr(self, request, *args, **kwargs):
         sample = self.sample
