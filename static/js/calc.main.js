@@ -393,6 +393,12 @@ function filesToExportChanged() {
                 table.bootstrapTable('insertRow', {index: data.length + index,
                     row: {
                         'file_name': file.name, 'file_path': file.path,
+                        'diagram': `<select class="input-sm input-filter-selection" style="width: 150px">${diagram_list.map((item, _) => {
+                            if (item.toUpperCase() === diagram.toUpperCase()) {
+                                return "<option selected>" + item + "</option>"
+                            }
+                            return "<option>" + item + "</option>"
+                        }).join("")}$</select>`
                     }
                 })
             })
