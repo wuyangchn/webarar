@@ -1125,9 +1125,7 @@ class ExportView(http_funcs.ArArView):
 
     # /calc/export
     def get(self, request, *args, **kwargs):
-        names = list(models.ExportPDFParams.objects.values_list('name', flat=True))
-        log_funcs.set_info_log(self.ip, '005', 'info', f'Show export PDF project names: {names}')
-        return render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
+        return render(request, 'export_pdf_setting.html')
 
     def get_plotdata(self, request, *args, **kwargs):
         files = json.loads(self.body['json_string'])['files']
