@@ -374,7 +374,30 @@ function export_sequence_deselect_all() {
 
 // export to pdf
 function filesToExportChanged() {
-    //
+    let table = $('#export_arr_file_list');
+    if ($('#files_to_export').val() === '') {return}
+    let formData = new FormData(document.getElementById("smpParamsInputForm"));
+    $.ajax({
+        url: url_multi_files,
+        type: 'POST',
+        data: formData,
+        async : true,
+        processData : false,
+        contentType : false,
+        mimeType: "multipart/form-data",
+        success: function(res){
+            $('#files_to_export').val('');
+            let files = JSON.parse(res).files;
+            let data = table.bootstrapTable('getData');
+            $.each(files, function (index, file) {
+                table.bootstrapTable('insertRow', {index: data.length + index,
+                    row: {
+                        'file_name': file.name, 'file_path': file.path,
+                    }
+                })
+            })
+        }
+    })
 }
 
 function createSmChart(container, option) {
@@ -4615,7 +4638,8 @@ function handsontableRemoveRow(key, options) {
 
 }
 
-function exportChart(data, file_name, plot_names) {
+function exportChart(data, file_name, plot_names, download=true) {
+    let href = "";
     $.ajax({
         url: url_export_chart,
         type: 'POST',
@@ -4627,11 +4651,15 @@ function exportChart(data, file_name, plot_names) {
         }),
         contentType:'application/json',
         success: function(res){
-            document.getElementById("export_path_link").href = res.href;
-            document.getElementById("export_path_link").click();
-            document.getElementById("export_path_link").href = '';
+            if (download) {
+                document.getElementById("export_path_link").href = res.href;
+                document.getElementById("export_path_link").click();
+                document.getElementById("export_path_link").href = '';
+            }
+            href = res.href;
         }
     });
+    return href;
 }
 
 

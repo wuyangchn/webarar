@@ -39,10 +39,6 @@ def gain(a0: list, e0: list, a1: list, e1: list):
     :return: list of corrected data | error list
     """
     # Do not force negative value to zero in correcting blank...
-    print(f"{a1 = }")
-    print(f"{e1 = }")
-    print(f"{np.all(np.array(a1)==np.nan)}")
-    print(f"{np.all(np.array(e1)==np.nan)}")
     return arr.div((a0, e0), (a1, e1))
 
 
