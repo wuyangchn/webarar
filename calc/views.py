@@ -4,11 +4,9 @@ import json
 import pickle
 import traceback
 import re
-import ctypes
 import numpy as np
 import pdf_maker as pm
-import time
-import gc
+import uuid
 
 # from math import ceil
 from django.http import JsonResponse, HttpResponse
@@ -1181,7 +1179,7 @@ class ExportView(http_funcs.ArArView):
         file_name = data["file_name"]
         plot_data = data["data"]
         # write pdf
-        file = pm.NewPDF(filepath=f"{settings.DOWNLOAD_URL}{file_name}.pdf")
+        file = pm.NewPDF(filepath=f"{settings.DOWNLOAD_URL}{file_name}{uuid.uuid4()}.pdf")
         for index, each in enumerate(plot_data):
             # rich text tags should follow this priority: color > script > break
             file.text(page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
@@ -1361,8 +1359,7 @@ class ApiView(http_funcs.ArArView):
         data = self.body['data']
         file_name = self.body['file_name']
         plot_names = self.body['plot_names']
-        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{file_name}.pdf")
-
+        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{file_name}{uuid.uuid4()}.pdf")
         # write pdf
         file = pm.NewPDF(filepath=export_filepath)
         for index, each in enumerate(data):
