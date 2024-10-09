@@ -357,6 +357,57 @@ def calc_degas_r(sample: Sample):
 # =======================
 # Calc ratio
 # =======================
+def calc_nor_inv_isochrons(sample: Sample):
+    n = len(sample.SequenceName)
+    try:
+        isochron_1 = calc.isochron.get_data(*sample.DegasValues[20:22], *calc.arr.sub(
+            sample.CorrectedValues[8:10], sample.DegasValues[30:32]), *sample.DegasValues[0:2])
+        isochron_2 = calc.isochron.get_data(*sample.DegasValues[20:22], *sample.DegasValues[0:2], *calc.arr.sub(
+            sample.CorrectedValues[8:10], sample.DegasValues[30:32]))
+    except:
+        return np.zeros([5, n]), np.zeros([5, n])
+    else:
+        return isochron_1, isochron_2
+
+
+def calc_cl_isochrons(sample: Sample):
+    n = len(sample.SequenceName)
+    try:
+        isochron_3 = calc.isochron.get_data(
+            *sample.DegasValues[20:22], *sample.DegasValues[24:26], *sample.DegasValues[10:12])
+        isochron_4 = calc.isochron.get_data(
+            *sample.DegasValues[20:22], *sample.DegasValues[10:12], *sample.DegasValues[24:26])
+        isochron_5 = calc.isochron.get_data(
+            *sample.DegasValues[10:12], *sample.DegasValues[24:26], *sample.DegasValues[20:22])
+    except:
+        return np.zeros([5, n]), np.zeros([5, n]), np.zeros([5, n])
+    else:
+        return isochron_3, isochron_4, isochron_5
+
+
+def calc_3D_isochrons(sample: Sample):
+    n = len(sample.SequenceName)
+    try:
+        # === Ar values ===
+        # 3D ratio, 36Ar(a+cl)/40Ar(a+r), 38Ar(a+cl)/40Ar(a+r), 39Ar(k)/40Ar(a+r),
+        ar40ar = calc.arr.sub(sample.CorrectedValues[8:10], sample.DegasValues[30:32])
+        # 36Ar deduct Ca, that is sum of 36Ara and 36ArCl (and also 36Arc)
+        ar36acl = calc.arr.sub(sample.CorrectedValues[0:2], sample.DegasValues[4:6])
+        # 38Ar deduct K and Ca, that is sum of 38Ara and 38ArCl (and also 38Arc)
+        ar38acl = calc.arr.sub(calc.arr.sub(sample.CorrectedValues[4:6], sample.DegasValues[16:18]),
+                               sample.DegasValues[18:20])
+        # 38ArCl
+        ar38cl = sample.DegasValues[10:12]
+        # 39ArK
+        ar39k = sample.DegasValues[20:22]
+        # isochron_6 = calc.isochron.get_3d_data(*ar36acl, *ar38acl, *ar40ar, *ar39k)
+        isochron_6 = calc.isochron.get_3d_data(*ar36acl, *ar38acl, *ar39k, *ar40ar)  # Points on the plot will be more disperse than the above
+    except:
+        return np.zeros([9, n])
+    else:
+        return isochron_6
+
+
 def calc_ratio(sample: Sample, monte_carlo: bool = False):
     """ Calculate isochron ratio data, 40Arr/39ArK, Ar40r percentage,
         Ar39K released percentage, Ca/K
@@ -372,57 +423,36 @@ def calc_ratio(sample: Sample, monte_carlo: bool = False):
     ar40r_percent = [item / sample.CorrectedValues[8][index] * 100 if sample.CorrectedValues[8][index] != 0 else 0
                      for index, item in enumerate(sample.DegasValues[24])]
     sum_ar39k = sum(sample.DegasValues[20])
-    ar39k_percent = [item / sum_ar39k * 100 if sum_ar39k != 0 else 0 for item in sample.DegasValues[20]]
     sum_ar36a = sum(sample.DegasValues[ 0])
-    ar36a_percent = [item / sum_ar36a * 100 if sum_ar36a != 0 else 0 for item in sample.DegasValues[ 0]]
-    ar40rar39k = calc.arr.mul_factor(
-        sample.DegasValues[24:26], calc.arr.rec_factor(sample.DegasValues[20:22], isRelative=False),
-        isRelative=False)
-    ar40aar36a = calc.arr.mul_factor(
-        sample.DegasValues[26:28], calc.arr.rec_factor(sample.DegasValues[0:2], isRelative=False),
-        isRelative=False)
     CaK = calc.arr.mul_factor(calc.arr.mul_factor(
         sample.DegasValues[8:10], calc.arr.rec_factor(sample.DegasValues[20:22], isRelative=False)),
         calc.arr.rec_factor(sample.TotalParam[20:22], isRelative=True))
-    isochron_1 = calc.isochron.get_data(*sample.DegasValues[20:22], *calc.arr.sub(
-        sample.CorrectedValues[8:10], sample.DegasValues[30:32]), *sample.DegasValues[0:2])
-    isochron_2 = calc.isochron.get_data(*sample.DegasValues[20:22], *sample.DegasValues[0:2], *calc.arr.sub(
-        sample.CorrectedValues[8:10], sample.DegasValues[30:32]))
-    isochron_3 = calc.isochron.get_data(
-        *sample.DegasValues[20:22], *sample.DegasValues[24:26], *sample.DegasValues[10:12])
-    isochron_4 = calc.isochron.get_data(
-        *sample.DegasValues[20:22], *sample.DegasValues[10:12], *sample.DegasValues[24:26])
-    isochron_5 = calc.isochron.get_data(
-        *sample.DegasValues[10:12], *sample.DegasValues[24:26], *sample.DegasValues[20:22])
 
     # assignation
-    sample.ApparentAgeValues[0:2] = ar40aar36a if sample.Info.sample.type == "Air" else ar40rar39k
+    if sample.Info.sample.type == "Air":
+        ar40aar36a = calc.arr.mul_factor(
+            sample.DegasValues[26:28], calc.arr.rec_factor(sample.DegasValues[0:2], isRelative=False),
+            isRelative=False)
+        ar36a_percent = [item / sum_ar36a * 100 if sum_ar36a != 0 else 0 for item in sample.DegasValues[0]]
+        sample.ApparentAgeValues[0:2] = ar40aar36a
+        sample.ApparentAgeValues[7] = ar36a_percent
+    else:
+        ar40rar39k = calc.arr.mul_factor(
+            sample.DegasValues[24:26], calc.arr.rec_factor(sample.DegasValues[20:22], isRelative=False),
+            isRelative=False)
+        ar39k_percent = [item / sum_ar39k * 100 if sum_ar39k != 0 else 0 for item in sample.DegasValues[20]]
+        sample.ApparentAgeValues[0:2] = ar40rar39k
+        sample.ApparentAgeValues[7] = ar39k_percent
+
     sample.ApparentAgeValues[6] = ar40r_percent
-    sample.ApparentAgeValues[7] = ar36a_percent if sample.Info.sample.type == "Air" else ar39k_percent
-    sample.PublishValues[7:11] = [ar40r_percent, ar39k_percent, *CaK]
-    sample.IsochronValues[0:5] = isochron_1
-    sample.IsochronValues[6:11] = isochron_2
-    sample.IsochronValues[12:17] = isochron_3
-    sample.IsochronValues[18:23] = isochron_4
-    sample.IsochronValues[24:29] = isochron_5
+    sample.PublishValues[7:11] = copy.deepcopy([*sample.ApparentAgeValues[6:8], *CaK])
+
+    sample.IsochronValues[0:5], sample.IsochronValues[6:11] = calc_nor_inv_isochrons(sample)
+    sample.IsochronValues[12:17], sample.IsochronValues[18:23], sample.IsochronValues[24:29] = \
+        calc_cl_isochrons(sample)
 
     # === Cl-Atm-Correlation Plot ===
-    # === Ar values ===
-    # 3D ratio, 36Ar(a+cl)/40Ar(a+r), 38Ar(a+cl)/40Ar(a+r), 39Ar(k)/40Ar(a+r),
-    ar40ar = calc.arr.sub(sample.CorrectedValues[8:10], sample.DegasValues[30:32])
-    # 36Ar deduct Ca, that is sum of 36Ara and 36ArCl (and also 36Arc)
-    ar36acl = calc.arr.sub(sample.CorrectedValues[0:2], sample.DegasValues[4:6])
-    # 38Ar deduct K and Ca, that is sum of 38Ara and 38ArCl (and also 38Arc)
-    ar38acl = calc.arr.sub(calc.arr.sub(sample.CorrectedValues[4:6], sample.DegasValues[16:18]),
-                           sample.DegasValues[18:20])
-    # 38ArCl
-    ar38cl = sample.DegasValues[10:12]
-    # 39ArK
-    ar39k = sample.DegasValues[20:22]
-    # isochron_6 = calc.isochron.get_3d_data(*ar36acl, *ar38acl, *ar40ar, *ar39k)
-    isochron_6 = calc.isochron.get_3d_data(*ar36acl, *ar38acl, *ar39k,
-                                           *ar40ar)  # Points on the plot will be more disperse than the above
-    sample.IsochronValues[30:39] = isochron_6
+    sample.IsochronValues[30:39] = calc_3D_isochrons(sample)
 
     # Turner 1988 3D cake mix plots
     # ar40 = sample.CorrectedValues[8:10]  # ar40 = atm + r + k
