@@ -1178,8 +1178,9 @@ class ExportView(http_funcs.ArArView):
 
         file_name = data["file_name"]
         plot_data = data["data"]
+        filepath = f"{settings.DOWNLOAD_URL}{file_name}-{uuid.uuid4().hex[:8]}.pdf"
         # write pdf
-        file = pm.NewPDF(filepath=f"{settings.DOWNLOAD_URL}{file_name}{uuid.uuid4()}.pdf")
+        file = pm.NewPDF(filepath=filepath, title=f"{file_name}")
         for index, each in enumerate(plot_data):
             # rich text tags should follow this priority: color > script > break
             file.text(page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
@@ -1192,7 +1193,7 @@ class ExportView(http_funcs.ArArView):
         # save pdf
         file.save()
 
-        export_href = '/' + settings.DOWNLOAD_URL + f"{file_name}.pdf"
+        export_href = '/' + filepath
 
         return JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
 
@@ -1359,9 +1360,9 @@ class ApiView(http_funcs.ArArView):
         data = self.body['data']
         file_name = self.body['file_name']
         plot_names = self.body['plot_names']
-        export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{file_name}{uuid.uuid4()}.pdf")
+        filepath = f"{settings.DOWNLOAD_URL}{file_name}-{uuid.uuid4().hex[:8]}.pdf"
         # write pdf
-        file = pm.NewPDF(filepath=export_filepath)
+        file = pm.NewPDF(filepath=filepath, title=f"{file_name}")
         for index, each in enumerate(data):
             # rich text tags should follow this priority: color > script > break
             file.text(page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
@@ -1377,7 +1378,7 @@ class ApiView(http_funcs.ArArView):
         # save pdf
         file.save()
 
-        export_href = '/' + settings.DOWNLOAD_URL + f"{file_name}.pdf"
+        export_href = '/' + filepath
 
         return JsonResponse({'status': 'success', 'href': export_href})
 
