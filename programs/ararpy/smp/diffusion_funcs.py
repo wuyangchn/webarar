@@ -4555,8 +4555,11 @@ def run_agemon_dll(sample: Sample, source_dll_path: str, loc: str, data, max_age
     return
 
 
-def dr2_popov(f, ti):
+def dr2_popov(f, ti, ar, sar):
     """
+
+    Used in Popov 2020. It is related to the sphere model.
+    The calculation of Dr2 is from sphere model. Errors are carefully propagated.
 
     Parameters
     ----------
@@ -4573,38 +4576,62 @@ def dr2_popov(f, ti):
     # =IF(M5<85,(    2/PI()^2*( SQRT(PI()^2-(PI()^3)*M4/100/3)-SQRT(PI()^2-(PI()^3)*M5/100/3)) +M4/100/3-M5/100/3 )/D5/60,     LN((1-M4/100)/(1-M5/100))/PI()^2/D5/60)
 
     f = np.array(f)
-    ti = np.array(ti)
+    ti = np.array(ti)  # in minute
+    ar = np.array(ar)
+    sar = np.array(sar)
     n = min(len(f), len(ti))
     ti = ti * 60  # in seconds
+    sti = [0.5 * 60 for i in range(n)]
     pi = math.pi
     pi = 3.141592654
     dr2 = np.zeros(n)
 
-    if f[-1] >= 1:
-        f[-1] = 0.99999999
+    f = np.where(f >= 1, 0.9999999999999999, f)
+    sar2 = sar ** 2
+
+    # =IF(M5<85,((-SUM(H5:$H$35)/3/SUM($H$4:$H$35)^2/SQRT(1-PI()/3*SUM($H$4:H4)/SUM($H$4:$H$35))/(D5*60)+SUM(H6:$H$35)/3/SUM($H$4:$H$35)^2/SQRT(1-PI()/3*SUM($H$4:H5)/SUM($H$4:$H$35))/(D5*60)+H5/3/SUM($H$4:$H$35)^2/(D5*60))^2),0)
+    sar_lt = np.zeros(n)  # 偏导数
+    sar_eq = np.zeros(n)  # 偏导数
+    sar_gt = np.zeros(n)  # 偏导数
+    st = np.zeros(n)  # 偏导数
+    sdr2 = np.zeros(n)
 
     # Popov 2020
     a, b = 0, 0
-    for i in range(len(f)):
+    for i in range(n):
         if i == 0:
-            if f[i] < 85:
+            if f[i] < 0.85:
                 a = 2 / pi ** 2 * math.sqrt(pi ** 2 - (pi ** 3) * f[i] / 3) + f[i] / 3
-                dr2[i] = ((-6 / (pi ** 1.5) + math.sqrt(36 / pi ** 3 - 4 * f[i] * 3 / pi ** 2)) / (
-                            -6 / pi ** 2)) ** 2 / pi ** 2 / ti[i]
+                dr2[i] = (1 - math.sqrt(1 - f[i] * pi / 3)) ** 2 / (ti[i] * pi)
+                sar_lt[i] = 0
+                sar_eq[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
+                sar_gt[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
             else:
                 a = 1 - f[i]
                 dr2[i] = (math.log((f[i] - 1) / (-6 / pi ** 2)) / pi ** 2) / ti[i]
+                sar_lt[i] = 0
+                sar_eq[i] = (1 / (pi ** 2 * ti[i] * (f[i] - 1))) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
+                sar_gt[i] = (1 / (pi ** 2 * ti[i] * (f[i] - 1))) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
         else:
-            if f[i] < 85:
+            if f[i] < 0.85:
                 a = 2 / pi ** 2 * math.sqrt(pi ** 2 - (pi ** 3) * f[i] / 3) + f[i] / 3
                 dr2[i] = (b - a) / ti[i]
+                sar_lt[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2) - ((1 / math.sqrt(1 - pi * f[i-1] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i-1] - sum(ar[:i-1])) / sum(ar) ** 2)
+                sar_eq[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2) - ((1 / math.sqrt(1 - pi * f[i-1] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i-1] - sum(ar[:i-1])) / sum(ar) ** 2)
+                sar_gt[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2) - ((1 / math.sqrt(1 - pi * f[i-1] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i-1] - sum(ar[:i-1])) / sum(ar) ** 2)
             else:
                 dr2[i] = math.log((1 - f[i - 1]) / (1 - f[i])) / pi ** 2 / ti[i]
+                sar_lt[i] = (1 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * (0 - 0)
+                sar_eq[i] = (1 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * (sum(ar[i+1:]) - 0)
+                sar_gt[i] = (1 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * (sum(ar[i+1:]) - sum(ar[i:]))
         b = a
+        st[i] = - dr2[i] / ti[i]
+        sdr2[i] = math.sqrt(sar_lt[i] ** 2 * sum(sar2[:i]) + sar_eq[i] ** 2 * sar2[i] + sar_gt[i] ** 2 * sum(sar2[i+1:]) + st[i] ** 2 * sti[i] ** 2)
 
-    print(f"popov {dr2 = }")
+    logdr2 = np.log(dr2)
+    wt = np.abs(sdr2 / dr2)
 
-    return dr2, np.log(dr2)
+    return dr2, logdr2, wt
 
 
 def dr2_lovera(f, ti, ar, sar):
