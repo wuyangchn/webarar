@@ -4582,23 +4582,24 @@ function extendChartFuncs(chart) {
         console.log(chart);
         let data = {};
         let com = chart._model._componentsMap;
+        data.name = com.get('title')[0].option.text;
         data.xAxis = com.get('xAxis').map((v, i) => {
             return {
                 extent: v.axis.scale._extent, interval: v.axis.scale.getTicks().map(_v => _v.value),
-                title: v.option.name, nameLocation: v.option.nameLocation,
+                title: v.option.name, name_location: v.option.nameLocation,
             }
         });
         data.yAxis = com.get('yAxis').map((v, i) => {
             return {
                 extent: v.axis.scale._extent, interval: v.axis.scale.getTicks().map(_v => _v.value),
-                title: v.option.name, nameLocation: v.option.nameLocation,
+                title: v.option.name, name_location: v.option.nameLocation,
             }
         });
         data.series = com.get('series').map((v, i) => {
             return {
                 type: v.type, myType: v.myType, name: v.name, id: v.id, color: v.option.color,
                 data: v.option.data.map((_v, _i) => [_v[v.option.encode.x], _v[v.option.encode.y]]),
-                text: v.option.myText
+                text: v.option.myText, fill_color: v.option.color
             }
         });
 
@@ -4646,16 +4647,14 @@ function handsontableRemoveRow(key, options) {
 
 }
 
-function exportChart(data, file_name, plot_names, download=true) {
+function exportChart(data, download=true) {
     let href = "";
     $.ajax({
         url: url_export_chart,
         type: 'POST',
         async: false,
         data: JSON.stringify({
-            'data': data,
-            'file_name': file_name,
-            'plot_names': plot_names,
+            'data': data
         }),
         contentType:'application/json',
         success: function(res){

@@ -189,10 +189,8 @@ function expandAll(){
 }
 function preview(){
     let json = Tree2Json($('.x-tree-div')[0]);
-    let data = json.myPlotData.data;
-    let fn = json.myPlotData.file_name;
-    let pn = json.myPlotData.plot_names;
-    let href = exportChart(data, fn, pn, false);
+    let data = json.myPlotData;
+    let href = exportChart(data, false);
     let embedElement = document.getElementById("pdfEmbed");
     embedElement.src = href;
 }
