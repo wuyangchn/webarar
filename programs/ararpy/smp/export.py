@@ -41,50 +41,134 @@ def to_pdf(file_path: str, figure: str, smp: Sample):
     pdf.save(figure=figure)
 
 
-def export_chart_to_pdf(data: dict):
+def get_cv_from_dict(data: dict):
     # create a canvas
     cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
     # change frame outline style
     cv.show_frame(color="grey", line_width=0.5)
-    sc = (*data['xAxis'][0]['extent'], *data['yAxis'][0]['extent'])
-    pt = cv.add_plot_area(name="Plot1", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=sc, show_frame=True)
+    axis_num = min([len(data['xAxis']), len(data['yAxis'])])
     # draw axis
-    for stick in data['xAxis'][0]['interval']:
-        start = pt.scale_to_points(stick, sc[2])
-        end = pt.scale_to_points(stick, sc[2])
-        end = (end[0], end[1] - 5)
-        pt.line(start=start, end=end, width=1, line_style="solid", y_clip=False, coordinate="pt", z_index=100)
-        pt.text(x=start[0], y=end[1] - 15, text=f"{stick}", clip=False,
-                coordinate="pt", h_align="middle", z_index=150)
-    for stick in data['yAxis'][0]['interval']:
-        start = pt.scale_to_points(sc[0], stick)
-        end = pt.scale_to_points(sc[0], stick)
-        end = (end[0] - 5, end[1])
-        pt.line(start=start, end=end, width=1, line_style="solid", x_clip=False, coordinate="pt", z_index=100)
-        pt.text(x=end[0] - 5, y=end[1], text=f"{stick}", clip=False,
-                coordinate="pt", h_align="right", v_align="center", z_index=150)
-    # axis titles
-    nameLocation = pt.scale_to_points(sum(sc[:2]) / 2, sc[2])
-    pt.text(x=nameLocation[0], y=nameLocation[1] - 30, text=data['xAxis'][0]['title'], clip=False, coordinate="pt",
-            h_align="middle", v_align="top", z_index=150)
-    nameLocation = pt.scale_to_points(sc[0], sum(sc[2:4]) / 2)
-    pt.text(x=nameLocation[0] - 50, y=nameLocation[1], text=data['yAxis'][0]['title'], clip=False, coordinate="pt",
-            h_align="middle", v_align="bottom", rotate=90, z_index=150)
+    plots = []
+    for i in range(axis_num):
+        scale = (*data['xAxis'][i]['extent'], *data['yAxis'][i]['extent'])
+        # create plot area based on axis scale
+        pt = cv.add_plot_area(name=f"PlotArea{i}", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=scale, show_frame=True)
+        for stick in data['xAxis'][i]['interval']:
+            start = pt.scale_to_points(stick, scale[2])
+            end = pt.scale_to_points(stick, scale[2])
+            end = (end[0], end[1] - 5)
+            pt.line(start=start, end=end, width=1, line_style="solid", y_clip=False, coordinate="pt", z_index=100)
+            pt.text(x=start[0], y=end[1] - 15, text=f"{stick}", clip=False,
+                    coordinate="pt", h_align="middle", z_index=150)
+        for stick in data['yAxis'][0]['interval']:
+            start = pt.scale_to_points(scale[0], stick)
+            end = pt.scale_to_points(scale[0], stick)
+            end = (end[0] - 5, end[1])
+            pt.line(start=start, end=end, width=1, line_style="solid", x_clip=False, coordinate="pt", z_index=100)
+            pt.text(x=end[0] - 5, y=end[1], text=f"{stick}", clip=False,
+                    coordinate="pt", h_align="right", v_align="center", z_index=150)
+        # axis titles
+        nameLocation = pt.scale_to_points(sum(scale[:2]) / 2, scale[2])
+        pt.text(x=nameLocation[0], y=nameLocation[1] - 30, text=data['xAxis'][i]['title'], clip=False, coordinate="pt",
+                h_align="middle", v_align="top", z_index=150)
+        nameLocation = pt.scale_to_points(scale[0], sum(scale[2:4]) / 2)
+        pt.text(x=nameLocation[0] - 50, y=nameLocation[1], text=data['yAxis'][i]['title'], clip=False, coordinate="pt",
+                h_align="middle", v_align="bottom", rotate=90, z_index=150)
+        plots.append(pt)
     # draw series
     for se in data['series']:
         data = se.get('data', [])
+        pt = plots[se.get('axis_index', 0)]
         if 'line' in se['type']:
             for index in range(1, len(data)):
-                pt.line(start=data[index - 1], end=data[index], width=1, line_style='solid', name=se['name'],
-                        color=se.get('color', 'black'), clip=True, line_caps=se.get('line_caps', 'none'), z_index=9)
+                pt.line(
+                    start=data[index - 1], end=data[index], width=1, line_style='solid', name=se['name'],
+                    color=se.get('color', 'black'), clip=True, line_caps=se.get('line_caps', 'none'), z_index=9)
         if 'scatter' in se['type'] and se['name'] != 'Text':
             for each in data:
-                pt.scatter(each[0], each[1], fill_color=se.get('color', 'black'), size=2)
+                pt.scatter(each[0], each[1], fill_color=se.get('fill_color', 'black'), size=2)
         if 'scatter' in se['type'] and se['name'] == 'Text' or 'text' in se['type']:
             for each in data:
                 pt.text(*each[:2], **se)
 
     return cv
+
+
+def export_chart_to_pdf(data: dict, filepath: str = "", **kwargs):
+    """
+
+    Parameters
+    ----------
+    filepath: str
+    data: dict
+        - file_name: string
+            file name, like "24WHA0001"
+        - data: list of dicts
+            properties:
+            - name: string
+                diagram name, like "Age spectra"
+
+            - xAxis: list
+                properties:
+                - extend: list
+                    limits of values of axis, like [0, 100]
+                - interval: list
+                    sticks location, like [0, 20, 40, 60, 80, 100]
+                - title: string
+                - name_location: string
+                    axis title location, 'middle'
+
+            - yAxis: same as xAxis
+
+            - series: list
+                properties:
+                - type: string
+                    series type, 'line', 'scatter', 'text', and any string contains these characters
+                - id: string
+                - name: string
+                - color: string or list
+                    color for outlines, color name | RGB triplet | Hex color code
+                - fill_color: string or list
+                    color for filling markers, format is similar to that of color
+                - data: 2-dimensional array
+                    [[x1, y1], [x2, y2], ...]
+                - axis_index: int
+                    index of axis to combine with, which is useful for plotting on different scales.
+
+                optional:
+                - line_caps: string
+                    for lines only, 'square', 'none', 'butt'
+                - text: string
+                    for texts only
+                - size: int
+                    for scatters only
+    **kwargs:
+        author, producer, creator, page_size, ppi, ...
+
+    Returns
+    -------
+
+    """
+    title = data.get('file_name', '')
+    # write pdf
+    file = pm.NewPDF(filepath=filepath, title=f"{title}", **kwargs)
+    plot_data = data.get('data', [])
+    for index, each in enumerate(plot_data):
+        # rich text tags should follow this priority: color > script > break
+        file.text(
+            page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
+            text=f"The PDF can be edited with Adobe Acrobat, Illustrator and CorelDRAW.<r>"
+                 f"<r> {each.get('name', '')}"
+        )
+        cv = get_cv_from_dict(each)
+        file.canvas(page=index, base=0, margin_top=5, canvas=cv, unit="cm", h_align="middle")
+        if index + 1 < len(plot_data):
+            file.add_page()
+
+    # save pdf
+    file.save()
+
+    return filepath
 
 
 class ExcelTemplate:

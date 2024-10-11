@@ -888,10 +888,13 @@ class ThermoView(http_funcs.ArArView):
         f = np.cumsum(ar) / ar.sum()
 
         # dr2, ln_dr2 = ap.smp.diffusion_funcs.dr2_popov(f, ti)
-        if str(params[6]).lower() == 'lovera':
-            dr2, ln_dr2, wt = ap.smp.diffusion_funcs.dr2_lovera(f, ti, ar=ar, sar=sar)
-        elif str(params[6]).lower() == 'yang':
-            dr2, ln_dr2, wt = ap.smp.diffusion_funcs.dr2_yang(f, ti, ar=ar, sar=sar)
+        ln = True if str(params[6]).lower() == 'ln' else False
+        if str(params[7]).lower() == 'lovera':
+            dr2, ln_dr2, wt = ap.smp.diffusion_funcs.dr2_lovera(f, ti, ar=ar, sar=sar, ln=ln)
+        elif str(params[7]).lower() == 'yang':
+            dr2, ln_dr2, wt = ap.smp.diffusion_funcs.dr2_yang(f, ti, ar=ar, sar=sar, ln=ln)
+        elif str(params[7]).lower() == 'popov':
+            dr2, ln_dr2, wt = ap.smp.diffusion_funcs.dr2_popov(f, ti, ar=ar, sar=sar, ln=ln)
         else:
             return JsonResponse({}, status=403)
 
@@ -1017,7 +1020,7 @@ class ThermoView(http_funcs.ArArView):
         return JsonResponse({})
 
 
-    def plot_agemon(self, request, *args, **kwargs):
+    def plot(self, request, *args, **kwargs):
         # names = list(models.IrraParams.objects.values_list('name', flat=True))
         # log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
         sample_name = self.body['sample_name']
@@ -1149,49 +1152,42 @@ class ExportView(http_funcs.ArArView):
             data = ap.calc.spectra.get_data(*age, ar, cumulative=False)
             series.append({
                 'type': 'series.line', 'id': f'line{index * 2 + 0}', 'name': f'line{index * 2 + 0}',
-                'color': colors[index],
+                'color': colors[index],'fill_color': colors[index],
                 'data': np.transpose([data[0], data[1]]).tolist(), 'line_caps': 'square',
+                'axis_index': 0,
             })
             series.append({
                 'type': 'series.line', 'id': f'line{index * 2 + 1}', 'name': f'line{index * 2 + 1}',
-                'color': colors[index],
+                'color': colors[index],'fill_color': colors[index],
                 'data': np.transpose([data[0], data[2]]).tolist(), 'line_caps': 'square',
+                'axis_index': 0,
             })
             series.append({
-                'type': 'text', 'id': f'text{index * 2 + 0}', 'name': f'text{index * 2 + 0}', 'color': colors[index],
+                'type': 'text', 'id': f'text{index * 2 + 0}', 'name': f'text{index * 2 + 0}',
+                'color': colors[index], 'fill_color': colors[index],
                 'text': f'{smp.name()}<r>{round(smp.Info.results.age_plateau[0]["age"], 2)}', 'size': 10,
                 'data': [[index * 15 + 5, 23]],
+                'axis_index': 0,
             })
         data = {
             "data": [
                 {
+                    'name': diagrams[0],
                     'xAxis': [{'extent': [0, 100], 'interval': [0, 20, 40, 60, 80, 100],
-                               'title': 'Cumulative <sup>39</sup>Ar Released (%)', 'nameLocation': 'middle', }],
+                               'title': 'Cumulative <sup>39</sup>Ar Released (%)', 'name_location': 'middle', }],
                     'yAxis': [{'extent': [0, 25], 'interval': [0, 5, 10, 15, 20, 25],
-                               'title': 'Apparent Age (Ma)', 'nameLocation': 'middle', }],
+                               'title': 'Apparent Age (Ma)', 'name_location': 'middle', }],
                     'series': series
                 }
             ],
-            "file_name": "WHA",
-            "plot_names": ["all age plateaus"],
+            "file_name": "WHA"
         }
 
         file_name = data["file_name"]
         plot_data = data["data"]
         filepath = f"{settings.DOWNLOAD_URL}{file_name}-{uuid.uuid4().hex[:8]}.pdf"
-        # write pdf
-        file = pm.NewPDF(filepath=filepath, title=f"{file_name}")
-        for index, each in enumerate(plot_data):
-            # rich text tags should follow this priority: color > script > break
-            file.text(page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
-                      text=f"The PDF can be edited with Adobe Acrobat, Illustrator and CorelDRAW")
-            cv = ap.smp.export.export_chart_to_pdf(each)
-            file.canvas(page=index, base=0, margin_top=5, canvas=cv, unit="cm", h_align="middle")
-            if index + 1 < len(plot_data):
-                file.add_page()
 
-        # save pdf
-        file.save()
+        filepath = ap.smp.export.export_chart_to_pdf(data, filepath=filepath)
 
         export_href = '/' + filepath
 
@@ -1358,26 +1354,10 @@ class ApiView(http_funcs.ArArView):
 
     def export_chart(self, request, *args, **kwargs):
         data = self.body['data']
-        file_name = self.body['file_name']
-        plot_names = self.body['plot_names']
+
+        file_name = data.get('file_name', 'file_name')
         filepath = f"{settings.DOWNLOAD_URL}{file_name}-{uuid.uuid4().hex[:8]}.pdf"
-        # write pdf
-        file = pm.NewPDF(filepath=filepath, title=f"{file_name}")
-        for index, each in enumerate(data):
-            # rich text tags should follow this priority: color > script > break
-            file.text(page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
-                      text=f"The PDF can be edited with Adobe Acrobat, Illustrator and CorelDRAW.<r>"
-                           f"<r> {file_name}"
-                           f"<r> {plot_names[index]}",
-                      )
-            cv = ap.smp.export.export_chart_to_pdf(each)
-            file.canvas(page=index, base=0, margin_top=5, canvas=cv, unit="cm", h_align="middle")
-            if index + 1 < len(data):
-                file.add_page()
-
-        # save pdf
-        file.save()
-
+        filepath = ap.smp.export.export_chart_to_pdf(data, filepath)
         export_href = '/' + filepath
 
         return JsonResponse({'status': 'success', 'href': export_href})
