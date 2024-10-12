@@ -758,6 +758,8 @@ class ParamsSettingView(http_funcs.ArArView):
                 if 'thermo' in type.lower():
                     param = [*data[0:20], *data[56:58], *data[20:27],
                              *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
+                if 'export' in type.lower():
+                    param = [True]
             except IndexError:
                 param = []
             return JsonResponse({'status': 'success', 'param': np.nan_to_num(param).tolist()})
@@ -1126,9 +1128,11 @@ class ExportView(http_funcs.ArArView):
 
     # /calc/export
     def get(self, request, *args, **kwargs):
-        return render(request, 'export_pdf_setting.html')
+        names = list(models.ExportPdfParams.objects.values_list('name', flat=True))
+        return render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
 
     def get_plotdata(self, request, *args, **kwargs):
+        params = self.body['settings']
         files = json.loads(self.body['json_string'])['files']
         file_names = [each['file_name'] for each in files if each['checked']]
         file_paths = [each['file_path'] for each in files if each['checked']]
@@ -1136,59 +1140,38 @@ class ExportView(http_funcs.ArArView):
         print(f"{file_names = }")
         print(f"{file_paths = }")
         print(f"{diagrams = }")
+        print(f"{params = }")
 
         colors = ['#1f3c40', '#e35000', '#e1ae0f', '#3d8ebf', '#77dd83', '#c7ae88', '#83d6bb', '#653013', '#cc5f16',
                   '#d0b269']
-        series = []
 
         # ------ 构建数据 -------
+        data = {
+            "data": [{"name": "", "xAxis": [], "yAxis": [], "series": []}],
+            "file_name": "WHA"
+        }
+        smps = []
         for index, file in enumerate(file_paths):
             _, ext = os.path.splitext(file)
             if ext[1:] not in ['arr', 'age']:
                 continue
-            smp = (ap.from_arr if ext[1:] == 'arr' else ap.from_age)(file_path=file)
-            age = smp.ApparentAgeValues[2:4]
-            ar = smp.DegasValues[20]
-            data = ap.calc.spectra.get_data(*age, ar, cumulative=False)
-            series.append({
-                'type': 'series.line', 'id': f'line{index * 2 + 0}', 'name': f'line{index * 2 + 0}',
-                'color': colors[index],'fill_color': colors[index],
-                'data': np.transpose([data[0], data[1]]).tolist(), 'line_caps': 'square',
-                'axis_index': 0,
-            })
-            series.append({
-                'type': 'series.line', 'id': f'line{index * 2 + 1}', 'name': f'line{index * 2 + 1}',
-                'color': colors[index],'fill_color': colors[index],
-                'data': np.transpose([data[0], data[2]]).tolist(), 'line_caps': 'square',
-                'axis_index': 0,
-            })
-            series.append({
-                'type': 'text', 'id': f'text{index * 2 + 0}', 'name': f'text{index * 2 + 0}',
-                'color': colors[index], 'fill_color': colors[index],
-                'text': f'{smp.name()}<r>{round(smp.Info.results.age_plateau[0]["age"], 2)}', 'size': 10,
-                'data': [[index * 15 + 5, 23]],
-                'axis_index': 0,
-            })
-        data = {
-            "data": [
-                {
-                    'name': diagrams[0],
-                    'xAxis': [{'extent': [0, 100], 'interval': [0, 20, 40, 60, 80, 100],
-                               'title': 'Cumulative <sup>39</sup>Ar Released (%)', 'name_location': 'middle', }],
-                    'yAxis': [{'extent': [0, 25], 'interval': [0, 5, 10, 15, 20, 25],
-                               'title': 'Apparent Age (Ma)', 'name_location': 'middle', }],
-                    'series': series
-                }
-            ],
-            "file_name": "WHA"
-        }
+            smps.append((ap.from_arr if ext[1:] == 'arr' else ap.from_age)(file_path=file))
 
-        file_name = data["file_name"]
-        plot_data = data["data"]
-        filepath = f"{settings.DOWNLOAD_URL}{file_name}-{uuid.uuid4().hex[:8]}.pdf"
+        plot_together = params[0]
+        for index, smp in enumerate(smps):
+            if plot_together:
+                current = ap.smp.export.to_plot_data(smp=smp, diagram=diagrams[index], color=colors[index])
+                data['data'][0]['name'] = 'Combined Diagrams'
+                data['data'][0]['xAxis'] = current['xAxis']
+                data['data'][0]['yAxis'] = current['yAxis']
+                for ser in current['series']:
+                    data['data'][0]['series'].append(ser)
+            else:
+                current = ap.smp.export.to_plot_data(smp=smp, diagram=diagrams[index])
+                data['data'].append(current)
 
+        filepath = f"{settings.DOWNLOAD_URL}{data['file_name']}-{uuid.uuid4().hex[:8]}.pdf"
         filepath = ap.smp.export.export_chart_to_pdf(data, filepath=filepath)
-
         export_href = '/' + filepath
 
         return JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
@@ -1354,6 +1337,8 @@ class ApiView(http_funcs.ArArView):
 
     def export_chart(self, request, *args, **kwargs):
         data = self.body['data']
+        params = self.body['settings']
+        print(f"{params = }")
 
         file_name = data.get('file_name', 'file_name')
         filepath = f"{settings.DOWNLOAD_URL}{file_name}-{uuid.uuid4().hex[:8]}.pdf"

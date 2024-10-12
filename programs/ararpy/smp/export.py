@@ -17,9 +17,11 @@ import sys
 import pickle
 import traceback
 import pdf_maker as pm
+import numpy as np
 from decimal import Decimal
 
-from ..calc import arr, isochron
+from ..calc import arr, isochron, spectra
+from ..calc.basic import get_random_digits
 from . import basic, sample, consts
 
 Sample = sample.Sample
@@ -60,7 +62,7 @@ def get_cv_from_dict(data: dict):
             pt.line(start=start, end=end, width=1, line_style="solid", y_clip=False, coordinate="pt", z_index=100)
             pt.text(x=start[0], y=end[1] - 15, text=f"{stick}", clip=False,
                     coordinate="pt", h_align="middle", z_index=150)
-        for stick in data['yAxis'][0]['interval']:
+        for stick in data['yAxis'][i]['interval']:
             start = pt.scale_to_points(scale[0], stick)
             end = pt.scale_to_points(scale[0], stick)
             end = (end[0] - 5, end[1])
@@ -68,11 +70,11 @@ def get_cv_from_dict(data: dict):
             pt.text(x=end[0] - 5, y=end[1], text=f"{stick}", clip=False,
                     coordinate="pt", h_align="right", v_align="center", z_index=150)
         # axis titles
-        nameLocation = pt.scale_to_points(sum(scale[:2]) / 2, scale[2])
-        pt.text(x=nameLocation[0], y=nameLocation[1] - 30, text=data['xAxis'][i]['title'], clip=False, coordinate="pt",
+        nloc = pt.scale_to_points(sum(scale[:2]) / 2, scale[2])
+        pt.text(x=nloc[0], y=nloc[1] - 30, text=data['xAxis'][i]['title'], clip=False, coordinate="pt",
                 h_align="middle", v_align="top", z_index=150)
-        nameLocation = pt.scale_to_points(scale[0], sum(scale[2:4]) / 2)
-        pt.text(x=nameLocation[0] - 50, y=nameLocation[1], text=data['yAxis'][i]['title'], clip=False, coordinate="pt",
+        nloc = pt.scale_to_points(scale[0], sum(scale[2:4]) / 2)
+        pt.text(x=nloc[0] - 50, y=nloc[1], text=data['yAxis'][i]['title'], clip=False, coordinate="pt",
                 h_align="middle", v_align="bottom", rotate=90, z_index=150)
         plots.append(pt)
     # draw series
@@ -169,6 +171,60 @@ def export_chart_to_pdf(data: dict, filepath: str = "", **kwargs):
     file.save()
 
     return filepath
+
+
+def to_plot_data(smp: Sample, diagram: str = 'age spectra', color=None):
+    if color is None:
+        color = 'black'
+    xAxis, yAxis, series = [], [], []
+    if diagram.lower() == "age spectra":
+        age = smp.ApparentAgeValues[2:4]
+        ar = smp.DegasValues[20]
+        data = spectra.get_data(*age, ar, cumulative=False)
+        series.append({
+            'type': 'series.line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
+            'color': color, 'fill_color': color,
+            'data': np.transpose([data[0], data[1]]).tolist(), 'line_caps': 'square',
+            'axis_index': 0,
+        })
+        series.append({
+            'type': 'series.line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
+            'color': color, 'fill_color': color,
+            'data': np.transpose([data[0], data[2]]).tolist(), 'line_caps': 'square',
+            'axis_index': 0,
+        })
+        text1 = smp.AgeSpectraPlot.text1
+        text2 = smp.AgeSpectraPlot.text2
+        for text in [text1, text2]:
+            series.append({
+                'type': 'text', 'id': f'text-{get_random_digits()}', 'name': f'text-{get_random_digits()}',
+                'color': color, 'fill_color': color,
+                'text': f'{smp.name()}<r>{round(smp.Info.results.age_plateau[0]["age"], 2)}', 'size': text.font_size / 2,
+                'data': [text.pos],
+                'axis_index': 1,
+            })
+
+        xAxis.append({
+            'extent': [0, 100], 'interval': [0, 20, 40, 60, 80, 100], 'id': 0, 'show_frame': True,
+            'title': 'Cumulative <sup>39</sup>Ar Released (%)', 'name_location': 'middle',
+        })
+        xAxis.append({
+            'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
+            'title': '', 'name_location': 'middle',
+        })
+        yAxis.append({
+            'extent': [0, 25], 'interval': [0, 5, 10, 15, 20, 25], 'id': 0, 'show_frame': True,
+            'title': 'Apparent Age (Ma)', 'name_location': 'middle',
+        })
+        yAxis.append({
+            'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
+            'title': '', 'name_location': 'middle',
+        })
+    data = {
+        'name': diagram, 'xAxis': xAxis, 'yAxis': yAxis, 'series': series
+    }
+    print(data)
+    return data
 
 
 class ExcelTemplate:

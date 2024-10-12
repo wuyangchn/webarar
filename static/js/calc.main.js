@@ -445,6 +445,11 @@ function showParamProject(ele, param_type) {
             if (!$('#thermoParamsRadio1').is(':checked')) {
                 return
             }
+        }  else if (ele.id.toString().includes('export')) {
+            param_type = "export-pdf";
+            if (!$('#exportParamsRadio1').is(':checked')) {
+                return
+            }
         } else {
             return
         }
@@ -467,7 +472,7 @@ function showParamProject(ele, param_type) {
                         each.value=res.param[index];
                     });
                 }
-                if (param_type === "input-filter" || param_type === "calc" || param_type === "smp" || param_type === "thermo") {
+                if (param_type === "input-filter" || param_type === "calc" || param_type === "smp" || param_type === "thermo" || param_type === "export-pdf") {
                     let input_box = document.getElementsByClassName(`${ param_type }-params`);
                     let check_Box = document.getElementsByClassName(`${ param_type }-check-box`);
                     $.each(input_box, function (index, each) {
@@ -4654,7 +4659,8 @@ function exportChart(data, download=true) {
         type: 'POST',
         async: false,
         data: JSON.stringify({
-            'data': data
+            'data': data,
+            'settings': getParamsByObjectName('export-pdf'),
         }),
         contentType:'application/json',
         success: function(res){
