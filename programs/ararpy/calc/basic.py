@@ -10,6 +10,8 @@
 #
 """
 import copy
+import random
+import string
 
 
 def get_datetime(t_year: int, t_month: int, t_day: int, t_hour: int, t_min: int, t_seconds: int = 0, base=None):
@@ -78,3 +80,7 @@ def update_dicts(a: dict, b: dict):
         else:
             res[key] = val
     return res
+
+
+def get_random_digits(length: int = 7) -> str:
+    return ''.join(random.choices(string.digits, k=length))
