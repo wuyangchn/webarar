@@ -159,8 +159,7 @@ def export_chart_to_pdf(data: dict, filepath: str = "", **kwargs):
         # rich text tags should follow this priority: color > script > break
         file.text(
             page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
-            text=f"The PDF can be edited with Adobe Acrobat, Illustrator and CorelDRAW.<r>"
-                 f"<r> {each.get('name', '')}"
+            text=f"{each.get('name', '')}"
         )
         cv = get_cv_from_dict(each)
         file.canvas(page=index, base=0, margin_top=5, canvas=cv, unit="cm", h_align="middle")
@@ -173,7 +172,20 @@ def export_chart_to_pdf(data: dict, filepath: str = "", **kwargs):
     return filepath
 
 
-def to_plot_data(smp: Sample, diagram: str = 'age spectra', color=None):
+def to_plot_data(smp: Sample, diagram: str = 'age spectra', color=None, **options):
+    """
+
+    Parameters
+    ----------
+    smp
+    diagram
+    color
+    options
+
+    Returns
+    -------
+
+    """
     if color is None:
         color = 'black'
     xAxis, yAxis, series = [], [], []
@@ -199,7 +211,7 @@ def to_plot_data(smp: Sample, diagram: str = 'age spectra', color=None):
             series.append({
                 'type': 'text', 'id': f'text-{get_random_digits()}', 'name': f'text-{get_random_digits()}',
                 'color': color, 'fill_color': color,
-                'text': f'{smp.name()}<r>{round(smp.Info.results.age_plateau[0]["age"], 2)}', 'size': text.font_size / 2,
+                'text': smp.name() + '<r>' + text.text.replace("\n", "<r>"), 'size': int(text.font_size / 1.5),
                 'data': [text.pos],
                 'axis_index': 1,
             })
@@ -221,9 +233,9 @@ def to_plot_data(smp: Sample, diagram: str = 'age spectra', color=None):
             'title': '', 'name_location': 'middle',
         })
     data = {
-        'name': diagram, 'xAxis': xAxis, 'yAxis': yAxis, 'series': series
+        'name': smp.name(), 'xAxis': xAxis, 'yAxis': yAxis, 'series': series
     }
-    print(data)
+
     return data
 
 

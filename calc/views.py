@@ -1146,10 +1146,7 @@ class ExportView(http_funcs.ArArView):
                   '#d0b269']
 
         # ------ 构建数据 -------
-        data = {
-            "data": [{"name": "", "xAxis": [], "yAxis": [], "series": []}],
-            "file_name": "WHA"
-        }
+        data = {"data": [], "file_name": "WHA"}
         smps = []
         for index, file in enumerate(file_paths):
             _, ext = os.path.splitext(file)
@@ -1158,6 +1155,8 @@ class ExportView(http_funcs.ArArView):
             smps.append((ap.from_arr if ext[1:] == 'arr' else ap.from_age)(file_path=file))
 
         plot_together = params[0]
+        if plot_together:
+            data['data'] = [{"name": "", "xAxis": [], "yAxis": [], "series": []}]
         for index, smp in enumerate(smps):
             if plot_together:
                 current = ap.smp.export.to_plot_data(smp=smp, diagram=diagrams[index], color=colors[index])
