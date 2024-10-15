@@ -88,7 +88,11 @@ def get_cv_from_dict(data: dict):
                     color=se.get('color', 'black'), clip=True, line_caps=se.get('line_caps', 'none'), z_index=9)
         if 'scatter' in se['type'] and se['name'] != 'Text':
             for each in data:
-                pt.scatter(each[0], each[1], fill_color=se.get('fill_color', 'black'), size=2)
+                pt.scatter(
+                    each[0], each[1], fill_color=se.get('fill_color', 'black'), size=se.get('size', 5),
+                    stroke_color=se.get('stroke_color', se.get('color', 'black')),
+                    z_index=se.get('z_index', 9)
+                )
         if 'scatter' in se['type'] and se['name'] == 'Text' or 'text' in se['type']:
             for each in data:
                 pt.text(*each[:2], **se)
@@ -172,7 +176,7 @@ def export_chart_to_pdf(data: dict, filepath: str = "", **kwargs):
     return filepath
 
 
-def to_plot_data(smp: Sample, diagram: str = 'age spectra', color=None, **options):
+def to_plot_data(smp: Sample, diagram: str = 'age spectra', **options):
     """
 
     Parameters
@@ -186,57 +190,142 @@ def to_plot_data(smp: Sample, diagram: str = 'age spectra', color=None, **option
     -------
 
     """
-    if color is None:
-        color = 'black'
-    xAxis, yAxis, series = [], [], []
+    xAxis, yAxis, series = to_plot_data_age_spectra(smp)
     if diagram.lower() == "age spectra":
-        age = smp.ApparentAgeValues[2:4]
-        ar = smp.DegasValues[20]
-        data = spectra.get_data(*age, ar, cumulative=False)
-        series.append({
-            'type': 'series.line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
-            'color': color, 'fill_color': color,
-            'data': np.transpose([data[0], data[1]]).tolist(), 'line_caps': 'square',
-            'axis_index': 0,
-        })
-        series.append({
-            'type': 'series.line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
-            'color': color, 'fill_color': color,
-            'data': np.transpose([data[0], data[2]]).tolist(), 'line_caps': 'square',
-            'axis_index': 0,
-        })
-        text1 = smp.AgeSpectraPlot.text1
-        text2 = smp.AgeSpectraPlot.text2
-        for text in [text1, text2]:
-            series.append({
-                'type': 'text', 'id': f'text-{get_random_digits()}', 'name': f'text-{get_random_digits()}',
-                'color': color, 'fill_color': color,
-                'text': smp.name() + '<r>' + text.text.replace("\n", "<r>"), 'size': int(text.font_size / 1.5),
-                'data': [text.pos],
-                'axis_index': 1,
-            })
+        xAxis, yAxis, series = to_plot_data_age_spectra(smp, **options)
+    if diagram.lower() == "inverse isochron":
+        xAxis, yAxis, series = to_plot_data_inv_isochron(smp, **options)
 
-        xAxis.append({
-            'extent': [0, 100], 'interval': [0, 20, 40, 60, 80, 100], 'id': 0, 'show_frame': True,
-            'title': 'Cumulative <sup>39</sup>Ar Released (%)', 'name_location': 'middle',
-        })
-        xAxis.append({
-            'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
-            'title': '', 'name_location': 'middle',
-        })
-        yAxis.append({
-            'extent': [0, 25], 'interval': [0, 5, 10, 15, 20, 25], 'id': 0, 'show_frame': True,
-            'title': 'Apparent Age (Ma)', 'name_location': 'middle',
-        })
-        yAxis.append({
-            'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
-            'title': '', 'name_location': 'middle',
-        })
     data = {
         'name': smp.name(), 'xAxis': xAxis, 'yAxis': yAxis, 'series': series
     }
 
+    print(data)
+
     return data
+
+
+def to_plot_data_age_spectra(smp: sample, **options):
+    color = options.get('color', 'black')
+    xAxis, yAxis, series = [], [], []
+    age = smp.ApparentAgeValues[2:4]
+    ar = smp.DegasValues[20]
+    data = spectra.get_data(*age, ar, cumulative=False)
+    series.append({
+        'type': 'series.line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
+        'color': color, 'fill_color': color,
+        'data': np.transpose([data[0], data[1]]).tolist(), 'line_caps': 'square',
+        'axis_index': 0,
+    })
+    series.append({
+        'type': 'series.line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
+        'color': color, 'fill_color': color,
+        'data': np.transpose([data[0], data[2]]).tolist(), 'line_caps': 'square',
+        'axis_index': 0,
+    })
+    text1 = smp.AgeSpectraPlot.text1
+    text2 = smp.AgeSpectraPlot.text2
+    for text in [text1, text2]:
+        series.append({
+            'type': 'text', 'id': f'text-{get_random_digits()}', 'name': f'text-{get_random_digits()}',
+            'color': color, 'fill_color': color,
+            'text': smp.name() + '<r>' + text.text.replace("\n", "<r>"), 'size': int(text.font_size / 1.5),
+            'data': [text.pos],
+            'axis_index': 1,
+        })
+
+    xAxis.append({
+        'extent': [0, 100], 'interval': [0, 20, 40, 60, 80, 100], 'id': 0, 'show_frame': True,
+        'title': 'Cumulative <sup>39</sup>Ar Released (%)', 'name_location': 'middle',
+    })
+    xAxis.append({
+        'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
+        'title': '', 'name_location': 'middle',
+    })
+    yAxis.append({
+        'extent': [0, 25], 'interval': [0, 5, 10, 15, 20, 25], 'id': 0, 'show_frame': True,
+        'title': 'Apparent Age (Ma)', 'name_location': 'middle',
+    })
+    yAxis.append({
+        'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
+        'title': '', 'name_location': 'middle',
+    })
+    return xAxis, yAxis, series
+
+
+def to_plot_data_inv_isochron(smp: sample, **options):
+    color = options.get('color', 'black')
+    xAxis, yAxis, series = [], [], []
+    age = smp.ApparentAgeValues[2:4]
+    ar = smp.DegasValues[20]
+    data = np.array(smp.InvIsochronPlot.data)
+    set1 = smp.InvIsochronPlot.set1.data
+    set2 = smp.InvIsochronPlot.set2.data
+    set3 = smp.InvIsochronPlot.set3.data
+    # set 1
+    series.append({
+        'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
+        'stroke_color': 'red', 'fill_color': 'red', 'myType': 'scatter', 'size': 4,
+        'data': (data[[0, 2], :][:, set1]).transpose().tolist(),
+        'axis_index': 0, 'z_index': 99
+    })
+    # set 2
+    series.append({
+        'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
+        'stroke_color': 'blue', 'fill_color': 'blue', 'myType': 'scatter', 'size': 4,
+        'data': (data[[0, 2], :][:, set2]).transpose().tolist(),
+        'axis_index': 0, 'z_index': 99
+    })
+    # set 3
+    series.append({
+        'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
+        'stroke_color': 'black', 'fill_color': 'none', 'myType': 'scatter', 'size': 4,
+        'data': (data[[0, 2], :][:, set3]).transpose().tolist(),
+        'axis_index': 0, 'z_index': 0
+    })
+
+    text1 = smp.InvIsochronPlot.text1
+    text2 = smp.InvIsochronPlot.text2
+
+    series.append({
+        'type': 'text', 'id': f'text-{get_random_digits()}', 'name': f'text-{get_random_digits()}',
+        'color': 'red', 'fill_color': 'red',
+        'text': smp.name() + '<r>' + text1.text.replace("\n", "<r>"), 'size': int(text1.font_size / 1.5),
+        'data': [text1.pos],
+        'axis_index': 1,
+    })
+    series.append({
+        'type': 'text', 'id': f'text-{get_random_digits()}', 'name': f'text-{get_random_digits()}',
+        'color': 'blue', 'fill_color': 'blue',
+        'text': smp.name() + '<r>' + text2.text.replace("\n", "<r>"), 'size': int(text2.font_size / 1.5),
+        'data': [text2.pos],
+        'axis_index': 1,
+    })
+
+    xaxis = smp.InvIsochronPlot.xaxis
+    yaxis = smp.InvIsochronPlot.yaxis
+
+    xAxis.append({
+        'extent': [float(xaxis.min), float(xaxis.max)],
+        'interval': [float(xaxis.min) + i * float(xaxis.interval) for i in range(int(xaxis.split_number) + 1)],
+        'id': 0, 'show_frame': True,
+        'title': 'XXXX', 'name_location': 'middle',
+    })
+    xAxis.append({
+        'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
+        'title': '', 'name_location': 'middle',
+    })
+    yAxis.append({
+        'extent': [float(yaxis.min), float(yaxis.max)],
+        'interval': [float(yaxis.min) + i * float(yaxis.interval) for i in range(int(yaxis.split_number) + 1)],
+        'id': 0, 'show_frame': True,
+        'title': 'YYYY', 'name_location': 'middle',
+    })
+    yAxis.append({
+        'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
+        'title': '', 'name_location': 'middle',
+    })
+    return xAxis, yAxis, series
 
 
 class ExcelTemplate:
