@@ -52,7 +52,8 @@ def get_cv_from_dict(data: dict):
     # draw axis
     plots = []
     for i in range(axis_num):
-        scale = (*data['xAxis'][i]['extent'], *data['yAxis'][i]['extent'])
+        scale = [*data['xAxis'][i]['extent'], *data['yAxis'][i]['extent']]
+        scale = (*scale,)
         # create plot area based on axis scale
         pt = cv.add_plot_area(name=f"PlotArea{i}", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=scale, show_frame=True)
         for stick in data['xAxis'][i]['interval']:
@@ -307,7 +308,7 @@ def to_plot_data_inv_isochron(smp: sample, **options):
 
     xAxis.append({
         'extent': [float(xaxis.min), float(xaxis.max)],
-        'interval': [float(xaxis.min) + i * float(xaxis.interval) for i in range(int(xaxis.split_number) + 1)],
+        'interval': [float("{:g}".format(float(xaxis.min) + i * float(xaxis.interval))) for i in range(int(xaxis.split_number) + 1)],
         'id': 0, 'show_frame': True,
         'title': 'XXXX', 'name_location': 'middle',
     })
@@ -317,7 +318,7 @@ def to_plot_data_inv_isochron(smp: sample, **options):
     })
     yAxis.append({
         'extent': [float(yaxis.min), float(yaxis.max)],
-        'interval': [float(yaxis.min) + i * float(yaxis.interval) for i in range(int(yaxis.split_number) + 1)],
+        'interval': [float("{:g}".format(float(yaxis.min) + i * float(yaxis.interval))) for i in range(int(yaxis.split_number) + 1)],
         'id': 0, 'show_frame': True,
         'title': 'YYYY', 'name_location': 'middle',
     })
