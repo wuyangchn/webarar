@@ -379,7 +379,7 @@ function _dropHandler(ev) {
                 let files = JSON.parse(res).files;
                 let table = $('#export_arr_file_list');
                 let data = table.bootstrapTable('getData');
-                let diagram_list = ['Age Spectra', 'Inverse Isochron'];
+                let diagram_list = ['Age Spectra', 'Inverse Isochron', 'Degas Pattern'];
                 let diagram = 'Age Spectra';
                 $.each(files, function (index, file) {
                     table.bootstrapTable('insertRow', {index: data.length + index,
