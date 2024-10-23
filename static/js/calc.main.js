@@ -1700,6 +1700,9 @@ function exportSmp(url, download=true, merged_pdf=false) {
         }
     });
 }
+function arrDownloaded() {
+    rightConsole.innerText = `Last Save: ${getTime()}`;
+}
 async function saveChart(isExport=true) {
     let export_type = 'svg';
     if (getCurrentTableId() === 'figure_7') {
@@ -2414,7 +2417,6 @@ function showUploadPictureBtn() {
 function setConsoleText(text) {
     exampleConsole.innerText = `${getTime()} ${text}`;
     console.log(`${getTime()} ${text}`);
-    document.getElementById('sample_name_console').innerText = sampleComponents['0'].sample.name;
     document.getElementById('page-title').innerText = sampleComponents['0'].sample.name;
 }
 function setRightSideText() {
