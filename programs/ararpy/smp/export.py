@@ -196,6 +196,8 @@ def to_plot_data(smp: Sample, diagram: str = 'age spectra', **options):
         xAxis, yAxis, series = to_plot_data_age_spectra(smp, **options)
     if diagram.lower() == "inverse isochron":
         xAxis, yAxis, series = to_plot_data_inv_isochron(smp, **options)
+    if diagram.lower() == "degas pattern":
+        xAxis, yAxis, series = to_plot_data_degas_pattern(smp, **options)
 
     data = {
         'name': smp.name(), 'xAxis': xAxis, 'yAxis': yAxis, 'series': series
@@ -325,6 +327,51 @@ def to_plot_data_inv_isochron(smp: sample, **options):
     yAxis.append({
         'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
         'title': '', 'name_location': 'middle',
+    })
+    return xAxis, yAxis, series
+
+
+def to_plot_data_degas_pattern(smp: sample, **options):
+    color = options.get('color', 'black')
+    plot = smp.DegasPatternPlot
+    xAxis, yAxis, series = [], [], []
+    argon = smp.DegasValues[20]  # Ar39K as default
+    while argon[-1] == 0:
+        argon = argon[:-1]
+    y = [argon[i] / sum(argon[i:]) * 100 for i in range(len(argon))]
+    x = list(range(1, len(argon) + 1))
+    data = np.array([x, y])
+    # set 1
+    series.append({
+        'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
+        'stroke_color': color, 'fill_color': 'white', 'myType': 'scatter', 'size': 4,
+        'data': data.transpose().tolist(),
+        'axis_index': 0, 'z_index': 99
+    })
+
+    xaxis = plot.xaxis
+    yaxis = plot.yaxis
+
+    xaxis.min = 0
+    xaxis.max = 100
+    xaxis.interval = 20
+    xaxis.split_number = 5
+    yaxis.min = 0
+    yaxis.max = 20
+    yaxis.interval = 5
+    yaxis.split_number = 4
+
+    xAxis.append({
+        'extent': [float(xaxis.min), float(xaxis.max)],
+        'interval': [float("{:g}".format(float(xaxis.min) + i * float(xaxis.interval))) for i in range(int(xaxis.split_number) + 1)],
+        'id': 0, 'show_frame': True,
+        'title': 'XXXX', 'name_location': 'middle',
+    })
+    yAxis.append({
+        'extent': [float(yaxis.min), float(yaxis.max)],
+        'interval': [float("{:g}".format(float(yaxis.min) + i * float(yaxis.interval))) for i in range(int(yaxis.split_number) + 1)],
+        'id': 0, 'show_frame': True,
+        'title': 'YYYY', 'name_location': 'middle',
     })
     return xAxis, yAxis, series
 
