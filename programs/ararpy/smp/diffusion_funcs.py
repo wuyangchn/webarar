@@ -18,7 +18,8 @@ import string
 
 import numpy as np
 from .sample import Sample
-import ararpy as ap
+from .. import calc
+# import ararpy as ap
 import matplotlib as mpl
 import scipy.stats as stats
 import math
@@ -286,7 +287,7 @@ class DiffArrmultiFunc(DiffSample):
                 amax = 0.
                 mct = 0
                 chisq = 1.0e30
-
+                print(f"{mct = } > 30, continue!!!")
                 continue
 
             nc = 0
@@ -3321,11 +3322,11 @@ class DiffDraw(DiffSample):
 
     def get_plot_data(self):
 
-        k1 = [x, y1, y2] = ap.calc.spectra.get_data(self.age, self.sage, [i * 100 for i in self.f], cumulative=True)
+        k1 = [x, y1, y2] = calc.spectra.get_data(self.age, self.sage, [i * 100 for i in self.f], cumulative=True)
         k2 = []
         k3 = []
         for cyc in range(self.mcyc):
-            x, y1, y2 = ap.calc.spectra.get_data(
+            x, y1, y2 = calc.spectra.get_data(
                 self.mage[cyc, :], np.zeros(self.mage[cyc, :].size), self.mf[cyc, :], cumulative=True)
             k2.append([x, y1, y2])
             k3.append([self.mcage[cyc, :], self.mcte[cyc, :]])
@@ -3355,7 +3356,7 @@ class DiffDraw(DiffSample):
         axs.plot(data[0][0], data[0][1], c='blue')
 
         for cyc in range(self.mcyc):
-            # x, y1, y2 = ap.calc.spectra.get_data(self.mage[cyc, :], np.zeros(self.mage[cyc, :].size), self.mf[cyc, :],
+            # x, y1, y2 = calc.spectra.get_data(self.mage[cyc, :], np.zeros(self.mage[cyc, :].size), self.mf[cyc, :],
             #                                      cumulative=True)
             axs.plot(data[1][cyc][0], data[1][cyc][2], c='red')
             axs.plot(data[1][cyc][0], data[1][cyc][1], c='red')
@@ -3501,25 +3502,25 @@ class InsideTemperatureCalibration:
                 file_out.writelines(f"{seq.SP = }, {seq.MaxTime = }, conf MaxTime = {max(x_conf)} \n")
                 file2_out.writelines(f"SP = {seq.SP}, MaxTime = {max(x_conf)} \n")
 
-                beta = ap.calc.regression.polynomial(y1_conf, x_conf, degree=degree)[5]
+                beta = calc.regression.polynomial(y1_conf, x_conf, degree=degree)[5]
                 ax.plot(x_conf, np.sum(beta * np.array([x_conf ** i for i in range(degree + 1)]).transpose(), axis=1),
                         c='blue')
                 file_out.writelines("BetaY1\t" + "\t".join([str(i) for i in beta]) + "\n")
                 file2_out.writelines("\t".join([str(i) for i in beta]) + "\n")
 
-                beta = ap.calc.regression.polynomial(y2_conf, x_conf, degree=degree)[5]
+                beta = calc.regression.polynomial(y2_conf, x_conf, degree=degree)[5]
                 ax.plot(x_conf, np.sum(beta * np.array([x_conf ** i for i in range(degree + 1)]).transpose(), axis=1),
                         c='blue')
                 file_out.writelines("BetaY2\t" + "\t".join([str(i) for i in beta]) + "\n")
-                file2_out.writelines("\t".join([str(i) for i in beta]) + "\n")
+                file2_out.writelines("\t".join([str(i) for fi in beta]) + "\n")
 
-                beta = ap.calc.regression.polynomial(y3_conf, x_conf, degree=degree)[5]
+                beta = calc.regression.polynomial(y3_conf, x_conf, degree=degree)[5]
                 ax.plot(x_conf, np.sum(beta * np.array([x_conf ** i for i in range(degree + 1)]).transpose(), axis=1),
                         c='blue')
                 file_out.writelines("BetaY3\t" + "\t".join([str(i) for i in beta]) + "\n")
                 file2_out.writelines("\t".join([str(i) for i in beta]) + "\n")
 
-                beta = ap.calc.regression.polynomial(y4_conf, x_conf, degree=degree)[5]
+                beta = calc.regression.polynomial(y4_conf, x_conf, degree=degree)[5]
                 ax.plot(x_conf, np.sum(beta * np.array([x_conf ** i for i in range(degree + 1)]).transpose(), axis=1),
                         c='blue')
                 file_out.writelines("BetaY4\t" + "\t".join([str(i) for i in beta]) + "\n")
@@ -4117,7 +4118,7 @@ class Ran1Generator:
 
         self.count += 1
 
-        print(f"{ran1 = }, {self.count = }")
+        # print(f"{ran1 = }, {self.count = }")
 
         return ran1
 
@@ -4443,19 +4444,15 @@ def kahan_sum(input):
     return sum
 
 
-def get_random_index(length: int = 7):
-    return ''.join(random.choices(string.digits, k=length))
-
-
-def get_random_dir(path: str, length=7, random_index = ""):
+def get_random_dir(path: str, length=7, random_index=""):
     try:
+        exist_ok = random_index != ""
         if random_index == "":
-            random_index = get_random_index(length=length)
+            random_index = calc.basic.get_random_digits(length=length)
         destination_folder = os.path.join(path, random_index)
-        os.makedirs(destination_folder, exist_ok=False)
+        os.makedirs(destination_folder, exist_ok=exist_ok)
         return destination_folder, random_index
     except FileExistsError:
-        random_index = ""
         return get_random_dir(path=path, length=length)
 
 
@@ -4473,7 +4470,7 @@ def run_agemon_dll(sample: Sample, source_dll_path: str, loc: str, data, max_age
     agemon.ni = len(data)
     agemon.nit = agemon.ni
     agemon.max_plateau_age = max_age
-    data = ap.calc.arr.transpose(data)
+    data = calc.arr.transpose(data)
     agemon.telab = [i + 273.15 for i in data[3]]
     agemon.tilab = [i / 5.256E+11 for i in data[4]]  # 1 Ma = 525600000000 minutes
     for i in range(agemon.nit):
@@ -4555,7 +4552,7 @@ def run_agemon_dll(sample: Sample, source_dll_path: str, loc: str, data, max_age
     return
 
 
-def dr2_popov(f, ti, ar, sar):
+def dr2_popov(f, ti, ar, sar, ln=True):
     """
 
     Used in Popov 2020. It is related to the sphere model.
@@ -4579,15 +4576,22 @@ def dr2_popov(f, ti, ar, sar):
     ti = np.array(ti)  # in minute
     ar = np.array(ar)
     sar = np.array(sar)
+    sar2 = sar ** 2
     n = min(len(f), len(ti))
     ti = ti * 60  # in seconds
     sti = [0.5 * 60 for i in range(n)]
     pi = math.pi
-    pi = 3.141592654
+    # pi = 3.141592654
     dr2 = np.zeros(n)
 
     f = np.where(f >= 1, 0.9999999999999999, f)
-    sar2 = sar ** 2
+    sf = [math.sqrt((sum(ar[i+1:]) / sum(ar) ** 2) ** 2 * sum(sar[:i+1] ** 2) + (sum(ar[:i+1]) / sum(ar) ** 2) ** 2 * sum(sar[i+1:] ** 2)) for i in range(n)]
+
+    # Popov 2020, sphere model
+    model = geometric_model(geo='sphere')
+    dtr2 = [model(bp=0.85)[1](fi) for fi in f]
+    dr2 = [(dtr2[i] - (dtr2[i - 1] if i > 0 else 0)) / ti[i] for i in range(len(dtr2))]
+    dr2[-1] = math.log((1 - f[-2]) / (1 - f[-1])) / pi ** 2 / ti[-1]
 
     # =IF(M5<85,((-SUM(H5:$H$35)/3/SUM($H$4:$H$35)^2/SQRT(1-PI()/3*SUM($H$4:H4)/SUM($H$4:$H$35))/(D5*60)+SUM(H6:$H$35)/3/SUM($H$4:$H$35)^2/SQRT(1-PI()/3*SUM($H$4:H5)/SUM($H$4:$H$35))/(D5*60)+H5/3/SUM($H$4:$H$35)^2/(D5*60))^2),0)
     sar_lt = np.zeros(n)  # 偏导数
@@ -4595,52 +4599,60 @@ def dr2_popov(f, ti, ar, sar):
     sar_gt = np.zeros(n)  # 偏导数
     st = np.zeros(n)  # 偏导数
     sdr2 = np.zeros(n)
-
-    # Popov 2020
-    a, b = 0, 0
     for i in range(n):
         if i == 0:
             if f[i] < 0.85:
-                a = 2 / pi ** 2 * math.sqrt(pi ** 2 - (pi ** 3) * f[i] / 3) + f[i] / 3
-                dr2[i] = (1 - math.sqrt(1 - f[i] * pi / 3)) ** 2 / (ti[i] * pi)
                 sar_lt[i] = 0
                 sar_eq[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
                 sar_gt[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
             else:
-                a = 1 - f[i]
-                dr2[i] = (math.log((f[i] - 1) / (-6 / pi ** 2)) / pi ** 2) / ti[i]
                 sar_lt[i] = 0
                 sar_eq[i] = (1 / (pi ** 2 * ti[i] * (f[i] - 1))) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
                 sar_gt[i] = (1 / (pi ** 2 * ti[i] * (f[i] - 1))) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
         else:
             if f[i] < 0.85:
-                a = 2 / pi ** 2 * math.sqrt(pi ** 2 - (pi ** 3) * f[i] / 3) + f[i] / 3
-                dr2[i] = (b - a) / ti[i]
                 sar_lt[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2) - ((1 / math.sqrt(1 - pi * f[i-1] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i-1] - sum(ar[:i-1])) / sum(ar) ** 2)
                 sar_eq[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2) - ((1 / math.sqrt(1 - pi * f[i-1] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i-1] - sum(ar[:i-1])) / sum(ar) ** 2)
                 sar_gt[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2) - ((1 / math.sqrt(1 - pi * f[i-1] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i-1] - sum(ar[:i-1])) / sum(ar) ** 2)
             else:
-                dr2[i] = math.log((1 - f[i - 1]) / (1 - f[i])) / pi ** 2 / ti[i]
                 sar_lt[i] = (1 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * (0 - 0)
                 sar_eq[i] = (1 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * (sum(ar[i+1:]) - 0)
                 sar_gt[i] = (1 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * (sum(ar[i+1:]) - sum(ar[i:]))
-        b = a
         st[i] = - dr2[i] / ti[i]
         sdr2[i] = math.sqrt(sar_lt[i] ** 2 * sum(sar2[:i]) + sar_eq[i] ** 2 * sar2[i] + sar_gt[i] ** 2 * sum(sar2[i+1:]) + st[i] ** 2 * sti[i] ** 2)
 
-    logdr2 = np.log(dr2)
-    wt = np.abs(sdr2 / dr2)
+    logdr2 = np.log(dr2) if ln else np.log10(dr2)
+    wt = np.abs(sdr2 / dr2) if ln else np.abs(sdr2 / dr2) / np.log(10)
 
-    return dr2, logdr2, wt
+    return dtr2, logdr2, wt
 
 
-def dr2_lovera(f, ti, ar, sar):
+def dr2_lovera(f, ti, ar, sar, ln=True):
+    """
+
+    Plane sheet model
+
+    Parameters
+    ----------
+    f
+    ti
+    ar
+    sar
+    ln
+
+    Returns
+    -------
+
+    """
     # Lovera
     f = np.array(f)
     ti = np.array(ti)
-    # ar = np.array(ar)
-    # sar = np.array(sar)
+    n = min(len(f), len(ti))
+    ar = np.array(ar)
+    sar = np.array(sar)
+    sar2 = sar ** 2
     ti = ti * 60  # in seconds
+    sti = [90 for i in range(n)]
     pi = math.pi
     pi = 3.141592654
 
@@ -4650,28 +4662,76 @@ def dr2_lovera(f, ti, ar, sar):
 
     f = np.where(f >= 1, 0.9999999999999999, f)
 
-    imp = 2
-    # imp = 1
-    dtr2 = [pi * (fi / 4) ** 2 if fi <= 0.5 else math.log((1 - fi) * pi ** 2 / 8) / (- pi ** 2) for fi in f]
-    dr2 = [(dtr2[i] - (dtr2[i - 1] if i > 0 else 0)) / ti[i] * imp ** 2 for i in range(len(dtr2))]
-    xlogd = [np.log10(i) for i in dr2]
+    model = geometric_model(geo='plane')
+    dtr2 = [model(bp=0.5)[1](fi) for fi in f]
+    dtr2_1 = [model(bp=0)[1](fi) for fi in f]
+    dtr2_2 = [model(bp=2)[1](fi) for fi in f]
+    dtr2_1.insert(0, 0); dtr2_2.insert(0, 0)
+    # dr2 = [(dtr2[i] - (dtr2[i - 1] if i > 0 else 0)) / ti[i] for i in range(len(dtr2))]
+    dr2 = [((dtr2_1[i+1] - dtr2_1[i]) / ti[i]) if f[i] > 0.5 else ((dtr2_2[i+1] - dtr2_2[i]) / ti[i]) for i in range(len(f))]
 
-    wt = errcal(f, ti, ar, sar)
+    # imp = 2
+    # # imp = 1
+    # dtr2 = [pi * (fi / 4) ** 2 if fi <= 0.5 else math.log((1 - fi) * pi ** 2 / 8) / (- pi ** 2) for fi in f]
+    # dr2 = [(dtr2[i] - (dtr2[i - 1] if i > 0 else 0)) / ti[i] * imp ** 2 for i in range(len(dtr2))]
+    # xlogd = [np.log10(i) for i in dr2]
+
+    sar_lt = np.zeros(n)  # 偏导数
+    sar_eq = np.zeros(n)  # 偏导数
+    sar_gt = np.zeros(n)  # 偏导数
+    st = np.zeros(n)  # 偏导数
+    sdr2 = np.zeros(n)
+    for i in range(n):
+        if i == 0:
+            if f[i] <= 0.5:
+                sar_lt[i] = 0
+                sar_eq[i] = pi / (4 * ti[i]) * ((sum(ar[:i+1]) * 2 - 0) * sum(ar) ** 2 - (sum(ar[:i+1]) ** 2 - sum(ar[:i]) ** 2) * 2 * sum(ar)) / (sum(ar) ** 4)
+                sar_gt[i] = pi / (4 * ti[i]) * ((0 - 0) * sum(ar) ** 2 - (sum(ar[:i+1]) ** 2 - sum(ar[:i]) ** 2) * 2 * sum(ar)) / (sum(ar) ** 4)
+            else:
+                sar_lt[i] = 0
+                sar_eq[i] = (4 / (pi ** 2 * ti[i] * (f[i] - 1))) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
+                sar_gt[i] = (4 / (pi ** 2 * ti[i] * (f[i] - 1))) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
+        else:
+            if f[i] <= 0.5:
+                sar_lt[i] = pi / (4 * ti[i]) * ((sum(ar[:i+1]) * 2 - sum(ar[:i]) * 2) * sum(ar) ** 2 - (sum(ar[:i+1]) ** 2 - sum(ar[:i]) ** 2) * 2 * sum(ar)) / (sum(ar) ** 4)
+                sar_eq[i] = pi / (4 * ti[i]) * ((sum(ar[:i+1]) * 2 - 0) * sum(ar) ** 2 - (sum(ar[:i+1]) ** 2 - sum(ar[:i]) ** 2) * 2 * sum(ar)) / (sum(ar) ** 4)
+                sar_gt[i] = pi / (4 * ti[i]) * ((0 - 0) * sum(ar) ** 2 - (sum(ar[:i+1]) ** 2 - sum(ar[:i]) ** 2) * 2 * sum(ar)) / (sum(ar) ** 4)
+            else:
+                sar_lt[i] = (4 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * (0 - 0)
+                sar_eq[i] = (4 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * (sum(ar[i+1:]) - 0)
+                sar_gt[i] = (4 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * (sum(ar[i+1:]) - sum(ar[i:]))
+                if i == n - 1:
+                    sar_lt[i] = 0
+                    sar_eq[i] = 0
+                    sar_gt[i] = 0
+        st[i] = - dr2[i] / ti[i]
+        sdr2[i] = math.sqrt(sar_lt[i] ** 2 * sum(sar2[:i]) + sar_eq[i] ** 2 * sar2[i] + sar_gt[i] ** 2 * sum(sar2[i+1:]) + st[i] ** 2 * sti[i] ** 2)
+
+    # wt = np.abs(sdr2 / dr2)
+    # wt = errcal(f, ti, ar, sar)
+
+    xlogd = logdr2 = np.log(dr2) if ln else np.log10(dr2)
+    #ee = 1 / np.log(10)
+    ee = 0.4342944819
+    wt = np.abs(sdr2 / dr2) if ln else np.abs(sdr2 / dr2) * ee
+    #
+    # print(f"{wt = }")
+    # wt = errcal(f, ti, ar, sar)
+    # print(f"{wt = }")
+
+    """
+    ### errcal(f, ti, ar, sar)和这里的计算有非常少的差异，但这样的差异足以导致迭代次数变化，但不一定导致agemon结果有大的差异
+    """
 
     return dr2, xlogd, wt
 
 
-def dr2_yang(f, ti, ar, sar):
+def dr2_yang(f, ti, ar, sar, ln=True):
     """
-
-        if i == 0:
-            dr2[i] = _dr2(f[i]) / ti[i]
-        else:
-            dr2[i] = _dr2((f[i] - f[i - 1]) / (1 - f[i - 1])) / ti[i]
 
     Parameters
     ----------
-    f: array NOTE：这里的 f 既不是释放百分数也不是累积百分数，而是各个阶段释放量占其及后续所有气体的分数，即占释放前的比例
+    f:
     ti
 
     Returns
@@ -4680,40 +4740,31 @@ def dr2_yang(f, ti, ar, sar):
     """
     f = np.array(f)
     ti = np.array(ti)
+    ar = np.array(ar)
+    sar = np.array(sar)
+    sar2 = sar ** 2
     n = min(len(f), len(ti))
     ti = ti * 60  # in seconds
-    sti = 5.
+    sti = [5 for i in range(n)]
     pi = math.pi
     pi = 3.141592654
     ee = 0.4342944819
-    dr2 = np.zeros(n)
-    sdr2 = np.zeros(n)
 
+    f = np.array([ar[i] / sum(ar[i:]) for i in range(n)])
+    sf = [math.sqrt(sar[i] ** 2 * sum(ar[i+1:]) ** 2 / sum(ar[i:]) ** 4 + sum(sar[i+1:] ** 2) * ar[i] ** 2 / sum(ar[i:]) ** 4) for i in range(n)]
     f = np.where(f >= 1, 0.9999999999999999, f)
+    # # print(f"{f = }")
+    # f = [(f[i] - (f[i-1] if i > 0 else 0)) / (1 - (f[i-1] if i > 0 else 0)) for i in range(n)]
 
-    def _dr2(_fi):
-        # return: dr2, dy/df
-        if _fi <= 0.85:
-            return (1 - math.sqrt(1 - pi * _fi / 3)) ** 2 / pi, 1 / (3 * math.sqrt(1 - pi * _fi / 3)) - 1 / 3
-        else:
-            return math.log((1 - _fi) / (6 / pi ** 2)) / - (pi ** 2), 1 / (pi ** 2 * (1 - _fi))
+    model = geometric_model(geo='sphere')
+    dtr2 = np.array([model(bp=0.85)[1](fi) for fi in f])
+    sdtr2 = [abs((((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * sf[i]) if f[i] < 0.85 else (1 / (pi ** 2 * ti[i] * sum(ar[i:]) * sum(ar[i+1:]))) * sf[i]) for i in range(n)]
+    dr2 = dtr2 / ti
+    sdr2 = np.array([math.sqrt((1 / ti[i]) ** 2 * sdtr2[i] ** 2 + dtr2[i] ** 2 / ti[i] ** 4 * sti[i] ** 2) for i in range(n)])
 
-    for i in range(n):
-        dtr2, d = _dr2((f[i] - (f[i-1] if i > 0 else 0)) / (1 - (f[i-1] if i > 0 else 0)))
-        # sf 中 f = (f[i] - f[i - 1]) / (1 - f[i - 1])
-        sf = sum([ar[i] ** 2 * sar[j] ** 2 / sum(ar[i:]) ** 4 for j in range(i+1, n)]) + sum(ar[i+1:]) ** 2 * sar[i] ** 2 / sum(ar[i:]) ** 4
-        sdtr2 = math.sqrt(d ** 2 * sf)
-        dr2[i] = dtr2 / ti[i]
-        sdr2[i] = ap.calc.err.div((dtr2, sdtr2), (ti[i], sti))
-
-    xlogd = np.log(dr2)
-    sxlogd = np.abs(sdr2 / dr2)
-
-    print(f"yang {dr2 = }")
-    print(f"yang {xlogd = }")
-    print(f"yang {sxlogd = }")
-
-    return dr2, xlogd, sxlogd
+    xlogd = logdr2 = np.log(dr2) if ln else np.log10(dr2)
+    wt = sxlogd = np.abs(sdr2 / dr2) if ln else np.abs(sdr2 / dr2) / np.log(10)
+    return dr2, xlogd, wt
 
 
 def errcal(f, ti, ar, sar):
@@ -4772,25 +4823,163 @@ def errcal(f, ti, ar, sar):
 
     print(f"lovera {wt = }")
 
-
-    ## 下面是我重新改写 计算的  与lovera的结果接近但不一致
-
-    # a39 = np.insert(a39, 0, 0)
-    # sig39 = np.insert(sig39, 0, 0)
-    #
-    # wt = []
-    # for i in range(0, ni):
-    #
-    #     if f[i + 1] <= 0.5:
-    #         sigt = (sigt0 / ti[i]) ** 2
-    #         fp = (f[i + 1] + f[i])
-    #         a = sig39[i + 1] / a39[i + 1]
-    #         wt.append(ee * (sigt + 4 * (a ** 2 - 2 * a / a39.sum() + sigat) / (a39.sum() * fp) ** 2) ** 0.5)
-    #     else:
-    #         sigt = (sigt0 / ti[i]) ** 2
-    #         sigf = (a39[i + 1] ** 2 / a39[i + 2:].sum() ** 2 * sig39[i + 2:].sum() ** 2 + sig39[i + 1] ** 2) / a39[i + 1:].sum() ** 2
-    #         wt.append(ee * (sigt + (1 / math.log((1 - f[i + 1]) / (1 - f[i]))) ** 2 * sigf) ** 0.5)
-    #
-    # print(f"new function {wt = }")
-
     return wt
+
+
+def geometric_model(geo: str = "sphere"):
+    """
+
+    Parameters
+    ----------
+    geo: str, sphere | cylinder | plane | cube
+    b
+
+    Returns
+    -------
+
+    """
+    if geo.lower()[:3] == 'sphere'[:3]:
+        return sphere
+    if geo.lower()[:3] == 'plane'[:3]:
+        return plane
+
+
+def sphere(bp=0.85):
+    """
+    Parameters
+    ----------
+    bp: float, breakpoint
+
+    Returns
+    -------
+
+    """
+    pi = math.pi
+    pi = 3.141592654
+
+    def func(dtr2):
+        f = 1 - (6 / pi ** 2) * math.exp(-1 * pi ** 2 * dtr2)
+        f2 = (6 / pi ** 1.5) * (pi ** 2 * dtr2) ** 0.5 - (3 / pi ** 2) * (pi ** 2 * dtr2)
+        return f if bp <= f <= 1 else f2 if 0 <= f2 else np.nan
+
+    def inv_func(f):
+        if 0 <= f < bp:
+            dtr2 = (1 - math.sqrt(1 - pi * f / 3)) ** 2 / pi
+        elif f < 1:
+            dtr2 = - math.log((1 - f) * pi ** 2 / 6) / pi ** 2
+        else:
+            dtr2 = np.nan
+        return dtr2
+
+    return func, inv_func
+
+
+def plane(bp=0.6):
+    """
+    Parameters
+    ----------
+    bp: float, breakpoint
+
+    Returns
+    -------
+
+    """
+    pi = math.pi
+    pi = 3.141592654
+
+    def func(dtr2):
+        f = 1 - (8 / pi ** 2) * math.exp(- pi ** 2 * dtr2 / 4)
+        f2 = 2 * math.sqrt(dtr2 / pi)
+        return f if bp <= f <= 1 else f2 if 0 <= f2 else np.nan
+
+    def inv_func(f):
+        if 0 <= f < bp:
+            dtr2 = pi * f ** 2 / 4
+        elif f < 1:
+            dtr2 = 4 * math.log((1 - f) * pi ** 2 / 8) / (- pi ** 2)
+        else:
+            dtr2 = np.nan
+        return dtr2
+
+    return func, inv_func
+
+
+#
+# class GeoModel:
+#     def __init__(self, frac, time, ar, sar, model: str = "sphere", bp: float = 0.5):
+#         self.frac = frac
+#         self.time = time
+#         self.ar = ar
+#         self.sar = sar
+#         self.bp = bp
+#         self.pi = math.pi
+#         self.pi = 3.141592654
+#
+#     def sphere(self, bp=None):
+#         return self._sphere(bp)[0]
+#     def inv_sphere(self, bp=None):
+#         return self._sphere(bp)[1]
+#     def plane(self, bp=None):
+#         return self._plane(bp)[0]
+#     def inv_plane(self, bp=None):
+#         return self._plane(bp)[1]
+#
+#     def _sphere(self, bp=None):
+#         """
+#         Parameters
+#         ----------
+#         bp: float, breakpoint
+#
+#         Returns
+#         -------
+#
+#         """
+#         if bp is None:
+#             bp = self.bp
+#         pi = self.pi
+#
+#         def func(dtr2):
+#             f = 1 - (6 / pi ** 2) * math.exp(-1 * pi ** 2 * dtr2)
+#             f2 = (6 / pi ** 1.5) * (pi ** 2 * dtr2) ** 0.5 - (3 / pi ** 2) * (pi ** 2 * dtr2)
+#             return f if bp <= f <= 1 else f2 if 0 <= f2 else np.nan
+#
+#         def inv_func(f):
+#             if 0 <= f < bp:
+#                 dtr2 = 2 / pi * (1 - (1 - pi * f / 3) ** 0.5) - f / 3
+#             elif f < 1:
+#                 dtr2 = - math.log((1 - f) * pi ** 2 / 6) / pi ** 2
+#             else:
+#                 dtr2 = np.nan
+#             return dtr2
+#
+#         return func, inv_func
+#
+#     def _plane(self, bp=None):
+#         """
+#         Parameters
+#         ----------
+#         bp: float, breakpoint
+#
+#         Returns
+#         -------
+#
+#         """
+#         if bp is None:
+#             bp = self.bp
+#         pi = self.pi
+#
+#         def func(dtr2):
+#             f = 1 - (8 / pi ** 2) * math.exp(- pi ** 2 * dtr2 / 4)
+#             f2 = 2 * math.sqrt(dtr2 / pi)
+#             return f if bp <= f <= 1 else f2 if 0 <= f2 else np.nan
+#
+#         def inv_func(f):
+#             if 0 <= f < bp:
+#                 dtr2 = pi * f ** 2 / 4
+#             elif f < 1:
+#                 dtr2 = 4 * math.log((1 - f) * pi ** 2 / 8) / (- pi ** 2)
+#             else:
+#                 dtr2 = np.nan
+#             return dtr2
+#
+#         return func, inv_func
