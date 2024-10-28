@@ -21,6 +21,7 @@ from datetime import datetime
 from parse import parse as string_parser
 import dateutil.parser as datetime_parser
 from ..calc.arr import get_item
+from ..calc.basic import utc_dt
 
 """ Open raw data file """
 
@@ -201,13 +202,15 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
 
     """
 
-    def datetime_parse(string, format):
+    def datetime_parse(string, f):
         try:
-            return datetime.strptime(string, format)
+            return datetime.strptime(string, f)
         except ValueError as v:
-            if len(v.args) > 0 and v.args[0].startswith('unconverted data remains: '):
+            if f.strip() == "":
+                return datetime_parser.parse(string)
+            elif len(v.args) > 0 and v.args[0].startswith('unconverted data remains: '):
                 string = string[:-(len(v.args[0]) - 26)]
-                return datetime.strptime(string, format)
+                return datetime.strptime(string, f)
             else:
                 raise
 
@@ -215,52 +218,51 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
     idx = step_index = 0
 
     header = input_filter[5]
-    sample_info_index = input_filter[33:64]
     isotopic_data_index = input_filter[8:28]
+    sample_info_index = input_filter[33:65]
+    optional_info_index = input_filter[37:-6]
+    check_box_index = input_filter[-6:]
 
+    timezone = sample_info_index[3] if sample_info_index[3] != "" else "utc"
     while True:
         # Zero datetime
         try:
-            if input_filter[134]:  # input_filter[134]: date in one string
-                if sample_info_index[1].strip() != "":
-                    zero_date = datetime_parse(
-                        get_item(file_contents, sample_info_index[15:18], base=[1, 1 - idx, 1]), sample_info_index[1])
-                else:
-                    zero_date = datetime_parser.parse(get_item(file_contents, sample_info_index[15:18], base=[1, 1 - idx, 1]))
+            if check_box_index[2]:  # input_filter[134]: date in one string
+                zero_date = datetime_parse(
+                    get_item(file_contents, sample_info_index[16:19], base=[1, 1 - idx, 1]), sample_info_index[1])
             else:
-                zero_date = datetime(year=get_item(file_contents, sample_info_index[15:18], base=1),
-                                     month=get_item(file_contents, sample_info_index[21:24], base=[1, 1 - idx, 1]),
-                                     day=get_item(file_contents, sample_info_index[27:30], base=[1, 1 - idx, 1]))
+                zero_date = datetime(year=get_item(file_contents, sample_info_index[16:19], base=1),
+                                     month=get_item(file_contents, sample_info_index[22:25], base=[1, 1 - idx, 1]),
+                                     day=get_item(file_contents, sample_info_index[28:31], base=[1, 1 - idx, 1]))
 
-            if input_filter[135]:  # input_filter[135]: time in one string
-                if sample_info_index[2].strip() != "":
-                    zero_time = datetime_parse(
-                        get_item(file_contents, sample_info_index[18:21], base=[1, 1 - idx, 1]), sample_info_index[2])
-                else:
-                    zero_time = datetime_parser.parse(get_item(file_contents, sample_info_index[18:21], base=[1, 1 - idx, 1]))
+            if check_box_index[3]:  # input_filter[135]: time in one string
+                zero_time = datetime_parse(
+                    get_item(file_contents, sample_info_index[19:22], base=[1, 1 - idx, 1]), sample_info_index[2])
             else:
                 zero_time = datetime(year=2020, month=12, day=31,
-                                     hour=get_item(file_contents, sample_info_index[18:21], base=[1, 1 - idx, 1]),
-                                     minute=get_item(file_contents, sample_info_index[24:27], base=[1, 1 - idx, 1]),
-                                     second=get_item(file_contents, sample_info_index[30:33], base=[1, 1 - idx, 1]))
+                                     hour=get_item(file_contents, sample_info_index[19:22], base=[1, 1 - idx, 1]),
+                                     minute=get_item(file_contents, sample_info_index[25:28], base=[1, 1 - idx, 1]),
+                                     second=get_item(file_contents, sample_info_index[31:34], base=[1, 1 - idx, 1]))
 
-            zero_datetime = datetime(zero_date.year, zero_date.month, zero_date.day, zero_time.hour,
-                                 zero_time.minute, zero_time.second).isoformat(timespec='seconds')
+            zero_datetime = datetime(
+                zero_date.year, zero_date.month, zero_date.day, zero_time.hour, zero_time.minute, zero_time.second)
+            # adjust to UTC
+            zero_datetime = utc_dt(zero_datetime, tz=timezone).isoformat(timespec='seconds')
         except (TypeError, ValueError, IndexError):
             # print(f"Cannot parse zero datetime")
-            zero_datetime = datetime(1949, 10, 1, 10, 0, 0).isoformat(timespec='seconds')
+            zero_datetime = datetime(1970, 1, 1, 0, 0, 0).isoformat(timespec='seconds')
 
         # Experiment name
         try:
-            experiment_name = get_item(file_contents, sample_info_index[3:6], default="", base=[1, 1 - idx, 1]) if input_filter[4] > 0 else ""
+            experiment_name = get_item(file_contents, sample_info_index[4:7], default="", base=[1, 1 - idx, 1])
         except (TypeError, ValueError, IndexError):
             # print(f"Cannot parse experiment name")
-            experiment_name = "ExpNameError"
+            experiment_name = "ExpName"
 
         # Step name
         try:
-            step_name = get_item(file_contents, sample_info_index[6:9], default="", base=[1, 1 - idx, 1]) if input_filter[7] > 0 else ""
-            if input_filter[133] and sample_info_index[0] != "":
+            step_name = get_item(file_contents, sample_info_index[7:10], default="", base=[1, 1 - idx, 1]) if input_filter[7] > 0 else ""
+            if check_box_index[1] and sample_info_index[0].strip() != "":
                 _res = string_parser(sample_info_index[0], file_name)
                 if _res is not None:
                     experiment_name = _res.named.get("en", experiment_name)
@@ -276,13 +278,13 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
             break
 
         # other information
-        options = get_sample_info(file_contents, input_filter, default="", base=[1, 1 - idx, 1])
+        options = get_sample_info(file_contents, optional_info_index, default="", base=[1, 1 - idx, 1])
 
         current_step = [[step_name, zero_datetime, experiment_name, options]]
 
         break_num = 0
         cycle_num = 0
-        f = float(input_filter[31])
+        f = float(input_filter[31])  # Intensity Scale Factor
         data_content = file_contents[input_filter[4] - 1 if input_filter[4] != 0 else 0]
         for i in range(2000):
             if break_num < input_filter[29]:
@@ -345,18 +347,18 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
         step_index += 1
         idx = input_filter[32] * step_index
 
-        if not input_filter[132] or step_index >= 500:  # input_filter[132]: multiple sequences
+        if not check_box_index[0] or step_index >= 500:  # check_box_index[0]: multiple sequences
             break
 
     return step_list
 
 
-def get_sample_info(file_contents: list, input_filter: list, default="", base=1) -> dict:
+def get_sample_info(file_contents: list, index_list: list, default="", base: Union[int, tuple, list] = 1) -> dict:
     """
     Parameters
     ----------
     file_contents
-    input_filter
+    index_list
     default
     base
 
@@ -364,41 +366,40 @@ def get_sample_info(file_contents: list, input_filter: list, default="", base=1)
     -------
 
     """
-    sample_info_index = input_filter[36:132]
     sample_info = DEFAULT_SAMPLE_INFO.copy()
     sample_info.update({
-        "ExpName": get_item(file_contents, sample_info_index[0:3], default=default, base=base),
-        "StepName": get_item(file_contents, sample_info_index[3:6], default=default, base=base),
-        "SmpType": get_item(file_contents, sample_info_index[6:9], default=default, base=base),
-        "StepLabel": get_item(file_contents, sample_info_index[9:12], default=default, base=base),
-        "ZeroYear": get_item(file_contents, sample_info_index[12:15], default=default, base=base),  # year
-        "ZeroHour": get_item(file_contents, sample_info_index[15:18], default=default, base=base),  # hour
-        "ZeroMon": get_item(file_contents, sample_info_index[18:21], default=default, base=base),  # month
-        "ZeroMin": get_item(file_contents, sample_info_index[21:24], default=default, base=base),  # minute
-        "ZeroDay": get_item(file_contents, sample_info_index[24:27], default=default, base=base),  # day
-        "ZeroSec": get_item(file_contents, sample_info_index[27:30], default=default, base=base),  # second
-        "SmpName": get_item(file_contents, sample_info_index[30:33], default=default, base=base),
-        "SmpLoc": get_item(file_contents, sample_info_index[33:36], default=default, base=base),
-        "SmpMatr": get_item(file_contents, sample_info_index[36:39], default=default, base=base),
-        "ExpType": get_item(file_contents, sample_info_index[39:42], default=default, base=base),
-        "SmpWeight": get_item(file_contents, sample_info_index[42:45], default=default, base=base),
-        "Stepunit": get_item(file_contents, sample_info_index[45:48], default=default, base=base),
-        "HeatingTime": get_item(file_contents, sample_info_index[48:51], default=default, base=base),
-        "InstrName": get_item(file_contents, sample_info_index[51:54], default=default, base=base),
-        "Researcher": get_item(file_contents, sample_info_index[54:57], default=default, base=base),
-        "Analyst": get_item(file_contents, sample_info_index[57:60], default=default, base=base),
-        "Lab": get_item(file_contents, sample_info_index[60:63], default=default, base=base),
-        "Jv": get_item(file_contents, sample_info_index[63:66], default=default, base=base),
-        "Jsig": get_item(file_contents, sample_info_index[66:69], default=default, base=base),
-        "CalcName": get_item(file_contents, sample_info_index[69:72], default=default, base=base),
-        "IrraName": get_item(file_contents, sample_info_index[72:75], default=default, base=base),
-        "IrraLabel": get_item(file_contents, sample_info_index[75:78], default=default, base=base),
-        "IrraPosH": get_item(file_contents, sample_info_index[78:81], default=default, base=base),
-        "IrraPosX": get_item(file_contents, sample_info_index[81:84], default=default, base=base),
-        "IrraPosY": get_item(file_contents, sample_info_index[84:87], default=default, base=base),
-        "StdName": get_item(file_contents, sample_info_index[87:90], default=default, base=base),
-        "StdAge": get_item(file_contents, sample_info_index[90:93], default=default, base=base),
-        "StdAgeSig": get_item(file_contents, sample_info_index[93:96], default=default, base=base),
+        "ExpName": get_item(file_contents, index_list[0:3], default=default, base=base),
+        "StepName": get_item(file_contents, index_list[3:6], default=default, base=base),
+        "SmpType": get_item(file_contents, index_list[6:9], default=default, base=base),
+        "StepLabel": get_item(file_contents, index_list[9:12], default=default, base=base),
+        "ZeroYear": get_item(file_contents, index_list[12:15], default=default, base=base),  # year
+        "ZeroHour": get_item(file_contents, index_list[15:18], default=default, base=base),  # hour
+        "ZeroMon": get_item(file_contents, index_list[18:21], default=default, base=base),  # month
+        "ZeroMin": get_item(file_contents, index_list[21:24], default=default, base=base),  # minute
+        "ZeroDay": get_item(file_contents, index_list[24:27], default=default, base=base),  # day
+        "ZeroSec": get_item(file_contents, index_list[27:30], default=default, base=base),  # second
+        "SmpName": get_item(file_contents, index_list[30:33], default=default, base=base),
+        "SmpLoc": get_item(file_contents, index_list[33:36], default=default, base=base),
+        "SmpMatr": get_item(file_contents, index_list[36:39], default=default, base=base),
+        "ExpType": get_item(file_contents, index_list[39:42], default=default, base=base),
+        "SmpWeight": get_item(file_contents, index_list[42:45], default=default, base=base),
+        "Stepunit": get_item(file_contents, index_list[45:48], default=default, base=base),
+        "HeatingTime": get_item(file_contents, index_list[48:51], default=default, base=base),
+        "InstrName": get_item(file_contents, index_list[51:54], default=default, base=base),
+        "Researcher": get_item(file_contents, index_list[54:57], default=default, base=base),
+        "Analyst": get_item(file_contents, index_list[57:60], default=default, base=base),
+        "Lab": get_item(file_contents, index_list[60:63], default=default, base=base),
+        "Jv": get_item(file_contents, index_list[63:66], default=default, base=base),
+        "Jsig": get_item(file_contents, index_list[66:69], default=default, base=base),
+        "CalcName": get_item(file_contents, index_list[69:72], default=default, base=base),
+        "IrraName": get_item(file_contents, index_list[72:75], default=default, base=base),
+        "IrraLabel": get_item(file_contents, index_list[75:78], default=default, base=base),
+        "IrraPosH": get_item(file_contents, index_list[78:81], default=default, base=base),
+        "IrraPosX": get_item(file_contents, index_list[81:84], default=default, base=base),
+        "IrraPosY": get_item(file_contents, index_list[84:87], default=default, base=base),
+        "StdName": get_item(file_contents, index_list[87:90], default=default, base=base),
+        "StdAge": get_item(file_contents, index_list[90:93], default=default, base=base),
+        "StdAgeSig": get_item(file_contents, index_list[93:96], default=default, base=base),
         # "Experiment Name": get_item(file_contents, sample_info_index[0:3], default=default, base=base),
         # "Step Name": get_item(file_contents, sample_info_index[3:6], default=default, base=base),
         # "Sample Type": get_item(file_contents, sample_info_index[6:9], default=default, base=base),

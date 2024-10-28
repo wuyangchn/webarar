@@ -342,7 +342,7 @@ def general_adjustment(
         irradiation_name: str
 ):
     """
-        General handle for all age files, including set irradiaition time, initial ratios, error display
+        General handle for all age files, including set irradiation time, initial ratios, error display
     :param total_param:
     :param logs02:
     :param experimental_time:

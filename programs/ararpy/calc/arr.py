@@ -541,7 +541,8 @@ def get_item(obj: list, loc: (list, tuple, int), default: Union[str, int, float,
         return get_item(obj[loc[0] - base[0]], loc[1:], base=base[1:], default=default)
     except (IndexError, TypeError, ValueError):
         return default
-    raise ValueError(f"Cannot get a item from {obj = }, {loc = }")
+    except:
+        raise ValueError(f"Cannot get a item from {obj = }, {loc = }")
 
 
 # =======================
