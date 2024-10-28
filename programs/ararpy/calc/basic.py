@@ -12,6 +12,24 @@
 import copy
 import random
 import string
+from datetime import datetime
+import pytz
+
+
+def utc_dt(dt: datetime, tz: str = "utc", is_dst: bool = False) -> datetime:
+    """
+    Parameters
+    ----------
+    dt
+    tz
+    is_dst: only valid when an ambiguous time inputted
+
+    Returns
+    -------
+
+    """
+    tz = pytz.timezone(tz)
+    return tz.localize(dt, is_dst).astimezone(pytz.utc)
 
 
 def get_datetime(t_year: int, t_month: int, t_day: int, t_hour: int, t_min: int, t_seconds: int = 0, base=None):
@@ -23,12 +41,12 @@ def get_datetime(t_year: int, t_month: int, t_day: int, t_hour: int, t_min: int,
     :param t_min: int
     :param t_seconds: int, default == 0
     :param base: base time [y, m, d, h, m]
-    :return: seconds since 1970-1-1 8:00
+    :return: seconds since 1970-1-1 0:00
     """
     t_year, t_month, t_day, t_hour, t_min, t_seconds = \
         int(t_year), int(t_month), int(t_day), int(t_hour), int(t_min), int(t_seconds)
     if base is None:
-        base = [1970, 1, 1, 8, 0]
+        base = [1970, 1, 1, 0, 0]
     base_year, base_mouth, base_day, base_hour, base_min = base
     if t_year % 4 == 0 and t_year % 100 != 0 or t_year % 400 == 0:
         days = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
