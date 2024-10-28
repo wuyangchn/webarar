@@ -160,16 +160,15 @@ def open_raw_xls(file_path, input_filter: List[Union[str, int]]):
         raise ValueError("The file does not comply with the extension in the given filter.")
 
     def _get_content_from_sheet(_index) -> List[List[Union[str, bool, int, float]]]:
-        _sheet = wb.sheet_by_index(_index)
-        return [[_sheet.cell(_row, _col).value for _col in range(_sheet.ncols)] for _row in range(_sheet.nrows)]
+        try:
+            _sheet = wb.sheet_by_index(_index)
+        except IndexError:
+            return []
+        else:
+            return [[_sheet.cell(_row, _col).value for _col in range(_sheet.ncols)] for _row in range(_sheet.nrows)]
 
     wb = open_workbook(file_path)
-    used_sheet_index = set([input_filter[i] - 1 if input_filter[i] != 0 else 0 for i in
-                            [4, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, 87,
-                             90, 93, 96, 99, 102, 105, 108, 111, 114, 117, 120, 123, 126, 129]])
-    contents = [[] if i not in used_sheet_index else _get_content_from_sheet(i)
-                for i in range(max(used_sheet_index) + 1)]
-
+    contents = [_get_content_from_sheet(i) for i in range(100)]
     file_name = os.path.basename(file_path).rstrip(os.path.splitext(file_path)[-1])
     step_list = get_raw_data(contents, input_filter, file_name=file_name)
 
@@ -224,7 +223,7 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
     check_box_index = input_filter[-6:]
 
     timezone = sample_info_index[3] if sample_info_index[3] != "" else "utc"
-    while True:
+    while True:  # measurment steps sloop
         # Zero datetime
         try:
             if check_box_index[2]:  # input_filter[134]: date in one string
@@ -286,7 +285,7 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
         cycle_num = 0
         f = float(input_filter[31])  # Intensity Scale Factor
         data_content = file_contents[input_filter[4] - 1 if input_filter[4] != 0 else 0]
-        for i in range(2000):
+        for i in range(2000):  # measurement cycle sloop
             if break_num < input_filter[29]:
                 break_num += 1
                 continue
@@ -309,7 +308,8 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
                         float(data_content[start_row + isotopic_data_index[ 0]][isotopic_data_index[ 1] - 1]) * f,
                     ])
                 except (ValueError, IndexError):
-                    # print(f"Cannot parse isotope data")
+                    print(f"Cannot parse isotope data")
+                    print(traceback.format_exc())
                     current_step.append([
                         str(cycle_num + 1), None, None, None, None, None, None, None, None, None, None,
                     ])
@@ -332,7 +332,8 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
                         float(data_content[start_row][isotopic_data_index[ 1] + col_inc]) * f,
                     ])
                 except (ValueError, IndexError):
-                    # print(f"Cannot parse isotope data")
+                    print(f"Cannot parse isotope data")
+                    print(traceback.format_exc())
                     current_step.append([
                         str(cycle_num + 1), None, None, None, None, None, None, None, None, None, None,
                     ])
