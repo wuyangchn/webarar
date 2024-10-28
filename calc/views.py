@@ -297,15 +297,14 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         adjusted_x = list(self.body.get('x'))
 
         x, adjusted_time = [], []
-        year, month, day, hour, min, second = re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", data[0][0])[0]
+        year, month, day, hour, min, second = re.findall(r"\d+", data[0][0])[0]
         for each in data[0]:
             x.append(ap.calc.basic.get_datetime(
-                *re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", each)[0],
+                *re.findall(r"\d+", each)[0],
                 base=[int(year), int(month), int(day), int(hour), int(min)]
             ))
         for each in adjusted_x:
-            adjusted_time.append(ap.calc.basic.get_datetime(
-                *re.findall("(.*)-(.*)-(.*)T(.*):(.*):(.*)", each)[0],
+            adjusted_time.append(ap.calc.basic.get_datetime(*re.findall(r"\d+", each)[0],
                 base=[int(year), int(month), int(day), int(hour), int(min)]
             ))
         y = data[1]
@@ -389,7 +388,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
-        # print(f"{res = }")
         return JsonResponse({'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)})
 
     def flag_not_matched(self, request, *args, **kwargs):
@@ -883,8 +881,16 @@ class ThermoView(http_funcs.ArArView):
         nsteps = sequence.size
         te = np.array(sample.TotalParam[124], dtype=np.float64)
         ti = (np.array(sample.TotalParam[123], dtype=np.float64) / 60).round(2)  # time in minute
-        ar = np.array(sample.DegasValues[20], dtype=np.float64)  # 20-21 Ar39
-        sar = np.array(sample.DegasValues[21], dtype=np.float64)
+        nindex = {"40": 24, "39": 20, "38": 10, "37": 8, "36": 0}
+        if params[10] in list(nindex.keys()):
+            ar = np.array(sample.DegasValues[nindex[params[10]]], dtype=np.float64)  # 20-21 Ar39
+            sar = np.array(sample.DegasValues[nindex[params[10]] + 1], dtype=np.float64)
+        elif params[10] == 'total':
+            all_ar = np.array(sample.CorrectedValues, dtype=np.float64)  # 20-21 Ar39
+            ar, sar = ap.calc.arr.add(*all_ar.reshape(5, 2, len(all_ar[0])))
+            ar = np.array(ar); sar = np.array(sar)
+        else:
+            raise KeyError
         age = np.array(sample.ApparentAgeValues[2], dtype=np.float64)  # 2-3 age
         sage = np.array(sample.ApparentAgeValues[3], dtype=np.float64)
         f = np.cumsum(ar) / ar.sum()
@@ -946,10 +952,12 @@ class ThermoView(http_funcs.ArArView):
         arr.a39 = filtered_data[7]
         arr.sig39 = filtered_data[8]
         arr.f = filtered_data[9]
-        dr2, arr.xlogd, arr.wt = ap.smp.diffusion_funcs.dr2_lovera(
-            f=arr.f, ti=filtered_data[4], ar=filtered_data[7], sar=filtered_data[8])
+        # dr2, arr.xlogd, arr.wt = ap.smp.diffusion_funcs.dr2_lovera(
+        #     f=arr.f, ti=filtered_data[4], ar=filtered_data[7], sar=filtered_data[8], ln=False)
+        dr2, arr.xlogd, arr.wt = filtered_data[10:13]
 
         arr.f.insert(0, 0)
+        arr.f = np.where(np.array(arr.f) >= 1, 0.9999999999999999, np.array(arr.f))
         arr.main()
 
         return JsonResponse({})
@@ -1041,7 +1049,7 @@ class ThermoView(http_funcs.ArArView):
         # read_from_ins = True
         read_from_ins = False
 
-        if params[12] and params[13]:
+        if params[13] and params[14]:
             if read_from_ins:
                 loc = r"C:\Users\Young\OneDrive\00-Projects\【2】个人项目\2024-06 MDD\MDDprograms\Sources Codes"
                 arr = ap.smp.diffusion_funcs.DiffDraw(name="Y51a", loc=loc, read_from_ins=read_from_ins)
@@ -1063,7 +1071,7 @@ class ThermoView(http_funcs.ArArView):
             plot_data = [[], [], [], []]
 
         k = [a, b, siga, sigb, chi2, q] = [0, 0, 0, 0, 0, 0]
-        if params[11]:
+        if params[12]:
             ti = [i + 273.15 for i in data[3]]
             x, y, wtx, wty = [], [], [], []
             for i in range(len(data)):
@@ -1075,7 +1083,7 @@ class ThermoView(http_funcs.ArArView):
             if len(x) > 0:
                 k = [a, b, siga, sigb, chi2, q] = ap.smp.diffusion_funcs.fit(x, y, wtx, wty)
 
-        if params[14]:
+        if params[15]:
             loc = f"C:\\Users\\Young\\OneDrive\\00-Projects\\【2】个人项目\\2022-05论文课题\\【3】分析测试\\ArAr\\01-VU实验数据和记录\\{sample_name}"
             try:
                 furnace_log = libano_log = np.loadtxt(os.path.join(loc, f"{file_name}-temp.txt"), delimiter=',')
@@ -1159,14 +1167,20 @@ class ExportView(http_funcs.ArArView):
             data['data'] = [{"name": "", "xAxis": [], "yAxis": [], "series": []}]
         for index, smp in enumerate(smps):
             if plot_together:
-                current = ap.smp.export.to_plot_data(smp=smp, diagram=diagrams[index], color=colors[index])
+                current = ap.smp.export.get_plot_data(smp=smp, diagram=diagrams[index], color=colors[index])
                 data['data'][0]['name'] = 'Combined Diagrams'
-                data['data'][0]['xAxis'] = current['xAxis']
-                data['data'][0]['yAxis'] = current['yAxis']
+                if index == 0:
+                    data['data'][0]['xAxis'] = current['xAxis']
+                    data['data'][0]['yAxis'] = current['yAxis']
+                else:
+                    data['data'][0]['xAxis'][0]['extent'][0] = min(current['xAxis'][0]['extent'][0], data['data'][0]['xAxis'][0]['extent'][0])
+                    data['data'][0]['xAxis'][0]['extent'][1] = max(current['xAxis'][0]['extent'][1], data['data'][0]['xAxis'][0]['extent'][1])
+                    data['data'][0]['yAxis'][0]['extent'][0] = min(current['yAxis'][0]['extent'][0], data['data'][0]['yAxis'][0]['extent'][0])
+                    data['data'][0]['yAxis'][0]['extent'][1] = max(current['yAxis'][0]['extent'][1], data['data'][0]['yAxis'][0]['extent'][1])
                 for ser in current['series']:
                     data['data'][0]['series'].append(ser)
             else:
-                current = ap.smp.export.to_plot_data(smp=smp, diagram=diagrams[index])
+                current = ap.smp.export.get_plot_data(smp=smp, diagram=diagrams[index])
                 data['data'].append(current)
 
         filepath = f"{settings.DOWNLOAD_URL}{data['file_name']}-{uuid.uuid4().hex[:8]}.pdf"
