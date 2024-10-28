@@ -11,6 +11,7 @@
 """
 # === Internal imports ===
 import os
+import re
 import traceback
 import pandas as pd
 import numpy as np
@@ -521,11 +522,10 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
             smp.TotalParam[30] = [params[-5]] * n
         try:
             stand_time_second = [
-                calc.basic.get_datetime(*smp.TotalParam[31][i].split('-')) - calc.basic.get_datetime(
-                    *smp.TotalParam[30][i].split('-')) for i in range(n)]
-        except Exception as e:
-            # print(f'Error in calculate standing duration: {traceback.format_exc()}')
-            pass
+                calc.basic.get_datetime(*re.findall(r"\d+", smp.TotalParam[31][i])) - calc.basic.get_datetime(
+                    *re.findall(r"\d+", smp.TotalParam[30][i])) for i in range(n)]
+        except TypeError:
+            print(f'Error in calculate standing duration: {traceback.format_exc()}')
         else:
             smp.TotalParam[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
 
