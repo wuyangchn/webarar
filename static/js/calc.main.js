@@ -360,6 +360,27 @@ function export_sequence() {
         modal.modal('hide');
     }
 }
+function check_regression() {
+    let selectedSequences = $('#table-sequences').bootstrapTable('getSelections');
+    selectedSequences.map((each, index) => {
+        each['blank'] = $('#blank-sele'+each.id).find("option:selected").text();
+    })
+    $.ajax({
+        url: url_raw_check_regression,
+        type: 'POST',
+        data: JSON.stringify({
+            'cache_key': myRawCacheKey,
+        }),
+        contentType:'application/json',
+        success: function(res){
+            let btns = document.getElementsByName('sequenceBtn');
+            for (let i of res.failed){
+                btns[i-1].className = 'btn btn-warning btn-no-outline';
+            }
+            showPopupMessage("Information", res.msg, true);
+        }
+    })
+}
 function export_sequence_select_all() {
     $('.export-sequence-select').each(function (index, item) {
         $(this).prop("checked", true);
@@ -1051,6 +1072,9 @@ function showModalDialog(id) {
 function showSequence(page) {
     let btns = document.getElementsByName('sequenceBtn');
     for (let i=0;i<btns.length;i++){
+        if (i + 1 !== page && btns[i].className.includes("btn-warning")) {
+            continue;
+        }
         btns[i].className = 'btn btn-default btn-no-outline';
         if (myRawData.sequence[i].is_blank) {
             btns[i].className = 'btn btn-grey btn-no-outline';
@@ -1166,7 +1190,6 @@ function submitRawData() {
             'sampleParams': sample_params,
             'sampleInfo': sample_info,
             'selectedSequences': selectedSequences,
-            'fittingMethod': myRawData,
             'cache_key': myRawCacheKey,
             'fingerprint': localStorage.getItem('fingerprint'),
         }),

@@ -1154,16 +1154,21 @@ class RawData:
         self.isotopic_num = isotopic_num
         self.sequence_num = sequence_num
         self.interpolated_blank = None
-        if data is not None:
-            self.sequence: List[Sequence] = [
-                Sequence(index=index, name=item[0][0] if isinstance(item[0][0], str) and item[0][
-                    0] != '' else f"{self.name}-{index + 1:02d}", data=item[1:], datetime=item[0][1], type_str=item[0][2],
-                         fitting_method=[0] * 5, options=item[0][3])
-                for index, item in enumerate(data)]
-        else:
-            self.sequence: List[Sequence] = []
         if sequence is not None:
             self.sequence = sequence
+        elif data is not None:
+            self.sequence: List[Sequence] = [
+                Sequence(
+                    index=index,
+                    name=item[0][0] if isinstance(item[0][0], str) and item[0][0] != '' else f"{self.name}-{index + 1:02d}",
+                    data=item[1:],
+                    datetime=item[0][1],
+                    type_str=item[0][2],
+                    fitting_method=kwargs.get("fitting_method", [0] * 5),
+                    options=item[0][3]
+                ) for index, item in enumerate(data)]
+        else:
+            self.sequence: List[Sequence] = []
         for k, v in kwargs.items():
             if hasattr(self, k) and type(getattr(self, k)) is MethodType:
                 continue

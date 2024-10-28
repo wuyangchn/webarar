@@ -664,6 +664,25 @@ class RawFileView(http_funcs.ArArView):
         log_funcs.set_info_log(self.ip, '004', 'info', f'Success to submit raw file')
         return JsonResponse({})
 
+    def check_regression(self, request, *args, **kwargs):
+        raw: ap.RawData = self.sample
+
+        failed = []
+        for seq in raw.sequence:
+            if seq.is_removed:
+                continue
+            for ar in range(5):
+                regression_res = seq.results[ar][seq.fitting_method[ar]]
+                if not all([isinstance(i, (float, int)) for i in regression_res]):
+                    failed.append([seq.index, seq.name, f"Ar{36+ar}"])
+
+        msg = "All sequence are valid for later calculation!"
+        if failed:
+            failed = sorted(list(set([seq[0]+1 for seq in failed])))
+            msg = f"Errors occur at: {failed}"
+
+        return JsonResponse({'status': 'successful', 'msg': msg, 'failed': failed}, status=200)
+
     def export_sequence(self, request, *args, **kwargs):
         """
         Parameters
