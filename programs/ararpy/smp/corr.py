@@ -265,13 +265,14 @@ def calc_degas_cl(sample: Sample):
         # 38ArCl
         ar38cl = [[], []]
         ar38cl[1] = [calc.err.mul((ar36cl[0][i], ar36cl[1][i]), (v3[i], s3[i])) for i in range(len(ar36cl[0]))]
-        ar38cl[0] = [ar36cl[0][i] * v3[i] for i in range(len(ar36cl[0]))]
 
         # Negative number set to zero
         ar36cl[0] = [0 if i < 0 and set_negative_zero else i for i in ar36cl[0]]
         # force 36ArCl to zero if 36Ar - 36ArCa - 36Cl < 0
         ar36cl[0] = [0 if ar36acl[0][i] - item < 0 and set_negative_zero else item
                      for i, item in enumerate(ar36cl[0])]
+
+        ar38cl[0] = [ar36cl[0][i] * v3[i] for i in range(len(ar36cl[0]))]
 
     except Exception as e:
         print('Error in corr Cl: {}, lines: {}'.format(e, e.__traceback__.tb_lineno))

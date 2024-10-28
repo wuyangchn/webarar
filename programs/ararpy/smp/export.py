@@ -60,16 +60,16 @@ def get_cv_from_dict(data: dict):
             start = pt.scale_to_points(stick, scale[2])
             end = pt.scale_to_points(stick, scale[2])
             end = (end[0], end[1] - 5)
-            pt.line(start=start, end=end, width=1, line_style="solid", y_clip=False, coordinate="pt", z_index=100)
-            pt.text(x=start[0], y=end[1] - 15, text=f"{stick}", clip=False,
-                    coordinate="pt", h_align="middle", z_index=150)
+            if pt.line(start=start, end=end, width=1, line_style="solid", y_clip=False, coordinate="pt", z_index=100):
+                pt.text(x=start[0], y=end[1] - 15, text=f"{stick}", clip=False,
+                        coordinate="pt", h_align="middle", z_index=150)
         for stick in data['yAxis'][i]['interval']:
             start = pt.scale_to_points(scale[0], stick)
             end = pt.scale_to_points(scale[0], stick)
             end = (end[0] - 5, end[1])
-            pt.line(start=start, end=end, width=1, line_style="solid", x_clip=False, coordinate="pt", z_index=100)
-            pt.text(x=end[0] - 5, y=end[1], text=f"{stick}", clip=False,
-                    coordinate="pt", h_align="right", v_align="center", z_index=150)
+            if pt.line(start=start, end=end, width=1, line_style="solid", x_clip=False, coordinate="pt", z_index=100):
+                pt.text(x=end[0] - 5, y=end[1], text=f"{stick}", clip=False,
+                        coordinate="pt", h_align="right", v_align="center", z_index=150)
         # axis titles
         nloc = pt.scale_to_points(sum(scale[:2]) / 2, scale[2])
         pt.text(x=nloc[0], y=nloc[1] - 30, text=data['xAxis'][i]['title'], clip=False, coordinate="pt",
@@ -81,12 +81,17 @@ def get_cv_from_dict(data: dict):
     # draw series
     for se in data['series']:
         data = se.get('data', [])
-        pt = plots[se.get('axis_index', 0)]
+        try:
+            pt = plots[se.get('axis_index', 0)]
+        except IndexError:
+            continue
         if 'line' in se['type']:
             for index in range(1, len(data)):
                 pt.line(
-                    start=data[index - 1], end=data[index], width=1, line_style='solid', name=se['name'],
-                    color=se.get('color', 'black'), clip=True, line_caps=se.get('line_caps', 'none'), z_index=9)
+                    start=data[index - 1], end=data[index], width=se.get('line_width', 1),
+                    line_style=se.get('line_style', 'solid'), name=se['name'],
+                    color=se.get('color', 'black'), clip=True, line_caps=se.get('line_caps', 'none'),
+                    z_index=se.get('z_index', 9))
         if 'scatter' in se['type'] and se['name'] != 'Text':
             for each in data:
                 pt.scatter(
@@ -97,6 +102,10 @@ def get_cv_from_dict(data: dict):
         if 'scatter' in se['type'] and se['name'] == 'Text' or 'text' in se['type']:
             for each in data:
                 pt.text(*each[:2], **se)
+        if 'rect' in se['type']:
+            for each in data:
+                lb = each[:2]; width, height = each[2:4]
+                pt.rect(lb, width, height, **se)
 
     return cv
 
@@ -177,7 +186,7 @@ def export_chart_to_pdf(data: dict, filepath: str = "", **kwargs):
     return filepath
 
 
-def to_plot_data(smp: Sample, diagram: str = 'age spectra', **options):
+def get_plot_data(smp: Sample, diagram: str = 'age spectra', **options):
     """
 
     Parameters
@@ -191,13 +200,16 @@ def to_plot_data(smp: Sample, diagram: str = 'age spectra', **options):
     -------
 
     """
-    xAxis, yAxis, series = to_plot_data_age_spectra(smp)
     if diagram.lower() == "age spectra":
-        xAxis, yAxis, series = to_plot_data_age_spectra(smp, **options)
-    if diagram.lower() == "inverse isochron":
-        xAxis, yAxis, series = to_plot_data_inv_isochron(smp, **options)
-    if diagram.lower() == "degas pattern":
-        xAxis, yAxis, series = to_plot_data_degas_pattern(smp, **options)
+        xAxis, yAxis, series = _get_plot_data_age_spectra(smp, **options)
+    elif diagram.lower() == "inverse isochron":
+        xAxis, yAxis, series = _get_plot_data_inv_isochron(smp, **options)
+    elif "degas spectra" in diagram.lower():
+        xAxis, yAxis, series = _get_plot_data_degas_spectra(smp, diagram_name = diagram.lower(), **options)
+    elif "degas curve" in diagram.lower():
+        xAxis, yAxis, series = _get_plot_data_degas_curve(smp, diagram_name = diagram.lower(), **options)
+    else:
+        raise KeyError
 
     data = {
         'name': smp.name(), 'xAxis': xAxis, 'yAxis': yAxis, 'series': series
@@ -208,7 +220,7 @@ def to_plot_data(smp: Sample, diagram: str = 'age spectra', **options):
     return data
 
 
-def to_plot_data_age_spectra(smp: sample, **options):
+def _get_plot_data_age_spectra(smp: sample, **options):
     color = options.get('color', 'black')
     xAxis, yAxis, series = [], [], []
     age = smp.ApparentAgeValues[2:4]
@@ -216,13 +228,13 @@ def to_plot_data_age_spectra(smp: sample, **options):
     data = spectra.get_data(*age, ar, cumulative=False)
     series.append({
         'type': 'series.line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
-        'color': color, 'fill_color': color,
+        'color': color, 'fill_color': color, 'line_width': 1, 'line_style': 'solid', 'z_index': 9,
         'data': np.transpose([data[0], data[1]]).tolist(), 'line_caps': 'square',
         'axis_index': 0,
     })
     series.append({
         'type': 'series.line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
-        'color': color, 'fill_color': color,
+        'color': color, 'fill_color': color, 'line_width': 1, 'line_style': 'solid', 'z_index': 9,
         'data': np.transpose([data[0], data[2]]).tolist(), 'line_caps': 'square',
         'axis_index': 0,
     })
@@ -240,23 +252,27 @@ def to_plot_data_age_spectra(smp: sample, **options):
     xAxis.append({
         'extent': [0, 100], 'interval': [0, 20, 40, 60, 80, 100], 'id': 0, 'show_frame': True,
         'title': 'Cumulative <sup>39</sup>Ar Released (%)', 'name_location': 'middle',
+        'line_width': 1, 'line_style': 'solid', 'z_index': 9,
     })
     xAxis.append({
         'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
         'title': '', 'name_location': 'middle',
+        'line_width': 1, 'line_style': 'solid', 'z_index': 0,
     })
     yAxis.append({
         'extent': [0, 25], 'interval': [0, 5, 10, 15, 20, 25], 'id': 0, 'show_frame': True,
         'title': 'Apparent Age (Ma)', 'name_location': 'middle',
+        'line_width': 1, 'line_style': 'solid', 'z_index': 9,
     })
     yAxis.append({
         'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
         'title': '', 'name_location': 'middle',
+        'line_width': 1, 'line_style': 'solid', 'z_index': 0,
     })
     return xAxis, yAxis, series
 
 
-def to_plot_data_inv_isochron(smp: sample, **options):
+def _get_plot_data_inv_isochron(smp: sample, **options):
     color = options.get('color', 'black')
     xAxis, yAxis, series = [], [], []
     age = smp.ApparentAgeValues[2:4]
@@ -268,21 +284,21 @@ def to_plot_data_inv_isochron(smp: sample, **options):
     # set 1
     series.append({
         'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
-        'stroke_color': 'red', 'fill_color': 'red', 'myType': 'scatter', 'size': 4,
+        'stroke_color': 'red', 'fill_color': 'red', 'myType': 'scatter', 'size': 4, 'line_width': 1,
         'data': (data[[0, 2], :][:, set1]).transpose().tolist(),
         'axis_index': 0, 'z_index': 99
     })
     # set 2
     series.append({
         'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
-        'stroke_color': 'blue', 'fill_color': 'blue', 'myType': 'scatter', 'size': 4,
+        'stroke_color': 'blue', 'fill_color': 'blue', 'myType': 'scatter', 'size': 4, 'line_width': 1,
         'data': (data[[0, 2], :][:, set2]).transpose().tolist(),
         'axis_index': 0, 'z_index': 99
     })
     # set 3
     series.append({
         'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
-        'stroke_color': 'black', 'fill_color': 'none', 'myType': 'scatter', 'size': 4,
+        'stroke_color': 'black', 'fill_color': 'none', 'myType': 'scatter', 'size': 4, 'line_width': 1,
         'data': (data[[0, 2], :][:, set3]).transpose().tolist(),
         'axis_index': 0, 'z_index': 0
     })
@@ -311,27 +327,27 @@ def to_plot_data_inv_isochron(smp: sample, **options):
     xAxis.append({
         'extent': [float(xaxis.min), float(xaxis.max)],
         'interval': [float("{:g}".format(float(xaxis.min) + i * float(xaxis.interval))) for i in range(int(xaxis.split_number) + 1)],
-        'id': 0, 'show_frame': True,
+        'id': 0, 'show_frame': True, 'z_index': 9,
         'title': 'XXXX', 'name_location': 'middle',
     })
     xAxis.append({
         'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
-        'title': '', 'name_location': 'middle',
+        'title': '', 'name_location': 'middle', 'z_index': 0,
     })
     yAxis.append({
         'extent': [float(yaxis.min), float(yaxis.max)],
         'interval': [float("{:g}".format(float(yaxis.min) + i * float(yaxis.interval))) for i in range(int(yaxis.split_number) + 1)],
-        'id': 0, 'show_frame': True,
+        'id': 0, 'show_frame': True, 'z_index': 9,
         'title': 'YYYY', 'name_location': 'middle',
     })
     yAxis.append({
         'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
-        'title': '', 'name_location': 'middle',
+        'title': '', 'name_location': 'middle', 'z_index': 0,
     })
     return xAxis, yAxis, series
 
 
-def to_plot_data_degas_pattern(smp: sample, **options):
+def _get_plot_data_degas_pattern(smp: sample, **options):
     color = options.get('color', 'black')
     plot = smp.DegasPatternPlot
     xAxis, yAxis, series = [], [], []
@@ -344,9 +360,8 @@ def to_plot_data_degas_pattern(smp: sample, **options):
     # set 1
     series.append({
         'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
-        'stroke_color': color, 'fill_color': 'white', 'myType': 'scatter', 'size': 4,
-        'data': data.transpose().tolist(),
-        'axis_index': 0, 'z_index': 99
+        'stroke_color': color, 'fill_color': 'white', 'myType': 'scatter', 'size': 4, 'line_width': 1,
+        'data': data.transpose().tolist(), 'axis_index': 0, 'z_index': 99
     })
 
     xaxis = plot.xaxis
@@ -364,14 +379,127 @@ def to_plot_data_degas_pattern(smp: sample, **options):
     xAxis.append({
         'extent': [float(xaxis.min), float(xaxis.max)],
         'interval': [float("{:g}".format(float(xaxis.min) + i * float(xaxis.interval))) for i in range(int(xaxis.split_number) + 1)],
-        'id': 0, 'show_frame': True,
+        'id': 0, 'show_frame': True, 'z_index': 9,
         'title': 'XXXX', 'name_location': 'middle',
     })
     yAxis.append({
         'extent': [float(yaxis.min), float(yaxis.max)],
         'interval': [float("{:g}".format(float(yaxis.min) + i * float(yaxis.interval))) for i in range(int(yaxis.split_number) + 1)],
-        'id': 0, 'show_frame': True,
+        'id': 0, 'show_frame': True, 'z_index': 9,
         'title': 'YYYY', 'name_location': 'middle',
+    })
+    return xAxis, yAxis, series
+
+
+def _get_plot_data_degas_spectra(smp: sample, **options):
+    name = options.get('diagram_name', '39Ar')
+    color = options.get('color', 'black')
+    plot = smp.DegasPatternPlot
+    xAxis, yAxis, series = [], [], []
+    nindex = {"40": 24, "39": 20, "38": 10, "37": 8, "36": 0}
+    if name[:2] in list(nindex.keys()):
+        ar = np.array(smp.DegasValues[nindex[name[:2]]], dtype=np.float64)  # 20-21 Ar39
+        sar = np.array(smp.DegasValues[nindex[name[:2]] + 1], dtype=np.float64)
+    elif 'total' in name:
+        all_ar = np.array(smp.CorrectedValues, dtype=np.float64)  # 20-21 Ar39
+        ar, sar = arr.add(*all_ar.reshape(5, 2, len(all_ar[0])))
+        ar = np.array(ar); sar = np.array(sar)
+    else:
+        raise KeyError
+
+    while ar[-1] == 0:
+        ar = ar[:-1]
+    x = list(range(0, len(ar)))
+    y = [0 for i in range(len(ar))]
+    width = [1 for i in range(len(ar))]
+    height = [ar[i] / sum(ar) * 100 for i in range(len(ar))]
+    data = np.array([x, y, width, height])
+
+    xaxis = plot.xaxis
+    yaxis = plot.yaxis
+
+    xaxis.min = 0
+    xaxis.max = 100
+    xaxis.interval = 20
+    xaxis.split_number = 5
+    yaxis.min = 0
+    yaxis.max = 20
+    yaxis.interval = 5
+    yaxis.split_number = 4
+
+    # set 1
+    series.append({
+        'type': 'rect', 'id': f'rect-{get_random_digits()}', 'name': f'rect-{get_random_digits()}',
+        'color': color, 'myType': 'rect', 'line_width': 1,
+        'data': data.transpose().tolist(),
+        'axis_index': 0, 'z_index': 99
+    })
+
+    xAxis.append({
+        'extent': [float(xaxis.min), float(xaxis.max)],
+        'interval': [float("{:g}".format(float(xaxis.min) + i * float(xaxis.interval))) for i in range(int(xaxis.split_number) + 1)],
+        'id': 0, 'show_frame': True, 'z_index': 9,
+        'title': 'Steps [n]', 'name_location': 'middle',
+    })
+    yAxis.append({
+        'extent': [float(yaxis.min), float(yaxis.max)],
+        'interval': [float("{:g}".format(float(yaxis.min) + i * float(yaxis.interval))) for i in range(int(yaxis.split_number) + 1)],
+        'id': 0, 'show_frame': True, 'z_index': 9,
+        'title': 'Argon Released [%]', 'name_location': 'middle',
+    })
+    return xAxis, yAxis, series
+
+
+def _get_plot_data_degas_curve(smp: sample, **options):
+    name = options.get('diagram_name', '39Ar')
+    color = options.get('color', 'black')
+    xAxis, yAxis, series = [], [], []
+    nindex = {"40": 24, "39": 20, "38": 10, "37": 8, "36": 0}
+    if name[:2] in list(nindex.keys()):
+        ar = np.array(smp.DegasValues[nindex[name[:2]]], dtype=np.float64)  # 20-21 Ar39
+        sar = np.array(smp.DegasValues[nindex[name[:2]] + 1], dtype=np.float64)
+    elif 'total' in name:
+        all_ar = np.array(smp.CorrectedValues, dtype=np.float64)  # 20-21 Ar39
+        ar, sar = arr.add(*all_ar.reshape(5, 2, len(all_ar[0])))
+        ar = np.array(ar); sar = np.array(sar)
+    else:
+        raise KeyError
+
+    while ar[-1] == 0:
+        ar = ar[:-1]
+    x = list(range(0, len(ar) + 1))
+    f = ar / sum(ar) * 100
+    released = np.zeros(len(ar) + 1)
+    remained = np.zeros(len(ar) + 1) + 100
+    for i in range(1, len(ar) + 1):
+        released[i] = sum(f[:i])
+        remained[i] = 100 - released[i]
+
+    # line
+    series.append({
+        'type': 'line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
+        'color': color, 'myType': 'line', 'line_width': 1, 'line_style': 'solid',
+        'data': np.array([x, released]).transpose().tolist(),
+        'axis_index': 0, 'z_index': 99
+    })
+    series.append({
+        'type': 'line', 'id': f'line-{get_random_digits()}', 'name': f'line-{get_random_digits()}',
+        'color': color, 'myType': 'line', 'line_width': 1, 'line_style': 'solid',
+        'data': np.array([x, remained]).transpose().tolist(),
+        'axis_index': 0, 'z_index': 99
+    })
+
+    xAxis.append({
+        'extent': [0, 100],
+        'interval': [0, 20, 40, 60, 80, 100],
+        'id': 0, 'show_frame': True, 'z_index': 9,
+        'title': 'Steps [n]', 'name_location': 'middle',
+    })
+    yAxis.append({
+        'extent': [0, 100],
+        'interval': [0, 20, 40, 60, 80, 100],
+        'id': 0, 'show_frame': True, 'z_index': 9,
+        'title': 'Argon [%]', 'name_location': 'middle',
     })
     return xAxis, yAxis, series
 
