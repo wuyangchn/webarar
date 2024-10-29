@@ -1164,7 +1164,7 @@ class RawData:
                     data=item[1:],
                     datetime=item[0][1],
                     type_str=item[0][2],
-                    fitting_method=kwargs.get("fitting_method", [0] * 5),
+                    fitting_method=[*kwargs.get("fitting_method", [0] * 5)],
                     options=item[0][3]
                 ) for index, item in enumerate(data)]
         else:

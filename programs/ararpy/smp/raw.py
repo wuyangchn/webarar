@@ -58,7 +58,7 @@ def to_raw(file_path: Union[str, List[str]], input_filter_path: Union[str, List[
         # <option value=4>Average</option>
         fitting_method = [2, 0, 2, 2, 2]
         raw = RawData(name=file_name, data=data, isotopic_num=10, sequence_num=sequence_num, source=[file_path],
-                      sequence=sequences, unit=str(input_filter[30]), fitting_method=fitting_method)
+                      sequence=sequences, unit=str(input_filter[30]), fitting_method=[*fitting_method])
     else:
         raise ValueError("File path and input filter should be both string or list with a same length.")
     return raw
