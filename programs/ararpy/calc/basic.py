@@ -12,7 +12,7 @@
 import copy
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import pytz
 
 
@@ -46,19 +46,14 @@ def get_datetime(t_year: int, t_month: int, t_day: int, t_hour: int, t_min: int,
     :param base: base time [y, m, d, h, m]
     :return: seconds since 1970-1-1 0:00
     """
-    t_year, t_month, t_day, t_hour, t_min, t_seconds = \
-        int(t_year), int(t_month), int(t_day), int(t_hour), int(t_min), int(t_seconds)
+    t_year, t_month, t_day, t_hour, t_min, t_seconds, tz_hour, tz_min = \
+        int(t_year), int(t_month), int(t_day), int(t_hour), int(t_min), int(t_seconds), int(tz_hour), int(tz_min)
     if base is None:
         base = [1970, 1, 1, 0, 0]
-    base_year, base_mouth, base_day, base_hour, base_min = base
-    if t_year % 4 == 0 and t_year % 100 != 0 or t_year % 400 == 0:
-        days = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    else:
-        days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    delta_seconds = ((((t_year - base_year) * 365 + ((t_year + 1 - base_year) - (t_year + 1 - base_year) % 4) / 4 +
-                       sum(days[base_mouth - 1:t_month - 1]) + t_day - base_day) * 24 + t_hour - base_hour) * 60 +
-                     t_min - base_min) * 60 + t_seconds
-    return delta_seconds
+    base = datetime(*base, tzinfo=timezone.utc).timestamp()
+    ts = datetime(t_year, t_month, t_day, t_hour, t_min, t_seconds,
+                  tzinfo=timezone(offset=timedelta(hours=tz_hour, minutes=tz_min))).timestamp()
+    return ts - base
 
 
 def merge_dicts(a: dict, b: dict):
