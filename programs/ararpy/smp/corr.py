@@ -20,54 +20,45 @@ from .sample import Sample
 
 
 # =======================
-# Corr Blank
-# =======================
-def corr_blank(sample: Sample):
-    """Blank Correction"""
-    corrBlank = sample.TotalParam[102][0]
-    # if not corrBlank:
-    #     sample.BlankCorrected = copy.deepcopy(sample.SampleIntercept)
-    #     sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
-    #     return
-    blank_corrected = [[]] * 10
-    try:
-        for i in range(5):
-            blank_corrected[i * 2:2 + i * 2] = calc.corr.blank(
-                *sample.SampleIntercept[i * 2:2 + i * 2], *sample.BlankIntercept[i * 2:2 + i * 2])
-    except Exception as e:
-        print(traceback.format_exc())
-        raise ValueError('Blank correction error')
-    for i in range(0, 10, 2):
-        blank_corrected[i] = [blank_corrected[i][index] if sample.TotalParam[102][index] else j for index, j in enumerate(sample.SampleIntercept[i])]
-        blank_corrected[i + 1] = [blank_corrected[i + 1][index] if sample.TotalParam[102][index] else j for index, j in enumerate(sample.SampleIntercept[i + 1])]
-        blank_corrected[i] = [0 if j < 0 and sample.TotalParam[101][index] else j for index, j in enumerate(blank_corrected[i])]
-    sample.BlankCorrected = blank_corrected
-    sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
-
-
-# =======================
-# Corr Blank
+# Corr Gain
 # =======================
 def corr_gain(sample: Sample):
     """Blank Correction"""
     corrGain = True
-    # if not corrBlank:
-    #     sample.BlankCorrected = copy.deepcopy(sample.SampleIntercept)
-    #     sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
-    #     return
-    gain_corrected = [[]] * 10
+    gain_corrected = np.zeros([10, len(sample.SequenceName)])
     try:
         for i in range(5):
-            gain_corrected[i * 2:2 + i * 2] = calc.corr.gain(
-                *sample.BlankCorrected[i * 2:2 + i * 2], *sample.TotalParam[126 + i * 2:128 + i * 2])
+            f, sf = np.array(sample.TotalParam[126 + i * 2:128 + i * 2])
+            sf = f * sf / 100
+            gain_corrected[i * 2:2 + i * 2] = calc.corr.gain(*sample.SampleIntercept[i * 2:2 + i * 2], f, sf)
     except Exception as e:
         print(f"Gain correction failed")
         print(traceback.format_exc())
         return
     for i in range(0, 10, 2):
-        gain_corrected[i] = [gain_corrected[i][index] if corrGain else j for index, j in enumerate(sample.BlankCorrected[i])]
-        gain_corrected[i + 1] = [gain_corrected[i + 1][index] if corrGain else j for index, j in enumerate(sample.BlankCorrected[i + 1])]
-    sample.BlankCorrected = copy.deepcopy(gain_corrected)
+        gain_corrected[i] = [gain_corrected[i][index] if corrGain else j for index, j in enumerate(sample.SampleIntercept[i])]
+        gain_corrected[i + 1] = [gain_corrected[i + 1][index] if corrGain else j for index, j in enumerate(sample.SampleIntercept[i + 1])]
+    sample.CorrectedValues = copy.deepcopy(gain_corrected)
+
+
+# =======================
+# Corr Blank
+# =======================
+def corr_blank(sample: Sample):
+    """Blank Correction"""
+    blank_corrected = np.zeros([10, len(sample.SequenceName)])
+    try:
+        for i in range(5):
+            blank_corrected[i * 2:2 + i * 2] = calc.corr.blank(
+                *sample.CorrectedValues[i * 2:2 + i * 2], *sample.BlankIntercept[i * 2:2 + i * 2])
+    except Exception as e:
+        print(traceback.format_exc())
+        raise ValueError('Blank correction error')
+    for i in range(0, 10, 2):
+        blank_corrected[i] = [blank_corrected[i][index] if sample.TotalParam[102][index] else j for index, j in enumerate(sample.CorrectedValues[i])]
+        blank_corrected[i + 1] = [blank_corrected[i + 1][index] if sample.TotalParam[102][index] else j for index, j in enumerate(sample.CorrectedValues[i + 1])]
+        blank_corrected[i] = [0 if j < 0 and sample.TotalParam[101][index] else j for index, j in enumerate(blank_corrected[i])]
+    sample.BlankCorrected = blank_corrected
     sample.CorrectedValues = copy.deepcopy(sample.BlankCorrected)
 
 
@@ -82,7 +73,7 @@ def corr_massdiscr(sample: Sample):
         sample.CorrectedValues = copy.deepcopy(sample.MassDiscrCorrected)
         return
     MASS = sample.TotalParam[71:81]
-    mdf_corrected = [[]] * 10
+    mdf_corrected = np.zeros([10, len(sample.SequenceName)])
     try:
         for i in range(5):
             if len(sample.BlankCorrected[i * 2:2 + i * 2]) == 0:
@@ -111,7 +102,7 @@ def corr_decay(sample: Sample):
     -------
 
     """
-    decay_corrected = [[]] * 10
+    decay_corrected = np.zeros([10, len(sample.SequenceName)])
     try:
         irradiation_cycles = [list(filter(None, re.split(r'[DS]', each_step))) for each_step in sample.TotalParam[27]]
         t1 = [re.findall(r"\d+", i) for i in sample.TotalParam[31]]  # t1: experimental times
@@ -277,8 +268,8 @@ def calc_degas_cl(sample: Sample):
     except Exception as e:
         print('Error in corr Cl: {}, lines: {}'.format(e, e.__traceback__.tb_lineno))
         n = len(ar36acl[0])
-        ar36cl = [[0] * n, [0] * n]
-        ar38cl = [[0] * n, [0] * n]
+        ar36cl = np.zeros([2, n])
+        ar38cl = np.zeros([2, n])
 
     # sample.DegasValues[6:8] = ar36cl
     # sample.DegasValues[10:12] = ar38cl
