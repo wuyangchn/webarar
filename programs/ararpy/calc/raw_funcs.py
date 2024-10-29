@@ -57,11 +57,11 @@ def get_raw_data_regression_results(points_data, unselected: list = None):
         except TypeError or IndexError:
             line_data, line_results, reg_coeffs = [], ['NotEnoughPoints', np.nan, np.nan, np.nan, ], []
         except ZeroDivisionError:
-            line_data, line_results, reg_coeffs = [], [np.inf, np.nan, np.nan, np.nan, ], []
+            line_data, line_results, reg_coeffs = [], ['ZeroDivisionError', np.nan, np.nan, np.nan, ], []
         except ValueError:
             line_data, line_results, reg_coeffs = [], ['BadFitting', np.nan, np.nan, np.nan, ], []
         except:
-            line_data, line_results, reg_coeffs = [], [np.nan, np.nan, np.nan, np.nan, ], []
+            line_data, line_results, reg_coeffs = [], ['UncaughtError', np.nan, np.nan, np.nan, ], []
         # linesData.append(line_data)
         linesResults.append(line_results)
         regCoeffs.append(reg_coeffs)
