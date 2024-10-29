@@ -32,7 +32,8 @@ def utc_dt(dt: datetime, tz: str = "utc", is_dst: bool = False) -> datetime:
     return tz.localize(dt, is_dst).astimezone(pytz.utc)
 
 
-def get_datetime(t_year: int, t_month: int, t_day: int, t_hour: int, t_min: int, t_seconds: int = 0, base=None):
+def get_datetime(t_year: int, t_month: int, t_day: int, t_hour: int, t_min: int, t_seconds: int = 0,
+                 tz_hour: int = 0, tz_min: int = 0, base=None):
     """
     :param t_year: int
     :param t_month: int
@@ -40,6 +41,8 @@ def get_datetime(t_year: int, t_month: int, t_day: int, t_hour: int, t_min: int,
     :param t_hour: int
     :param t_min: int
     :param t_seconds: int, default == 0
+    :param tz_hour: int, default == 0
+    :param tz_min: int, default == 0
     :param base: base time [y, m, d, h, m]
     :return: seconds since 1970-1-1 0:00
     """
