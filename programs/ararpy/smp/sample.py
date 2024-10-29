@@ -741,7 +741,7 @@ DEFAULT_PLOT_STYLES = {
     },
 }
 
-VERSION = '20240930'
+VERSION = '20241028'
 
 NAMED_DICT = {
     "unknown": {"header": SAMPLE_INTERCEPT_HEADERS.copy()},
@@ -842,7 +842,8 @@ class Sample:
         # self.__version = '20230730'  # delete calcparams attribute
         # self.__version = '20230827'  # using merge smp to update arr version
         # self.__version = '20231116'  # change smp parameters
-        self.__version = '20240730'  # change parameter table for thermo calculation
+        # self.__version = '20240730'  # change parameter table for thermo calculation
+        self.__version = '20241028'  # gain correction
 
     @property
     def version(self):
