@@ -937,7 +937,9 @@ def exponential(a0: list, a1: list):
         raise RuntimeError
     except np.linalg.LinAlgError:
         raise np.linalg.LinAlgError
-    except TypeError or IndexError:
+    except TypeError:
+        raise TypeError
+    except IndexError:
         raise IndexError
 
     f = linest(a0, [b ** _x for _x in a1])
