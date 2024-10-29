@@ -137,11 +137,11 @@ TOTAL_PARAMS_HEADERS = [
     'Heating Time (s)',  # 125
     'Heating Actual Temp (C)',  # 126
     'Heating AT 1\u03C3',  # 127
-    '36Ar Gain', '1\u03C3',  # 128-129
-    '37Ar Gain', '1\u03C3',  # 130-131
-    '38Ar Gain', '1\u03C3',  # 132-133
-    '39Ar Gain', '1\u03C3',  # 134-135
-    '40Ar Gain', '1\u03C3',  # 136-137
+    '36Ar Gain', '%1\u03C3',  # 128-129
+    '37Ar Gain', '%1\u03C3',  # 130-131
+    '38Ar Gain', '%1\u03C3',  # 132-133
+    '39Ar Gain', '%1\u03C3',  # 134-135
+    '40Ar Gain', '%1\u03C3',  # 136-137
 ]
 
 SAMPLE_INTERCEPT_SHORT_HEADERS = [
@@ -250,11 +250,11 @@ TOTAL_PARAMS_SHORT_HEADERS = [
     'HeatingTime',  # 125
     'HeatingActualTemp',  # 126
     'HeatingActualTempError',  # 127
-    '36Gain', '1s',  # 128-129
-    '37Gain', '1s',  # 130-131
-    '38Gain', '1s',  # 132-133
-    '39Gain', '1s',  # 134-135
-    '40Gain', '1s',  # 136-137
+    '36Gain', '%1s',  # 128-129
+    '37Gain', '%1s',  # 130-131
+    '38Gain', '%1s',  # 132-133
+    '39Gain', '%1s',  # 134-135
+    '40Gain', '%1s',  # 136-137
 ]
 
 DEFAULT_PLOT_STYLES = {

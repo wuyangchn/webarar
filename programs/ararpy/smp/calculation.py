@@ -64,10 +64,10 @@ def recalculate(
     if re_initial:  # 1
         initial.re_set_smp(sample)
     # --- calculating ---
-    if re_corr_blank:  # 2
-        corr.corr_blank(sample)
     if re_corr_gain:  # 2 2024-10-04 add
         corr.corr_gain(sample)
+    if re_corr_blank:  # 2
+        corr.corr_blank(sample)
     if re_corr_massdiscr:  # 3
         corr.corr_massdiscr(sample)
     if re_corr_decay:  # 4
