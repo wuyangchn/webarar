@@ -14,28 +14,28 @@
 
 import os
 import shutil
-import string
-
 import numpy as np
-from .sample import Sample
-from .. import calc
-# import ararpy as ap
-import matplotlib as mpl
-import scipy.stats as stats
+np.set_printoptions(precision=18, threshold=10000, linewidth=np.inf)
 import math
+import random
+import scipy.stats as stats
+from scipy.interpolate import griddata
 from scipy.special import comb
 from datetime import datetime as dt
 import re
 import time
 import ctypes
 import gc
-import random
-
+import matplotlib as mpl
 mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 
-np.set_printoptions(precision=18, threshold=10000, linewidth=np.inf)
+from .sample import Sample
+from .. import calc
+# import ararpy as ap
 
+
+import numpy as np
 
 def is_number(s):
     try:
@@ -3777,7 +3777,8 @@ class SmpTemperatureCalibration:
                     continue
 
                 dt_str, helix, system, service, scripting, userinfo, message1, message2 = line.split("|")
-                dt_utc = dt_str[:26] + dt_str[27:]
+                # dt_str likes 2024-10-23T19:58:59.6662140+02:00, it is too long for datetime parser
+                dt_utc = dt_str[:26] + dt_str[27:]  # dt_utc will be like 2024-10-23T19:58:59.666214+02:00
                 dt_utc = dt.fromisoformat(str(dt_utc)).timestamp()
 
                 if not (self.start_time <= dt_utc <= self.end_time):
@@ -4903,83 +4904,3 @@ def plane(bp=0.6):
 
     return func, inv_func
 
-
-#
-# class GeoModel:
-#     def __init__(self, frac, time, ar, sar, model: str = "sphere", bp: float = 0.5):
-#         self.frac = frac
-#         self.time = time
-#         self.ar = ar
-#         self.sar = sar
-#         self.bp = bp
-#         self.pi = math.pi
-#         self.pi = 3.141592654
-#
-#     def sphere(self, bp=None):
-#         return self._sphere(bp)[0]
-#     def inv_sphere(self, bp=None):
-#         return self._sphere(bp)[1]
-#     def plane(self, bp=None):
-#         return self._plane(bp)[0]
-#     def inv_plane(self, bp=None):
-#         return self._plane(bp)[1]
-#
-#     def _sphere(self, bp=None):
-#         """
-#         Parameters
-#         ----------
-#         bp: float, breakpoint
-#
-#         Returns
-#         -------
-#
-#         """
-#         if bp is None:
-#             bp = self.bp
-#         pi = self.pi
-#
-#         def func(dtr2):
-#             f = 1 - (6 / pi ** 2) * math.exp(-1 * pi ** 2 * dtr2)
-#             f2 = (6 / pi ** 1.5) * (pi ** 2 * dtr2) ** 0.5 - (3 / pi ** 2) * (pi ** 2 * dtr2)
-#             return f if bp <= f <= 1 else f2 if 0 <= f2 else np.nan
-#
-#         def inv_func(f):
-#             if 0 <= f < bp:
-#                 dtr2 = 2 / pi * (1 - (1 - pi * f / 3) ** 0.5) - f / 3
-#             elif f < 1:
-#                 dtr2 = - math.log((1 - f) * pi ** 2 / 6) / pi ** 2
-#             else:
-#                 dtr2 = np.nan
-#             return dtr2
-#
-#         return func, inv_func
-#
-#     def _plane(self, bp=None):
-#         """
-#         Parameters
-#         ----------
-#         bp: float, breakpoint
-#
-#         Returns
-#         -------
-#
-#         """
-#         if bp is None:
-#             bp = self.bp
-#         pi = self.pi
-#
-#         def func(dtr2):
-#             f = 1 - (8 / pi ** 2) * math.exp(- pi ** 2 * dtr2 / 4)
-#             f2 = 2 * math.sqrt(dtr2 / pi)
-#             return f if bp <= f <= 1 else f2 if 0 <= f2 else np.nan
-#
-#         def inv_func(f):
-#             if 0 <= f < bp:
-#                 dtr2 = pi * f ** 2 / 4
-#             elif f < 1:
-#                 dtr2 = 4 * math.log((1 - f) * pi ** 2 / 8) / (- pi ** 2)
-#             else:
-#                 dtr2 = np.nan
-#             return dtr2
-#
-#         return func, inv_func
