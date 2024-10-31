@@ -397,7 +397,7 @@ function export_sequence_deselect_all() {
 function filesToExportChanged() {
     let table = $('#export_arr_file_list');
     if ($('#files_to_export').val() === '') {return}
-    let formData = new FormData(document.getElementById("smpParamsInputForm"));
+    let formData = new FormData(document.getElementById("editExportForm"));
     $.ajax({
         url: url_multi_files,
         type: 'POST',
@@ -410,7 +410,6 @@ function filesToExportChanged() {
             $('#files_to_export').val('');
             let files = JSON.parse(res).files;
             let data = table.bootstrapTable('getData');
-            let diagram_list = ['Age Spectra'];
             let diagram = 'Age Spectra';
             $.each(files, function (index, file) {
                 table.bootstrapTable('insertRow', {index: data.length + index,

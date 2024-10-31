@@ -1173,7 +1173,7 @@ class ExportView(http_funcs.ArArView):
                   '#d0b269']
 
         # ------ 构建数据 -------
-        data = {"data": [], "file_name": "WHA"}
+        data = {"data": [], "file_name": "WebArAr"}
         smps = []
         for index, file in enumerate(file_paths):
             _, ext = os.path.splitext(file)
@@ -1181,8 +1181,14 @@ class ExportView(http_funcs.ArArView):
                 continue
             smps.append((ap.from_arr if ext[1:] == 'arr' else ap.from_age)(file_path=file))
 
-        plot_together = params[0]
-        if plot_together:
+        keys = [
+            "page_size", "ppi", "width", "height", "pt_width", "pt_height", "pt_left", "pt_bottom",
+            "offset_top", "offset_right", "offset_bottom", "offset_left", "plot_together", "show_frame",
+        ]
+        params = dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in params]))
+        plot_together = params.get("plot_together", True)
+
+        if params.get("plot_together", True):
             data['data'] = [{"name": "", "xAxis": [], "yAxis": [], "series": []}]
         for index, smp in enumerate(smps):
             if plot_together:
@@ -1203,7 +1209,7 @@ class ExportView(http_funcs.ArArView):
                 data['data'].append(current)
 
         filepath = f"{settings.DOWNLOAD_URL}{data['file_name']}-{uuid.uuid4().hex[:8]}.pdf"
-        filepath = ap.smp.export.export_chart_to_pdf(data, filepath=filepath)
+        filepath = ap.smp.export.export_chart_to_pdf(data, filepath=filepath, **params)
         export_href = '/' + filepath
 
         return JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
@@ -1370,11 +1376,16 @@ class ApiView(http_funcs.ArArView):
     def export_chart(self, request, *args, **kwargs):
         data = self.body['data']
         params = self.body['settings']
-        print(f"{params = }")
+        keys = [
+            "page_size", "ppi", "width", "height", "pt_width", "pt_height", "pt_left", "pt_bottom",
+            "offset_top", "offset_right", "offset_bottom", "offset_left", "plot_together", "show_frame",
+        ]
+        params = dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in params]))
+        plot_together = params.get("plot_together", True)
 
         file_name = data.get('file_name', 'file_name')
         filepath = f"{settings.DOWNLOAD_URL}{file_name}-{uuid.uuid4().hex[:8]}.pdf"
-        filepath = ap.smp.export.export_chart_to_pdf(data, filepath)
+        filepath = ap.smp.export.export_chart_to_pdf(data, filepath, **params)
         export_href = '/' + filepath
 
         return JsonResponse({'status': 'success', 'href': export_href})
