@@ -1093,7 +1093,7 @@ class ThermoView(http_funcs.ArArView):
         if params[12]:
             ti = [i + 273.15 for i in data[3]]
             x, y, wtx, wty = [], [], [], []
-            for i in range(len(data)):
+            for i in range(len(ti)):
                 if str(data[1][i]) == "2":
                     x.append(10000 / ti[i])
                     wtx.append(10000 * 5 / ti[i] ** 2)

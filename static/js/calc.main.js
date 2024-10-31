@@ -4542,6 +4542,12 @@ function deepMerge(target, source) {
 }
 
 function extendChartFuncs(chart) {
+    chart.clearSeries = (resize=true) => {
+        chart.setOption({series: []}, {replaceMerge: ['series']})
+        if (resize) {
+            chart.resize();
+        }
+    }
     chart.addSeries = (newSeries, resize=true) => {
         let option = chart.getOption();
         let series = option.series;
@@ -4580,17 +4586,7 @@ function extendChartFuncs(chart) {
         // throw `Not found, id = ${id}, name = ${name}`;
     }
 
-    chart.registerDrag = (seriesId, func) => {
-        chart.on('mousedown', {seriesId: seriesId}, function (params) {
-            const series = chart.getSeries(seriesId);
-            if (series?.draggable) {
-                let pos = chart.convertToPixel({xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex}, series.data[0]);
-                let offsetX = params.event.offsetX - pos?.[0];
-                let offsetY = params.event.offsetY - pos?.[1];
-                chart.updateSeries({id: seriesId, onDragged: true, dragOffset: [offsetX, offsetY]}, false);
-                func(params);
-            }
-        });
+    chart.registerMouseMove = (seriesId,func) => {
         chart.getZr().on('mousemove', function (params) {
             const series = chart.getSeries(seriesId);
             if (series?.onDragged) {
@@ -4605,6 +4601,20 @@ function extendChartFuncs(chart) {
         chart.getZr().on('mouseup', function (params) {
             const series = chart.getSeries(seriesId);
             chart.updateSeries({id: seriesId, onDragged: false, animation: false}, false);
+        });
+    }
+    chart.registerMouseClick = (func) => {
+        chart.on('mousedown', (params) => {
+            const seriesId = params.seriesId;
+            const series = chart.getSeries(seriesId);
+            if (series?.draggable) {
+                let pos = chart.convertToPixel({xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex}, series.data[0]);
+                let offsetX = params.event.offsetX - pos?.[0];
+                let offsetY = params.event.offsetY - pos?.[1];
+                chart.updateSeries({id: seriesId, onDragged: true, dragOffset: [offsetX, offsetY]}, false);
+            } else if (series?.checkable) {
+                func(params);
+            }
         });
     }
 

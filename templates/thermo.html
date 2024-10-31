@@ -307,7 +307,15 @@
             id: '1', name: 'Temperature (℃)',
         }],
     });
-    oven_log_chart.registerDrag("Text", (params) => {});
+    oven_log_chart.registerMouseMove('Text', (params) => {});
+    oven_log_chart.registerMouseClick((params) => {
+        const row = params.data[2];
+        table_data[1][row] = table_data[1][row] === 2 ? 1 : 2;
+        step_table.updateSettings({
+            data: transpose(table_data)
+        });
+        PlotDiff();
+    });
 
     document.addEventListener("wheel", function(event){
         if(document.activeElement.type === "number"){
@@ -358,12 +366,14 @@
                 groups[key].push([10000 / (row[3] + 273.15), row[11], index, row[0], row[3]]);
             }
         });
+        oven_log_chart.clearSeries();
         Object.entries(groups).map(([key, value]) => {
-            console.log(value);
+            // console.log(value);
             let series = {
                 id: key, name: key, data: value.filter((v, _i) => v[0] !== Infinity && v[1] !== Infinity && v[3]),
                 color: color_map[key], type: 'scatter', symbolSize: 10, z: 2,  silent: false, opacity: 0.5,
-                xAxisIndex: 0, yAxisIndex: 0, draggable: true, onDragged: false, encode: {x: 0, y: 1},
+                xAxisIndex: 0, yAxisIndex: 0, draggable: false, onDragged: false, checkable: true,
+                encode: {x: 0, y: 1},
                 lineStyle: {width: 1, type: 'solid'},
                 itemStyle: {
                     borderColor: color_map[key],
@@ -419,7 +429,9 @@
                 } catch (e) {
                     //
                 }
-                plotSubPlot(oven_log_chart, "Text", text_data, "scatter", "text", "circle", "none", {x: 0, y: 1}, true, true, `Intercept: ${k[0]} \n Slop: ${k[1]}`, true);
+                let e = 8.31446261815324;
+                plotSubPlot(oven_log_chart, "Text", text_data, "scatter", "text", "circle", "none", {x: 0, y: 1},
+                    true, true, `Intercept: ${k[0]} \n Slop: ${k[1]} \n E: ${k[1] * (-e) * 10} kJ`, true);
 
                 const draw_agemon = true;
                 if (draw_agemon) {
