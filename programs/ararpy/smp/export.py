@@ -43,11 +43,13 @@ def to_pdf(file_path: str, figure: str, smp: Sample):
     pdf.save(figure=figure)
 
 
-def get_cv_from_dict(data: dict):
+def get_cv_from_dict(data: dict, **kwargs):
     # create a canvas
-    cv = pm.Canvas(width=17, height=12, unit="cm", show_frame=True, clip_outside_plot_areas=False)
+    cv = pm.Canvas(width=kwargs.get("width", 17), height=kwargs.get("height", 12),
+                   unit="cm", show_frame=False, clip_outside_plot_areas=False)
     # change frame outline style
-    cv.show_frame(color="grey", line_width=0.5)
+    if kwargs.get("show_frame", True):
+        cv.show_frame(color="grey", line_width=0.5)
     axis_num = min([len(data['xAxis']), len(data['yAxis'])])
     # draw axis
     plots = []
@@ -55,7 +57,8 @@ def get_cv_from_dict(data: dict):
         scale = [*data['xAxis'][i]['extent'], *data['yAxis'][i]['extent']]
         scale = (*scale,)
         # create plot area based on axis scale
-        pt = cv.add_plot_area(name=f"PlotArea{i}", plot_area=(0.15, 0.15, 0.8, 0.8), plot_scale=scale, show_frame=True)
+        plot_area = (kwargs.get("pt_left", 0.15), kwargs.get("pt_bottom", 0.15), kwargs.get("pt_width", 0.8), kwargs.get("pt_height", 0.8))
+        pt = cv.add_plot_area(name=f"PlotArea{i}", plot_area=plot_area, plot_scale=scale, show_frame=True)
         for stick in data['xAxis'][i]['interval']:
             start = pt.scale_to_points(stick, scale[2])
             end = pt.scale_to_points(stick, scale[2])
@@ -72,11 +75,11 @@ def get_cv_from_dict(data: dict):
                         coordinate="pt", h_align="right", v_align="center", z_index=150)
         # axis titles
         nloc = pt.scale_to_points(sum(scale[:2]) / 2, scale[2])
-        pt.text(x=nloc[0], y=nloc[1] - 30, text=data['xAxis'][i]['title'], clip=False, coordinate="pt",
-                h_align="middle", v_align="top", z_index=150)
+        pt.text(x=nloc[0], y=nloc[1] - kwargs.get("offset_bottom", 30), text=data['xAxis'][i]['title'], clip=False, coordinate="pt",
+                h_align="middle", v_align="center", z_index=150)
         nloc = pt.scale_to_points(scale[0], sum(scale[2:4]) / 2)
-        pt.text(x=nloc[0] - 50, y=nloc[1], text=data['yAxis'][i]['title'], clip=False, coordinate="pt",
-                h_align="middle", v_align="bottom", rotate=90, z_index=150)
+        pt.text(x=nloc[0] - kwargs.get("offset_left", 50), y=nloc[1], text=data['yAxis'][i]['title'], clip=False, coordinate="pt",
+                h_align="middle", v_align="center", rotate=90, z_index=150)
         plots.append(pt)
     # draw series
     for se in data['series']:
@@ -167,7 +170,17 @@ def export_chart_to_pdf(data: dict, filepath: str = "", **kwargs):
     """
     title = data.get('file_name', '')
     # write pdf
+    print(kwargs)
     file = pm.NewPDF(filepath=filepath, title=f"{title}", **kwargs)
+    page_size = {
+        "a3": (297, 420),
+        "a4": (210, 297),
+        "b5": (176, 250),
+        "a5": (148, 210),
+    }
+    for i in file.get_page_indexes():
+        file.del_obj(i)
+    file.add_page(size=page_size[kwargs.get('page_size', 'a4').lower()], unit='mm')
     plot_data = data.get('data', [])
     for index, each in enumerate(plot_data):
         # rich text tags should follow this priority: color > script > break
@@ -175,7 +188,7 @@ def export_chart_to_pdf(data: dict, filepath: str = "", **kwargs):
             page=index, x=50, y=780, line_space=1.2, size=12, base=0, h_align="left",
             text=f"{each.get('name', '')}"
         )
-        cv = get_cv_from_dict(each)
+        cv = get_cv_from_dict(each, **kwargs)
         file.canvas(page=index, base=0, margin_top=5, canvas=cv, unit="cm", h_align="middle")
         if index + 1 < len(plot_data):
             file.add_page()
