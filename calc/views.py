@@ -1381,7 +1381,6 @@ class ApiView(http_funcs.ArArView):
             "offset_top", "offset_right", "offset_bottom", "offset_left", "plot_together", "show_frame",
         ]
         params = dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in params]))
-        plot_together = params.get("plot_together", True)
 
         file_name = data.get('file_name', 'file_name')
         filepath = f"{settings.DOWNLOAD_URL}{file_name}-{uuid.uuid4().hex[:8]}.pdf"

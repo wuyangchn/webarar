@@ -22,6 +22,7 @@ from decimal import Decimal
 
 from ..calc import arr, isochron, spectra
 from ..calc.basic import get_random_digits
+from ..calc.plot import get_axis_scale
 from . import basic, sample, consts
 
 Sample = sample.Sample
@@ -55,20 +56,20 @@ def get_cv_from_dict(data: dict, **kwargs):
     plots = []
     for i in range(axis_num):
         scale = [*data['xAxis'][i]['extent'], *data['yAxis'][i]['extent']]
-        scale = (*scale,)
+        scale = (float(scale[0]), float(scale[1]), float(scale[2]), float(scale[3]))
         # create plot area based on axis scale
         plot_area = (kwargs.get("pt_left", 0.15), kwargs.get("pt_bottom", 0.15), kwargs.get("pt_width", 0.8), kwargs.get("pt_height", 0.8))
         pt = cv.add_plot_area(name=f"PlotArea{i}", plot_area=plot_area, plot_scale=scale, show_frame=True)
         for stick in data['xAxis'][i]['interval']:
-            start = pt.scale_to_points(stick, scale[2])
-            end = pt.scale_to_points(stick, scale[2])
+            start = pt.scale_to_points(float(stick), scale[2])
+            end = pt.scale_to_points(float(stick), scale[2])
             end = (end[0], end[1] - 5)
             if pt.line(start=start, end=end, width=1, line_style="solid", y_clip=False, coordinate="pt", z_index=100):
                 pt.text(x=start[0], y=end[1] - 15, text=f"{stick}", clip=False,
                         coordinate="pt", h_align="middle", z_index=150)
         for stick in data['yAxis'][i]['interval']:
-            start = pt.scale_to_points(scale[0], stick)
-            end = pt.scale_to_points(scale[0], stick)
+            start = pt.scale_to_points(scale[0], float(stick))
+            end = pt.scale_to_points(scale[0], float(stick))
             end = (end[0] - 5, end[1])
             if pt.line(start=start, end=end, width=1, line_style="solid", x_clip=False, coordinate="pt", z_index=100):
                 pt.text(x=end[0] - 5, y=end[1], text=f"{stick}", clip=False,
@@ -83,7 +84,15 @@ def get_cv_from_dict(data: dict, **kwargs):
         plots.append(pt)
     # draw series
     for se in data['series']:
-        data = se.get('data', [])
+        data = np.array(se.get('data', []), dtype=np.float64)
+        for key, val in se.items():
+            if str(val).isnumeric():
+                se[key] = int(val)
+            else:
+                try:
+                    se[key] = float(val)
+                except (ValueError, TypeError):
+                    pass
         try:
             pt = plots[se.get('axis_index', 0)]
         except IndexError:
@@ -262,6 +271,10 @@ def _get_plot_data_age_spectra(smp: sample, **options):
             'axis_index': 1,
         })
 
+    y_low_limit, y_up_limit, stick_num, inc = get_axis_scale(np.array(data[1:3]).flatten())
+    y_extent = [y_low_limit, y_up_limit]
+    y_interval = [y_low_limit + i * inc for i in range(stick_num + 1)]
+
     xAxis.append({
         'extent': [0, 100], 'interval': [0, 20, 40, 60, 80, 100], 'id': 0, 'show_frame': True,
         'title': 'Cumulative <sup>39</sup>Ar Released (%)', 'name_location': 'middle',
@@ -273,7 +286,8 @@ def _get_plot_data_age_spectra(smp: sample, **options):
         'line_width': 1, 'line_style': 'solid', 'z_index': 0,
     })
     yAxis.append({
-        'extent': [0, 25], 'interval': [0, 5, 10, 15, 20, 25], 'id': 0, 'show_frame': True,
+        'extent': y_extent, 'interval': y_interval,
+        'id': 0, 'show_frame': True,
         'title': 'Apparent Age (Ma)', 'name_location': 'middle',
         'line_width': 1, 'line_style': 'solid', 'z_index': 9,
     })
@@ -297,21 +311,21 @@ def _get_plot_data_inv_isochron(smp: sample, **options):
     # set 1
     series.append({
         'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
-        'stroke_color': 'red', 'fill_color': 'red', 'myType': 'scatter', 'size': 4, 'line_width': 1,
+        'stroke_color': 'red', 'fill_color': 'red', 'myType': 'scatter', 'size': 3, 'line_width': 0,
         'data': (data[[0, 2], :][:, set1]).transpose().tolist(),
         'axis_index': 0, 'z_index': 99
     })
     # set 2
     series.append({
         'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
-        'stroke_color': 'blue', 'fill_color': 'blue', 'myType': 'scatter', 'size': 4, 'line_width': 1,
+        'stroke_color': 'blue', 'fill_color': 'blue', 'myType': 'scatter', 'size': 3, 'line_width': 0,
         'data': (data[[0, 2], :][:, set2]).transpose().tolist(),
         'axis_index': 0, 'z_index': 99
     })
     # set 3
     series.append({
         'type': 'series.scatter', 'id': f'scatter-{get_random_digits()}', 'name': f'scattter-{get_random_digits()}',
-        'stroke_color': 'black', 'fill_color': 'none', 'myType': 'scatter', 'size': 4, 'line_width': 1,
+        'stroke_color': 'black', 'fill_color': 'white', 'myType': 'scatter', 'size': 3, 'line_width': 0,
         'data': (data[[0, 2], :][:, set3]).transpose().tolist(),
         'axis_index': 0, 'z_index': 0
     })
@@ -337,21 +351,30 @@ def _get_plot_data_inv_isochron(smp: sample, **options):
     xaxis = smp.InvIsochronPlot.xaxis
     yaxis = smp.InvIsochronPlot.yaxis
 
+    low_limit, up_limit, stick_num, inc = get_axis_scale(data[0])
+    extent = [low_limit, up_limit]
+    interval = [float("{:g}".format(low_limit + i * inc)) for i in range(stick_num + 1)]
+
     xAxis.append({
-        'extent': [float(xaxis.min), float(xaxis.max)],
-        'interval': [float("{:g}".format(float(xaxis.min) + i * float(xaxis.interval))) for i in range(int(xaxis.split_number) + 1)],
+        'extent': extent,
+        'interval': interval,
         'id': 0, 'show_frame': True, 'z_index': 9,
-        'title': 'XXXX', 'name_location': 'middle',
+        'title': '<sup>39</sup>Ar<sub>K</sub> / <sup>40</sup>Ar<sup>*</sup>', 'name_location': 'middle',
     })
     xAxis.append({
         'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,
         'title': '', 'name_location': 'middle', 'z_index': 0,
     })
+
+    low_limit, up_limit, stick_num, inc = get_axis_scale(data[2])
+    extent = [low_limit, up_limit]
+    interval = [float("{:g}".format(low_limit + i * inc)) for i in range(stick_num + 1)]
+
     yAxis.append({
-        'extent': [float(yaxis.min), float(yaxis.max)],
-        'interval': [float("{:g}".format(float(yaxis.min) + i * float(yaxis.interval))) for i in range(int(yaxis.split_number) + 1)],
+        'extent': extent,
+        'interval': interval,
         'id': 0, 'show_frame': True, 'z_index': 9,
-        'title': 'YYYY', 'name_location': 'middle',
+        'title': '<sup>36</sup>Ar<sub>a</sub> / <sup>40</sup>Ar<sup>*</sup>', 'name_location': 'middle',
     })
     yAxis.append({
         'extent': [0, 100], 'interval': [], 'id': 1, 'show_frame': False,

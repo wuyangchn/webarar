@@ -154,7 +154,10 @@ function Tree2Json(treeNode, order=0, isArray=false) {
                     if (val.toLowerCase() === "" || val.includes(" ")) {
                         return val;
                     }
-                    if (val.toLowerCase() === 'nan' || ! Number.isNaN(Number(val))) {
+                    // if (val.toLowerCase() === 'nan' || ! Number.isNaN(Number(val))) {
+                    //     return Number(val)
+                    // }  // 用字符串保存内容
+                    if (val.toLowerCase() === 'nan') {
                         return Number(val)
                     }
                     return val
