@@ -122,9 +122,10 @@ TOTAL_PARAMS_HEADERS = [
     'Not Zero', 'Corr Blank', 'Corr Discr', 'Corr \u00B3\u2077Ar Decay',  # 103-106
     'Corr \u00B3\u2079Ar Decay',  # 107
     'Ca Degassing', 'K Degassing', 'Cl Degassing', 'Trap Degassing',  # 108-111
-    'Using Min Equation',
+    'Using Min Equation',  # 112
     # 'Recalibration', 'Using Std Age', 'Use Std Ratio',  # 112-115  to be completed
-    '', '', '',  # 112-115
+    'Apply Gain Corr to Blanks',  # 113
+    '', '',  # 114-115
     'Auto Plateau Method',  # 116 the index includes sequence name and unit
     'Initial Ratio Model',  # 117
     'Set1 initial Ratio',  # 118
@@ -235,9 +236,10 @@ TOTAL_PARAMS_SHORT_HEADERS = [
     'NotZero', 'CorrBlank', 'CorrDiscr', 'CorrAr37Decay',
     'CorrAr39Decay',  # 103-107
     'CaDegassing', 'KDegassing', 'ClDegassing', 'TrapDegassing',  # 108-111
-    'UsingMin',
+    'UsingMin',  # 112
     # 'Recalibration', 'Using Std Age', 'Use Std Ratio',  # 112-115  to be completed
-    '', '', '',  # 112-115
+    'BlankGainCorr',  # 113
+    '', '',  # 114-115
     'AutoPlateauMethod',  # 116 the index includes sequence name and unit
     'InitialRatioModel',  # 117
     'Set1InitialRatio',  # 118
@@ -741,7 +743,7 @@ DEFAULT_PLOT_STYLES = {
     },
 }
 
-VERSION = '20241028'
+VERSION = '20250102'
 
 NAMED_DICT = {
     "unknown": {"header": SAMPLE_INTERCEPT_HEADERS.copy()},
@@ -843,7 +845,8 @@ class Sample:
         # self.__version = '20230827'  # using merge smp to update arr version
         # self.__version = '20231116'  # change smp parameters
         # self.__version = '20240730'  # change parameter table for thermo calculation
-        self.__version = '20241028'  # gain correction
+        # self.__version = '20241028'  # gain correction
+        self.__version = '20250102'  # gain correction to blanks
 
     @property
     def version(self):

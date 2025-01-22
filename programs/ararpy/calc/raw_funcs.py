@@ -46,6 +46,8 @@ def get_raw_data_regression_results(points_data, unselected: list = None):
             # line_data = transpose([lines_x, res[7](lines_x)])
             line_results = res[0:4]
             reg_coeffs = res[5]
+            if any(np.isnan(line_results)):
+                raise ValueError
             # if np.isin(np.inf, line_data) or np.isin(np.nan, line_data):
             #     raise ZeroDivisionError(f"Infinite value or nan value.")
             if abs(res[0] - min(y)) > 5 * (max(y) - min(y)):

@@ -539,7 +539,8 @@ function chartScatterClicked(params) {
         success: function(res){
             res = myParse(res);
             myRawData.sequence[current_page - 1] = res.sequence;
-            updateCharts(smCharts, chartBig, current_page-1, false);
+            updateCharts(smCharts, chartBig, current_page-1, false,
+                myRawData.sequence[current_page - 1].fitting_method);
         },
     })
 }
@@ -694,6 +695,7 @@ function fitMethodChanged() {
         mimeType: "multipart/form-data",
         success: function(res){
             myRawData.sequence[current_page-1].fitting_method[getCurrentIsotope()] = Number(sel.val());
+            showSequence(current_page);
         }
     })
 }
@@ -1038,19 +1040,33 @@ function nextSequence() {
         showSequence(current_page + 1);
     }
 }
+function smchartOnClick(smCharts, bigChart, i) {
+    smCharts[i].setOption({
+        series: [
+            {color: FILLED_POINTS_COLOR},
+            {itemStyle: {normal: {borderColor: FILLED_POINTS_COLOR}}}]
+    });
+    for (let j=0;j<smCharts.length;j++) {
+        if (j !== i) {
+            smCharts[j].setOption({series: [{color: '#222'}, {itemStyle: {normal: {borderColor: '#222'}}}]})
+        }
+    }
+    showSequence(current_page);
+}
 function setSmChartClickListen(smCharts, bigChart) {
     for (let i=0;i<smCharts.length;i++) {
         smCharts[i].getZr().on('click', function(event) {
             // 设置小图颜色
-            smCharts[i].setOption({
-                series: [
-                    {color: FILLED_POINTS_COLOR},
-                    {itemStyle: {normal: {borderColor: FILLED_POINTS_COLOR}}}]});
-            for (let j=0;j<smCharts.length;j++) {
-                if (j !== i) {smCharts[j].setOption({
-                    series: [{color: '#222'}, {itemStyle: {normal: {borderColor: '#222'}}}]})}
-            }
-            showSequence(current_page);
+            smchartOnClick(smCharts, bigChart, i);
+            // smCharts[i].setOption({
+            //     series: [
+            //         {color: FILLED_POINTS_COLOR},
+            //         {itemStyle: {normal: {borderColor: FILLED_POINTS_COLOR}}}]});
+            // for (let j=0;j<smCharts.length;j++) {
+            //     if (j !== i) {smCharts[j].setOption({
+            //         series: [{color: '#222'}, {itemStyle: {normal: {borderColor: '#222'}}}]})}
+            // }
+            // showSequence(current_page);
             // 没有 target 意味着鼠标/指针不在任何一个图形元素上，它是从“空白处”触发的。
             if (!event.target) {
                 // 点击在了空白处，做些什么。
@@ -1063,12 +1079,17 @@ function setSmChartClickListen(smCharts, bigChart) {
 function showModal(id) {
     $('.modal:visible').modal('hide');
     $('#'+id).modal('show');
+    // forEach($('.modal:visible'), (modal)=>{
+    //     console.log(modal);
+    //     console.log(modal.id);
+    //     modal.removeAttribute('aria-hidden');
+    // });
 }
 function showModalDialog(id) {
     $('.modal-dialog:visible').attr('hidden', true);
     $('#'+id).attr('hidden', false);
 }
-function showSequence(page) {
+function showSequence(page) {  // page starts with 1
     let btns = document.getElementsByName('sequenceBtn');
     for (let i=0;i<btns.length;i++){
         if (i + 1 !== page && btns[i].className.includes("btn-warning")) {
@@ -1097,7 +1118,7 @@ function showSequence(page) {
         $('#last_page').attr("disabled",false);
         $('#next_page').attr("disabled",false);
     }
-    updateCharts(smCharts, chartBig, page-1, true);
+    updateCharts(smCharts, chartBig, page-1, true, myRawData.sequence[page-1].fitting_method);
     $('#fitMethod').val(myRawData.sequence[page-1].fitting_method[getCurrentIsotope()]);
     $('#isBlank').prop("checked", myRawData.sequence[page-1].is_blank);
     $('#isRemoved').prop("checked", myRawData.sequence[page-1].is_removed);
@@ -1196,6 +1217,9 @@ function submitRawData() {
         success: function(res){
             $('input[name="fingerprint"]').val(localStorage.getItem('fingerprint'));
             $('#fingerprint-form').submit();
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
         }
     })
 }
@@ -1220,7 +1244,7 @@ function generateLinesData(func, xmin=0, xmax=200, num=20) {
     }
     return data;
 }
-function updateCharts(smCharts, bigChart, sequence_index, animation) {
+function updateCharts(smCharts, bigChart, sequence_index, animation, fitting_method) {
     let [selected, unselected] = getSelectedData(
         myRawData.sequence[sequence_index].data, myRawData.sequence[sequence_index].flag);
     let coeff = myRawData.sequence[sequence_index].coefficients;
@@ -1239,15 +1263,25 @@ function updateCharts(smCharts, bigChart, sequence_index, animation) {
                     label: {show: false, position: 'top', formatter: (params) => params.dataIndex + 1},
                 },
                 {name: 'Line Regression', tooltip: {formatter: 'Linear'}, data: generateLinesData(
-                    (x) => coeff[i][0][0] + x * coeff[i][0][1], 0, xmax, 1),},
+                    (x) => coeff[i][0][0] + x * coeff[i][0][1], 0, xmax, 1),
+                    lineStyle: {width: fitting_method[i]===0?5:2},
+                },
                 {name: 'Quad Regression', tooltip: {formatter: 'Quadratic'}, data: generateLinesData(
-                    (x) => coeff[i][1][0] + x * coeff[i][1][1] + x * x * coeff[i][1][2], 0, xmax),},
+                    (x) => coeff[i][1][0] + x * coeff[i][1][1] + x * x * coeff[i][1][2], 0, xmax),
+                    lineStyle: {width: fitting_method[i]===1?5:2},
+                },
                 {name: 'Exp Regression', tooltip: {formatter: 'Exponential'}, data: generateLinesData(
-                    (x) => coeff[i][2][0] * coeff[i][2][1] ** x + coeff[i][2][2], 0, xmax),},
+                    (x) => coeff[i][2][0] * coeff[i][2][1] ** x + coeff[i][2][2], 0, xmax),
+                    lineStyle: {width: fitting_method[i]===2?5:2},
+                },
                 {name: 'Pow Regression', tooltip: {formatter: 'Power'}, data: generateLinesData(
-                    (x) => coeff[i][3][0] * x ** coeff[i][3][1] + coeff[i][3][2], 0, xmax),},
+                    (x) => coeff[i][3][0] * x ** coeff[i][3][1] + coeff[i][3][2], 0, xmax),
+                    lineStyle: {width: fitting_method[i]===3?5:2},
+                },
                 {name: 'Average', tooltip: {formatter: 'Average'}, data: generateLinesData(
-                    (x) => coeff[i][4][0], 0, xmax, 1),},
+                    (x) => coeff[i][4][0], 0, xmax, 1),
+                    lineStyle: {width: fitting_method[i]===4?5:2},
+                },
             ],
             animation: animation,
         };
@@ -1723,7 +1757,7 @@ function exportSmp(url, download=true, merged_pdf=false) {
     });
 }
 function arrDownloaded() {
-    rightConsole.innerText = `Last Save: ${getTime()}`;
+    rightConsole.innerText = `Last Download: ${getTime()}`;
 }
 async function saveChart(isExport=true) {
     let export_type = 'svg';
@@ -4586,20 +4620,24 @@ function extendChartFuncs(chart) {
     }
 
     chart.registerMouseMove = (seriesId,func) => {
-        chart.getZr().on('mousemove', function (params) {
+        chart.getZr().on('mousemove', function (event) {
             const series = chart.getSeries(seriesId);
             if (series?.onDragged) {
                 const offset = series.dragOffset;
                 let pos = chart.convertFromPixel(
                     {xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex},
-                    [params.event.zrX - offset?.[0], params.event.zrY - offset?.[1]]
+                    [event.event.zrX - offset?.[0], event.event.zrY - offset?.[1]]
                 );
                 chart.updateSeries({id: seriesId, data: [pos], animation: false}, false);
             }
         });
-        chart.getZr().on('mouseup', function (params) {
-            const series = chart.getSeries(seriesId);
-            chart.updateSeries({id: seriesId, onDragged: false, animation: false}, false);
+        chart.getZr().on('mouseup', function (event) {
+            // console.log(event.target.type);  tspan, ec-polyline, rect, path
+            if (event.target?.type === "tspan") {
+                // mouse up after moving, the target is undefined.
+                const series = chart.getSeries(seriesId);
+                chart.updateSeries({id: seriesId, onDragged: false, animation: false}, false);
+            }
         });
     }
     chart.registerMouseClick = (func) => {
@@ -4607,11 +4645,13 @@ function extendChartFuncs(chart) {
             const seriesId = params.seriesId;
             const series = chart.getSeries(seriesId);
             if (series?.draggable) {
+                // If draggable like text label, do something
                 let pos = chart.convertToPixel({xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex}, series.data[0]);
                 let offsetX = params.event.offsetX - pos?.[0];
                 let offsetY = params.event.offsetY - pos?.[1];
                 chart.updateSeries({id: seriesId, onDragged: true, dragOffset: [offsetX, offsetY]}, false);
             } else if (series?.checkable) {
+                // else, like a scatter, do something
                 func(params);
             }
         });
