@@ -14,6 +14,7 @@ import json
 import numpy as np
 import pandas as pd
 from .sample import Sample, Table, Plot, RawData, Sequence, ArArBasic
+from django.db.models import QuerySet
 
 
 def dumps(a):
@@ -31,6 +32,9 @@ class MyEncoder(json.JSONEncoder):
         # np.array
         if isinstance(obj, np.ndarray):
             return obj.tolist()
+        # np.array
+        if isinstance(obj, QuerySet):
+            return list(obj)
         # pd.DataFrame
         if isinstance(obj, pd.DataFrame):
             print(obj)

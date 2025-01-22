@@ -966,11 +966,6 @@ def exponential(a0: list, a1: list):
     se_intercept = sec / errfz * errfx
     rse_intercept = se_intercept / intercept * 100
 
-    if abs(intercept) > 10 * max(a0):
-        raise ValueError
-    if intercept < 0:
-        raise ValueError
-
     return intercept, se_intercept, rse_intercept, r2, 'mswd', [a, b, c], 'se', \
            lambda x: [_exp_func(i, a, b, c) for i in x], m_ssresid
 

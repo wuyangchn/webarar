@@ -4,6 +4,8 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 
 ## to do
 
+* local scripts
+
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 

@@ -75,7 +75,7 @@ def mdf(rm: float, srm: float, m1: float, m2: float, ra: float = 298.56,
             k3, k4 = "Null", "Null"
         # pow
         try:
-            k5 = pow((ra / rm), (1 / delta_m))  # A.A.P.Koppers
+            k5 = pow((ra / rm), (1 / delta_m))  # A.A.P.Koppers, also Renne2009, B.D. Turrin2010
             k6 = err.pow((ra / rm, err.div((ra, sra), (rm, srm))),
                          (1 / delta_m, err.div((1, 0), (delta_m, sdelta_m))))
         except Exception:
@@ -107,14 +107,14 @@ def discr(a0: list, e0: list, mdf: list, smdf: list, m: list, m40: list,
     for i in range(min([len(arg) for arg in [a0, e0, mdf, smdf]])):
         delta_mass = abs(m40[i] - m[i])
         ratio_mass = abs(m40[i] / m[i]) if m[i] != 0 else 1
-        if method.lower()[0] == 'l':
+        if method.lower().startswith("l"):
             k0 = 1 / (delta_mass * mdf[i] - delta_mass + 1) if (delta_mass * mdf[i] - delta_mass + 1) != 0 else 0
             k1 = err.div((1, 0), (delta_mass * mdf[i] - delta_mass + 1, smdf[i] * delta_mass))
-        elif method.lower()[0] == 'e':
+        elif method.lower().startswith("e"):
             k0 = 1 / (ratio_mass ** (mdf[i] * m40[i] - m[i]))
             k1 = err.div((1, 0), (ratio_mass ** (mdf[i] * m40[i] - m[i]), err.pow((ratio_mass, 0), (
                 mdf[i] * m40[i] - m[i], err.mul((mdf[i], smdf[i]), (m40[i], 0))))))
-        elif method.lower()[0] == 'p':
+        elif method.lower().startswith("p"):
             k0 = 1 / (mdf[i] ** delta_mass)
             k1 = err.div((1, 0), (mdf[i] ** delta_mass, err.pow((mdf[i], smdf[i]), (delta_mass, 0))))
         else:

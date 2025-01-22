@@ -743,6 +743,8 @@ class DiffArrmultiFunc(DiffSample):
         for j in range(0, na, 2):
             a1[j + 1] = a1[j + 1] / sum
 
+            # 生成体积浓度分数随机值，归一到总和为1
+
         # Definition of sizes (start with random order numbers greater to smaller)
         sum = 0.0
         for j in range(0, na - 2, 2):
@@ -753,10 +755,14 @@ class DiffArrmultiFunc(DiffSample):
         for j in range(0, na - 2, 2):
             a1[j] = a1[j] / sum * xro
 
+            # 从后到前随机生成尺寸，归一化到最大值为xro
+
         sum = a1[na - 1] + a1[na - 3]
         for j in range(2, na - 3, 2):
             a1[j] = a1[j] - np.log10(sum)
             sum = sum + a1[na - (j + 1) - 2]
+
+            # 调整尺寸的值，为什么？
 
         ro = 10.0 ** a1[0]
 
@@ -3716,7 +3722,7 @@ class SmpTemperatureCalibration:
                 if line == "":
                     break
                 k = line.split(";")
-                time = dt.strptime(k[0], "%Y-%m-%dT%H:%M:%S%z").timestamp()
+                time = dt.strptime(k[0], "%Y-%m-%dT%H:%M:%S%z").timestamp()  # UTC datetime
                 cumulative_time = 0
                 if int(k[1]) != last_sp:
                     last_sp = int(k[1])
@@ -3731,11 +3737,12 @@ class SmpTemperatureCalibration:
                 except KeyError:
                     inside_temp = [0, 0]
 
-                libano_log.append([time, int(k[1]), int(k[2]), cumulative_time, inside_temp[0], inside_temp[1]])
+                # timestamp, cumulative_time of the current temperature, SP, AP, Inside, Inside error
+                libano_log.append([time, cumulative_time, int(k[1]), int(k[2]), (inside_temp[0] + inside_temp[1]) / 2,
+                                   abs(inside_temp[0] - inside_temp[1]) / 2, 9999])
                 n += 1
 
             libano_file.close()
-        libano_log = np.array(libano_log).transpose()
 
         # # set time starts with zero
         # log_time = [i - log_time[0] for i in log_time]
@@ -3749,10 +3756,13 @@ class SmpTemperatureCalibration:
         helix_log = [[], [], [], [], [], [], [], [], [], [], [], []]
         nstep = 0
 
+        time_difference = 147  # helix time - libano time 时间差
+
         keys = {
             "start_buildup": "GenWorkflow-BuildUp.cs: line 1: Clock reset",
             "set_temp": "GenWorkflow-Sampling.cs: Target temperature: key = Intensity, value = ",
             "end_sampling": "GenWorkflow-Prepare.cs: line 1: CLOSE for VUcleaningline/VINL2",
+            # "start_sampling": "GenWorkflow-Prepare.cs: line 15: CLOSE for VUcleaningline/VGP5",  # Y01样品之后发现VPL1漏气，多加了一步关闭VPL1因此，在那之后是line 15
             "start_sampling": "GenWorkflow-Prepare.cs: line 14: CLOSE for VUcleaningline/VGP5",
             "end_sequence": "GenWorkflow-PostAcquisition.cs: line 7: Starting Acquisition",
             "get_setpoint": "GenWorkflow-Sampling.cs: Target temperature: key = Intensity, value = ",
@@ -3781,7 +3791,9 @@ class SmpTemperatureCalibration:
                 dt_utc = dt_str[:26] + dt_str[27:]  # dt_utc will be like 2024-10-23T19:58:59.666214+02:00
                 dt_utc = dt.fromisoformat(str(dt_utc)).timestamp()
 
-                if not (self.start_time <= dt_utc <= self.end_time):
+                dt_utc  = dt_utc - time_difference
+
+                if not (self.start_time <= int(dt_utc) <= self.end_time):
                     continue
                 if message1.startswith(keys["start_buildup"]):
                     ### start buildup
@@ -3795,6 +3807,16 @@ class SmpTemperatureCalibration:
                     # 关闭vinlet2，60秒进质谱，之后开vinlet2，90秒抽气
                     gas_collection_end = dt_utc
                     helix_log[1].append(dt_utc)
+                    try:
+                        gas_collection_start = gas_collection_start
+                    except NameError:
+                        gas_collection_start = buildup_start
+                    # 添加阶段标记
+                    for each_row in libano_log:
+                        # 时间在集气过程中
+                        if gas_collection_start <= each_row[0] <= gas_collection_end:
+                            each_row[6] = nstep
+
                 if message1.startswith(keys["start_sampling"]):
                     # Close VGP5, start peak centering and measurement, IMPORTANT: start to sampling
                     gas_collection_start = dt_utc
@@ -3815,6 +3837,8 @@ class SmpTemperatureCalibration:
         for i in helix_log:
             print(len(i))
             print(i)
+
+        libano_log = np.array(libano_log).transpose()
         helix_log = np.array(helix_log)
 
 
@@ -3843,12 +3867,12 @@ class SmpTemperatureCalibration:
             yellow_data_index.append(_index)
 
             med = int((_index[0] + _index[-1]) / 2)
-            helix_log[4, i] = (libano_log[4, _index][0] + libano_log[5, _index][0]) / 2
-            helix_log[5, i] = abs(libano_log[4, _index][0] - libano_log[5, _index][0]) / 2
-            helix_log[6, i] = (libano_log[4, _index][-1] + libano_log[5, _index][-1]) / 2
-            helix_log[7, i] = abs(libano_log[4, _index][-1] - libano_log[5, _index][-1]) / 2
-            helix_log[8, i] = (libano_log[4, med] + libano_log[5, med]) / 2
-            helix_log[9, i] = abs(libano_log[4, med] - libano_log[5, med]) / 2
+            helix_log[4, i] = libano_log[4, _index][0]
+            helix_log[5, i] = libano_log[5, _index][0]
+            helix_log[6, i] = libano_log[4, _index][-1]
+            helix_log[7, i] = libano_log[5, _index][-1]
+            helix_log[8, i] = libano_log[4, med]
+            helix_log[9, i] = libano_log[5, med]
             helix_log[11, i] = gas_in_end - gas_in_start
 
             line = f"{i + 1}\t{helix_log[10, i]}\t{helix_log[11, i]}\t" + '\t'.join(
@@ -3871,11 +3895,9 @@ class SmpTemperatureCalibration:
             ax.plot(libano_log[0], libano_log[1], c='green')
             ax.plot(libano_log[0], libano_log[2], c='blue')
             ax.plot(libano_log[0], libano_log[4], c='red')
-            ax.plot(libano_log[0], libano_log[5], c='red')
             for i in range(nstep):
                 _index = yellow_data_index[i]
                 ax.plot(libano_log[0, _index], libano_log[4, _index], c='yellow')
-                ax.plot(libano_log[0, _index], libano_log[5, _index], c='yellow')
 
             fig.tight_layout()
             plt.show()

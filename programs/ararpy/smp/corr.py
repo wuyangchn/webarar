@@ -49,8 +49,16 @@ def corr_blank(sample: Sample):
     blank_corrected = np.zeros([10, len(sample.SequenceName)])
     try:
         for i in range(5):
+            b, sb = copy.deepcopy(sample.BlankIntercept[i * 2: i * 2 + 2])
+            f, sf = np.array(sample.TotalParam[126 + i * 2:128 + i * 2])
+            sf = f * sf / 100
+            _ = calc.corr.gain(*sample.BlankIntercept[i * 2:2 + i * 2], f, sf)
+            for index in range(len(sample.BlankIntercept[i * 2])):
+                if sample.TotalParam[111][index]:  # use same parameters to correct blank intercepts
+                    b[index] = _[0][index]
+                    sb[index] = _[1][index]
             blank_corrected[i * 2:2 + i * 2] = calc.corr.blank(
-                *sample.CorrectedValues[i * 2:2 + i * 2], *sample.BlankIntercept[i * 2:2 + i * 2])
+                *sample.CorrectedValues[i * 2:2 + i * 2], b, sb)
     except Exception as e:
         print(traceback.format_exc())
         raise ValueError('Blank correction error')
