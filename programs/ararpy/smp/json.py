@@ -53,6 +53,9 @@ class MyEncoder(json.JSONEncoder):
                     'is_blank': obj.is_blank(), 'is_unknown': obj.is_unknown(),
                     'is_air': obj.is_air()})
             return obj.__dict__
+        # Error
+        if isinstance(obj, BaseException):
+            return obj.args[0]
         if not isinstance(obj, (int, str, list, dict, tuple, float)):
             print(f"Special type, {type(obj) = }, {obj = }")
         return super(MyEncoder, self).default(obj)
