@@ -621,31 +621,42 @@ class WritingWorkbook:
         ]
         # writing header
         sht_reference.write_row(row=start_row - 3, col=0, data=reference_header, cell_format=style)
+
+        # total rows, sequence number
+        total_rows = len(self.sample.SequenceName)
+
         # Data for age spectra
-        spectra_data = arr.transpose(self.sample.AgeSpectraPlot.data)
-        spectra_set1_data = arr.transpose(self.sample.AgeSpectraPlot.set1.data) or [[]] * 3
-        spectra_set2_data = arr.transpose(self.sample.AgeSpectraPlot.set2.data) or [[]] * 3
-        sht_reference.write_column(f"A{start_row}", spectra_data[0], style)
-        sht_reference.write_column(f"B{start_row}", spectra_data[1], style)
-        sht_reference.write_column(f"C{start_row}", spectra_data[2], style)
-        sht_reference.write_column(f"D{start_row}", spectra_set1_data[0], style)
-        sht_reference.write_column(f"E{start_row}", spectra_set1_data[1], style)
-        sht_reference.write_column(f"F{start_row}", spectra_set1_data[2], style)
-        sht_reference.write_column(f"G{start_row}", spectra_set2_data[0], style)
-        sht_reference.write_column(f"H{start_row}", spectra_set2_data[1], style)
-        sht_reference.write_column(f"I{start_row}", spectra_set2_data[2], style)
-        sht_reference.write_column(f"J{start_row}", [], style)
-        sht_reference.write_column(f"K{start_row}", [], style)
+        try:
+            spectra_data = arr.transpose(self.sample.AgeSpectraPlot.data)
+            spectra_set1_data = arr.transpose(self.sample.AgeSpectraPlot.set1.data) or [[]] * 3
+            spectra_set2_data = arr.transpose(self.sample.AgeSpectraPlot.set2.data) or [[]] * 3
+            sht_reference.write_column(f"A{start_row}", spectra_data[0], style)
+            sht_reference.write_column(f"B{start_row}", spectra_data[1], style)
+            sht_reference.write_column(f"C{start_row}", spectra_data[2], style)
+            sht_reference.write_column(f"D{start_row}", spectra_set1_data[0], style)
+            sht_reference.write_column(f"E{start_row}", spectra_set1_data[1], style)
+            sht_reference.write_column(f"F{start_row}", spectra_set1_data[2], style)
+            sht_reference.write_column(f"G{start_row}", spectra_set2_data[0], style)
+            sht_reference.write_column(f"H{start_row}", spectra_set2_data[1], style)
+            sht_reference.write_column(f"I{start_row}", spectra_set2_data[2], style)
+            sht_reference.write_column(f"J{start_row}", [], style)
+            sht_reference.write_column(f"K{start_row}", [], style)
+        except IndexError:
+            pass
+
         # Data for normal isochron
-        set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
-            self.sample.NorIsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
-            self.sample.UnselectedSequence)
-        sht_reference.write_column(f"O{start_row}", set1_data[0], style)
-        sht_reference.write_column(f"P{start_row}", set1_data[2], style)
-        sht_reference.write_column(f"Q{start_row}", set2_data[0], style)
-        sht_reference.write_column(f"R{start_row}", set2_data[2], style)
-        sht_reference.write_column(f"S{start_row}", set3_data[0], style)
-        sht_reference.write_column(f"T{start_row}", set3_data[2], style)
+        try:
+            set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
+                self.sample.NorIsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
+                self.sample.UnselectedSequence)
+            sht_reference.write_column(f"O{start_row}", set1_data[0], style)
+            sht_reference.write_column(f"P{start_row}", set1_data[2], style)
+            sht_reference.write_column(f"Q{start_row}", set2_data[0], style)
+            sht_reference.write_column(f"R{start_row}", set2_data[2], style)
+            sht_reference.write_column(f"S{start_row}", set3_data[0], style)
+            sht_reference.write_column(f"T{start_row}", set3_data[2], style)
+        except IndexError:
+            pass
         try:
             sht_reference.write_column(f"U{start_row}", self.sample.NorIsochronPlot.line1.data[0], style)
         except IndexError:
@@ -662,16 +673,20 @@ class WritingWorkbook:
             sht_reference.write_column(f"X{start_row}", self.sample.NorIsochronPlot.line2.data[1], style)
         except IndexError:
             pass
+
         # Data for inverse isochron
-        set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
-            self.sample.InvIsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
-            self.sample.UnselectedSequence)
-        sht_reference.write_column(f"Y{start_row}", set1_data[0], style)
-        sht_reference.write_column(f"Z{start_row}", set1_data[2], style)
-        sht_reference.write_column(f"AA{start_row}", set2_data[0], style)
-        sht_reference.write_column(f"AB{start_row}", set2_data[2], style)
-        sht_reference.write_column(f"AC{start_row}", set3_data[0], style)
-        sht_reference.write_column(f"AD{start_row}", set3_data[2], style)
+        try:
+            set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
+                self.sample.InvIsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
+                self.sample.UnselectedSequence)
+            sht_reference.write_column(f"Y{start_row}", set1_data[0], style)
+            sht_reference.write_column(f"Z{start_row}", set1_data[2], style)
+            sht_reference.write_column(f"AA{start_row}", set2_data[0], style)
+            sht_reference.write_column(f"AB{start_row}", set2_data[2], style)
+            sht_reference.write_column(f"AC{start_row}", set3_data[0], style)
+            sht_reference.write_column(f"AD{start_row}", set3_data[2], style)
+        except IndexError:
+            pass
         try:
             sht_reference.write_column(f"AE{start_row}", self.sample.InvIsochronPlot.line1.data[0], style)
         except IndexError:
@@ -688,16 +703,20 @@ class WritingWorkbook:
             sht_reference.write_column(f"AH{start_row}", self.sample.InvIsochronPlot.line2.data[1], style)
         except IndexError:
             pass
+
         # Data for Cl 1 isochron
-        set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
-            self.sample.KClAr1IsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
-            self.sample.UnselectedSequence)
-        sht_reference.write_column(f"AI{start_row}", set1_data[0], style)
-        sht_reference.write_column(f"AJ{start_row}", set1_data[2], style)
-        sht_reference.write_column(f"AK{start_row}", set2_data[0], style)
-        sht_reference.write_column(f"AL{start_row}", set2_data[2], style)
-        sht_reference.write_column(f"AM{start_row}", set3_data[0], style)
-        sht_reference.write_column(f"AN{start_row}", set3_data[2], style)
+        try:
+            set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
+                self.sample.KClAr1IsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
+                self.sample.UnselectedSequence)
+            sht_reference.write_column(f"AI{start_row}", set1_data[0], style)
+            sht_reference.write_column(f"AJ{start_row}", set1_data[2], style)
+            sht_reference.write_column(f"AK{start_row}", set2_data[0], style)
+            sht_reference.write_column(f"AL{start_row}", set2_data[2], style)
+            sht_reference.write_column(f"AM{start_row}", set3_data[0], style)
+            sht_reference.write_column(f"AN{start_row}", set3_data[2], style)
+        except IndexError:
+            pass
         try:
             sht_reference.write_column(f"AO{start_row}", self.sample.KClAr1IsochronPlot.line1.data[0], style)
         except IndexError:
@@ -714,16 +733,20 @@ class WritingWorkbook:
             sht_reference.write_column(f"AR{start_row}", self.sample.KClAr1IsochronPlot.line2.data[1], style)
         except IndexError:
             pass
+
         # Data for Cl 2 isochron
-        set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
-            self.sample.KClAr2IsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
-            self.sample.UnselectedSequence)
-        sht_reference.write_column(f"AS{start_row}", set1_data[0], style)
-        sht_reference.write_column(f"AT{start_row}", set1_data[2], style)
-        sht_reference.write_column(f"AU{start_row}", set2_data[0], style)
-        sht_reference.write_column(f"AV{start_row}", set2_data[2], style)
-        sht_reference.write_column(f"AW{start_row}", set3_data[0], style)
-        sht_reference.write_column(f"AX{start_row}", set3_data[2], style)
+        try:
+            set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
+                self.sample.KClAr2IsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
+                self.sample.UnselectedSequence)
+            sht_reference.write_column(f"AS{start_row}", set1_data[0], style)
+            sht_reference.write_column(f"AT{start_row}", set1_data[2], style)
+            sht_reference.write_column(f"AU{start_row}", set2_data[0], style)
+            sht_reference.write_column(f"AV{start_row}", set2_data[2], style)
+            sht_reference.write_column(f"AW{start_row}", set3_data[0], style)
+            sht_reference.write_column(f"AX{start_row}", set3_data[2], style)
+        except IndexError:
+            pass
         try:
             sht_reference.write_column(f"AY{start_row}", self.sample.KClAr2IsochronPlot.line1.data[0], style)
         except IndexError:
@@ -740,16 +763,20 @@ class WritingWorkbook:
             sht_reference.write_column(f"BB{start_row}", self.sample.KClAr2IsochronPlot.line2.data[1], style)
         except IndexError:
             pass
+
         # Data for Cl 3 isochron
-        set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
-            self.sample.KClAr3IsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
-            self.sample.UnselectedSequence)
-        sht_reference.write_column(f"BC{start_row}", set1_data[0], style)
-        sht_reference.write_column(f"BD{start_row}", set1_data[2], style)
-        sht_reference.write_column(f"BE{start_row}", set2_data[0], style)
-        sht_reference.write_column(f"BF{start_row}", set2_data[2], style)
-        sht_reference.write_column(f"BG{start_row}", set3_data[0], style)
-        sht_reference.write_column(f"BH{start_row}", set3_data[2], style)
+        try:
+            set_data = [set1_data, set2_data, set3_data] = isochron.get_set_data(
+                self.sample.KClAr3IsochronPlot.data, self.sample.SelectedSequence1, self.sample.SelectedSequence2,
+                self.sample.UnselectedSequence)
+            sht_reference.write_column(f"BC{start_row}", set1_data[0], style)
+            sht_reference.write_column(f"BD{start_row}", set1_data[2], style)
+            sht_reference.write_column(f"BE{start_row}", set2_data[0], style)
+            sht_reference.write_column(f"BF{start_row}", set2_data[2], style)
+            sht_reference.write_column(f"BG{start_row}", set3_data[0], style)
+            sht_reference.write_column(f"BH{start_row}", set3_data[2], style)
+        except IndexError:
+            pass
         try:
             sht_reference.write_column(f"BI{start_row}", self.sample.KClAr3IsochronPlot.line1.data[0], style)
         except IndexError:
@@ -766,19 +793,23 @@ class WritingWorkbook:
             sht_reference.write_column(f"BL{start_row}", self.sample.KClAr3IsochronPlot.line2.data[1], style)
         except IndexError:
             pass
+
         # Data for degas pattern
-        degas_data = self.sample.DegasPatternPlot.data
-        sht_reference.write_column(f"BM{start_row}", degas_data[0], style)
-        sht_reference.write_column(f"BN{start_row}", degas_data[1], style)
-        sht_reference.write_column(f"BO{start_row}", degas_data[2], style)
-        sht_reference.write_column(f"BP{start_row}", degas_data[3], style)
-        sht_reference.write_column(f"BQ{start_row}", degas_data[4], style)
-        sht_reference.write_column(f"BR{start_row}", degas_data[5], style)
-        sht_reference.write_column(f"BS{start_row}", degas_data[6], style)
-        sht_reference.write_column(f"BT{start_row}", degas_data[7], style)
-        sht_reference.write_column(f"BU{start_row}", degas_data[8], style)
-        sht_reference.write_column(f"BV{start_row}", degas_data[9], style)
-        sht_reference.write_column(f"BW{start_row}", [i+1 for i in range(len(self.sample.SequenceName))], style)
+        try:
+            degas_data = self.sample.DegasPatternPlot.data
+            sht_reference.write_column(f"BM{start_row}", degas_data[0], style)
+            sht_reference.write_column(f"BN{start_row}", degas_data[1], style)
+            sht_reference.write_column(f"BO{start_row}", degas_data[2], style)
+            sht_reference.write_column(f"BP{start_row}", degas_data[3], style)
+            sht_reference.write_column(f"BQ{start_row}", degas_data[4], style)
+            sht_reference.write_column(f"BR{start_row}", degas_data[5], style)
+            sht_reference.write_column(f"BS{start_row}", degas_data[6], style)
+            sht_reference.write_column(f"BT{start_row}", degas_data[7], style)
+            sht_reference.write_column(f"BU{start_row}", degas_data[8], style)
+            sht_reference.write_column(f"BV{start_row}", degas_data[9], style)
+            sht_reference.write_column(f"BW{start_row}", [i+1 for i in range(len(self.sample.SequenceName))], style)
+        except IndexError:
+            pass
 
         sht_result = xls.add_worksheet('Results')
         title_style = xls.add_format({
@@ -883,165 +914,17 @@ class WritingWorkbook:
                     continue
 
         for sht_name, [prop_name, sht_type, row, col, _, smp_attr_name, header_name] in self.template.sheet():
-            if sht_type == "table":
-                data = arr.transpose(getattr(self.sample, smp_attr_name, None).data)
-                sht = xls.add_worksheet(sht_name)
-                sht.hide_gridlines(2)  # 0 = show grids, 1 = hide print grid, else = hide print and screen grids
-                sht.hide()  # default hidden table sheet
-                sht.set_column(0, len(data), width=12)  # column width
-                header = getattr(sample, header_name)
-                sht.write_row(row=row - 1, col=col, data=header, cell_format=style)
-                for each_col in data:
-                    res = sht.write_column(row=row, col=col, data=each_col, cell_format=style)
-                    if res:
-                        xls.close()
-                        return None
-                    col += 1
-            elif sht_type == "chart":
-                sht = xls.add_chartsheet(sht_name)
-                sht.set_paper(1)  # US letter = 1, A4 = 9, letter is more rectangular
-                num_unselected = len(self.sample.UnselectedSequence)
-                num_set1 = len(self.sample.SelectedSequence1)
-                num_set2 = len(self.sample.SelectedSequence2)
-                if "spectra" in prop_name.lower():
-                    figure = self.sample.AgeSpectraPlot
-                    data_area = [
-                        # Spectra lines
-                        f"A{start_row}:A{len(spectra_data[0]) + start_row - 1}",
-                        f"B{start_row}:B{len(spectra_data[0]) + start_row - 1}",
-                        f"C{start_row}:C{len(spectra_data[0]) + start_row - 1}",
-                        # set 1
-                        f"D{start_row}:D{len(spectra_data[0]) + start_row - 1}",
-                        f"E{start_row}:E{len(spectra_data[0]) + start_row - 1}",
-                        f"F{start_row}:F{len(spectra_data[0]) + start_row - 1}",
-                        # set 2
-                        f"G{start_row}:G{len(spectra_data[0]) + start_row - 1}",
-                        f"H{start_row}:H{len(spectra_data[0]) + start_row - 1}",
-                        f"I{start_row}:I{len(spectra_data[0]) + start_row - 1}",
-                    ]
-                    axis_range = [figure.xaxis.min, figure.xaxis.max, figure.yaxis.min, figure.yaxis.max]
-                    self.get_chart_age_spectra(xls, sht, data_area, axis_range)
-                elif "normal_isochron" in prop_name.lower():
-                    data_area = [
-                        f"O{start_row}:O{num_set1 + start_row - 1}", f"P{start_row}:P{num_set1 + start_row - 1}",
-                        f"Q{start_row}:Q{num_set2 + start_row - 1}", f"R{start_row}:R{num_set2 + start_row - 1}",
-                        f"S{start_row}:S{num_unselected + start_row - 1}",
-                        f"T{start_row}:T{num_unselected + start_row - 1}",
-                        f"U{start_row}:V{start_row}", f"U{start_row + 1}:V{start_row + 1}",
-                        f"W{start_row}:X{start_row}", f"W{start_row + 1}:X{start_row + 1}",
-                    ]
-                    axis_range = [
-                        basic.get_component_byid(self.sample, 'figure_2').xaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_2').xaxis.max,
-                        basic.get_component_byid(self.sample, 'figure_2').yaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_2').yaxis.max,
-                    ]
-                    self.get_chart_isochron(
-                        xls, sht, data_area, axis_range, title_name="Normal Isochron",
-                        x_axis_name=f"{consts.sup_39}Ar / {consts.sup_36}Ar",
-                        y_axis_name=f"{consts.sup_40}Ar / {consts.sup_36}Ar")
-                elif "inverse_isochron" in prop_name.lower():
-                    data_area = [
-                        f"Y{start_row}:Y{num_set1 + start_row - 1}", f"Z{start_row}:Z{num_set1 + start_row - 1}",
-                        f"AA{start_row}:AA{num_set2 + start_row - 1}", f"AB{start_row}:AB{num_set2 + start_row - 1}",
-                        f"AC{start_row}:AC{num_unselected + start_row - 1}",
-                        f"AD{start_row}:AD{num_unselected + start_row - 1}",
-                        f"AE{start_row}:AF{start_row}", f"AE{start_row + 1}:AF{start_row + 1}",
-                        f"AG{start_row}:AH{start_row}", f"AG{start_row + 1}:AH{start_row + 1}",
-                    ]
-                    axis_range = [
-                        basic.get_component_byid(self.sample, 'figure_3').xaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_3').xaxis.max,
-                        basic.get_component_byid(self.sample, 'figure_3').yaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_3').yaxis.max,
-                    ]
-                    self.get_chart_isochron(
-                        xls, sht, data_area, axis_range, title_name="Inverse Isochron",
-                        x_axis_name=f"{consts.sup_39}Ar / {consts.sup_40}Ar",
-                        y_axis_name=f"{consts.sup_36}Ar / {consts.sup_40}Ar")
-                elif "k-cl-ar_1_isochron" in prop_name.lower():
-                    data_area = [
-                        f"AI{start_row}:AI{num_set1 + start_row - 1}", f"AJ{start_row}:AJ{num_set1 + start_row - 1}",
-                        f"AK{start_row}:AK{num_set2 + start_row - 1}", f"AL{start_row}:AL{num_set2 + start_row - 1}",
-                        f"AM{start_row}:AM{num_unselected + start_row - 1}",
-                        f"AN{start_row}:AN{num_unselected + start_row - 1}",
-                        f"AO{start_row}:AP{start_row}", f"AO{start_row + 1}:AP{start_row + 1}",
-                        f"AQ{start_row}:AR{start_row}", f"AQ{start_row + 1}:AR{start_row + 1}",
-                    ]
-                    axis_range = [
-                        basic.get_component_byid(self.sample, 'figure_4').xaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_4').xaxis.max,
-                        basic.get_component_byid(self.sample, 'figure_4').yaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_4').yaxis.max,
-                    ]
-                    self.get_chart_isochron(
-                        xls, sht, data_area, axis_range, title_name="K-Cl-Ar 1 Isochron",
-                        x_axis_name=f"{consts.sup_39}Ar / {consts.sup_38}Ar",
-                        y_axis_name=f"{consts.sup_40}Ar / {consts.sup_38}Ar")
-                elif "k-cl-ar_2_isochron" in prop_name.lower():
-                    data_area = [
-                        f"AS{start_row}:AS{num_set1 + start_row - 1}", f"AT{start_row}:AT{num_set1 + start_row - 1}",
-                        f"AU{start_row}:AU{num_set2 + start_row - 1}", f"AV{start_row}:AV{num_set2 + start_row - 1}",
-                        f"AW{start_row}:AW{num_unselected + start_row - 1}",
-                        f"AX{start_row}:AX{num_unselected + start_row - 1}",
-                        f"AY{start_row}:AZ{start_row}", f"AY{start_row + 1}:AZ{start_row + 1}",
-                        f"BA{start_row}:BB{start_row}", f"BA{start_row + 1}:BB{start_row + 1}",
-                    ]
-                    axis_range = [
-                        basic.get_component_byid(self.sample, 'figure_5').xaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_5').xaxis.max,
-                        basic.get_component_byid(self.sample, 'figure_5').yaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_5').yaxis.max,
-                    ]
-                    self.get_chart_isochron(
-                        xls, sht, data_area, axis_range, title_name="K-Cl-Ar 2 Isochron",
-                        x_axis_name=f"{consts.sup_39}Ar / {consts.sup_40}Ar",
-                        y_axis_name=f"{consts.sup_38}Ar / {consts.sup_40}Ar")
-                elif "k-cl-ar_3_isochron" in prop_name.lower():
-                    data_area = [
-                        f"BC{start_row}:BC{num_set1 + start_row - 1}", f"BD{start_row}:BD{num_set1 + start_row - 1}",
-                        f"BE{start_row}:BE{num_set2 + start_row - 1}", f"BF{start_row}:BF{num_set2 + start_row - 1}",
-                        f"BG{start_row}:BG{num_unselected + start_row - 1}",
-                        f"BH{start_row}:BH{num_unselected + start_row - 1}",
-                        f"BI{start_row}:BJ{start_row}", f"BI{start_row + 1}:BJ{start_row + 1}",
-                        f"BK{start_row}:BL{start_row}", f"BK{start_row + 1}:BL{start_row + 1}",
-                    ]
-                    axis_range = [
-                        basic.get_component_byid(self.sample, 'figure_6').xaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_6').xaxis.max,
-                        basic.get_component_byid(self.sample, 'figure_6').yaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_6').yaxis.max,
-                    ]
-                    self.get_chart_isochron(
-                        xls, sht, data_area, axis_range, title_name="K-Cl-Ar 3 Isochron",
-                        x_axis_name=f"{consts.sup_38}Ar / {consts.sup_39}Ar",
-                        y_axis_name=f"{consts.sup_40}Ar / {consts.sup_39}Ar")
-                elif "degas_pattern" in prop_name.lower():
-                    data_area = [
-                        f"BM{start_row}:BM{len(degas_data[0]) + start_row - 1}",
-                        f"BN{start_row}:BN{len(degas_data[1]) + start_row - 1}",
-                        f"BO{start_row}:BO{len(degas_data[2]) + start_row - 1}",
-                        f"BP{start_row}:BP{len(degas_data[3]) + start_row - 1}",
-                        f"BQ{start_row}:BQ{len(degas_data[4]) + start_row - 1}",
-                        f"BR{start_row}:BR{len(degas_data[5]) + start_row - 1}",
-                        f"BS{start_row}:BS{len(degas_data[6]) + start_row - 1}",
-                        f"BT{start_row}:BT{len(degas_data[7]) + start_row - 1}",
-                        f"BU{start_row}:BU{len(degas_data[8]) + start_row - 1}",
-                        f"BV{start_row}:BV{len(degas_data[9]) + start_row - 1}",
-                        f"BW{start_row}:BW{len(degas_data[9]) + start_row - 1}",
-                    ]
-                    axis_range = [
-                        basic.get_component_byid(self.sample, 'figure_8').xaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_8').xaxis.max,
-                        basic.get_component_byid(self.sample, 'figure_8').yaxis.min,
-                        basic.get_component_byid(self.sample, 'figure_8').yaxis.max,
-                    ]
-                    self.get_chart_degas_pattern(
-                        xls, sht, data_area, axis_range,
-                        title_name="Degas Pattern", x_axis_name=f"Sequence",
-                        y_axis_name=f"Argon Isotopes (%)")
-            else:
-                xls.close()
+            try:
+                if sht_type == "table":
+                    self.write_sht_table(sht_name, prop_name, sht_type, row, col, _, smp_attr_name, header_name,
+                                         style, xls)
+                elif sht_type == "chart":
+                    self.write_sht_chart(sht_name, prop_name, sht_type, row, col, _, smp_attr_name, header_name,
+                                         style, xls, start_row, total_rows)
+                else:
+                    raise ValueError
+            except (BaseException, Exception):
+                print(traceback.format_exc())
                 return None
         xls.get_worksheet_by_name("Reference").hide()
         xls.get_worksheet_by_name("Isochrons").hidden = 0  # unhiden isochrons worksheet
@@ -1049,6 +932,163 @@ class WritingWorkbook:
         xls.close()
         print('导出完毕，文件路径:%s' % self.filepath)
         return True
+
+    def write_sht_table(self, sht_name, prop_name, sht_type, row, col, _, smp_attr_name, header_name, style, xls):
+        sht = xls.add_worksheet(sht_name)
+        data = arr.transpose(getattr(self.sample, smp_attr_name, None).data)
+        sht.hide_gridlines(2)  # 0 = show grids, 1 = hide print grid, else = hide print and screen grids
+        sht.hide()  # default hidden table sheet
+        sht.set_column(0, len(data), width=12)  # column width
+        header = getattr(sample, header_name)
+        sht.write_row(row=row - 1, col=col, data=header, cell_format=style)
+        for each_col in data:
+            res = sht.write_column(row=row, col=col, data=each_col, cell_format=style)
+            if res:
+                raise ValueError(res)
+            col += 1
+
+    def write_sht_chart(self, sht_name, prop_name, sht_type, row, col, _, smp_attr_name, header_name, style, xls, start_row, total_rows):
+        sht = xls.add_chartsheet(sht_name)
+        sht.set_paper(1)  # US letter = 1, A4 = 9, letter is more rectangular
+        num_unselected = len(self.sample.UnselectedSequence)
+        num_set1 = len(self.sample.SelectedSequence1)
+        num_set2 = len(self.sample.SelectedSequence2)
+        if "spectra" in prop_name.lower():
+            figure = self.sample.AgeSpectraPlot
+            data_area = [
+                # Spectra lines
+                f"A{start_row}:A{total_rows + start_row - 1}",
+                f"B{start_row}:B{total_rows + start_row - 1}",
+                f"C{start_row}:C{total_rows + start_row - 1}",
+                # set 1
+                f"D{start_row}:D{total_rows + start_row - 1}",
+                f"E{start_row}:E{total_rows + start_row - 1}",
+                f"F{start_row}:F{total_rows + start_row - 1}",
+                # set 2
+                f"G{start_row}:G{total_rows + start_row - 1}",
+                f"H{start_row}:H{total_rows + start_row - 1}",
+                f"I{start_row}:I{total_rows + start_row - 1}",
+            ]
+            axis_range = [figure.xaxis.min, figure.xaxis.max, figure.yaxis.min, figure.yaxis.max]
+            self.get_chart_age_spectra(xls, sht, data_area, axis_range)
+        elif "normal_isochron" in prop_name.lower():
+            data_area = [
+                f"O{start_row}:O{num_set1 + start_row - 1}", f"P{start_row}:P{num_set1 + start_row - 1}",
+                f"Q{start_row}:Q{num_set2 + start_row - 1}", f"R{start_row}:R{num_set2 + start_row - 1}",
+                f"S{start_row}:S{num_unselected + start_row - 1}",
+                f"T{start_row}:T{num_unselected + start_row - 1}",
+                f"U{start_row}:V{start_row}", f"U{start_row + 1}:V{start_row + 1}",
+                f"W{start_row}:X{start_row}", f"W{start_row + 1}:X{start_row + 1}",
+            ]
+            axis_range = [
+                basic.get_component_byid(self.sample, 'figure_2').xaxis.min,
+                basic.get_component_byid(self.sample, 'figure_2').xaxis.max,
+                basic.get_component_byid(self.sample, 'figure_2').yaxis.min,
+                basic.get_component_byid(self.sample, 'figure_2').yaxis.max,
+            ]
+            self.get_chart_isochron(
+                xls, sht, data_area, axis_range, title_name="Normal Isochron",
+                x_axis_name=f"{consts.sup_39}Ar / {consts.sup_36}Ar",
+                y_axis_name=f"{consts.sup_40}Ar / {consts.sup_36}Ar")
+        elif "inverse_isochron" in prop_name.lower():
+            data_area = [
+                f"Y{start_row}:Y{num_set1 + start_row - 1}", f"Z{start_row}:Z{num_set1 + start_row - 1}",
+                f"AA{start_row}:AA{num_set2 + start_row - 1}", f"AB{start_row}:AB{num_set2 + start_row - 1}",
+                f"AC{start_row}:AC{num_unselected + start_row - 1}",
+                f"AD{start_row}:AD{num_unselected + start_row - 1}",
+                f"AE{start_row}:AF{start_row}", f"AE{start_row + 1}:AF{start_row + 1}",
+                f"AG{start_row}:AH{start_row}", f"AG{start_row + 1}:AH{start_row + 1}",
+            ]
+            axis_range = [
+                basic.get_component_byid(self.sample, 'figure_3').xaxis.min,
+                basic.get_component_byid(self.sample, 'figure_3').xaxis.max,
+                basic.get_component_byid(self.sample, 'figure_3').yaxis.min,
+                basic.get_component_byid(self.sample, 'figure_3').yaxis.max,
+            ]
+            self.get_chart_isochron(
+                xls, sht, data_area, axis_range, title_name="Inverse Isochron",
+                x_axis_name=f"{consts.sup_39}Ar / {consts.sup_40}Ar",
+                y_axis_name=f"{consts.sup_36}Ar / {consts.sup_40}Ar")
+        elif "k-cl-ar_1_isochron" in prop_name.lower():
+            data_area = [
+                f"AI{start_row}:AI{num_set1 + start_row - 1}", f"AJ{start_row}:AJ{num_set1 + start_row - 1}",
+                f"AK{start_row}:AK{num_set2 + start_row - 1}", f"AL{start_row}:AL{num_set2 + start_row - 1}",
+                f"AM{start_row}:AM{num_unselected + start_row - 1}",
+                f"AN{start_row}:AN{num_unselected + start_row - 1}",
+                f"AO{start_row}:AP{start_row}", f"AO{start_row + 1}:AP{start_row + 1}",
+                f"AQ{start_row}:AR{start_row}", f"AQ{start_row + 1}:AR{start_row + 1}",
+            ]
+            axis_range = [
+                basic.get_component_byid(self.sample, 'figure_4').xaxis.min,
+                basic.get_component_byid(self.sample, 'figure_4').xaxis.max,
+                basic.get_component_byid(self.sample, 'figure_4').yaxis.min,
+                basic.get_component_byid(self.sample, 'figure_4').yaxis.max,
+            ]
+            self.get_chart_isochron(
+                xls, sht, data_area, axis_range, title_name="K-Cl-Ar 1 Isochron",
+                x_axis_name=f"{consts.sup_39}Ar / {consts.sup_38}Ar",
+                y_axis_name=f"{consts.sup_40}Ar / {consts.sup_38}Ar")
+        elif "k-cl-ar_2_isochron" in prop_name.lower():
+            data_area = [
+                f"AS{start_row}:AS{num_set1 + start_row - 1}", f"AT{start_row}:AT{num_set1 + start_row - 1}",
+                f"AU{start_row}:AU{num_set2 + start_row - 1}", f"AV{start_row}:AV{num_set2 + start_row - 1}",
+                f"AW{start_row}:AW{num_unselected + start_row - 1}",
+                f"AX{start_row}:AX{num_unselected + start_row - 1}",
+                f"AY{start_row}:AZ{start_row}", f"AY{start_row + 1}:AZ{start_row + 1}",
+                f"BA{start_row}:BB{start_row}", f"BA{start_row + 1}:BB{start_row + 1}",
+            ]
+            axis_range = [
+                basic.get_component_byid(self.sample, 'figure_5').xaxis.min,
+                basic.get_component_byid(self.sample, 'figure_5').xaxis.max,
+                basic.get_component_byid(self.sample, 'figure_5').yaxis.min,
+                basic.get_component_byid(self.sample, 'figure_5').yaxis.max,
+            ]
+            self.get_chart_isochron(
+                xls, sht, data_area, axis_range, title_name="K-Cl-Ar 2 Isochron",
+                x_axis_name=f"{consts.sup_39}Ar / {consts.sup_40}Ar",
+                y_axis_name=f"{consts.sup_38}Ar / {consts.sup_40}Ar")
+        elif "k-cl-ar_3_isochron" in prop_name.lower():
+            data_area = [
+                f"BC{start_row}:BC{num_set1 + start_row - 1}", f"BD{start_row}:BD{num_set1 + start_row - 1}",
+                f"BE{start_row}:BE{num_set2 + start_row - 1}", f"BF{start_row}:BF{num_set2 + start_row - 1}",
+                f"BG{start_row}:BG{num_unselected + start_row - 1}",
+                f"BH{start_row}:BH{num_unselected + start_row - 1}",
+                f"BI{start_row}:BJ{start_row}", f"BI{start_row + 1}:BJ{start_row + 1}",
+                f"BK{start_row}:BL{start_row}", f"BK{start_row + 1}:BL{start_row + 1}",
+            ]
+            axis_range = [
+                basic.get_component_byid(self.sample, 'figure_6').xaxis.min,
+                basic.get_component_byid(self.sample, 'figure_6').xaxis.max,
+                basic.get_component_byid(self.sample, 'figure_6').yaxis.min,
+                basic.get_component_byid(self.sample, 'figure_6').yaxis.max,
+            ]
+            self.get_chart_isochron(
+                xls, sht, data_area, axis_range, title_name="K-Cl-Ar 3 Isochron",
+                x_axis_name=f"{consts.sup_38}Ar / {consts.sup_39}Ar",
+                y_axis_name=f"{consts.sup_40}Ar / {consts.sup_39}Ar")
+        elif "degas_pattern" in prop_name.lower():
+            data_area = [
+                f"BM{start_row}:BM{total_rows + start_row - 1}",
+                f"BN{start_row}:BN{total_rows + start_row - 1}",
+                f"BO{start_row}:BO{total_rows + start_row - 1}",
+                f"BP{start_row}:BP{total_rows + start_row - 1}",
+                f"BQ{start_row}:BQ{total_rows + start_row - 1}",
+                f"BR{start_row}:BR{total_rows + start_row - 1}",
+                f"BS{start_row}:BS{total_rows + start_row - 1}",
+                f"BT{start_row}:BT{total_rows + start_row - 1}",
+                f"BU{start_row}:BU{total_rows + start_row - 1}",
+                f"BV{start_row}:BV{total_rows + start_row - 1}",
+                f"BW{start_row}:BW{total_rows + start_row - 1}",
+            ]
+            axis_range = [
+                basic.get_component_byid(self.sample, 'figure_8').xaxis.min,
+                basic.get_component_byid(self.sample, 'figure_8').xaxis.max,
+                basic.get_component_byid(self.sample, 'figure_8').yaxis.min,
+                basic.get_component_byid(self.sample, 'figure_8').yaxis.max,
+            ]
+            self.get_chart_degas_pattern(
+                xls, sht, data_area, axis_range,
+                title_name="Degas Pattern", x_axis_name=f"Sequence", y_axis_name=f"Argon Isotopes (%)")
 
     def create_initial_chart(self, xls: Workbook, chart_type: str = 'scatter'):
         # chartarea
@@ -1228,8 +1268,8 @@ class WritingWorkbook:
         # chart.title_name = title_name
         for each in series:
             chart.add_series(each)
-        # chart.x_axis.update({'name': x_axis_name, 'min': axis_range[0], 'max': axis_range[1]})
-        # chart.y_axis.update({'name': y_axis_name, 'min': axis_range[2], 'max': axis_range[3]})
+        chart.x_axis.update({'name': x_axis_name, 'min': axis_range[0], 'max': axis_range[1]})
+        chart.y_axis.update({'name': y_axis_name, 'min': axis_range[2], 'max': axis_range[3]})
 
         chart.set_legend({'none': False, 'position': 'top'})
 
