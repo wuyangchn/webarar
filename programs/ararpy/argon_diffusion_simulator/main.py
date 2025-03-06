@@ -53,7 +53,7 @@ def _uniform_sphere_step(step_length, shape):
 
 
 def walker(pos, step_length, total_nsteps, min_bound, max_bound, scale=0., compensation=0, remove=True,
-           conditions=None, boundary_factor=1):
+           conditions=None, boundary_factor=1, decay=0, parent=0):
 
     if len(pos) == 0:
         return pos
@@ -63,7 +63,10 @@ def walker(pos, step_length, total_nsteps, min_bound, max_bound, scale=0., compe
     sigma = step_length * math.sqrt(scale)
 
     if conditions is None:
-        conditions = np.array([[-50, -50, -50, 50, 50, 50, 1]])
+        if dimension == 3:
+            conditions = np.array([[-50, -50, -50, 50, 50, 50, 1]])
+        else:
+            conditions = np.array([[-50, -50, 50, 50, 1]])
 
     num_big_steps = int(total_nsteps // scale) if int(scale) > 1 else 0
     num_small_steps = int(total_nsteps % scale) if int(scale) > 1 else int(total_nsteps)
@@ -78,11 +81,12 @@ def walker(pos, step_length, total_nsteps, min_bound, max_bound, scale=0., compe
 
         # 核心粒子随机行走
         coefficients = np.ones(len(in_core))
-        for x1, y1, z1, x2, y2, z2, coeff in conditions:
+        for each in conditions:
+            # each = x1, y1, z1, x2, y2, z2, coeff for dimension=3
             cond = np.all(
-                (in_core >= np.array([x1, y1, z1][:dimension])) & (in_core <= np.array([x2, y2, z2][:dimension])),
+                (in_core >= np.array(each[:dimension])) & (in_core <= np.array(each[dimension:int(2*dimension)])),
                 axis=1)
-            coefficients = np.where(cond, coeff ** 0.5, coefficients)
+            coefficients = np.where(cond, each[-1] ** 0.5, coefficients)
         steps = np.random.normal(0, sigma, size=in_core.shape)
         in_core += steps * coefficients[:, None]
 
@@ -103,10 +107,10 @@ def walker(pos, step_length, total_nsteps, min_bound, max_bound, scale=0., compe
     k = boundary_factor * max(conditions[:, -1])
     for _ in range(int(num_small_steps * k)):
         coefficients = np.ones(len(pos))
-        for x1, y1, z1, x2, y2, z2, coeff in conditions:
-            cond = np.all((pos >= np.array([x1, y1, z1][:dimension])) & (pos <= np.array([x2, y2, z2][:dimension])),
+        for each in conditions:
+            cond = np.all((pos >= np.array(each[:dimension])) & (pos <= np.array(each[dimension:int(2*dimension)])),
                           axis=1)
-            coefficients = np.where(cond, (coeff / k) ** 0.5, coefficients)
+            coefficients = np.where(cond, (each[-1] / k) ** 0.5, coefficients)
             # coefficients = np.where(cond, coeff ** 0.5, coefficients)
         steps = np.random.normal(0, step_length, size=np.shape(pos))
         pos += steps * coefficients[:, None]
@@ -118,7 +122,7 @@ def walker(pos, step_length, total_nsteps, min_bound, max_bound, scale=0., compe
 
 
 def walker2(pos: np.ndarray, duration, step_length, min_bound, max_bound, time_scale, frequency,
-            conditions=None, remove: bool = True):
+            conditions=None, remove: bool = True, decay=0, parent=0):
     """
     :return:
     """
@@ -128,19 +132,31 @@ def walker2(pos: np.ndarray, duration, step_length, min_bound, max_bound, time_s
 
     dimension = pos.shape[-1] if len(pos.shape) > 1 else 1
 
+
     dt = time_scale
     if conditions is None:
-        conditions = np.array([[-50, -50, -50, 50, 50, 50, 1]])
+        if dimension == 3:
+            conditions = np.array([[-50, -50, -50, 50, 50, 50, 1]])
+        else:
+            conditions = np.array([[-50, -50, 50, 50, 1]])
 
     for step in range(int(1e16)):
 
+        n = parent - int(parent * math.exp(-1 * decay * dt / (3600 * 24 * 365.2425)))
+        # print(f"number of new pos = {n}")
+        parent = parent - n
+        new_pos = np.random.uniform(max(max_bound), min(min_bound), size=(int(n), dimension))
+        new_pos = new_pos[np.all((new_pos >= min_bound) & (new_pos <= max_bound), axis=1)]
+        pos = np.concatenate((pos, new_pos), axis=0)
+
         res = np.zeros(0).reshape(0, dimension)
-        for index, (x1, y1, z1, x2, y2, z2, gamma) in enumerate(conditions):
-            d = step_length * math.sqrt(gamma * frequency * time_scale)
+        for index, each in enumerate(conditions):
+            # each = (x1, y1, z1, x2, y2, z2, gamma)
+            d = step_length * math.sqrt(each[-1] * frequency * time_scale)
 
             locs = np.ones(len(pos)) * 999
-            for _index, (_x1, _y1, _z1, _x2, _y2, _z2, _coeff) in enumerate(conditions):
-                cond = np.all((pos >= np.array([_x1, _y1, _z1][:dimension])) & (pos <= np.array([_x2, _y2, _z2][:dimension])), axis=1)
+            for _index, _each in enumerate(conditions):
+                cond = np.all((pos >= np.array(_each[:dimension])) & (pos <= np.array(_each[dimension:int(2*dimension)])), axis=1)
                 locs = np.where(cond, _index, locs)
 
             partial_pos = pos[locs == index]
@@ -226,7 +242,8 @@ class Domain:
 
         # 初始化粒子位置，随机分布在网格内
         # 初始原子个数  1e14 原子密度 个/立方厘米   1e-4是单位换算 cm/µm
-        natoms = int(self.atom_density * (abs(max(self.max_bound) - min(self.min_bound)) * 1e-4) ** self.dimension)
+        natoms = int(self.atom_density ** (self.dimension / 3) * (abs(max(self.max_bound) - min(self.min_bound)) * 1e-4) ** self.dimension)
+        natoms = 1 if natoms == 0 else natoms
         self.positions = np.random.uniform(max(self.max_bound), min(self.min_bound), size=(int(natoms), self.dimension))
         self.positions = self.positions[np.all((self.positions >= self.min_bound) & (self.positions <= self.max_bound), axis=1)]
         for dom in self.inclusions:
@@ -310,13 +327,13 @@ class DiffSimulation:
         self.remained_per_step = []
         self.released_per_step = []
 
-    def run_sequence(self, times, temperatures, targets, domains: List[Domain], nsteps_factor=None,
+    def run_sequence(self, times, temperatures, statuses, targets, domains: List[Domain], nsteps_factor=None,
                      simulating: bool = False, epsilon=0.001, start_time=0, k=1.2, use_walker1=True,
-                     scoring: bool = False):
+                     scoring: bool = False, decay=0, parent=0):
         pos = copy.deepcopy(self.positions)
         self.seq = []  # 用于记录参数
 
-        for index, (duration, temperature, target) in enumerate(zip(times, temperatures, targets)):
+        for index, (duration, temperature, target, status) in enumerate(zip(times, temperatures, targets, statuses)):
 
             self.seq.append({})
 
@@ -340,7 +357,7 @@ class DiffSimulation:
 
                 if use_walker1:
 
-                    print(f"调整前: {nsteps_factor = }, gamma = {conditions[0][6]}, {total_steps = }")
+                    # print(f"调整前: {nsteps_factor = }, gamma = {conditions[0][-1]}, {total_steps = }")
                     nsteps_factor = 10 ** math.floor(
                         -math.log10(max(conditions[:, -1]))) * 1000  # 用来调节次数和步长的巨大差异，次数太大，但步程太小
                     while int(total_steps / nsteps_factor) < 1:
@@ -356,33 +373,35 @@ class DiffSimulation:
                         boundary_factor = 0.1 ** (k * math.log10(1 + (max(conditions[:, -1]) // 1000)))
                     step_length = self.step_length / np.sqrt(pos.shape[1] if len(pos.shape) > 1 else 1)
                     scale = int(total_steps)
-                    print(
-                        f"调整后: {nsteps_factor = }, gamma = {conditions[0][6]}, {total_steps = }, {compensation = }, {boundary_factor = }")
+                    # print(f"调整后: {nsteps_factor = }, gamma = {conditions[0][-1]}, {total_steps = }, {compensation = }, {boundary_factor = }")
 
                     _pos = walker(
                         copy.deepcopy(pos), step_length=step_length, total_nsteps=total_steps,
                         min_bound=self.min_bound, max_bound=self.max_bound, scale=scale,
-                        compensation=compensation, remove=True, conditions=conditions, boundary_factor=boundary_factor
+                        compensation=compensation, remove=True, conditions=conditions, boundary_factor=boundary_factor,
+                        decay=decay, parent=parent
                     )
 
-                    self.seq[index].update({
-                        "duration": duration, "temperature": temperature, "target": target, "step_length": step_length,
-                        "scale": scale, "compensation": compensation, "boundary_factor": boundary_factor, "e": e,
-                        "simulation": simulating, "nsteps_factor": nsteps_factor, "conditions": conditions
-                    })
+                    # self.seq[index].update({
+                    #     "duration": duration, "temperature": temperature, "target": target, "step_length": step_length,
+                    #     "scale": scale, "compensation": compensation, "boundary_factor": boundary_factor, "e": e,
+                    #     "simulation": simulating, "nsteps_factor": nsteps_factor, "conditions": conditions
+                    # })
 
                 else:
                     step_length = self.step_length / np.sqrt(pos.shape[1] if len(pos.shape) > 1 else 1)
-                    time_scale = k
+                    scale = k
                     _pos = walker2(copy.deepcopy(pos), duration=heating_duration, step_length=step_length,
-                                   min_bound=self.min_bound, max_bound=self.max_bound, time_scale=time_scale,
-                                   frequency=self.frequency, conditions=conditions, remove=True)
+                                   min_bound=self.min_bound, max_bound=self.max_bound, time_scale=scale,
+                                   frequency=self.frequency, conditions=conditions, remove=True, decay=decay, parent=parent)
+                    boundary_factor = 1
+                    compensation = 0
 
-                    self.seq[index].update({
-                        "duration": duration, "temperature": temperature, "target": target, "step_length": step_length,
-                        "scale": time_scale, "compensation": 0, "boundary_factor": 1, "e": e,
-                        "simulation": simulating, "nsteps_factor": nsteps_factor, "conditions": conditions
-                    })
+                self.seq[index].update({
+                    "duration": duration, "temperature": temperature, "target": target, "step_length": step_length,
+                    "scale": scale, "compensation": compensation, "boundary_factor": boundary_factor, "e": e,
+                    "simulation": simulating, "nsteps_factor": nsteps_factor, "conditions": conditions
+                })
 
                 released = 1 - len(_pos) / self.natoms
                 d = released - target
@@ -407,39 +426,45 @@ class DiffSimulation:
 
             pos = _pos
 
-            for dom in self.domains:
-                _c = dom.get_natoms(pos)
-                dom.remained_per_step.append(_c)
-                dom.released_per_step.append(dom.natoms - _c)
-                dom.set_attr("energy", float(e), index=index)
+            if status:
+                # status == True: argon collection, False: pumping
+                for dom in self.domains:
+                    _c = dom.get_natoms(pos)
+                    dom.remained_per_step.append(_c)
+                    dom.released_per_step.append(dom.natoms - _c)
+                    dom.set_attr("energy", float(e), index=index)
 
-            self.remained_per_step.append(len(pos))
-            self.released_per_step.append(self.natoms - len(pos))
+                self.remained_per_step.append(len(pos))
+                self.released_per_step.append(self.natoms - len(pos))
 
             print(f"{index = } {duration} - {heating_duration = } - {temperature = } - {total_steps = } - conc = {len(pos) / self.natoms * 100:.2f}% - {time.time() - _start:.5f}s")
 
-    def run_persecond(self, times, temperatures, targets, domains: List[Domain], scale=None,
+        self.positions = copy.deepcopy(pos)
+
+    def run_persecond(self, times, temperatures, statuses, targets, domains: List[Domain], scale=None,
                      simulation: bool = False, epsilon=0.001, start_time=0):
         seq = []
         for i in range(1, int(times[-1] + 1), 300):
             for index, time in enumerate(times):
                 if (times[index-1] if index > 0 else 0) < i <= times[index]:
-                    seq.append([i, temperatures[index], targets[index]])
+                    seq.append([i, temperatures[index], statuses[index], targets[index]])
         seq = np.transpose(seq)
         return self.run_sequence(*seq, domains=domains, nsteps_factor=scale, simulating=simulation,
                                  epsilon=epsilon, start_time=start_time)
 
 
-def run(times, temps, energies, fractions, ndoms: int = 1, grain_szie=275, atom_density=1e10, frequency=1e13,
-        target: list = None, epsilon: float = 0.001, simulation: bool = False,
-        file_name: str = "Y70", ignore_error: bool = False, **kwargs):
+def run(times, temps, statuses, energies, fractions, ndoms: int = 1, grain_szie=275, atom_density=1e10, frequency=1e13,
+        dimension: int = 3, targets: list = None, epsilon: float = 0.001, simulation: bool = False,
+        file_name: str = "Y70", ignore_error: bool = False, positions=None, **kwargs):
     """
     :param times:
     :param temps:
+    :param statuses:
     :param energies:
     :param fractions:
+    :param dimension:
     :param ndoms:
-    :param target:
+    :param targets:
     :param epsilon:
     :param simulation:
     :param file_name:
@@ -455,7 +480,84 @@ def run(times, temps, energies, fractions, ndoms: int = 1, grain_szie=275, atom_
         # demo.grain_size = 300
         # demo.size_scale = 0.05
         # demo.atom_density = 1e14  # 原子密度 个/立方厘米
-        demo.dimension = 3
+        demo.dimension = dimension
+
+        demo.size_scale = 1
+        demo.grain_size = grain_szie
+        demo.atom_density = atom_density  # 原子密度 个/立方厘米
+        demo.frequency = frequency
+
+        # domains应该从外到内
+        domains = []
+        for i in range(n-1, 0-1, -1):
+            size = int(demo.grain_size * fs[i]) * demo.size_scale
+            center = np.zeros(demo.dimension)
+            if i == 2:
+                ad = demo.atom_density * 5 / 4
+            else:
+                ad = demo.atom_density
+            dom = Domain(
+                dimension=demo.dimension, atom_density=ad, min_bound=center - size / 2, max_bound=center + size / 2,
+                energy=es[i], fraction=fs[i], inclusions=[domains[-1]] if len(domains) >= 1 else []
+            )
+            domains.append(dom)
+        # domains应该从外到内, 上面为了inclusion以及方便不同扩散域设置不同的密度，要按照从小到大的顺序生成，但是后面行走的时候要根据不同条件设置系数，要从外到内
+        demo.domains = sorted(domains, key=lambda dom: dom.fraction, reverse=True)
+
+        demo.setup()
+
+        demo.name = f"{file_name}"
+
+        print(f"Total Atoms: {demo.natoms}, atoms in each dom: {[dom.natoms for dom in demo.domains]} filename: {demo.name}")
+
+        if positions is not None:
+            demo.positions = positions
+            demo.natoms = len(positions)
+
+        demo.run_sequence(times=times, temperatures=temps, statuses=statuses, targets=targets, domains=demo.domains,
+                          epsilon=epsilon, simulating=simulation, **kwargs)
+        # demo.run_persecond(times=times, temperatures=temps, domains=demo.domains, targets=target,
+        #                    epsilon=epsilon, simulation=simulation)
+
+        return demo
+
+    try:
+        return _(ndoms, energies, fractions), True
+    except OverEpsilonError as e:
+        if ignore_error:
+            return demo, False
+        else:
+            raise
+
+
+def run_40ar(times, temps, statuses, energies, fractions, ndoms: int = 1, grain_szie=275, atom_density=1e10, frequency=1e13,
+        dimension: int = 3, targets: list = None, epsilon: float = 0.001, simulation: bool = False,
+        file_name: str = "Y70", ignore_error: bool = False, **kwargs):
+    """
+    :param times:
+    :param temps:
+    :param statuses:
+    :param energies:
+    :param fractions:
+    :param dimension:
+    :param ndoms:
+    :param targets:
+    :param epsilon:
+    :param simulation:
+    :param file_name:
+    :param ignore_error:
+    :return:
+    """
+
+    demo = DiffSimulation()
+
+    def _(n, es, fs):
+        # fs 应从大到小，父空间在前，子空间在后
+
+        # demo.grain_size = 300
+        # demo.size_scale = 0.05
+        # demo.atom_density = 1e14  # 原子密度 个/立方厘米
+        demo.dimension = dimension
 
         demo.size_scale = 1
         demo.grain_size = grain_szie
@@ -477,11 +579,11 @@ def run(times, temps, energies, fractions, ndoms: int = 1, grain_szie=275, atom_
 
         demo.setup()
 
-        demo.name = f"{file_name} - grainsize = {demo.grain_size} - ndoms = {len(demo.domains)}"
+        demo.name = f"{file_name}"
 
         print(f"Total Atoms: {demo.natoms}, atoms in each dom: {[dom.natoms for dom in demo.domains]} filename: {demo.name}")
 
-        demo.run_sequence(times=times, temperatures=temps, domains=demo.domains, targets=target,
+        demo.run_sequence(times=times, temperatures=temps, statuses=statuses, targets=targets, domains=demo.domains,
                           epsilon=epsilon, simulating=simulation, **kwargs)
         # demo.run_persecond(times=times, temperatures=temps, domains=demo.domains, targets=target,
         #                    epsilon=epsilon, simulation=simulation)
@@ -502,10 +604,12 @@ def save_ads(ads: DiffSimulation, dir_path: str = None, name: str = None):
         dir_path = ""
     if name is None:
         name = ads.name
-    dir_path = os.path.join(dir_path, f"{name}.ads")
+    if not name.endswith(".ads"):
+        name = f"{name}.ads"
+    dir_path = os.path.join(dir_path, name)
     with open(dir_path, 'wb') as f:
         f.write(pickle.dumps(ads))
-    return f"{name}.ads"
+    return name
 
 
 def read_ads(file_path: str) -> DiffSimulation:

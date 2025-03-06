@@ -110,6 +110,21 @@ function errDiv(a, sa, b, sb) {
 // regression
 
 function linest(a0, a1, ...args) {
+    // null is not valid
+    const validIndices = [];
+    for (let i = 0; i < a0.length; i++) {
+        let isValid = a0[i]!== null && a1[i]!== null;
+        for (let j = 0; j < args.length; j++) {
+            isValid = isValid && args[j][i]!== null;
+        }
+        if (isValid) {
+            validIndices.push(i);
+        }
+    }
+    a0 = validIndices.map(index => a0[index]);
+    a1 = validIndices.map(index => a1[index]);
+    args = args.map(arg => validIndices.map(index => arg[index]));
+
     // Construct matrix of x and y, calculate the transpose of x
     let x;
     if (args.length === 0) {
@@ -124,12 +139,17 @@ function linest(a0, a1, ...args) {
     // const y = a0.map(val => [val]);
     const n = x[0].length; // number of unknown x, constant is seen as x^0
     const y = numeric.transpose([a0]);
+
     let inv_xtx;
     try {
         inv_xtx = numeric.inv(numeric.dot(numeric.transpose(x), x));
     } catch (error) {
         throw new Error("The determinant of the given matrix must not be zero");
     }
+
+    console.log(x);
+    console.log(y);
+    console.log(inv_xtx);
 
     const beta = numeric.dot(inv_xtx, numeric.dot(numeric.transpose(x), y));
     // Calculate Y values based on the fitted formula

@@ -434,8 +434,9 @@ def recalc_age_plateaus(sample: Sample, **kwargs):
     # Get ages and line data points for each set
     try:
         set1_res, set1_age, set1_data = \
-            get_plateau_results(sample, sample.SelectedSequence1, calc_ar40ar39(*ratio_set1, smp=sample))
+            get_plateau_results(sample, sample.SelectedSequence1, calc_ar40ar39(*ratio_set1, smp=sample), **kwargs)
     except ValueError:
+        # print(traceback.format_exc())
         pass
         # raise ValueError(f"Set 1 Plateau results calculation error.")
     else:
@@ -444,8 +445,9 @@ def recalc_age_plateaus(sample: Sample, **kwargs):
         sample.AgeSpectraPlot.text1.text = ""  # 注意和js的配合，js那边根据text是否为空判断是否重新生成文字
     try:
         set2_res, set2_age, set2_data = \
-            get_plateau_results(sample, sample.SelectedSequence2, calc_ar40ar39(*ratio_set2, smp=sample))
+            get_plateau_results(sample, sample.SelectedSequence2, calc_ar40ar39(*ratio_set2, smp=sample), **kwargs)
     except ValueError:
+        # print(traceback.format_exc())
         pass
         # raise ValueError(f"Set 2 Plateau results calculation error.")
     else:
@@ -579,7 +581,7 @@ def calc_ar40ar39(r, sr, smp):
 
 
 def get_plateau_results(sample: Sample, sequence: list, ar40rar39k: list = None,
-                        ar39k_percentage: list = None):
+                        ar39k_percentage: list = None, **kwargs):
     """
     Get initial ratio re-corrected plateau results
     Parameters
@@ -613,7 +615,7 @@ def get_plateau_results(sample: Sample, sequence: list, ar40rar39k: list = None,
         ar39k_percentage = sample.ApparentAgeValues[7]
 
     age = basic.calc_age(ar40ar39=ar40rar39k, smp=sample)[0:2]
-    plot_data = calc.spectra.get_data(*age, ar39k_percentage, indices=sequence)
+    plot_data = calc.spectra.get_data(*age, ar39k_percentage, indices=sequence, **kwargs)
     f_values = _get_partial(sequence, *ar40rar39k)
     age = _get_partial(sequence, *age)
     sum_ar39k = sum(_get_partial(sequence, ar39k_percentage)[0])

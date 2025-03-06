@@ -105,7 +105,11 @@ const delay = ms => new Promise((resolve, reject) => {
         resolve(`Waited for some seconds.`);
     }, ms); // 延迟2秒执行
 });
-
+function countOccurrences(str, target) {
+    const regex = new RegExp(target, 'g');
+    const matches = str.match(regex);
+    return matches ? matches.length : 0;
+}
 class AjaxRequest {
     constructor(url, content, async) {
         this.url = url;
@@ -411,6 +415,8 @@ function filesToExportChanged() {
             let files = JSON.parse(res).files;
             let data = table.bootstrapTable('getData');
             let diagram = 'Age Spectra';
+            let setting = 'spectra';
+            let data_length = data.length;
             $.each(files, function (index, file) {
                 table.bootstrapTable('insertRow', {index: data.length + index,
                     row: {
@@ -420,7 +426,19 @@ function filesToExportChanged() {
                                 return "<option selected>" + item + "</option>"
                             }
                             return "<option>" + item + "</option>"
-                        }).join("")}$</select>`
+                        }).join("")}$</select>`,
+                        'setting': `<select class="input-sm input-filter-selection-setting" style="width: 150px">${setting_list.map((item, _) => {
+                            if (item.toUpperCase() === setting.toUpperCase()) {
+                                return "<option selected>" + item + "</option>"
+                            }
+                            return "<option>" + item + "</option>"
+                        }).join("")}$</select>`,
+                        'position': `<select class="input-sm input-filter-selection-position" style="width: 150px">${position_list.map((item, _) => {
+                            if (item.toUpperCase() === (data_length + index + 1).toString().toUpperCase()) {
+                                return "<option selected>" + item + "</option>"
+                            }
+                            return "<option>" + item + "</option>"
+                        }).join("")}$</select>`,
                     }
                 })
             })
@@ -1001,14 +1019,14 @@ function blankSeleChanged(id) {
     console.log(id);
 }
 function irradiationCyclesChanged(num) {
-    let container = document.getElementById('irradtionTimeContainer');
+    let container = document.getElementById('irradiationTimeContainer');
     container.innerHTML = '';
     for (let i=0;i<num;i++){
-    container.innerHTML = container.innerHTML + '<div class="form-inline">'+
-        '<label style="width: 90px; text-align: left">End Time</label>'+
-        '<label><input type="datetime-local" class="irra-params" style="width: 200px;"><label style="width: 80px; text-align: right">Duration</label>'+
-        '<input type="number" class="irra-params" style="width: 100px;">hour(s)</label></div>'
-    }
+        container.innerHTML = container.innerHTML + '<div class="form-inline">'+
+            '<label style="width: 90px; text-align: left">End Time</label>'+
+            '<label><input type="datetime-local" class="irra-params" style="width: 180px;"><label style="width: 80px; text-align: right">Duration </label>'+
+            '<input type="number" class="irra-params" style="width: 60px;"> hour(s)</label></div>'
+        }
 }
 function seqStateChanged() {
     let is_blank = $('#isBlank').is(':checked');
@@ -2241,21 +2259,22 @@ function clickRecalc() {
     let checked_options = [];
     $.each($('#recalculationForm :checkbox'), (index, item) => (
         checked_options.push(item.checked)));
-    if (checked_options.every((currentValue, index, arr) => (!currentValue))) {
-        return
-    }
+    let sigma = $("#errorDisplayRadio2").is(':checked') ? 2 : 1;
+    // if (checked_options.every((currentValue, index, arr) => (!currentValue))) {
+    //      // return if all options are false
+    //     return
+    // }
     $.ajax({
         url: url_recalculation,
         type: 'POST',
         data: JSON.stringify({
             'cache_key': cache_key,
             // 'checked_options': checked_options,
-            'content': {'checked_options': checked_options,}
+            'content': {'checked_options': checked_options, 'others': {'sigma': sigma}}
         }),
         contentType:'application/json',
         beforeSend: function(){
             if (checked_options[11]) {
-                // showMessage();
                 showPopupMessage("Information", "Using Monte Carlo simulation, this may take a few minutes depending on the number of sequences involved, please wait...", false, 300000);
             } else {
                 showPopupMessage("Information", "Recalculation starts, please wait...", false, 300000);
@@ -2355,6 +2374,14 @@ function autoChartScale() {
         }
     })
 }
+// function switchSigmaLevel(header, data, sigma){
+//     sigma = sigma === 2?2:1;
+//     return {
+//         header: header,
+//         data: data.map((row) => row.map((col, index) => col = header[index].includes("σ") ? col * sigma : col))
+//     }
+//
+// }
 function showPage(table_id) {
     // When current table is isochron table and unsaved changes were detected, a confirm will display
     if (isochron_marks_changed) {
@@ -2363,6 +2390,7 @@ function showPage(table_id) {
         } else {isochron_marks_changed = false}
     }
     let tables = document.getElementsByName('table_name')
+    let sigma = $("#errorDisplayRadio2").is(':checked') ? 2 : 1;
     const backup = JSON.parse(JSON.stringify(sampleComponents));
     let comp = sampleComponents[table_id];
     for (let i=0; i<tables.length;i++){
@@ -2394,27 +2422,29 @@ function showPage(table_id) {
         case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8":
             let table = sampleComponents[table_id];
             showTable();
+            let header = table.header.map((col) => sigma === 2 ? col.replace("1σ", "2σ") : col.replace("2σ", "1σ"));
+            let data = table.data.map((row) => row.map((col, index) => col = header[index].includes("2σ") ? col * 2 : col));
             hot.updateSettings({
-                colHeaders: table.header,
-                data: extendData(table.data),
+                colHeaders: header,
+                data: extendData(data),
                 columns: table.coltypes
             });
             break
         case "figure_1": case "figure_2": case "figure_3": case "figure_4": case "figure_5": case "figure_6":
             showFigure();
-            setRightSideText();
+            setRightSideText(sigma);
             chart.clear();
             if (table_id==="figure_1") {
-                chart = getSpectraEchart(chart, table_id, true);
+                chart = getSpectraEchart(chart, table_id, true, sigma);
             } else {
-                chart = getIsochronEchart(chart, table_id, true);
+                chart = getIsochronEchart(chart, table_id, true, sigma);
             }
             chart.resize();
             getChartInterval(chart, comp);
             break
         case "figure_7":
             showFigure();
-            setRightSideText();
+            setRightSideText(sigma);
             figureContainer.hide();
             figure3DContainer.show();
             chart_3D.clear();
@@ -2475,7 +2505,7 @@ function setConsoleText(text) {
     console.log(`${getTime()} ${text}`);
     document.getElementById('page-title').innerText = sampleComponents['0'].sample.name;
 }
-function setRightSideText() {
+function setRightSideText(sigma=1) {
     let figure = getCurrentTableId();
     let text_list = [];
     if (figure === 'figure_7') {
@@ -2484,7 +2514,7 @@ function setRightSideText() {
             `z = ${iso_res[0]['m1'].toFixed(2)} x ${iso_res[0]['m2'] > 0?'+':'-'} 
             ${Math.abs(iso_res[0]['m2']).toFixed(2)} y ${iso_res[0]['k'] > 0?'+':'-'} 
             ${Math.abs(iso_res[0]['k']).toFixed(2)}`,
-            `t = ${iso_res[0]['age'].toFixed(2)} ± ${iso_res[0]['s1'].toFixed(2)} | ${iso_res[0]['s2'].toFixed(2)} | ${iso_res[0]['s3'].toFixed(2)}`,
+            `t = ${iso_res[0]['age'].toFixed(2)} ± ${(iso_res[0]['s1'] * sigma).toFixed(2)} | ${(iso_res[0]['s2'] * sigma).toFixed(2)} | ${(iso_res[0]['s3'] * sigma).toFixed(2)} (${sigma}σ)`,
             `MSWD = ${iso_res[0]['MSWD'].toFixed(2)}, r2 = ${iso_res[0]['R2'].toFixed(2)}, Di = ${iso_res[0]['iter']}, 
             χ2 = ${iso_res[0]['Chisq'].toFixed(2)}, p = ${iso_res[0]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[0]['rs'].toFixed(2)}%`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[0]['initial'].toFixed(2)} ± ${iso_res[0]['sinitial'].toFixed(2)}`,
@@ -2496,11 +2526,11 @@ function setRightSideText() {
             `t = ${iso_res[1]['age'].toFixed(2)} ± ${iso_res[1]['s1'].toFixed(2)} | ${iso_res[1]['s2'].toFixed(2)} | ${iso_res[1]['s3'].toFixed(2)}`,
             `MSWD = ${iso_res[1]['MSWD'].toFixed(2)}, r2 = ${iso_res[1]['R2'].toFixed(2)}, Di = ${iso_res[1]['iter']}, 
             χ2 = ${iso_res[1]['Chisq'].toFixed(2)}, p = ${iso_res[1]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[1]['rs'].toFixed(2)}%`,
-            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[1]['initial'].toFixed(2)} ± ${iso_res[1]['sinitial'].toFixed(2)}`,
+            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[1]['initial'].toFixed(2)} ± ${(iso_res[1]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)`,
             "",
 
-            `Unselected`, `Age = ${iso_res[2]['age'].toFixed(2)} ± ${iso_res[2]['s1'].toFixed(2)}`,
-            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[2]['initial'].toFixed(2)} ± ${iso_res[2]['sinitial'].toFixed(2)}`,
+            `Unselected`, `Age = ${iso_res[2]['age'].toFixed(2)} ± ${(iso_res[2]['s1'] * sigma).toFixed(2)} (${sigma}σ)`,
+            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[2]['initial'].toFixed(2)} ± ${(iso_res[2]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)`,
             "",
         ]
     }
@@ -2524,19 +2554,19 @@ function setRightSideText() {
             line2 = "...";
         }
         text_list = [
-            `Normal Isochron`, `${nor_res_set1.age.toFixed(2)} ± ${nor_res_set1.s2.toFixed(2)}`,
-            `Inverse Isochron`, `${inv_res_set1.age.toFixed(2)} ± ${inv_res_set1.s2.toFixed(2)}`,
-            `Weighted Age`, `${age_spectra_set1.age.toFixed(2)} ± ${age_spectra_set1.s1.toFixed(2)}`,
-            `Initial Ratio Corrected`, `${plateau_set1.age.toFixed(2)} ± ${plateau_set1.s2.toFixed(2)}`,
+            `Normal Isochron Age (NIA)`, `${nor_res_set1.age.toFixed(2)} ± ${(nor_res_set1.s2 * sigma).toFixed(2)} (${sigma}σ)`,
+            `Inverse Isochron Age (IIA)`, `${inv_res_set1.age.toFixed(2)} ± ${(inv_res_set1.s2 * sigma).toFixed(2)} (${sigma}σ)`,
+            `Weighted Mean Age (WMA)`, `${age_spectra_set1.age.toFixed(2)} ± ${(age_spectra_set1.s1 * sigma).toFixed(2)} (${sigma}σ)`,
+            `Initial Ratio Corrected WMA`, `${plateau_set1.age.toFixed(2)} ± ${(plateau_set1.s2 * sigma).toFixed(2)} (${sigma}σ)`,
             `Regression Line`, line1,
 
-            `Normal Isochron`, `${nor_res_set2.age.toFixed(2)} ± ${nor_res_set2.s2.toFixed(2)}`,
-            `Inverse Isochron`, `${inv_res_set2.age.toFixed(2)} ± ${inv_res_set2.s2.toFixed(2)}`,
-            `Weighted Age`, `${age_spectra_set2.age.toFixed(2)} ± ${age_spectra_set2.s1.toFixed(2)}`,
-            `Initial Ratio Corrected`, `${plateau_set2.age.toFixed(2)} ± ${plateau_set2.s2.toFixed(2)}`,
+            `Normal Isochron Age (NIA)`, `${nor_res_set2.age.toFixed(2)} ± ${(nor_res_set2.s2 * sigma).toFixed(2)} (${sigma}σ)`,
+            `Inverse Isochron Age (IIA)`, `${inv_res_set2.age.toFixed(2)} ± ${(inv_res_set2.s2 * sigma).toFixed(2)} (${sigma}σ)`,
+            `Weighted Mean Age (WMA)`, `${age_spectra_set2.age.toFixed(2)} ± ${(age_spectra_set2.s1 * sigma).toFixed(2)} (${sigma}σ)`,
+            `Initial Ratio Corrected WMA`, `${plateau_set2.age.toFixed(2)} ± ${(plateau_set2.s2 * sigma).toFixed(2)} (${sigma}σ)`,
             `Regression Line`, line2,
 
-            `Total Age`, `${total_age.age.toFixed(2)} ± ${total_age.s2.toFixed(2)}`,
+            `Total Age`, `${total_age.age.toFixed(2)} ± ${(total_age.s2 * sigma).toFixed(2)} (${sigma}σ)`,
         ];
     }
 
@@ -3034,6 +3064,10 @@ function getIsochronData(arr, index, mark=5) {
         // i + 1, because sample.Sequence starts from 0, while label in isochron data[5] starts from 1
     }
 }
+function adjustSpectraData(arr, sigma=1) {
+    return arr.map((row, index) => [row[0], (row[1] - row[2]) / 2 * (sigma - 1) + row[1], (row[2] - row[1]) / 2 * (sigma - 1) + row[2]])
+    // return arr;
+}
 function getAgeBarData(arr) {
     if (arr.length === 2){
         arr.push(new Array(arr[0].length));
@@ -3058,6 +3092,7 @@ function transpose(arr) {
     return transposedArr;
 }
 function renderErrBarItem(param, api){
+    let sigma = $("#errorDisplayRadio2").is(':checked') ? 2 : 1;
     const set = sampleComponents[getCurrentTableId()].errline;
     const lineWidth = 1;
     let lineWidth_horizontal = 1;
@@ -3073,10 +3108,10 @@ function renderErrBarItem(param, api){
         let _ = point[0] === param.coordSys.x || point[0] === param.coordSys.x+param.coordSys.width || point[1] === param.coordSys.y || point[1] === param.coordSys.y+param.coordSys.height
         return _?0:lineWidth
     }
-    let point_1 = check(api.coord([api.value(0)-api.value(1), api.value(2)]));
-    let point_2 = check(api.coord([api.value(0)+api.value(1), api.value(2)]));
-    let point_3 = check(api.coord([api.value(0), api.value(2)-api.value(3)]));
-    let point_4 = check(api.coord([api.value(0), api.value(2)+api.value(3)]));
+    let point_1 = check(api.coord([api.value(0)-api.value(1) * sigma, api.value(2)]));
+    let point_2 = check(api.coord([api.value(0)+api.value(1) * sigma, api.value(2)]));
+    let point_3 = check(api.coord([api.value(0), api.value(2)-api.value(3) * sigma]));
+    let point_4 = check(api.coord([api.value(0), api.value(2)+api.value(3) * sigma]));
 
     if (point_1[1] === param.coordSys.y || point_1[1] === param.coordSys.y+param.coordSys.height){
         lineWidth_horizontal = 0;
@@ -3158,10 +3193,9 @@ function renderAgeBarItem(param, api){
         return {type: 'rect', ignore: true}
     }
 }
-function getIsochronEchart(chart, figure_id, animation) {
+function getIsochronEchart(chart, figure_id, animation, sigma=1) {
     let figure = sampleComponents[figure_id];
-    console.log(figure.line1.data);
-    console.log(figure.line2.data);
+    console.log(figure.data);
     let res = sampleComponents[0].results.isochron[figure_id];
     let option = {
         title: {
@@ -3194,7 +3228,9 @@ function getIsochronEchart(chart, figure_id, animation) {
                 max: figure.xaxis.max, min: figure.xaxis.min,
                 splitLine: {show: figure.xaxis.show_splitline},
                 axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
-                axisLabel: {showMaxLabel: false, color: '#222'},
+                axisLabel: {
+                    showMaxLabel: false, color: '#222', fontSize: 10, fontFamily: 'Microsoft Sans Serif',
+                },
                 axisTick: {inside: figure.xaxis.ticks_inside},
                 nameTextStyle: {
                         fontSize: 16, fontFamily: 'Microsoft Sans Serif',
@@ -3219,7 +3255,7 @@ function getIsochronEchart(chart, figure_id, animation) {
                 splitLine: {show: figure.yaxis.show_splitline},
                 axisLine: {show: true, onZero: false, lineStyle: {color: '#222', width: 1}},
                 axisLabel: {
-                    showMaxLabel: true, color: '#222',
+                    showMaxLabel: true, color: '#222', fontSize: 10, fontFamily: 'Microsoft Sans Serif',
                     formatter: function (value) {return getScientificCounting(value)},
                 },
                 axisTick: {inside: figure.yaxis.ticks_inside},
@@ -3325,10 +3361,10 @@ function getIsochronEchart(chart, figure_id, animation) {
                         //     sendDiff(diff);
                         // }
                         // return figure.text1.text
-                        if (figure.text1.text !== "") {
-                            return figure.text1.text
+                        if (figure.text1.text === "") {
+                            figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} Ma (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[0]['initial'].toFixed(2)} ± ${(res[0]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}\navg error = ${res[0]['rs'].toFixed(4)}%`;
                         }
-                        return `t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[0]['initial'].toFixed(2)} ± ${res[0]['sinitial'].toFixed(2)}\nMSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}\navg error = ${res[0]['rs'].toFixed(4)}%`;
+                        return figure.text1.text
                     },
                 },
             },
@@ -3350,10 +3386,10 @@ function getIsochronEchart(chart, figure_id, animation) {
                         //     sendDiff(diff);
                         // }
                         // return figure.text2.text
-                        if (figure.text2.text !== "") {
-                            return figure.text2.text
+                        if (figure.text2.text === "") {
+                            figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} Ma (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${(res[1]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
                         }
-                        return `t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${res[1]['sinitial'].toFixed(2)}\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
+                        return figure.text2.text
                     },
                 },
             },
@@ -3507,7 +3543,7 @@ function get3DEchart(chart, figure_id, animation) {
     chart_3D.setOption(option);
     return chart_3D
 }
-function getSpectraEchart(chart, figure_id, animation) {
+function getSpectraEchart(chart, figure_id, animation, sigma=1) {
     let figure = sampleComponents[figure_id];
     let res = sampleComponents[0].results.age_plateau
     let option = {
@@ -3572,7 +3608,9 @@ function getSpectraEchart(chart, figure_id, animation) {
             {id: 'yaxis_for_text', type: 'value', show: false, min: 0, max: 100, position: 'bottom',},
         ],
         series: [
-            {name: 'Spectra Line 1', type: 'line', color: figure.line1.color, encode: {x: 0, y: 1}, data: figure.data,
+            {name: 'Spectra Line 1', type: 'line', color: figure.line1.color, encode: {x: 0, y: 1},
+                // data: figure.data,
+                data: adjustSpectraData(figure.data, sigma),
                 seriesLayoutBy: 'row', symbolSize: 0, z: 2, triggerLineEvent: true,
                 lineStyle: {width: figure.line1.line_width, type: figure.line1.line_type},
                 label: {
@@ -3580,35 +3618,45 @@ function getSpectraEchart(chart, figure_id, animation) {
                     position: figure.line1.label.position, distance: figure.line1.label.distance,
                     offset: figure.line1.label.offset, color: figure.line1.label.color},
                 },
-            {name: 'Spectra Line 2', type: 'line', color: figure.line2.color, encode: {x: 0, y: 2}, data: figure.data,
+            {name: 'Spectra Line 2', type: 'line', color: figure.line2.color, encode: {x: 0, y: 2},
+                // data: figure.data,
+                data: adjustSpectraData(figure.data, sigma),
                 seriesLayoutBy: 'row', symbolSize: 0, z: 2, triggerLineEvent: true,
                 lineStyle: {width: figure.line2.line_width, type: figure.line2.line_type},
                 label: {
                     show: figure.label.show, formatter: (params) => (params.name), position: figure.line2.label.position,
                     distance: figure.line2.label.distance, offset: figure.line2.label.offset, color: figure.line2.label.color},
                 },
-            {name: 'Set1 Line 1', type: 'line', color: figure.line3.color, encode: {x: 0, y: 1}, data: figure.set1.data,
+            {name: 'Set1 Line 1', type: 'line', color: figure.line3.color, encode: {x: 0, y: 1},
+                // data: figure.set1.data,
+                data: adjustSpectraData(figure.set1.data, sigma),
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
                 lineStyle: {width: figure.line3.line_width, type: figure.line3.line_type},
                 label: {
                     show: figure.line3.label.show, formatter: (params) => (''), position: figure.line3.label.position,
                     distance: figure.line3.label.distance, offset: figure.line3.label.offset, color: figure.line3.label.color},
                 },
-            {name: 'Set1 Line 2', type: 'line', color: figure.line4.color, encode: {x: 0, y: 2}, data: figure.set1.data,
+            {name: 'Set1 Line 2', type: 'line', color: figure.line4.color, encode: {x: 0, y: 2},
+                // data: figure.set1.data,
+                data: adjustSpectraData(figure.set1.data, sigma),
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
                 lineStyle: {width: figure.line4.line_width, type: figure.line4.line_type},
                 label: {
                     show: figure.line4.label.show, formatter: (params) => (''), position: figure.line4.label.position,
                     distance: figure.line4.label.distance, offset: figure.line4.label.offset, color: figure.line4.label.color},
                 },
-            {name: 'Set2 Line 1', type: 'line', color: figure.line5.color, encode: {x: 0, y: 1}, data: figure.set2.data,
+            {name: 'Set2 Line 1', type: 'line', color: figure.line5.color, encode: {x: 0, y: 1},
+                // data: figure.set2.data,
+                data: adjustSpectraData(figure.set2.data, sigma),
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
                 lineStyle: {width: figure.line5.line_width, type: figure.line5.line_type},
                 label: {
                     show: figure.line5.label.show, formatter: (params) => (''), position: figure.line5.label.position,
                     distance: figure.line5.label.distance, offset: figure.line5.label.offset, color: figure.line5.label.color},
                 },
-            {name: 'Set2 Line 2', type: 'line', color: figure.line6.color, encode: {x: 0, y: 2}, data: figure.set2.data,
+            {name: 'Set2 Line 2', type: 'line', color: figure.line6.color, encode: {x: 0, y: 2},
+                // data: figure.set2.data,
+                data: adjustSpectraData(figure.set2.data, sigma),
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
                 lineStyle: {width: figure.line6.line_width, type: figure.line6.line_type},
                 label: {
@@ -3616,8 +3664,9 @@ function getSpectraEchart(chart, figure_id, animation) {
                     distance: figure.line6.label.distance, offset: figure.line6.label.offset, color: figure.line6.label.color},
                 },
             {
-                name: 'Set4 Line 1', type: 'line', color: figure.line7.color,
-                encode: {x: 0, y: 1}, data: figure.set4.data,
+                name: 'Set4 Line 1', type: 'line', color: figure.line7.color, encode: {x: 0, y: 1},
+                // data: figure.set4.data,
+                data: adjustSpectraData(figure.set4.data, sigma),
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
                 lineStyle: {
                     width: 0, // figure.line7.line_width,
@@ -3627,8 +3676,9 @@ function getSpectraEchart(chart, figure_id, animation) {
                     distance: figure.line7.label.distance, offset: figure.line7.label.offset, color: figure.line7.label.color},
                 },
             {
-                name: 'Set4 Line 2', type: 'line', color: figure.line8.color,
-                encode: {x: 0, y: 2}, data: figure.set4.data,
+                name: 'Set4 Line 2', type: 'line', color: figure.line8.color, encode: {x: 0, y: 2},
+                // data: figure.set4.data,
+                data: adjustSpectraData(figure.set4.data, sigma),
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
                 lineStyle: {
                     width: 0, // figure.line8.line_width,
@@ -3638,8 +3688,9 @@ function getSpectraEchart(chart, figure_id, animation) {
                     distance: figure.line8.label.distance, offset: figure.line8.label.offset, color: figure.line8.label.color},
                 },
             {
-                name: 'Set5 Line 1', type: 'line', color: figure.line9.color,
-                encode: {x: 0, y: 1}, data: figure.set5.data,
+                name: 'Set5 Line 1', type: 'line', color: figure.line9.color, encode: {x: 0, y: 1},
+                // data: figure.set5.data,
+                data: adjustSpectraData(figure.set5.data, sigma),
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
                 lineStyle: {
                     width: 0, // figure.line9.line_width,
@@ -3649,8 +3700,9 @@ function getSpectraEchart(chart, figure_id, animation) {
                     distance: figure.line9.label.distance, offset: figure.line9.label.offset, color: figure.line9.label.color},
                 },
             {
-                name: 'Set5 Line 2', type: 'line', color: figure.line10.color,
-                encode: {x: 0, y: 2}, data: figure.set5.data,
+                name: 'Set5 Line 2', type: 'line', color: figure.line10.color, encode: {x: 0, y: 2},
+                // data: figure.set5.data,
+                data: adjustSpectraData(figure.set5.data, sigma),
                 seriesLayoutBy: 'row', symbol: 'none', z: 4, triggerLineEvent: true,
                 lineStyle: {
                     width: 0, // figure.line10.line_width,
@@ -3672,13 +3724,13 @@ function getSpectraEchart(chart, figure_id, animation) {
                     formatter: (params) => {
                         if (figure.text1.text === "") {
                             if (sampleComponents['0'].sample.type === "Unknown") {
-                                figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${res[0]['s1'].toFixed(2)} | ${res[0]['s2'].toFixed(2)} | ${res[0]['s3'].toFixed(2)} Ma\nWMF = ${res[0]['F'].toFixed(2)} ± ${res[0]['sF'].toFixed(2)}, n = ${res[0]['Num']}\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                                figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} Ma (${sigma}σ)\nWMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%\nn = ${res[0]['Num']}, χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
-                                figure.text1.text = `WMJ = ${res[0]['F'].toFixed(8)} ± ${res[0]['sF'].toFixed(8)} \nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                                figure.text1.text = `WMJ = ${res[0]['F'].toFixed(8)} ± ${(res[0]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Air") {
-                                figure.text1.text = `WMMDF = ${res[0]['F'].toFixed(8)} ± ${res[0]['sF'].toFixed(8)} \nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                                figure.text1.text = `WMMDF = ${res[0]['F'].toFixed(8)} ± ${(res[0]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
                                 // figure.text1.text = "";
                             }
                         }
@@ -3700,14 +3752,13 @@ function getSpectraEchart(chart, figure_id, animation) {
                         if (figure.text2.text === "") {
                             console.log(sampleComponents['0'].sample.type);
                             if (sampleComponents['0'].sample.type === "Unknown") {
-                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma\nWMF = ${res[1]['F'].toFixed(2)} ± ${res[1]['sF'].toFixed(2)}, n = ${res[1]['Num']}\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
+                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} Ma (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
-                                figure.text2.text = `WMJ = ${res[1]['F'].toFixed(8)} ± ${res[1]['sF'].toFixed(8)} \nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
+                                figure.text2.text = `WMJ = ${res[1]['F'].toFixed(8)} ± ${(res[1]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Air") {
-                                // figure.text2.text = `WMJ = ${res[1]['F'].toFixed(8)} ± ${res[1]['sF'].toFixed(8)} \nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
-                                figure.text2.text = "";
+                                figure.text2.text = `WMMDF = ${res[1]['F'].toFixed(8)} ± ${(res[1]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
                             }
                         }
                         return figure.text2.text;
@@ -4618,11 +4669,10 @@ function extendChartFuncs(chart) {
         }
         // throw `Not found, id = ${id}, name = ${name}`;
     }
-
-    chart.registerMouseMove = (seriesId,func) => {
+    chart.registerMouseMove = (seriesId, func) => {
         chart.getZr().on('mousemove', function (event) {
             const series = chart.getSeries(seriesId);
-            if (series?.onDragged) {
+            if (series?.onDragged && series?.draggable) {
                 const offset = series.dragOffset;
                 let pos = chart.convertFromPixel(
                     {xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex},
@@ -4641,6 +4691,10 @@ function extendChartFuncs(chart) {
         });
     }
     chart.registerMouseClick = (func) => {
+        chart.getZr().on('mousedown', function (event) {
+            console.log("getZr().on(mousedown)");
+            console.log(event);
+        });
         chart.on('mousedown', (params) => {
             const seriesId = params.seriesId;
             const series = chart.getSeries(seriesId);
@@ -4649,6 +4703,7 @@ function extendChartFuncs(chart) {
                 let pos = chart.convertToPixel({xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex}, series.data[0]);
                 let offsetX = params.event.offsetX - pos?.[0];
                 let offsetY = params.event.offsetY - pos?.[1];
+                console.log(`params.event.offsetX = ${params.event.offsetX}`);
                 chart.updateSeries({id: seriesId, onDragged: true, dragOffset: [offsetX, offsetY]}, false);
             } else if (series?.checkable) {
                 // else, like a scatter, do something

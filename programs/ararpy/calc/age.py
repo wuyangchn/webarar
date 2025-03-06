@@ -20,6 +20,7 @@ import numpy as np
 def calc_age_min(F, sF, **kwargs) -> tuple:
     """
     Calculate ArAr ages using Min et al. (2000) equation.
+    Note that the Ar/K of primary standards is not working currently
     Parameters
     ----------
     F : array-like
@@ -68,7 +69,6 @@ def calc_age_min(F, sF, **kwargs) -> tuple:
     # recalculation using Min et al.(2000) equation
     # lmd = A * W * Y / (f * No)
     V = f * No / ((Ab + Ae) * W * Y)
-    sf = 0  # the error of f was not considered by Koppers
     sV = pow((V / f * sf) ** 2 + (V / No * sNo) ** 2 + (V / (Ab + Ae)) ** 2 * (sAb ** 2 + sAe ** 2) +
              (V / W * sW) ** 2 + (V / Y * sY) ** 2, 0.5)
     # standard age in year, change to Ma
@@ -87,7 +87,7 @@ def calc_age_min(F, sF, **kwargs) -> tuple:
     KK = np.exp(t / V) - 1  # 40Arr / 40K Use standard age
     XX = BB * KK * R + 1
     k0 = V * np.log(XX)
-    e1 = (np.log(XX) * V / f - V * BB * KK * R / (f * XX)) ** 2 * sf ** 2  # sFr
+    e1 = (np.log(XX) * V / f - V * BB * KK * R / (f * XX)) ** 2 * sf ** 2  # sF
     e2 = (np.log(XX) * V / No) ** 2 * sNo ** 2  # sNo
     e3 = (-1 * np.log(XX) * V / A + BB * KK * R / (A * XX)) ** 2 * sAb ** 2  # sAb
     e4 = (-1 * np.log(XX) * V / A - Ab * KK * R / (Ae ** 2 * XX)) ** 2 * sAe ** 2  # sAe
