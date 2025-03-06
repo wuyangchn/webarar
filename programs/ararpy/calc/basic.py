@@ -66,7 +66,7 @@ def merge_dicts(a: dict, b: dict):
     """
     res = copy.deepcopy(a)
     for key, val in b.items():
-        if key not in res.keys() and key.isnumeric():
+        if key not in res.keys() and str(key).isnumeric():
             key = int(key)
         if key not in res.keys():
             res[key] = val

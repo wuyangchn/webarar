@@ -59,14 +59,14 @@ def mdf(rm: float, srm: float, m1: float, m2: float, ra: float = 298.56,
     sdelta_m = err.add(sm2, sm1)
     ratio_m = m2 / m1
     sratio_m = err.div((m2, sm2), (m1, sm1))
-    isAapkop = True
-    if isAapkop:
+    useRyu = False
+    if not useRyu:
         # line
-        k1 = (ra / rm + delta_m - 1) / delta_m  # A.A.P.Koppers
+        k1 = (ra / rm + delta_m - 1) / delta_m
         k2 = err.div(((ra / rm + delta_m - 1), err.div((ra, sra), (rm, srm))), (delta_m, sdelta_m))
         # exp
         try:
-            k3 = (np.log(ra / rm) / np.log(ratio_m)) * (1 / m1) + 1  # A.A.P.Koppers
+            k3 = (np.log(ra / rm) / np.log(ratio_m)) * (1 / m1) + 1
             v1 = err.log((ra / rm, err.div((ra, sra), (rm, srm))))
             v2 = err.log((ratio_m, sratio_m))
             v3 = err.div((np.log(ra / rm), v1), (np.log(ratio_m), v2))
@@ -75,7 +75,7 @@ def mdf(rm: float, srm: float, m1: float, m2: float, ra: float = 298.56,
             k3, k4 = "Null", "Null"
         # pow
         try:
-            k5 = pow((ra / rm), (1 / delta_m))  # A.A.P.Koppers, also Renne2009, B.D. Turrin2010
+            k5 = pow((ra / rm), (1 / delta_m))  # Renne2009, B.D. Turrin2010
             k6 = err.pow((ra / rm, err.div((ra, sra), (rm, srm))),
                          (1 / delta_m, err.div((1, 0), (delta_m, sdelta_m))))
         except Exception:

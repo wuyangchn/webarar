@@ -49,6 +49,12 @@ spectra_res_keys = [
 SPECTRA_RES = dict(zip(
     spectra_res_keys, [np.nan for i in spectra_res_keys])
 )
+settings_keys = [
+    'sigma_level'
+]
+SETTINGS_RES = dict(zip(
+    settings_keys, [np.nan for i in settings_keys])
+)
 
 
 # create sample instance
@@ -176,7 +182,10 @@ def initial(smp: Sample):
         reference=ArArBasic(
             name='REFERENCE', journal='JOURNAL', doi='DOI'
         ),
+        settings=copy.deepcopy(SETTINGS_RES)
     ))
+
+    smp.Info.settings.update({'sigma_level': 1})
 
     # Plots and Tables
     setattr(smp, 'UnknownTable', Table(

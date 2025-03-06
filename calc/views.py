@@ -7,6 +7,8 @@ import re
 import numpy as np
 import pdf_maker as pm
 import uuid
+import time
+import itertools
 
 # from math import ceil
 from django.http import JsonResponse, HttpResponse
@@ -367,6 +369,11 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         others = self.content.pop('others', {})
         isochron_mark = self.content.pop('isochron_mark', False)
         # print(f"Recalculation Isochron Mark = {isochron_mark}")
+        print(f"{others = }")
+        try:
+            sample.Info.settings.update({'sigma_level': others.get('sigma', sample.Info.settings.get('sigma_level', 1))})
+        except Exception as e:
+            pass
         if isochron_mark:
             sample.IsochronMark = isochron_mark.copy()
             sample.SelectedSequence1 = [index for index, item in enumerate(isochron_mark) if str(item) == '1']
@@ -755,6 +762,7 @@ class ParamsSettingView(http_funcs.ArArView):
     def change_param_objects(self, request, *args, **kwargs):
         type = str(self.body['type'])  # type = irra, calc, smp
         model_name = f"{''.join([i.capitalize() for i in type.split('-')])}Params"
+        print(f"{type = }")
         try:
             name = self.body['name']
             param_file = getattr(models, model_name).objects.get(name=name).file_path
@@ -771,7 +779,15 @@ class ParamsSettingView(http_funcs.ArArView):
                 if 'calc' in type.lower():
                     param = [*data[34:56], *data[71:97]]
                 if 'smp' in type.lower():
-                    _ = [i == {'l': 0, 'e': 1, 'p': 2}.get(str(data[100]).lower()[0], -1) for i in range(3)]
+                    try:
+                        _ = [i == {'l': 0, 'e': 1, 'p': 2}.get(str(data[100]).lower()[0], 0) for i in range(3)]
+                    except:
+                        _ = [True, False, False]
+                    for i in range(len(data)):
+                        if i in range(101, 114) and not isinstance(data[i], bool):
+                            data[i] = False
+                        elif data[i] is None:
+                            data[i] = np.nan
                     param = [*data[67:71], *data[58:67], *data[97:100], *data[115:120], *data[126:136],
                              *data[120:123], *_, *data[101:114]]
                 # if 'thermo' in type.lower():
@@ -779,7 +795,8 @@ class ParamsSettingView(http_funcs.ArArView):
                 #              *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
                 if 'export' in type.lower():
                     param = [True]
-            except IndexError:
+            except:
+                print(traceback.format_exc())
                 param = []
             return JsonResponse({'status': 'success', 'param': np.nan_to_num(param).tolist()})
         except Exception as e:
@@ -1066,49 +1083,259 @@ class ThermoView(http_funcs.ArArView):
         max_age = self.body['max_age']
         data = self.body['data']
         params = self.body['settings']
+
+        if params[10] == "40":
+            return self.run_40ar_walker(request, args, kwargs)
+
         loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
         if not os.path.exists(loc) or random_index == "":
             return JsonResponse({"random_index": random_index}, status=403)
         arr_file_path = os.path.join(loc, f"{arr_file_name}" + (".arr" if ".arr" not in arr_file_name else ""))
 
         # setting_params = params[:11]
-        domain_params = params[11:32]
-        # plot_params = params[32:]
+        domain_params = params[11:33]
+        # plot_params = params[33:]
 
         # 活化能和体积比例从外到内
         energies = (np.array(domain_params[0:16:2]) * 1000).tolist()
         fractions = domain_params[1:16:2]
-        ndoms = len(energies)
+        ndoms = list(energies).index(0)
         use_walker1 = domain_params[16] == "walker1"
         k = domain_params[17]
         gs = domain_params[18]
-        # ad = domain_params[19]  # atom density
-        # f = domain_params[20]  # frequency
-        ad = 1e10  # atom density
-        f = 1e13
+        ad = domain_params[19]  # atom density
+        f = domain_params[20]  # frequency
+        pumping = domain_params[21]
+        # ad = 1e10  # atom density
+        # f = 1e13
+        dimension = 3
 
         print(f"{use_walker1 = }, {k = }, {gs = }, {ad = }, {f = }")
 
         smp = ap.from_arr(arr_file_path)
         ti = np.array(smp.TotalParam[123], dtype=np.float64).round(2)  # time in second
-        times = np.cumsum(ti)  # cumulative time
         temps = np.array(smp.TotalParam[124], dtype=np.float64)  # temperature in Celsius
         ar = np.array(smp.DegasValues[20], dtype=np.float64)  # Ar39K
-        target = ar.cumsum() / sum(ar)
+        targets = ar.cumsum() / sum(ar)
 
-        file_name = f"{'walker1' if use_walker1 else 'walker2'} {k=:.1f} " \
-                    f"es={'-'.join([str(int(i/1000)) for i in energies])} " \
-                    f"fs={'-'.join([str(i) for i in fractions])} multi"
+        statuses = [True for i in range(len(ti))]
 
-        try:
-            demo, status = ap.ads.main.run(
-                times, temps, energies, fractions, ndoms, file_name=file_name, k=k, grain_szie=gs,
-                atom_density=ad, frequency=f, simulation=False, target=target, epsilon=0.05, use_walker1=use_walker1
-            )
-        except ap.ads.main.OverEpsilonError as e:
-            return JsonResponse({})
+        if params[39]:  # including pumping phases
+            for i in range(0, len(ti) * 2, 2):
+                if params[40]:  # pumping out after, like Y56
+                    ti = np.insert(ti, i+1, pumping)
+                    if params[41]:  # heating durations include pumping-out phases
+                        ti[i] -= pumping
+                else:
+                    ti = np.insert(ti, i, pumping)
+                    # times = np.insert(times, i, times[i] - pumping)
+                    if params[41]:  # heating durations include pumping-out phases
+                        ti[i+1] -= pumping
+                temps = np.insert(temps, i+1, temps[i])
+                targets = np.insert(targets, i+1, targets[i])
+                statuses.insert(i+1, False)
+
+        times = np.cumsum(ti)  # cumulative time
+
+        print(list(zip(temps, times)))
+
+        if params[42]:  # searching for nearby places
+            energies_list = []; fractions_list = []
+            for each in energies[: ndoms]:
+                energies_list.append([each + i * 1000 for i in range(-1, 2, 1)])
+            for each in fractions[: ndoms]:
+                fractions_list.append([each + i * 0.01 if each != 1 else 1 for i in range(-1, 2, 1)])
+            e_combinations = list(itertools.product(*energies_list))
+            f_combinations = list(itertools.product(*fractions_list))
         else:
-            ap.ads.main.save_ads(demo, f"{loc}", name=demo.name)
+            e_combinations = [energies[: ndoms]]
+            f_combinations = [fractions[: ndoms]]
+
+        for index, (_e, _f) in enumerate(list(itertools.product(*[e_combinations, f_combinations]))):
+            print(f"{index = }, {_e = }, {_f = }")
+
+            file_name = f"{'walker1' if use_walker1 else 'walker2'} {k=:.1f} " \
+                        f"es={'-'.join([str(int(i / 1000)) for i in _e])} " \
+                        f"fs={'-'.join([str(i) for i in _f])} " \
+                        f"{gs=:.0f} " \
+                        f"{ad=:.0e} " \
+                        f"{f=:.0e} " \
+                        f"{ndoms=:.0f} " \
+                        f"pumping={params[39]} " \
+                        f"multi"
+
+            try:
+                _start = time.time()
+                demo, status = ap.ads.main.run(
+                    times, temps, statuses,
+                    _e, _f, ndoms, file_name=file_name, k=k, grain_szie=gs, dimension=dimension,
+                    atom_density=ad, frequency=f, simulation=False, targets=targets, epsilon=0.05, use_walker1=use_walker1
+                )
+            except ap.ads.main.OverEpsilonError as e:
+                print(traceback.format_exc())
+                return JsonResponse({})
+            else:
+                print(traceback.format_exc())
+                ap.ads.main.save_ads(demo, f"{loc}", name=demo.name + f" {(time.time() - _start) / 3600:.2f}h")
+
+        return JsonResponse({})
+
+
+    def run_40ar_walker(self, request, *args, **kwargs):
+        sample_name = self.body['sample_name']
+        arr_file_name = self.body['arr_file_name']
+        random_index = self.body['random_index']
+        max_age = self.body['max_age']
+        data = self.body['data']
+        params = self.body['settings']
+        loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
+        if not os.path.exists(loc) or random_index == "":
+            return JsonResponse({"random_index": random_index}, status=403)
+        arr_file_path = os.path.join(loc, f"{arr_file_name}" + (".arr" if ".arr" not in arr_file_name else ""))
+
+        # setting_params = params[:11]
+        domain_params = params[11:33]
+        # plot_params = params[33:]
+
+        # 活化能和体积比例从外到内
+        energies = (np.array(domain_params[0:16:2]) * 1000).tolist()
+        fractions = domain_params[1:16:2]
+        ndoms = list(energies).index(0)
+        use_walker1 = domain_params[16] == "walker1"
+        k = domain_params[17]
+        gs = domain_params[18]
+        ad = domain_params[19]  # atom density
+        ad = 0  # atom density
+        parent = domain_params[19]  # parent 40K
+        f = domain_params[20]  # frequency
+        pumping = domain_params[21]
+        # ad = 1e10  # atom density
+        # f = 1e13
+        dimension = 3
+
+        print(f"Run 40Ar {use_walker1 = }, {k = }, {gs = }, {ad = }, {f = }")
+
+        smp = ap.from_arr(arr_file_path)
+
+        age = 20  # 20 Ma
+        scale = 100000  # 0.1 Ma
+        dt = 3600 * 24 * 365.2425 * scale  # 0.1 Ma
+        ti = np.ones(int(age * 1000000 / scale)) * dt
+        temps = np.ones(int(age * 1000000 / scale)) * 10
+        temps[:5] = 400
+        temps[5:10] = 400
+        temps[10:20] = 350
+        temps[20:30] = 300
+        temps[30:40] = 250
+        temps[40:50] = 200
+        temps[50:70] = 150
+        temps[70:100] = 25
+        temps[100:] = 10
+
+        times = np.cumsum(ti)  # cumulative time
+        statuses = [True for i in range(len(ti))]
+        targets = [0 for i in range(len(ti))]
+        print(list(zip(temps, times)))
+
+        e_combinations = [energies[: ndoms]]
+        f_combinations = [fractions[: ndoms]]
+
+        for index, (_e, _f) in enumerate(list(itertools.product(*[e_combinations, f_combinations]))):
+            print(f"{index = }, {_e = }, {_f = }")
+
+            ## 先模拟热史
+
+            file_name = f"{'walker1' if use_walker1 else 'walker2'} {k=:.1f}a " \
+                        f"es={'-'.join([str(int(i / 1000)) for i in _e])} " \
+                        f"fs={'-'.join([str(i) for i in _f])} " \
+                        f"{dt=:.0f} " \
+                        f"{parent=:.0f} " \
+                        f"{gs=:.0f} " \
+                        f"{ad=:.0e} " \
+                        f"{f=:.0e} " \
+                        f"{ndoms=:.0f} " \
+                        f"temp={set(temps)} " \
+                        f"pumping={params[39]} " \
+                        f"multi"
+
+            try:
+                _start = time.time()
+                k = 3600 * 24 * 365.2425 * k
+                # demo, status = ap.ads.main.run(
+                #     times, temps, statuses,
+                #     _e, _f, ndoms, file_name=file_name, k=k, grain_szie=gs, dimension=dimension,
+                #     atom_density=ad, frequency=f, simulation=False, targets=targets, epsilon=0.05,
+                #     use_walker1=use_walker1, decay=5.53e-10, parent=parent
+                # )
+            except ap.ads.main.OverEpsilonError as e:
+                print(traceback.format_exc())
+                return JsonResponse({})
+            else:
+                print(traceback.format_exc())
+                # ap.ads.main.save_ads(demo, f"{loc}", name=demo.name + f" {(time.time() - _start) / 3600:.2f}h")
+
+                filename = f"walker2 k=10000.0a es=135-126-152 fs=1-0.97-0.74 dt=3155695200000 parent=800000000 gs=275 ad=0e+00 f=1e+13 ndoms=3 pumping=True multi 1.35h.ads"
+                filename = "walker2 k=3000.0a es=135-126-152 fs=1-0.97-0.74 dt=3155695200000 parent=800000000 gs=275 ad=0e+00 f=1e+13 ndoms=3 temp={200.0, 10.0, 300.0, 400.0, 150.0, 25.0, 250.0, 350.0} pumping=True multi 4.99h.ads"
+                filename = "walker2 k=1000.0a es=135-126-152 fs=1-0.97-0.74 dt=3155695200000 parent=800000000 gs=275 ad=0e+00 f=1e+13 ndoms=3 pumping=False multi 12.27h.ads"
+                filename = os.path.join(r"D:\DjangoProjects\webarar\private\mdd\20240920_24FY88a\thermo-history", filename)
+                demo = ap.ads.main.read_ads(filename)
+
+
+                ## 再模拟实验过程
+
+                use_walker1 = False
+                k = 10
+
+                file_name = f"{'walker1' if use_walker1 else 'walker2'} {k=:.1f}a " \
+                            f"es={'-'.join([str(int(i / 1000)) for i in _e])} " \
+                            f"fs={'-'.join([str(i) for i in _f])} " \
+                            f"{dt=:.0f} " \
+                            f"{gs=:.0f} " \
+                            f"{ad=:.0e} " \
+                            f"{f=:.0e} " \
+                            f"{ndoms=:.0f} " \
+                            f"pumping={params[39]} " \
+                            f"multi"
+
+                ti = np.array(smp.TotalParam[123], dtype=np.float64).round(2)  # time in second
+                temps = np.array(smp.TotalParam[124], dtype=np.float64)  # temperature in Celsius
+                ar = np.array(smp.DegasValues[24], dtype=np.float64)  # Ar40r
+                targets = ar.cumsum() / sum(ar)
+                statuses = [True for i in range(len(ti))]
+
+                if params[39]:  # including pumping phases
+                    for i in range(0, len(ti) * 2, 2):
+                        if params[40]:  # pumping out after, like Y56
+                            ti = np.insert(ti, i + 1, pumping)
+                            if params[41]:  # heating durations include pumping-out phases
+                                ti[i] -= pumping
+                        else:
+                            ti = np.insert(ti, i, pumping)
+                            # times = np.insert(times, i, times[i] - pumping)
+                            if params[41]:  # heating durations include pumping-out phases
+                                ti[i + 1] -= pumping
+                        temps = np.insert(temps, i + 1, temps[i])
+                        targets = np.insert(targets, i + 1, targets[i])
+                        statuses.insert(i + 1, False)
+
+                times = np.cumsum(ti)  # cumulative time
+
+                print(list(zip(temps, times)))
+
+                try:
+                    _start = time.time()
+                    k = 3600 * 24 * 365.2425 * k
+                    demo, status = ap.ads.main.run(
+                        times, temps, statuses, _e, _f, ndoms, file_name=file_name, k=k, grain_szie=gs, dimension=dimension,
+                        atom_density=ad, frequency=f, simulation=False, targets=targets, epsilon=0.05,
+                        use_walker1=use_walker1, decay=0, parent=0, positions=demo.positions
+                    )
+                except ap.ads.main.OverEpsilonError as e:
+                    print(traceback.format_exc())
+                    return JsonResponse({})
+                else:
+                    print(traceback.format_exc())
+                    ap.ads.main.save_ads(demo, f"{loc}", name=demo.name + f" {(time.time() - _start) / 3600:.2f}h")
 
         return JsonResponse({})
 
@@ -1133,7 +1360,7 @@ class ThermoView(http_funcs.ArArView):
         # read_from_ins = True
         read_from_ins = False
 
-        plot_params = params[33:]
+        plot_params = params[34:39]
 
         line_data = [a, b, siga, sigb, chi2, q] = [0, 0, 0, 0, 0, 0]
         if plot_params[0]:  # arrhenius plot
@@ -1200,6 +1427,16 @@ class ThermoView(http_funcs.ArArView):
         released = []
         release_name = []
         if plot_params[4]:  # release pattern
+            # if params[10] == '36':
+            #     ar = data[1]
+            # if params[10] == '37':
+            #     ar = data[3]
+            # if params[10] == '38':
+            #     ar = data[5]
+            # if params[10] == '39':
+            #     ar = data[7]
+            # if params[10] == '40':
+            #     ar = data[9]
             ar = data[7]
             ads_released = []
             index = 1
@@ -1211,6 +1448,7 @@ class ThermoView(http_funcs.ArArView):
                         index += 1
                         release_name.append(f"Released{index}: {f}")
                         diff = ap.ads.main.read_ads(os.path.join(loc, f))
+                        print(f"{f = }, {len(diff.released_per_step) = }, {diff.atom_density = :.0e}")
                         ads_released.append(np.array(diff.released_per_step) / diff.natoms)
 
             ads_released = np.transpose(ads_released)
@@ -1253,15 +1491,19 @@ class ExportView(http_funcs.ArArView):
         return render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
 
     def get_plotdata(self, request, *args, **kwargs):
-        params = self.body['settings']
-        files = json.loads(self.body['json_string'])['files']
-        file_names = [each['file_name'] for each in files if each['checked']]
-        file_paths = [each['file_path'] for each in files if each['checked']]
-        diagrams = [each['diagram'] for each in files if each['checked']]
-        print(f"{file_names = }")
-        print(f"{file_paths = }")
-        print(f"{diagrams = }")
-        print(f"{params = }")
+        page_settings = self.body['settings']
+        freshing = self.body['fresh']
+        preview = self.body['preview']
+        data = self.body['data']
+        files_table = json.loads(self.body['json_string'])['files']
+        files_table = list(filter(lambda row: row['checked'], files_table))
+        for index, row in enumerate(files_table):
+            row.update({'rank': int(row['position'])})
+            if int(row['position']) == 0 and index != 0:
+                row['rank'] = int(files_table[index-1]['rank']) + 1
+        files_table = sorted(files_table, key=lambda row: int(row['rank']))
+
+        print(files_table)
 
         colors = [
             '#1f3c40', '#e35000', '#e1ae0f', '#3d8ebf', '#77dd83', '#c7ae88', '#83d6bb', '#653013', '#cc5f16',
@@ -1271,45 +1513,60 @@ class ExportView(http_funcs.ArArView):
             '#ffe156', '#6a0572', '#e6399b', '#255f85', '#47e5bc', '#ff924c', '#1b1f3b', '#d7c9aa', '#935116', '#495867'
         ]
 
-        # ------ 构建数据 -------
-        data = {"data": [], "file_name": "WebArAr"}
-        smps = []
-        for index, file in enumerate(file_paths):
-            _, ext = os.path.splitext(file)
+        def get_smp(file_path):
+            _, ext = os.path.splitext(file_path)
             if ext[1:] not in ['arr', 'age']:
-                continue
-            smps.append((ap.from_arr if ext[1:] == 'arr' else ap.from_age)(file_path=file))
+                raise ValueError(f"Cannot open file: {file_path}")
+            return (ap.from_arr if ext[1:] == 'arr' else ap.from_age)(file_path)
 
         keys = [
             "page_size", "ppi", "width", "height", "pt_width", "pt_height", "pt_left", "pt_bottom",
-            "offset_top", "offset_right", "offset_bottom", "offset_left", "plot_together", "show_frame",
+            "offset_top", "offset_right", "offset_bottom", "offset_left", "num_columns", "show_label",
+            "show_frame",
         ]
-        params = dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in params]))
-        plot_together = params.get("plot_together", True)
+        page_settings = dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in page_settings]))
 
-        if params.get("plot_together", True):
-            data['data'] = [{"name": "", "xAxis": [], "yAxis": [], "series": []}]
-        for index, smp in enumerate(smps):
-            if plot_together:
-                current = ap.smp.export.get_plot_data(smp=smp, diagram=diagrams[index], color=colors[index])
-                data['data'][0]['name'] = 'Combined Diagrams'
-                if index == 0:
-                    data['data'][0]['xAxis'] = current['xAxis']
-                    data['data'][0]['yAxis'] = current['yAxis']
+        data = {
+            "data": [],
+            "file_name": "WebArAr"
+        } if data == {} else data
+
+        # ------ 构建数据 -------
+        page_num = -1; c = 0; plot_data_list = []; params_list = []
+        for index, row in enumerate(files_table):
+            params_list.append(dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in ap.files.basic.read(models.ExportPdfParams.objects.get(name=row['setting']).file_path)])))
+            if index == 0 or int(row['position']) == 1:
+                page_num += 1; c = 0; plot_data_list.append([]); xn = 0; yn = 0; sn = 0
+            plot_together = int(row['position']) == 0
+            plot_data = ap.smp.export.get_plot_data(smp=get_smp(row['file_path']), diagram=row['diagram'], color=colors[c] if plot_together else 'black')
+            if freshing:  # freshing: 获取 前端 axis属性，更新series
+                plot_data['xAxis'] = data['data'][page_num]['xAxis'][xn:xn+len(plot_data['xAxis'])]
+                plot_data['yAxis'] = data['data'][page_num]['yAxis'][yn:yn+len(plot_data['yAxis'])]
+                xn = xn + len(plot_data['xAxis']); yn = yn + len(plot_data['yAxis'])
+                if preview:  # preview: 完全从前端读取 点击 fresh的时候 fresh == True and preview == False  点击 preview 的时候 fresh == True and preview == True
+                    plot_data['series'] = data['data'][page_num]['series'][sn:sn+len(plot_data['series'])]
+                    sn = sn + len(plot_data['series'])
                 else:
-                    data['data'][0]['xAxis'][0]['extent'][0] = min(current['xAxis'][0]['extent'][0], data['data'][0]['xAxis'][0]['extent'][0])
-                    data['data'][0]['xAxis'][0]['extent'][1] = max(current['xAxis'][0]['extent'][1], data['data'][0]['xAxis'][0]['extent'][1])
-                    data['data'][0]['yAxis'][0]['extent'][0] = min(current['yAxis'][0]['extent'][0], data['data'][0]['yAxis'][0]['extent'][0])
-                    data['data'][0]['yAxis'][0]['extent'][1] = max(current['yAxis'][0]['extent'][1], data['data'][0]['yAxis'][0]['extent'][1])
-                for ser in current['series']:
-                    data['data'][0]['series'].append(ser)
+                    plot_data['series'] = ap.smp.export.get_plot_series_data(smp=get_smp(row['file_path']), diagram=row['diagram'], color=colors[c] if plot_together else 'black', xAxis=plot_data['xAxis'], yAxis=plot_data['yAxis'])
+            if plot_together:
+                plot_data_list[-1][-1]['series'].extend(plot_data['series'])
             else:
-                current = ap.smp.export.get_plot_data(smp=smp, diagram=diagrams[index])
-                data['data'].append(current)
+                plot_data_list[-1].append(plot_data)
+            c += 1
 
-        filepath = f"{settings.DOWNLOAD_URL}{data['file_name']}-{uuid.uuid4().hex[:8]}.pdf"
-        filepath = ap.smp.export.export_chart_to_pdf(data, filepath=filepath, **params)
-        export_href = '/' + filepath
+        data['data'] = []
+        for page in plot_data_list:
+            data['data'].append({'name': "", 'xAxis': [], 'yAxis': [], 'series': []})
+            for cv in page:
+                data['data'][-1]['xAxis'].extend(cv['xAxis'])
+                data['data'][-1]['yAxis'].extend(cv['yAxis'])
+                data['data'][-1]['series'].extend(cv['series'])
+        params_list = iter(params_list)
+        cvs = [[ap.smp.export.get_cv_from_dict(plot, **next(params_list)) for plot in page] for page in plot_data_list]
+
+        file_path = f"{settings.DOWNLOAD_URL}{data['file_name']}-{uuid.uuid4().hex[:8]}.pdf"
+        file_path = ap.smp.export.export_chart_to_pdf(cvs, file_name=data['file_name'], file_path=file_path, **page_settings)
+        export_href = '/' + file_path
 
         return JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
 
@@ -1392,17 +1649,20 @@ class ApiView(http_funcs.ArArView):
         a = ap.smp.export.WritingWorkbook(
             filepath=export_filepath, style=default_style,
             template_filepath=template_filepath, sample=self.sample)
-        res = a.get_xls()
-        export_href = '/' + settings.DOWNLOAD_URL + f"{self.sample.Info.sample.name}_export.xlsx"
-        if res:
+
+        try:
+            a.get_xls()
+        except (BaseException, Exception) as e:
+            print(traceback.format_exc())
+            log_funcs.set_info_log(
+                self.ip, '003', 'info', f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}')
+            return JsonResponse({'status': 'fail', 'msg': e.args[0]})
+        else:
+            export_href = '/' + settings.DOWNLOAD_URL + f"{self.sample.Info.sample.name}_export.xlsx"
             log_funcs.set_info_log(
                 self.ip, '003', 'info', f'Success to export excel file (.xls), '
                                         f'sample name: {self.sample.Info.sample.name}, export href: {export_href}')
             return JsonResponse({'status': 'success', 'href': export_href})
-        else:
-            log_funcs.set_info_log(self.ip, '003', 'info',
-                                   f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}')
-            return JsonResponse({'status': 'fail', 'msg': res})
 
     def export_opju(self, request, *args, **kwargs):
         name = f"{self.sample.Info.sample.name}_export"

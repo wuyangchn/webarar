@@ -13,7 +13,7 @@ import numpy as np
 
 
 def get_data(y: list, sy: list, x: list, f: int = 1, indices: list = None,
-             cumulative: bool = False, successive: bool = True):
+             cumulative: bool = False, successive: bool = True, sigma: int = 1):
     """
     Get spectra data based on passed x, y, and sy.
 
@@ -28,6 +28,7 @@ def get_data(y: list, sy: list, x: list, f: int = 1, indices: list = None,
     cumulative : bool, default False.
         This parameter should be True if x is already cumulative.
     successive : If setting indices successive
+    sigma:
 
     Returns
     -------
@@ -35,6 +36,7 @@ def get_data(y: list, sy: list, x: list, f: int = 1, indices: list = None,
     """
     if np.issubdtype(type(f), np.integer) and f > 1:
         sy = np.divide(sy, f)
+    sy = np.array(sy) * sigma
     dp = np.shape([y, sy, x])[-1]
     if indices is None:
         indices = list(range(dp))

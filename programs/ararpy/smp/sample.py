@@ -743,7 +743,7 @@ DEFAULT_PLOT_STYLES = {
     },
 }
 
-VERSION = '20250102'
+VERSION = '20250301'
 
 NAMED_DICT = {
     "unknown": {"header": SAMPLE_INTERCEPT_HEADERS.copy()},
@@ -846,7 +846,8 @@ class Sample:
         # self.__version = '20231116'  # change smp parameters
         # self.__version = '20240730'  # change parameter table for thermo calculation
         # self.__version = '20241028'  # gain correction
-        self.__version = '20250102'  # gain correction to blanks
+        # self.__version = '20250102'  # gain correction to blanks
+        self.__version = '20250301'  # error sigma adjustment
 
     @property
     def version(self):
@@ -943,7 +944,7 @@ class Table:
         if header is None:
             header = ['']
         if data is None:
-            data = [['']]
+            data = [['' for i in range(len(header))]]
         if colcount is None:
             colcount = len(header)
         if rowcount is None:
