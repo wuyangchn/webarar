@@ -423,9 +423,10 @@ def open_full_xls(file_path: str, sample_name: str = ''):
         return e
     start_row = 5
     rows_num = len(res['Sample Parameters']) - 5
+
     for key, val in res.items():
         res[key] = arr.transpose(val[:start_row + rows_num])
-        # 2倍误差改回1倍
+        # 2 sigma errors to 1 sigma
         for i in range(len(res[key])):
             if res[key][i][2] in ['2s', '%2s', '± 2s']:
                 _temp = []
@@ -448,7 +449,7 @@ def open_full_xls(file_path: str, sample_name: str = ''):
         res['Incremental Heating Summary'][13][start_row: start_row + rows_num] = _temp
         res['Incremental Heating Summary'][13][start_row: start_row + rows_num] = _s
 
-    # degas相对误差改为绝对误差
+    # degas: change relative uncertainties to absolute
     for i in range(len(res['Degassing Patterns'])):
         if res['Degassing Patterns'][i][2] in ['%1s', '%2s']:
             _temp = []
@@ -459,7 +460,7 @@ def open_full_xls(file_path: str, sample_name: str = ''):
                 except TypeError:
                     _temp.append('')
             res['Degassing Patterns'][i][start_row: start_row + rows_num] = _temp
-    rows = list(range(start_row, rows_num))
+    rows = list(range(start_row, start_row + rows_num))
     sequence_name = arr.partial(res['Procedure Blanks'], rows, 1)
     sequence_value = arr.partial(res['Procedure Blanks'], rows, 2)
     blank_values = arr.partial(
@@ -509,15 +510,17 @@ def open_full_xls(file_path: str, sample_name: str = ''):
             -1, -1,  # 56-57
             -1, -1,  # 58-59
             -1, -1, -1, -1, -1, -1, -1, -1, -1,  # 60-68
-            10, 11, 12, 13,  #
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  #
-            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  #
-            -1, -1, -1, -1,  #
-            -1, -1, -1, -1,  #
-            -1, -1, -1, -1, -1,  #
-            -1, -1, -1, -1,  #
-            -1, -1, -1, -1,  #
-            -1,  #
+            10, 11, 12, 13,  # 69-72
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  # 73-84
+            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  # 85-94
+            -1, -1, -1, -1,  # 95-98
+            -1, -1, -1, -1,  # 99-102
+            -1, -1, -1, -1,  # 103-106
+            -1, -1, -1, -1,  # 107-110
+            -1, -1, -1, -1,  # 111-114
+            -1, -1, -1, -1, -1, -1, -1, -1,  # 115-122
+            -1, -1, -1, -1, -1, -1, -1, -1,  # 123-130
+            -1, -1, -1, -1, -1,  # 131-135
         ])
 
     month_convert = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
