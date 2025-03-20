@@ -15,12 +15,11 @@
 import os
 import shutil
 import numpy as np
+
+from ..thermo.basic import fit
+
 np.set_printoptions(precision=18, threshold=10000, linewidth=np.inf)
 import math
-import random
-import scipy.stats as stats
-from scipy.interpolate import griddata
-from scipy.special import comb
 from datetime import datetime as dt
 import re
 import time
@@ -4146,88 +4145,6 @@ class Ran1Generator:
         return ran1
 
 
-
-
-def fit(x, y, sigx, sigy, ndata=None):
-
-    print(f"{x = }")
-    print(f"{y = }")
-    print(f"{sigx = }")
-    print(f"{sigy = }")
-
-    if ndata is None:
-        ndata = len(x)
-    nd = 20
-    imax = 20
-    xerr = 0.001
-    wt = []
-    r = 0.
-    a = 0
-    b = -1.
-    siga = 0
-    sigb = 0
-    chi2 = 0
-    q = 0
-    iter = 0
-
-    while iter <= imax:
-        sx = 0.
-        sy = 0.
-        st2 = 0.
-        st3 = 0.
-        ss = 0.
-        b0 = b
-
-        for i in range(ndata):
-            wt.append(0)
-            wt[i] = 1. / (sigy[i] ** 2 + b ** 2 * sigx[i] ** 2 - 2 * r * sigx[i] * sigy[i])
-            ss = ss + wt[i]
-            sx = sx + x[i] * wt[i]
-            sy = sy + y[i] * wt[i]
-
-            # print(f"{x[i] = }, {y[i] = }, {wt[i] = }")
-
-        sxoss = sx / ss
-        syoss = sy / ss
-
-        for i in range(ndata):
-            t1 = (x[i] - sxoss) * sigy[i] ** 2
-            t2 = (y[i] - syoss) * sigx[i] ** 2 * b
-            t3 = sigx[i] * sigy[i] * r
-            st2 = st2 + wt[i] ** 2 * (y[i] - syoss) * (t1 + t2 - t3 * (y[i] - syoss))
-            st3 = st3 + wt[i] ** 2 * (x[i] - sxoss) * (t1 + t2 - b * t3 * (x[i] - sxoss))
-
-        b = st2 / st3
-        iter = iter + 1
-
-        # print(f"{sxoss = }, {syoss = }, {b = }, {abs(b0 - b) = }")
-
-        if abs(b0 - b) > xerr:
-            continue
-
-        a = (syoss - sxoss * b)
-        # print(f"{a = }, {b = }")
-        sgt1 = 0.
-        sgt2 = 0.
-
-        for i in range(ndata):
-            sgt1 = sgt1 + wt[i] * (x[i] - sxoss) ** 2
-            sgt2 = sgt2 + wt[i] * x[i] ** 2
-
-        sigb = (1. / sgt1) ** 0.5
-        siga = sigb * (sgt2 / ss) ** 0.5
-        chi2 = 0.
-
-        for i in range(ndata):
-            chi2 = chi2 + wt[i] * (y[i] - a - b * x[i]) ** 2
-
-        q = gammq(0.5 * (ndata - 2), 0.5 * chi2)
-
-        if abs(b0 - b) <= xerr:
-            break
-
-    return a, b, siga, sigb, chi2, q
-
 def gammq(a, x):
     if x < 0 or a <= 0:
         raise ValueError("ERROR(GAMMQ): x < 0 or a <= 0")
@@ -4575,7 +4492,7 @@ def run_agemon_dll(sample: Sample, source_dll_path: str, loc: str, data, max_age
     return
 
 
-def dr2_popov(f, ti, ar, sar, ln=True):
+def dr2_sphere(f, ti, ar, sar, ln=True, bp=0.85):
     """
 
     Used in Popov 2020. It is related to the sphere model.
@@ -4585,6 +4502,10 @@ def dr2_popov(f, ti, ar, sar, ln=True):
     ----------
     f: cumulative 39Ar released, array
     ti: heating time, array
+    ar:
+    sar:
+    ln:
+    bp:
 
     Returns
     -------
@@ -4612,9 +4533,8 @@ def dr2_popov(f, ti, ar, sar, ln=True):
 
     # Popov 2020, sphere model
     model = geometric_model(geo='sphere')
-    dtr2 = [model(bp=0.85)[1](fi) for fi in f]
-    dr2 = [(dtr2[i] - (dtr2[i - 1] if i > 0 else 0)) / ti[i] for i in range(len(dtr2))]
-    dr2[-1] = math.log((1 - f[-2]) / (1 - f[-1])) / pi ** 2 / ti[-1]
+    dtr2 = [model(bp=bp)[1](fi) for fi in f]
+    dr2 = np.array([(dtr2[i] - (dtr2[i - 1] if i > 0 else 0)) / ti[i] for i in range(len(dtr2))])
 
     # =IF(M5<85,((-SUM(H5:$H$35)/3/SUM($H$4:$H$35)^2/SQRT(1-PI()/3*SUM($H$4:H4)/SUM($H$4:$H$35))/(D5*60)+SUM(H6:$H$35)/3/SUM($H$4:$H$35)^2/SQRT(1-PI()/3*SUM($H$4:H5)/SUM($H$4:$H$35))/(D5*60)+H5/3/SUM($H$4:$H$35)^2/(D5*60))^2),0)
     sar_lt = np.zeros(n)  # 偏导数
@@ -4624,7 +4544,7 @@ def dr2_popov(f, ti, ar, sar, ln=True):
     sdr2 = np.zeros(n)
     for i in range(n):
         if i == 0:
-            if f[i] < 0.85:
+            if f[i] < bp:
                 sar_lt[i] = 0
                 sar_eq[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
                 sar_gt[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
@@ -4633,7 +4553,7 @@ def dr2_popov(f, ti, ar, sar, ln=True):
                 sar_eq[i] = (1 / (pi ** 2 * ti[i] * (f[i] - 1))) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
                 sar_gt[i] = (1 / (pi ** 2 * ti[i] * (f[i] - 1))) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2)
         else:
-            if f[i] < 0.85:
+            if f[i] < bp:
                 sar_lt[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2) - ((1 / math.sqrt(1 - pi * f[i-1] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i-1] - sum(ar[:i-1])) / sum(ar) ** 2)
                 sar_eq[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((sum(ar) - ar[i] - sum(ar[:i])) / sum(ar) ** 2) - ((1 / math.sqrt(1 - pi * f[i-1] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i-1] - sum(ar[:i-1])) / sum(ar) ** 2)
                 sar_gt[i] = ((1 / math.sqrt(1 - pi * f[i] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i] - sum(ar[:i])) / sum(ar) ** 2) - ((1 / math.sqrt(1 - pi * f[i-1] / 3) - 1) / (3 * ti[i])) * ((0 - ar[i-1] - sum(ar[:i-1])) / sum(ar) ** 2)
@@ -4647,10 +4567,10 @@ def dr2_popov(f, ti, ar, sar, ln=True):
     logdr2 = np.log(dr2) if ln else np.log10(dr2)
     wt = np.abs(sdr2 / dr2) if ln else np.abs(sdr2 / dr2) / np.log(10)
 
-    return dtr2, logdr2, wt
+    return dr2, logdr2, wt
 
 
-def dr2_lovera(f, ti, ar, sar, ln=True):
+def dr2_plane(f, ti, ar, sar, ln=True):
     """
 
     Plane sheet model
@@ -4733,7 +4653,7 @@ def dr2_lovera(f, ti, ar, sar, ln=True):
     # wt = np.abs(sdr2 / dr2)
     # wt = errcal(f, ti, ar, sar)
 
-    xlogd = logdr2 = np.log(dr2) if ln else np.log10(dr2)
+    logdr2 = np.log(dr2) if ln else np.log10(dr2)
     #ee = 1 / np.log(10)
     ee = 0.4342944819
     wt = np.abs(sdr2 / dr2) if ln else np.abs(sdr2 / dr2) * ee
@@ -4746,7 +4666,61 @@ def dr2_lovera(f, ti, ar, sar, ln=True):
     ### errcal(f, ti, ar, sar)和这里的计算有非常少的差异，但这样的差异足以导致迭代次数变化，但不一定导致agemon结果有大的差异
     """
 
-    return dr2, xlogd, wt
+    return dr2, logdr2, wt
+
+
+def dr2_thern(f, ti, ar, sar, ln=True):
+    """
+
+    Plane sheet model
+
+    Parameters
+    ----------
+    f
+    ti
+    ar
+    sar
+    ln
+
+    Returns
+    -------
+
+    """
+
+    f = np.array(f)
+    ti = np.array(ti)
+    # ti = np.cumsum(ti)
+    n = min(len(f), len(ti))
+    ar = np.array(ar)
+    # f = ar / sum(ar)
+    sar = np.array(sar)
+    sar2 = sar ** 2
+    ti = ti * 60  # in seconds
+    sti = [90 for i in range(n)]
+
+    # sf = sqrt(b ** 2 * siga ** 2 + a ** 2 * sigb ** 2) / (a + b) ** 2
+    # sf = [math.sqrt(sar[i + 1:].sum() ** 2 * (sar[:i + 1] ** 2).sum() + ar[:i + 1].sum() ** 2 * (sar[i + 1:] ** 2).sum()) / ar.sum() ** 2 for i in range(len(ar) - 1)]
+    # sf.append(0)
+
+    f = np.where(f >= 1, 0.9999999999999999, f)
+
+    dtr2 = np.where(f > 0.85, -np.log(math.pi ** 2 * (1 - f) / 6) / (math.pi ** 2),
+                    2 / math.pi * (1 - np.sqrt(1 - math.pi * f / 3)) - f / 3)
+
+    # dr2 = np.array([v / ti[i] if i == 0 else (dtr2[i] - dtr2[i-1]) / ti[i] for i, v in enumerate(dtr2)])
+    dr2 = dtr2 / ti
+
+    xlogd = np.log(dr2) if ln else np.log10(dr2)
+    sdr2 = np.ones(len(dr2))
+    ee = 0.4342944819
+    wt = np.abs(sdr2 / dr2) if ln else np.abs(sdr2 / dr2) * ee
+
+    # dr2, xlogd, wt = dr2_sphere(f, ti, ar, sar, ln, bp=0.85)
+    r2 = 0.01 ** 2
+    d = dr2 * r2
+    logd = np.log(d)
+
+    return d, logd, wt
 
 
 def dr2_yang(f, ti, ar, sar, ln=True):
@@ -4785,9 +4759,9 @@ def dr2_yang(f, ti, ar, sar, ln=True):
     dr2 = dtr2 / ti
     sdr2 = np.array([math.sqrt((1 / ti[i]) ** 2 * sdtr2[i] ** 2 + dtr2[i] ** 2 / ti[i] ** 4 * sti[i] ** 2) for i in range(n)])
 
-    xlogd = logdr2 = np.log(dr2) if ln else np.log10(dr2)
-    wt = sxlogd = np.abs(sdr2 / dr2) if ln else np.abs(sdr2 / dr2) / np.log(10)
-    return dr2, xlogd, wt
+    logdr2 = np.log(dr2) if ln else np.log10(dr2)
+    wt = np.abs(sdr2 / dr2) if ln else np.abs(sdr2 / dr2) / np.log(10)
+    return dr2, logdr2, wt
 
 
 def errcal(f, ti, ar, sar):

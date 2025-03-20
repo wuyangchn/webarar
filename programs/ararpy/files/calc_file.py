@@ -128,7 +128,7 @@ def open_252(data: pd.DataFrame, logs01: pd.DataFrame, logs02: pd.DataFrame):
     sequence = get_data(data, sequence_index)
 
     # adjustment
-    isochron_mark.replace({4.0: 1}, inplace=True)
+    isochron_mark.replace({4.0: '1'}, inplace=True)
     total_param[83] = logs01[1][9]  # No
     total_param[84] = logs01[1][10]  # %SD
     total_param[81] = logs01[1][11]  # K mass
@@ -310,7 +310,7 @@ def open_240(data: pd.DataFrame, logs01: pd.DataFrame, logs02: pd.DataFrame):
         total_param.copy(), logs02, get_data(data, [59, 58, 57, 60, 61]), data[63][0]
     )
     # Do adjustment
-    isochron_mark.replace({4.0: 1}, inplace=True)
+    isochron_mark.replace({4.0: '1'}, inplace=True)
     total_param[44] = logs01[1][40]
     total_param[45] = logs01[1][41]
     total_param[42] = logs01[1][38]
@@ -553,7 +553,7 @@ def open_full_xls(file_path: str, sample_name: str = ''):
     isochron_values[24:29] = isochron.get_data(
         degas_values[10], degas_values[11], degas_values[24], degas_values[25], degas_values[20], degas_values[21]
     )  # 38/39, 40/39
-    isochron_mark = [1 if i == 'P' else '' for i in arr.partial(
+    isochron_mark = ['1' if i == 'P' else '' for i in arr.partial(
         res['Normal Isochron Table'], rows, 3)]
 
     sample_info = {

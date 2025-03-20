@@ -951,7 +951,7 @@ class Table:
             rowcount = len(data[0])
         if coltypes is None:
             # Note the difference between [xx] * 10 and [xx for i in range(10)]
-            coltypes = [{'type': 'numeric'} for i in range(colcount)]
+            coltypes = [{'type': 'text'} for i in range(colcount)]
         self.id = id
         self.name = name
         self.colcount = colcount
@@ -959,12 +959,13 @@ class Table:
         self.header = header
         self.data = data
         self.coltypes = coltypes
-        self.numeric_indexes = numeric_indexes
-        self.text_indexes = text_indexes
-        if text_indexes is not None and numeric_indexes is not None:
-            self.set_coltypes()
+        self.text_indexes = text_indexes if text_indexes is not None else []
+        self.numeric_indexes = numeric_indexes if numeric_indexes is not None else list(set(range(0, colcount)) - set(self.text_indexes))
+        self.decimal_places = 6
+
         for k, v in kwargs.items():
             setattr(self, k, v)
+        self.set_coltypes()
 
     def set_coltypes(self):
         for i in self.text_indexes:
@@ -972,7 +973,10 @@ class Table:
                 self.coltypes[i].update({'type': 'text'})
         for i in self.numeric_indexes:
             if i < self.colcount:
-                self.coltypes[i].update({'type': 'numeric'})
+                self.coltypes[i].update({
+                    'type': 'numeric',
+                    'numericFormat': {'pattern': {'mantissa': self.decimal_places}},
+                })
 
 
 class Plot:

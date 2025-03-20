@@ -9,6 +9,8 @@
 #
 #
 """
+import ast
+import re
 import copy
 from .. import calc
 from . import (sample as samples, basic)
@@ -96,6 +98,12 @@ def update_handsontable(smp: Sample, data: list, id: str):
             'true': True, 'false': False, 'True': True, 'False': False, '1': True, '0': False, 'none': False,
         }
         return [bools_dict.get(str(col).lower(), False) for col in cols]
+
+    def _digitize_data(a):
+        # pattern = r'^[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?$'
+        # return [[ast.literal_eval(str(cell)) if re.fullmatch(pattern, str(cell)) else np.nan if str(cell) == "" else cell for cell in row] for row in a]
+        return a
+
     try:
         smp.SequenceName = data[0]
     except IndexError:
@@ -104,47 +112,37 @@ def update_handsontable(smp: Sample, data: list, id: str):
     update_all_table = False
     try:
         if data[1] != smp.SequenceValue:
+            update_all_table = True
             smp.SequenceValue = data[1]
     except IndexError:
         pass
-    else:
-        update_all_table = True
 
     if id == '1':  # 样品值
         data = _normalize_data(data, len(samples.SAMPLE_INTERCEPT_HEADERS), 2)
-        smp.SampleIntercept = data
+        smp.SampleIntercept = _digitize_data(data)
     elif id == '2':  # 本底值
         data = _normalize_data(data, len(samples.BLANK_INTERCEPT_HEADERS), 2)
-        smp.BlankIntercept = data
+        smp.BlankIntercept = _digitize_data(data)
     elif id == '3':  # 校正值
         data = _normalize_data(data, len(samples.CORRECTED_HEADERS), 2)
-        smp.CorrectedValues = data
+        smp.CorrectedValues = _digitize_data(data)
     elif id == '4':  # Degas table
         data = _normalize_data(data, len(samples.DEGAS_HEADERS), 2)
-        smp.DegasValues = data
+        smp.DegasValues = _digitize_data(data)
     elif id == '5':  # 发行表
         data = _normalize_data(data, len(samples.PUBLISH_TABLE_HEADERS), 2)
-        smp.PublishValues = data
+        smp.PublishValues = _digitize_data(data)
     elif id == '6':  # 年龄谱
         data = _normalize_data(data, len(samples.SPECTRUM_TABLE_HEADERS), 2)
-        smp.ApparentAgeValues = data
+        smp.ApparentAgeValues = _digitize_data(data)
     elif id == '7':  # 等时线
-        smp.IsochronMark = data[2]
+        smp.IsochronMark = _digitize_data(data)[2]
         data = _normalize_data(data, len(samples.ISOCHRON_TABLE_HEADERS), 3)
-        smp.IsochronValues = data
-        smp.SelectedSequence1 = [
-            i for i in range(len(smp.IsochronMark)) if str(smp.IsochronMark[i]) == "1"]
-        smp.SelectedSequence2 = [
-            i for i in range(len(smp.IsochronMark)) if str(smp.IsochronMark[i]) == "2"]
-        smp.UnselectedSequence = [
-            i for i in range(len(smp.IsochronMark)) if
-            i not in smp.SelectedSequence1 + smp.SelectedSequence2]
-        #
-        smp.Info.results.selection[0]['data'] = smp.SelectedSequence1
-        smp.Info.results.selection[1]['data'] = smp.SelectedSequence2
-        smp.Info.results.selection[2]['data'] = smp.UnselectedSequence
+        smp.IsochronValues = _digitize_data(data)
+        smp.sequence()
     elif id == '8':  # 总参数
         data = _normalize_data(data, len(samples.TOTAL_PARAMS_HEADERS), 2)
+        data = _digitize_data(data)
         data[101: 112] = [_strToBool(i) for i in data[101: 112]]
         smp.TotalParam = data
     else:

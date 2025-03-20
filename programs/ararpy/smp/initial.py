@@ -49,11 +49,11 @@ spectra_res_keys = [
 SPECTRA_RES = dict(zip(
     spectra_res_keys, [np.nan for i in spectra_res_keys])
 )
-settings_keys = [
-    'sigma_level'
+preference_keys = [
+    'decimalPlaces', 'toPrecision', 'confidenceLevel', 'ageUnit'
 ]
-SETTINGS_RES = dict(zip(
-    settings_keys, [np.nan for i in settings_keys])
+PREFERENCE_RES = dict(zip(
+    preference_keys, [6, 'fixed', 1, 'Ma'])
 )
 
 
@@ -110,9 +110,9 @@ def create_sample_from_dict(content: dict, smp_info: dict):
 
     smp.Info = basic.update_plot_from_dict(smp.Info, smp_info)
 
-    smp.SelectedSequence1 = [index for index, item in enumerate(smp.IsochronMark) if item == 1]
-    smp.SelectedSequence2 = [index for index, item in enumerate(smp.IsochronMark) if item == 2]
-    smp.UnselectedSequence = [index for index, item in enumerate(smp.IsochronMark) if item not in [1, 2]]
+    smp.SelectedSequence1 = [index for index, item in enumerate(smp.IsochronMark) if item == 1 or item == '1']
+    smp.SelectedSequence2 = [index for index, item in enumerate(smp.IsochronMark) if item == 2 or item == '2']
+    smp.UnselectedSequence = [index for index, item in enumerate(smp.IsochronMark) if item not in [1, 2, '1', '2']]
     #
     smp.Info.results.selection[0]['data'] = smp.SelectedSequence1
     smp.Info.results.selection[1]['data'] = smp.SelectedSequence2
@@ -182,45 +182,50 @@ def initial(smp: Sample):
         reference=ArArBasic(
             name='REFERENCE', journal='JOURNAL', doi='DOI'
         ),
-        settings=copy.deepcopy(SETTINGS_RES)
+        preference=copy.deepcopy(PREFERENCE_RES)
     ))
 
-    smp.Info.settings.update({'sigma_level': 1})
-
+    decimal_places = PREFERENCE_RES['decimalPlaces']
     # Plots and Tables
     setattr(smp, 'UnknownTable', Table(
-        id='1', name='Unknown', header=samples.SAMPLE_INTERCEPT_HEADERS,
-        text_indexes=[0], numeric_indexes=list(range(1, 20))
+        id='1', name='Unknown', header=samples.SAMPLE_INTERCEPT_HEADERS, decimal_places=decimal_places,
+        text_indexes=[0, 1],
+        # numeric_indexes=list(range(1, 20))
     ))
     setattr(smp, 'BlankTable', Table(
-        id='2', name='Blank', header=samples.BLANK_INTERCEPT_HEADERS,
-        text_indexes=[0], numeric_indexes=list(range(1, 20))
+        id='2', name='Blank', header=samples.BLANK_INTERCEPT_HEADERS, decimal_places=decimal_places,
+        text_indexes=[0, 1],
+        # numeric_indexes=list(range(1, 20))
     ))
     setattr(smp, 'CorrectedTable', Table(
-        id='3', name='Corrected', header=samples.CORRECTED_HEADERS,
-        text_indexes=[0], numeric_indexes=list(range(1, 35))
+        id='3', name='Corrected', header=samples.CORRECTED_HEADERS, decimal_places=decimal_places,
+        text_indexes=[0, 1],
+        # numeric_indexes=list(range(1, 35))
     ))
     setattr(smp, 'DegasPatternTable', Table(
-        id='4', name='Degas Pattern', header=samples.DEGAS_HEADERS,
-        text_indexes=[0], numeric_indexes=list(range(1, 35))
+        id='4', name='Degas Pattern', header=samples.DEGAS_HEADERS, decimal_places=decimal_places,
+        text_indexes=[0, 1],
+        # numeric_indexes=list(range(1, 35))
     ))
     setattr(smp, 'PublishTable', Table(
-        id='5', name='Publish', header=samples.PUBLISH_TABLE_HEADERS,
-        text_indexes=[0], numeric_indexes=list(range(1, 20))
+        id='5', name='Publish', header=samples.PUBLISH_TABLE_HEADERS, decimal_places=decimal_places,
+        text_indexes=[0, 1],
+        # numeric_indexes=list(range(1, 20))
     ))
     setattr(smp, 'AgeSpectraTable', Table(
-        id='6', name='Age Spectra', header=samples.SPECTRUM_TABLE_HEADERS,
-        text_indexes=[0], numeric_indexes=list(range(1, 26))
+        id='6', name='Age Spectra', header=samples.SPECTRUM_TABLE_HEADERS, decimal_places=decimal_places,
+        text_indexes=[0, 1],
+        # numeric_indexes=list(range(1, 26))
     ))
     setattr(smp, 'IsochronsTable', Table(
-        id='7', name='Isochrons', header=samples.ISOCHRON_TABLE_HEADERS,
-        text_indexes=[0], numeric_indexes=list(range(1, 42))
+        id='7', name='Isochrons', header=samples.ISOCHRON_TABLE_HEADERS, decimal_places=decimal_places,
+        text_indexes=[0, 1, 2, 8, 14, 20, 26, 32],
+        # numeric_indexes=[1, *list(range(3, 42))]
     ))
     setattr(smp, 'TotalParamsTable', Table(
-        id='8', name='Total Params', header=samples.TOTAL_PARAMS_HEADERS,
-        text_indexes=[0, 29, 30, 32, 33, 60, 99, 102, *list(range(103, 115))],
+        id='8', name='Total Params', header=samples.TOTAL_PARAMS_HEADERS, decimal_places=decimal_places,
+        text_indexes=[0, 1, 29, 30, 32, 33, 60, 99, *list(range(100, 115))],
         # numeric_indexes=list(range(1, 120)),
-        numeric_indexes=[1],
     ))
 
     initial_plot_styles(smp)

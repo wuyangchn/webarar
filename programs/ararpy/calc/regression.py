@@ -42,8 +42,8 @@ def york2(x: list, sx: list, y: list, sy: list, ri: list, f: int = 1,
     Returns
     -------
     Intercept | Error | slope | Error | MSWD | Convergence | Number of Iterations | error magnification | other
-     b, sb, a, sa, mswd, dF, Di, k, r2, chi_square, p_value
-    b, seb, m, sem, mswd, abs(m - last_m), Di, k, r2, chi_square, p_value, avg_err_s
+    b, sb, a, sa, mswd, dF, Di, k, r2, chi_square, p_value, avg_err_s, cov_b_m
+    b, seb, m, sem, mswd, abs(m - last_m), Di, k, r2, chi_square, p_value, avg_err_s, cov_b_m
     """
     data = np.array([x, sx, y, sy, ri])
     data = data[:, np.where(
@@ -110,6 +110,7 @@ def york2(x: list, sx: list, y: list, sy: list, ri: list, f: int = 1,
     r2 = ssreg / sstotal if sstotal != 0 else np.inf  # r2 = ssreg / sstotal
     chi_square = mswd * (n - 2)
     p_value = distributions.chi2.sf(chi_square, n - 2)
+    cov_b_m = - np.mean(X) * (ssresid / (n - 2) / np.sum((X - np.mean(X)) ** 2))  # covariance of intercept b and slope m
     # average error of S
     err_s = lambda m, b: list(map(lambda Zi, Yi, Xi: (1 / Zi) ** (1./2.) / abs(Yi - m * Xi - b), Z(m, b), y, x))
     avg_err_s = sum(err_s(m, b)) / len(x) * 100
@@ -127,7 +128,7 @@ def york2(x: list, sx: list, y: list, sy: list, ri: list, f: int = 1,
     #     k, sk, m, sm, mswd, conv, iter, mag, r2, chisq, p, avg_err
     # ]
 
-    return b, seb, m, sem, mswd, abs(m - last_m), Di, k, r2, chi_square, p_value, avg_err_s
+    return b, seb, m, sem, mswd, abs(m - last_m), Di, k, r2, chi_square, p_value, avg_err_s, cov_b_m
 
 
 def york2_df(data: pd.DataFrame, f: int = 1, convergence: float = 0.001,

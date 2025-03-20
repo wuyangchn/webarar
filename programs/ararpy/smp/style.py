@@ -58,6 +58,13 @@ def set_plot_style(smp: Sample):
                 setattr(figure, 'title', Plot.Text())
             setattr(getattr(figure, 'title'), 'text', f"{suffix} {getattr(figure, 'name', '')}")
 
+    age_unit = "Undefined"
+    try:
+        age_unit = str(smp.Info.preference['ageUnit']).capitalize()
+    except:
+        print(traceback.format_exc())
+    smp.AgeSpectraPlot.yaxis.title.text = f"Apparent Age ({age_unit})"
+
 
 def reset_plot_scale(smp: Sample, only_figure: str = None):
     """
@@ -184,9 +191,10 @@ def set_table_style(sample: Sample):
     for key, comp in basic.get_components(sample).items():
         if isinstance(comp, Table):
             comp.header = TABLEHEADER(index=int(comp.id))
-            comp.colcount = len(comp.header)
-            comp.coltypes = [{'type': 'numeric'}] * (comp.colcount)
-            textindexs = getattr(comp, 'textindexs', [0]) if hasattr(comp, 'textindexs') else [0]
-            for i in textindexs:
-                comp.coltypes[i] = {'type': 'text'}
+            comp.set_coltypes()
+            # comp.colcount = len(comp.header)
+            # comp.coltypes = [{'type': 'numeric'}] * (comp.colcount)
+            # text_indexes = getattr(comp, 'text_indexes', [0]) if hasattr(comp, 'text_indexes') else [0]
+            # for i in text_indexes:
+            #     comp.coltypes[i] = {'type': 'text'}
 

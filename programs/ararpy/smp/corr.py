@@ -506,11 +506,11 @@ def monte_carlo_f(sample: Sample):
     M39 = np.transpose(sample.TotalParam[77:79])
     M40 = np.transpose(sample.TotalParam[79:81])
 
-    # M36 = [[35.96754628, 0] for i in range(sequence_num)]
-    # M37 = [[36.9667759, 0] for i in range(sequence_num)]
-    # M38 = [[37.9627322, 0] for i in range(sequence_num)]
-    # M39 = [[38.964313, 0] for i in range(sequence_num)]
-    # M40 = [[39.962383123, 0] for i in range(sequence_num)]
+    G36 = np.transpose(sample.TotalParam[126:128])  # gain correction factors
+    G37 = np.transpose(sample.TotalParam[128:130])
+    G38 = np.transpose(sample.TotalParam[130:132])
+    G39 = np.transpose(sample.TotalParam[132:134])
+    G40 = np.transpose(sample.TotalParam[134:136])
 
     MDF = np.transpose(sample.TotalParam[69:71])
 
@@ -553,6 +553,7 @@ def monte_carlo_f(sample: Sample):
             ar40m=ar40m[i], ar39m=ar39m[i], ar38m=ar38m[i], ar37m=ar37m[i], ar36m=ar36m[i],
             ar40b=ar40b[i], ar39b=ar39b[i], ar38b=ar38b[i], ar37b=ar37b[i], ar36b=ar36b[i],
             M40=M40[i], M39=M39[i], M38=M38[i], M37=M37[i], M36=M36[i],
+            G40=G40[i], G39=G39[i], G38=G38[i], G37=G37[i], G36=G36[i],
             t1=t1[i], t2=t2[i], t3=t3[i],
             R40v36a=R40v36a[i], R38v36a=R38v36a[i],
             R39v37ca=R39v37ca[i], R36v37ca=R36v37ca[i], R38v37ca=R38v37ca[i],
@@ -560,7 +561,8 @@ def monte_carlo_f(sample: Sample):
             R36v38clp=R36v38clp[i],
             L37ar=L37ar[i], L39ar=L39ar[i], L36cl=L36cl[i],
             MDFunc=None,
-            MDF=MDF[i], stand_time_year=stand_time_year[i]
+            MDF=MDF[i], stand_time_year=stand_time_year[i],
+            blank_gain_corr=sample.TotalParam[111][i]
         )
 
         yield res

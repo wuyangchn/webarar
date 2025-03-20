@@ -247,6 +247,8 @@ def random_normal_relative(mu, std, size):
 
 
 def random_normal_absolute(mu, std, size):
+    if np.isnan(std):
+        std = 0
     return np.random.normal(mu, std, size)
 
 
@@ -262,13 +264,12 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
                   L37ar: Tuple[float, float], L39ar: Tuple[float, float], L36cl: Tuple[float, float],
                   MDFunc: Union[MethodType],
                   MDF: Tuple[float, float],
-                  M40: Tuple[float, float],
-                  M39: Tuple[float, float],
-                  M38: Tuple[float, float],
-                  M37: Tuple[float, float],
-                  M36: Tuple[float, float],
+                  M40: Tuple[float, float], M39: Tuple[float, float], M38: Tuple[float, float],
+                  M37: Tuple[float, float], M36: Tuple[float, float],
+                  G40: Tuple[float, float], G39: Tuple[float, float], G38: Tuple[float, float],
+                  G37: Tuple[float, float], G36: Tuple[float, float],
                   stand_time_year: float,
-                  **options) -> Tuple[float, float]:
+                  **options):
     """
 
     Parameters
@@ -306,7 +307,9 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
     Monte_Carlo_Size = 10000
 
     # generate random
+    print(ar40m)
     ar40m = random_normal_absolute(*ar40m, size=Monte_Carlo_Size)
+    print(ar40m)
     ar39m = random_normal_absolute(*ar39m, size=Monte_Carlo_Size)
     ar38m = random_normal_absolute(*ar38m, size=Monte_Carlo_Size)
     ar37m = random_normal_absolute(*ar37m, size=Monte_Carlo_Size)
@@ -325,6 +328,12 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
     M37 = random_normal_relative(*M37, size=Monte_Carlo_Size)
     M36 = random_normal_relative(*M36, size=Monte_Carlo_Size)
 
+    G40 = random_normal_relative(*G40, size=Monte_Carlo_Size)
+    G39 = random_normal_relative(*G39, size=Monte_Carlo_Size)
+    G38 = random_normal_relative(*G38, size=Monte_Carlo_Size)
+    G37 = random_normal_relative(*G37, size=Monte_Carlo_Size)
+    G36 = random_normal_relative(*G36, size=Monte_Carlo_Size)
+
     L36cl = random_normal_relative(*L36cl, size=Monte_Carlo_Size)
     L37ar = random_normal_relative(*L37ar, size=Monte_Carlo_Size)
     L39ar = random_normal_relative(*L39ar, size=Monte_Carlo_Size)
@@ -337,6 +346,8 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
     R40v39k = random_normal_relative(*R40v39k, size=Monte_Carlo_Size)
     R38v39k = random_normal_relative(*R38v39k, size=Monte_Carlo_Size)
     R36v38clp = random_normal_relative(*R36v38clp, size=Monte_Carlo_Size)
+
+    blank_gain_corr = options.get('blank_gain_corr', True)
 
     def do_simulation():
         i = 0
@@ -351,20 +362,20 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
 
             _ar40m = ar40m[i]
 
-            _ar36 = (ar36m[i] - ar36b[i]) * P36Mdf
-            _ar37 = (ar37m[i] - ar37b[i]) * P37Mdf
-            _ar38 = (ar38m[i] - ar38b[i]) * P38Mdf
-            _ar39 = (ar39m[i] - ar39b[i]) * P39Mdf
-            _ar40 = (ar40m[i] - ar40b[i]) * P40Mdf
+            _ar36 = (ar36m[i] / G36[i] - ar36b[i] / (G36[i] if blank_gain_corr else 1)) * P36Mdf
+            _ar37 = (ar37m[i] / G37[i] - ar37b[i] / (G37[i] if blank_gain_corr else 1)) * P37Mdf
+            _ar38 = (ar38m[i] / G38[i] - ar38b[i] / (G38[i] if blank_gain_corr else 1)) * P38Mdf
+            _ar39 = (ar39m[i] / G39[i] - ar39b[i] / (G39[i] if blank_gain_corr else 1)) * P39Mdf
+            _ar40 = (ar40m[i] / G40[i] - ar40b[i] / (G40[i] if blank_gain_corr else 1)) * P40Mdf
 
-            _ar37ca = (ar37m[i] - ar37b[i]) * P37Mdf * P37Decay
-            _ar39k = (ar39m[i] - ar39b[i]) * P39Mdf * P39Decay - _ar37ca * R39v37ca[i]
-            _ar38res = (ar38m[i] - ar38b[i]) * P38Mdf - _ar39k * R38v39k[i] - _ar37ca * R38v37ca[i]
-            _ar36res = (ar36m[i] - ar36b[i]) * P36Mdf - _ar37ca * R36v37ca[i]
+            _ar37ca = _ar37 * P37Decay
+            _ar39k = _ar39 * P39Decay - _ar37ca * R39v37ca[i]
+            _ar38res = _ar38 - _ar39k * R38v39k[i] - _ar37ca * R38v37ca[i]
+            _ar36res = _ar36 - _ar37ca * R36v37ca[i]
             _ar36cl = (_ar36res - _ar38res / R38v36a[i]) / (1 - 1 / (R36v38clp[i] * (1 - exp(-1 * L36cl[i] * stand_time_year)) * R38v36a[i]))
             _ar36a = _ar36res - _ar36cl
-            _ar40r = (ar40m[i] - ar40b[i]) * P40Mdf - _ar36a * R40v36a[i] - _ar39k * R40v39k[i]
-            _ar40ar = (ar40m[i] - ar40b[i]) * P40Mdf - _ar39k * R40v39k[i]
+            _ar40r = _ar40 - _ar36a * R40v36a[i] - _ar39k * R40v39k[i]
+            _ar40ar = _ar40 - _ar39k * R40v39k[i]
             _f = _ar40r / _ar39k
             i += 1
             # yield _f, _ar36, _ar37, _ar38, _ar39, _ar40, _ar36a, _ar37ca, _ar39k, _ar40r, _ar36cl
@@ -404,6 +415,8 @@ def Monte_Carlo_F(ar40m: Tuple[float, float], ar39m: Tuple[float, float], ar38m:
         # ar39k.append(each[8])
         # ar40r.append(each[9])
         # ar36cl.append(each[10])
+
+    print(f"{np.mean(F) = }, {np.std(F) = }")
 
     # print("F = {0} ± {1}".format(np.mean(F), np.std(F)))
     #

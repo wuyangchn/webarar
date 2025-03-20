@@ -3,7 +3,7 @@
 """
 # ==========================================
 # Copyright 2024 Yang
-# ArgonDiffusionRandomWalk - main
+# arong atomic_level_random_walk model - main
 # ==========================================
 #
 #

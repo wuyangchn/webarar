@@ -61,7 +61,7 @@ def set_plot_data(sample: Sample, isInit: bool = True, isIsochron: bool = True,
         try:
             initial_plot_data(sample)
         except (Exception, BaseException):
-            # print(traceback.format_exc())
+            print("initial_plot_data(sample) error:\n", traceback.format_exc())
             pass
 
     # Recalculate isochron lines
@@ -69,12 +69,12 @@ def set_plot_data(sample: Sample, isInit: bool = True, isIsochron: bool = True,
         try:
             recalc_isochrons(sample, **kwargs)
         except (Exception, BaseException):
-            # print(traceback.format_exc())
+            print("recalc_isochrons(sample, **kwargs) error:\n", traceback.format_exc())
             pass
         try:
             reset_isochron_line_data(sample)
         except (Exception, BaseException):
-            # print(traceback.format_exc())
+            print("reset_isochron_line_data(sample):\n", traceback.format_exc())
             pass
 
     # Recalculate plateaus
@@ -82,7 +82,7 @@ def set_plot_data(sample: Sample, isInit: bool = True, isIsochron: bool = True,
         try:
             recalc_plateaus(sample)
         except (Exception, BaseException):
-            # print(traceback.format_exc())
+            print("recalc_plateaus(sample) error:\n", traceback.format_exc())
             pass
 
 
@@ -226,6 +226,7 @@ def get_isochron_results(data: list, smp: Sample, sequence, figure_type: int = 0
         'k', 'sk', 'm1', 'sm1',
         'MSWD', 'abs_conv', 'iter', 'mag', 'R2', 'Chisq', 'Pvalue',
         'rs',  # 'rs' means relative error of the total sum
+        'cov_b_m'
     ]
     age_res_index = ['age', 's1', 's2', 's3', ]
     iso_res = dict(zip(
@@ -360,7 +361,7 @@ def set_selection(smp: Sample, index: int, mark: int):
     -------
 
     """
-    if mark not in [1, 2]:
+    if mark not in [1, 2, '1', '2']:
         raise ValueError(f"{mark = }, mark must be 1 or 2.")
 
     def seq(_i): return [smp.UnselectedSequence, smp.SelectedSequence1, smp.SelectedSequence2][_i]
@@ -374,7 +375,7 @@ def set_selection(smp: Sample, index: int, mark: int):
                 seq(i).remove(index)
         seq(mark).append(index)
     smp.IsochronMark = [
-        1 if i in smp.SelectedSequence1 else 2 if i in smp.SelectedSequence2 else '' for i in
+        '1' if i in smp.SelectedSequence1 else '2' if i in smp.SelectedSequence2 else '' for i in
         range(len(smp.IsochronValues[2]))]
     #
     smp.Info.results.selection[0]['data'] = smp.SelectedSequence1
