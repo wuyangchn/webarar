@@ -34,6 +34,7 @@ def calc_age_min(F, sF, **kwargs) -> tuple:
 
     Returns
     -------
+    [age, s1, s2, s3] in years
 
     """
     F, sF = arr.array_as_float([F, sF]).astype(float)
@@ -111,12 +112,12 @@ def calc_age_min(F, sF, **kwargs) -> tuple:
 
     # change to Ma
     # analytical error, error of 40Ar/39Ar only
-    s1 = np.sqrt((V * KK * BB / XX) ** 2 * sR_2 ** 2) / 1000000
+    s1 = np.sqrt((V * KK * BB / XX) ** 2 * sR_2 ** 2)
     # internal error, errors of 40Ar/39Ar and J value
-    s2 = np.sqrt((V * KK * BB / XX) ** 2 * sR_1 ** 2) / 1000000
+    s2 = np.sqrt((V * KK * BB / XX) ** 2 * sR_1 ** 2)
     # total external error
-    s3 = np.sqrt(e1 + e2 + e3 + e4 + e5 + e6 + e7 + e8 + e9) / 1000000
-    age = k0 / 1000000
+    s3 = np.sqrt(e1 + e2 + e3 + e4 + e5 + e6 + e7 + e8 + e9)
+    age = k0
     return age, s1, s2, s3
 
 
@@ -135,7 +136,7 @@ def calc_age_general(F, sF, J, sJ, L, sL, **kwargs):
 
     Returns
     -------
-    tuple of array objects, (age, s1, s2, s3)
+    tuple of array objects, (age, s1, s2, s3), in years
     """
     F, sF, J, sJ, L, sL = np.array([F, sF, J, sJ, L, sL])
     sJ = sJ * J / 100
@@ -147,4 +148,4 @@ def calc_age_general(F, sF, J, sJ, L, sL, **kwargs):
     s1 = v1 ** .5  # analytical error
     s2 = (v1 + v2) ** .5  # internal error
     s3 = (v1 + v2 + v3) ** .5  # full external error
-    return age / 1000000, s1 / 1000000, s2 / 1000000, s3 / 1000000
+    return age, s1, s2, s3

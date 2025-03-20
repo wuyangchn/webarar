@@ -12,6 +12,8 @@
 import copy
 import random
 import string
+import numpy as np
+from scipy import stats
 from datetime import datetime, timezone, timedelta
 import pytz
 
@@ -100,3 +102,30 @@ def update_dicts(a: dict, b: dict):
 
 def get_random_digits(length: int = 7) -> str:
     return ''.join(random.choices(string.digits, k=length))
+
+
+def monte_carlo(func, inputs, confidence_level, **kwargs):
+    """
+
+    Parameters
+    ----------
+    func: Callable
+    inputs: array
+        two-dimensional array
+    confidence_level: float
+        [0, 1]
+
+    Returns
+    -------
+
+    """
+    N = len(inputs)
+    l_range = int(0.5 * (1 - confidence_level) * N)
+    r_range = N - l_range - 1
+    values = np.transpose([func(*each, **kwargs) for each in inputs])
+    cov = np.cov(values, rowvar=True)
+    values = np.sort(values, axis=1)  # sort to find the lower and upper limitation at the given confidence level
+    means = np.mean(values, axis=1).reshape(len(values), 1)
+    limits = values[:, [l_range, r_range]]
+
+    return np.concatenate((means, limits), axis=1), cov

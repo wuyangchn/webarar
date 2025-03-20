@@ -534,7 +534,7 @@ function calcAgeMin(F, sF, conf) {
     const s1 = Math.sqrt((V * KK * R / (R * XX)) ** 2 * sR_2 ** 2);
     const s2 = Math.sqrt((V * KK * R / (R * XX)) ** 2 * sR_1 ** 2);
     const s3 = Math.sqrt(e1 + e2 + e3 + e4 + e5 + e6 + e7 + e8 + e9);
-    return [age / 1000000, s1 / 1000000, s2 / 1000000, s3 / 1000000];
+    return [age, s1, s2, s3];
 }
 
 
@@ -562,7 +562,7 @@ function calcAgeGeneral(F, sF, J, sJ, L, sL) {
 
     // Return results
     // Change to Ma
-    return [age / 1000000, s1 / 1000000, s2 / 1000000, s3 / 1000000];
+    return [age, s1, s2, s3];
 }
 
 

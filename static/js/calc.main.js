@@ -2166,10 +2166,14 @@ async function clickSaveTable() {
             }
         }
     } else {
-        table_data = hot.getSourceData();
+        let table = sampleComponents[getCurrentTableId()];
+        let sigma = $("#errorDisplayRadio2").is(':checked') ? 2 : 1;
+        table_data = hot.getSourceData().map((row) => row.map((col, index) => col = table.header[index].includes("σ") ? col / sigma : col));
+        // console.log(table_data);
         if (rows_to_delete.length > 0) {
             await showPopupMessage("Please confirm ...",
                 `The following rows will be deleted: ${rows_to_delete}`, true).then((res) => {
+                    if (!res) {return}
                     for (let table_id of ["1", "2", "3", "4", "5", "6", "7", "8"]) {
                         if (table_id === getCurrentTableId()) {
                             sampleComponents[table_id].data = table_data.filter((v, i) => v.length > 1);
@@ -2222,7 +2226,10 @@ async function clickSaveTable() {
             isochron_marks_changed = false;
             showPopupMessage("Information", "Successfully saved!", false);
             setConsoleText('Changes Saved');
-        }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
     });
 }
 function clickSetIrraParams() {
@@ -2284,9 +2291,9 @@ function clickRecalc() {
             $('#promptModal').remove();
             await delay(500);
             let results = myParse(response.res);
+            console.log(results);
             sampleComponents = assignDiff(sampleComponents, results);
-            // console.log(changed_components);
-            showPage(getCurrentTableId());
+            showPage(getCurrentTableId(), true);
             closePopupMessage();
             showPopupMessage('Information', 'Recalculation was successfully finished!', true)
             setConsoleText('Recalculation was successful');
@@ -2342,14 +2349,15 @@ function readParams(type) {
         }),
         contentType:'application/json',
         success: function(res){
-            if (res.status === 'success'){
-                let changed_components = myParse(res.changed_components);
-                // console.log(changed_components);
-                sampleComponents = assignDiff(sampleComponents, changed_components);
-                showPage(getCurrentTableId());
-                showPopupMessage("Information", "Changes have been saved!", false);
-            } else {showPopupMessage("Error", res.msg, true);}
-        }
+            let changed_components = myParse(res.changed_components);
+            // console.log(changed_components);
+            sampleComponents = assignDiff(sampleComponents, changed_components);
+            showPage(getCurrentTableId());
+            showPopupMessage("Information", "Changes have been saved!", false);
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
     })
 }
 function autoChartScale() {
@@ -2382,7 +2390,7 @@ function autoChartScale() {
 //     }
 //
 // }
-function showPage(table_id) {
+function showPage(table_id, recalculate=false) {
     // When current table is isochron table and unsaved changes were detected, a confirm will display
     if (isochron_marks_changed) {
         if (confirm("Save changes to isochron table?")) {
@@ -2398,6 +2406,7 @@ function showPage(table_id) {
     }
     document.getElementById(table_id).classList.add('active');
     setConsoleText(document.getElementById(table_id).innerText);
+
     switch (table_id) {
         case "0":
             tableContainer.hide();
@@ -2407,6 +2416,7 @@ function showPage(table_id) {
             figure3DContainer.hide();
             figureRightContainer.hide();
             figureBtnDiv.hide();
+            thermoPageContainer.hide();
             // update sample information
             $('#sample_name_title').text(sampleComponents['0'].sample.name);
             $('#inputName').val(sampleComponents['0'].sample.name);
@@ -2427,15 +2437,16 @@ function showPage(table_id) {
             hot.updateSettings({
                 colHeaders: header,
                 data: extendData(data),
-                columns: table.coltypes
+                columns: table.coltypes,
             });
+            hot.render();
             break
         case "figure_1": case "figure_2": case "figure_3": case "figure_4": case "figure_5": case "figure_6":
             showFigure();
             setRightSideText(sigma);
             chart.clear();
             if (table_id==="figure_1") {
-                chart = getSpectraEchart(chart, table_id, true, sigma);
+                chart = getSpectraEchart(chart, table_id, true, sigma, recalculate);
             } else {
                 chart = getIsochronEchart(chart, table_id, true, sigma);
             }
@@ -2472,6 +2483,9 @@ function showPage(table_id) {
             chart.resize();
             getChartInterval(chart, comp);
             break
+        case "figure_10":
+            showThemoPage();
+            break
         default:
             break
     }
@@ -2486,6 +2500,7 @@ function showTable() {
     figure3DContainer.hide();
     figureRightContainer.hide();
     figureBtnDiv.hide();
+    thermoPageContainer.hide();
 }
 function showFigure() {
     tableContainer.hide();
@@ -2495,6 +2510,18 @@ function showFigure() {
     figure3DContainer.hide();
     figureRightContainer.show();
     figureBtnDiv.show();
+    thermoPageContainer.hide();
+}
+function showThemoPage() {
+    tableContainer.hide();
+    tableBtnDiv.hide();
+    sampleInfoContainer.hide();
+    figureContainer.hide();
+    figure3DContainer.hide();
+    figureRightContainer.hide();
+    figureBtnDiv.hide();
+    thermoPageContainer.show();
+
 }
 function showUploadPictureBtn() {
     let btn = $('#upload_picture_btn');
@@ -2507,6 +2534,7 @@ function setConsoleText(text) {
 }
 function setRightSideText(sigma=1) {
     let figure = getCurrentTableId();
+    let ageUnit = sampleComponents[0].preference?.ageUnit;
     let text_list = [];
     if (figure === 'figure_7') {
         let iso_res = sampleComponents[0].results.isochron['figure_7'];
@@ -2514,7 +2542,7 @@ function setRightSideText(sigma=1) {
             `z = ${iso_res[0]['m1'].toFixed(2)} x ${iso_res[0]['m2'] > 0?'+':'-'} 
             ${Math.abs(iso_res[0]['m2']).toFixed(2)} y ${iso_res[0]['k'] > 0?'+':'-'} 
             ${Math.abs(iso_res[0]['k']).toFixed(2)}`,
-            `t = ${iso_res[0]['age'].toFixed(2)} ± ${(iso_res[0]['s1'] * sigma).toFixed(2)} | ${(iso_res[0]['s2'] * sigma).toFixed(2)} | ${(iso_res[0]['s3'] * sigma).toFixed(2)} (${sigma}σ)`,
+            `t = ${iso_res[0]['age'].toFixed(2)} ± ${(iso_res[0]['s1'] * sigma).toFixed(2)} | ${(iso_res[0]['s2'] * sigma).toFixed(2)} | ${(iso_res[0]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
             `MSWD = ${iso_res[0]['MSWD'].toFixed(2)}, r2 = ${iso_res[0]['R2'].toFixed(2)}, Di = ${iso_res[0]['iter']}, 
             χ2 = ${iso_res[0]['Chisq'].toFixed(2)}, p = ${iso_res[0]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[0]['rs'].toFixed(2)}%`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[0]['initial'].toFixed(2)} ± ${iso_res[0]['sinitial'].toFixed(2)}`,
@@ -2523,13 +2551,13 @@ function setRightSideText(sigma=1) {
             `z = ${iso_res[1]['m1'].toFixed(2)} x ${iso_res[1]['m2'] > 0?'+':'-'} 
             ${Math.abs(iso_res[1]['m2']).toFixed(2)} y ${iso_res[1]['k'] > 0?'+':'-'} 
             ${Math.abs(iso_res[1]['k']).toFixed(2)}`,
-            `t = ${iso_res[1]['age'].toFixed(2)} ± ${iso_res[1]['s1'].toFixed(2)} | ${iso_res[1]['s2'].toFixed(2)} | ${iso_res[1]['s3'].toFixed(2)}`,
+            `t = ${iso_res[1]['age'].toFixed(2)} ± ${iso_res[1]['s1'].toFixed(2)} | ${iso_res[1]['s2'].toFixed(2)} | ${iso_res[1]['s3'].toFixed(2)} ${ageUnit} (${sigma}σ)`,
             `MSWD = ${iso_res[1]['MSWD'].toFixed(2)}, r2 = ${iso_res[1]['R2'].toFixed(2)}, Di = ${iso_res[1]['iter']}, 
             χ2 = ${iso_res[1]['Chisq'].toFixed(2)}, p = ${iso_res[1]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[1]['rs'].toFixed(2)}%`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[1]['initial'].toFixed(2)} ± ${(iso_res[1]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)`,
             "",
 
-            `Unselected`, `Age = ${iso_res[2]['age'].toFixed(2)} ± ${(iso_res[2]['s1'] * sigma).toFixed(2)} (${sigma}σ)`,
+            `Unselected`, `t = ${iso_res[2]['age'].toFixed(2)} ± ${(iso_res[2]['s1'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[2]['initial'].toFixed(2)} ± ${(iso_res[2]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)`,
             "",
         ]
@@ -2554,19 +2582,19 @@ function setRightSideText(sigma=1) {
             line2 = "...";
         }
         text_list = [
-            `Normal Isochron Age (NIA)`, `${nor_res_set1.age.toFixed(2)} ± ${(nor_res_set1.s2 * sigma).toFixed(2)} (${sigma}σ)`,
-            `Inverse Isochron Age (IIA)`, `${inv_res_set1.age.toFixed(2)} ± ${(inv_res_set1.s2 * sigma).toFixed(2)} (${sigma}σ)`,
-            `Weighted Mean Age (WMA)`, `${age_spectra_set1.age.toFixed(2)} ± ${(age_spectra_set1.s1 * sigma).toFixed(2)} (${sigma}σ)`,
-            `Initial Ratio Corrected WMA`, `${plateau_set1.age.toFixed(2)} ± ${(plateau_set1.s2 * sigma).toFixed(2)} (${sigma}σ)`,
+            `Normal Isochron Age (NIA)`, `${nor_res_set1.age.toFixed(2)} ± ${(nor_res_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Inverse Isochron Age (IIA)`, `${inv_res_set1.age.toFixed(2)} ± ${(inv_res_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Weighted Mean Age (WMA)`, `${age_spectra_set1.age.toFixed(2)} ± ${(age_spectra_set1.s1 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Initial Ratio Corrected WMA`, `${plateau_set1.age.toFixed(2)} ± ${(plateau_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
             `Regression Line`, line1,
 
-            `Normal Isochron Age (NIA)`, `${nor_res_set2.age.toFixed(2)} ± ${(nor_res_set2.s2 * sigma).toFixed(2)} (${sigma}σ)`,
-            `Inverse Isochron Age (IIA)`, `${inv_res_set2.age.toFixed(2)} ± ${(inv_res_set2.s2 * sigma).toFixed(2)} (${sigma}σ)`,
-            `Weighted Mean Age (WMA)`, `${age_spectra_set2.age.toFixed(2)} ± ${(age_spectra_set2.s1 * sigma).toFixed(2)} (${sigma}σ)`,
-            `Initial Ratio Corrected WMA`, `${plateau_set2.age.toFixed(2)} ± ${(plateau_set2.s2 * sigma).toFixed(2)} (${sigma}σ)`,
+            `Normal Isochron Age (NIA)`, `${nor_res_set2.age.toFixed(2)} ± ${(nor_res_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Inverse Isochron Age (IIA)`, `${inv_res_set2.age.toFixed(2)} ± ${(inv_res_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Weighted Mean Age (WMA)`, `${age_spectra_set2.age.toFixed(2)} ± ${(age_spectra_set2.s1 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Initial Ratio Corrected WMA`, `${plateau_set2.age.toFixed(2)} ± ${(plateau_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
             `Regression Line`, line2,
 
-            `Total Age`, `${total_age.age.toFixed(2)} ± ${(total_age.s2 * sigma).toFixed(2)} (${sigma}σ)`,
+            `Total Age`, `${total_age.age.toFixed(2)} ± ${(total_age.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
         ];
     }
 
@@ -3195,6 +3223,7 @@ function renderAgeBarItem(param, api){
 }
 function getIsochronEchart(chart, figure_id, animation, sigma=1) {
     let figure = sampleComponents[figure_id];
+    let ageUnit = sampleComponents[0].preference?.ageUnit;
     console.log(figure.data);
     let res = sampleComponents[0].results.isochron[figure_id];
     let option = {
@@ -3362,7 +3391,7 @@ function getIsochronEchart(chart, figure_id, animation, sigma=1) {
                         // }
                         // return figure.text1.text
                         if (figure.text1.text === "") {
-                            figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} Ma (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[0]['initial'].toFixed(2)} ± ${(res[0]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}\navg error = ${res[0]['rs'].toFixed(4)}%`;
+                            figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[0]['initial'].toFixed(2)} ± ${(res[0]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}\navg error = ${res[0]['rs'].toFixed(4)}%`;
                         }
                         return figure.text1.text
                     },
@@ -3387,7 +3416,7 @@ function getIsochronEchart(chart, figure_id, animation, sigma=1) {
                         // }
                         // return figure.text2.text
                         if (figure.text2.text === "") {
-                            figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} Ma (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${(res[1]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
+                            figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${(res[1]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
                         }
                         return figure.text2.text
                     },
@@ -3543,8 +3572,9 @@ function get3DEchart(chart, figure_id, animation) {
     chart_3D.setOption(option);
     return chart_3D
 }
-function getSpectraEchart(chart, figure_id, animation, sigma=1) {
+function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=false) {
     let figure = sampleComponents[figure_id];
+    let ageUnit = sampleComponents[0].preference?.ageUnit;
     let res = sampleComponents[0].results.age_plateau
     let option = {
         title: {
@@ -3722,9 +3752,9 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1) {
                     fontWeight: figure.text1.font_weight, rich: rich_format,
                     // formatter: figure.text1.text,
                     formatter: (params) => {
-                        if (figure.text1.text === "") {
+                        if (figure.text1.text === "" || recalculate) {
                             if (sampleComponents['0'].sample.type === "Unknown") {
-                                figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} Ma (${sigma}σ)\nWMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%\nn = ${res[0]['Num']}, χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                                figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%\nn = ${res[0]['Num']}, χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
                                 figure.text1.text = `WMJ = ${res[0]['F'].toFixed(8)} ± ${(res[0]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
@@ -3752,7 +3782,7 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1) {
                         if (figure.text2.text === "") {
                             console.log(sampleComponents['0'].sample.type);
                             if (sampleComponents['0'].sample.type === "Unknown") {
-                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} Ma (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
+                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
                                 figure.text2.text = `WMJ = ${res[1]['F'].toFixed(8)} ± ${(res[1]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
@@ -4061,6 +4091,8 @@ function re_plot_isochrons(options={}) {
     let set_dict = {"set1": 0, "set2": 1, "set3": 2};
     let x_scale, y_scale;
 
+    let unit = sampleComponents[0].preference?.ageUnit;
+    let unit_factor = unit === "Ga" ? 1000000000 : unit === "Ma" ? 1000000 : 1000;
 
     // figure_2
     if (calc_figure_2) {
@@ -4075,7 +4107,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4094,7 +4126,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4140,7 +4172,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
             [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4161,7 +4193,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
             [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4206,7 +4238,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4225,7 +4257,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4270,7 +4302,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
             [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4291,7 +4323,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
             [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4336,7 +4368,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [f, sf, r, sr] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4355,7 +4387,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [f, sf, r, sr] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4399,7 +4431,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [(a + b * ar38ar36) * (-1 / k), errDiv(a + b * ar38ar36, errAdd(sa, errMul(b, sb, ar38ar36, sar38ar36)), -k, sk)];
             [f, sf] = [k, sk];
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
                 "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4416,7 +4448,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [(a + b * ar38ar36) * (-1 / k), errDiv(a + b * ar38ar36, errAdd(sa, errMul(b, sb, ar38ar36, sar38ar36)), -k, sk)];
             [f, sf] = [k, sk];
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
             dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
                 "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4465,11 +4497,14 @@ function re_plot_age_spectra() {
 
     let f, sf, age, s1, s2, s3, num, mswd, chi_square, p_value, f_array;
 
+    let unit = sampleComponents[0].preference?.ageUnit;
+    let unit_factor = unit === "Ga" ? 1000000000 : unit === "Ma" ? 1000000 : 1000;
+
     // set1
     try {
         f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set1"].data));
         [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf);
+        [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
         dict_update(sampleComponents[0]["results"]["age_spectra"][0], {
             "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set1"].data)),
             "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4484,7 +4519,7 @@ function re_plot_age_spectra() {
     try {
         f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set2"].data));
         [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf);
+        [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
         dict_update(sampleComponents[0]["results"]["age_spectra"][1], {
             "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set2"].data)),
             "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4520,14 +4555,14 @@ function re_plot_age_spectra() {
         set = 'set1';
         f_array = ar40.map((_, i) => calcAr40r_39k(r1[i], sr1[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
             ar40[i], sar40[i], ar40k[i], sar40k[i]));
-        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], i)));
+        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], unit_factor, true, i)));
         line_points = ageSpectraPoints(spectra_values[9], ages[0], ages[2], sampleComponents["figure_2"][set].data);
         sampleComponents["figure_1"][set].data = line_points;
         f_array = numeric.transpose(f_array.map((v, i) => {
             if (i >= Math.min(...sampleComponents["figure_2"][set].data) && i <= Math.max(...sampleComponents["figure_2"][set].data)) { return v }
         }).filter((v, _) => v !== undefined));
         [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf);
+        [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
         dict_update(sampleComponents[0]["results"]["age_plateau"][0], {
             "Ar39": line_points[line_points.length-1][0] - line_points[0][0],
             "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4544,14 +4579,14 @@ function re_plot_age_spectra() {
         set = 'set2';
         f_array = ar40.map((_, i) => calcAr40r_39k(r2[i], sr2[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
             ar40[i], sar40[i], ar40k[i], sar40k[i]));
-        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], i)));
+        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], unit_factor, true, i)));
         line_points = ageSpectraPoints(spectra_values[9], ages[0], ages[2], sampleComponents["figure_2"][set].data);
         sampleComponents["figure_1"][set].data = line_points;
         f_array = numeric.transpose(f_array.map((v, i) => {
             if (i >= Math.min(...sampleComponents["figure_2"][set].data) && i <= Math.max(...sampleComponents["figure_2"][set].data)) { return v }
         }).filter((v, _) => v !== undefined));
         [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf);
+        [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
         dict_update(sampleComponents[0]["results"]["age_plateau"][1], {
             "Ar39": line_points[line_points.length-1][0] - line_points[0][0],
             "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4565,13 +4600,15 @@ function re_plot_age_spectra() {
 }
 
 
-function calc_age(F, sF, using_Min = true, idx = 0, auto_change_to_general = true) {
+function calc_age(F, sF, unit_factor = 1, using_Min = true, idx = 0, auto_change_to_general = true) {
 
     const parameters = numeric.transpose(sampleComponents[8].data);
     const J = parameters[69];  // J values
     const sJ = arr_multiply_by_number(arr_mul(parameters[70], J), 1 / 100);
     const L = parameters[36];  // decay constant of 40K
     const sL = arr_multiply_by_number(arr_mul(parameters[37], L), 1 / 100);
+
+    let res;
 
     if (using_Min) {
         const Le = parameters[38];  // decay constant of 40K(EC)
@@ -4600,14 +4637,14 @@ function calc_age(F, sF, using_Min = true, idx = 0, auto_change_to_general = tru
             't': t[idx], 'st': st[idx], 'J': J[idx], 'sJ': sJ[idx], 'W': W[idx], 'sW': sW[idx],
             'No': No[idx], 'sNo': sNo[idx], 'Y': Y[idx], 'sY': sY[idx], 'f': f[idx], 'sf': sf[idx], 'Min': using_Min
         };
-        let [age, s1, s2, s3] = calcAgeMin(F, sF, conf);
-        if (isNaN(age) && auto_change_to_general) {
-            return calcAgeGeneral(F, sF, J[idx], sJ[idx], L[idx], sL[idx]);
+        res = calcAgeMin(F, sF, conf);
+        if (isNaN(res[0]) && auto_change_to_general) {
+            res = calcAgeGeneral(F, sF, J[idx], sJ[idx], L[idx], sL[idx]);
         }
-        return [age, s1, s2, s3];
     } else {
-        return calcAgeGeneral(F, sF, J[idx], sJ[idx], L[idx], sL[idx]);
+        res = calcAgeGeneral(F, sF, J[idx], sJ[idx], L[idx], sL[idx]);
     }
+    return res.map((_, i) => _ / unit_factor)
 }
 
 
@@ -4668,6 +4705,9 @@ function extendChartFuncs(chart) {
             }
         }
         // throw `Not found, id = ${id}, name = ${name}`;
+    }
+    chart.getSeriesByMytype = (myType="") => {
+        return chart.getOption().series.filter((se, _) => se.hasOwnProperty("myType") && se.myType === myType)
     }
     chart.registerMouseMove = (seriesId, func) => {
         chart.getZr().on('mousemove', function (event) {
@@ -4778,7 +4818,7 @@ function handsontableRemoveRow(key, options) {
         data: extendData(data),
         columns: table.coltypes
     });
-
+    hot.render();
 }
 
 function exportChart(data, download=true) {

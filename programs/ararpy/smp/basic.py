@@ -20,6 +20,7 @@ from typing import Optional, Union, List
 from .. import calc
 from ..files.basic import (read as read_params)
 from .sample import Sample, Table, Plot, ArArData, ArArBasic, Sequence, RawData
+from .initial import preference_keys
 
 Set = Plot.Set
 Label = Plot.Label
@@ -128,20 +129,38 @@ def calc_age(ar40ar39=None, params: dict = None, smp: Sample = None, index: list
             params_from_smp.update(params)
         params = params_from_smp
 
+    u = 'Ma'
+    try:
+        u = smp.Info.preference['ageUnit']
+    except:
+        print(traceback.format_exc())
+        pass
+    finally:
+        if u.lower() == 'ga':
+            age_unit_factor = 1000000000
+        elif u.lower() == 'ma':
+            age_unit_factor = 1000000
+        elif u.lower() == 'ka':
+            age_unit_factor = 1000
+        else:
+            age_unit_factor = 1
+
     # check if using Min equation
     params['Min'] = [i if isinstance(i, bool) else False for i in params['Min']]
 
-    idx1 = np.flatnonzero(np.where(params['Min'], True, False))  # True, using Min euqation
+    idx1 = np.flatnonzero(np.where(params['Min'], True, False))  # True, using Min equation
     idx2 = np.flatnonzero(np.where(params['Min'], False, True))  # False
     k1, k2 = [], []
     if np.size(idx1) > 0:
         k1 = calc.age.calc_age_min(
             F=[ar40ar39[0][i] for i in idx1], sF=[ar40ar39[1][i] for i in idx1],
             **dict(zip(params.keys(), [[val[i] for i in idx1] for val in params.values()])))
+        k1 = [i / age_unit_factor for i in k1]
     if np.size(idx2) > 0:
         k2 = calc.age.calc_age_general(
             F=[ar40ar39[0][i] for i in idx2], sF=[ar40ar39[1][i] for i in idx2],
             **dict(zip(params.keys(), [[val[i] for i in idx2] for val in params.values()])))
+        k2 = [i / age_unit_factor for i in k2]
 
     # idx1 = params[params['Min'].astype(bool)].index
     # idx2 = params[~params['Min'].astype(bool)].index  # The operators are: | for or, & for and, and ~ for not
@@ -477,7 +496,7 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
         return set_params(smp, read_params(params), flag=flag)
 
     def remove_none(old_params, new_params, rows, length):
-        res = [[]] * length
+        res = [[] for _ in range(length)]
         for index, item in enumerate(new_params):
             if item is None:
                 res[index] = old_params[index]
@@ -486,6 +505,9 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
         return res
 
     n = len(smp.SequenceName)
+
+    if n == 0:
+        raise ValueError(f"The number of sample sequences is undefined.")
 
     if flag == 'calc':
         smp.TotalParam[34:56] = remove_none(smp.TotalParam[34:56], params[0:22], n, 56 - 34)
@@ -524,22 +546,32 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
             stand_time_second = [
                 calc.basic.get_datetime(*re.findall(r"\d+", smp.TotalParam[31][i])) - calc.basic.get_datetime(
                     *re.findall(r"\d+", smp.TotalParam[30][i])) for i in range(n)]
-        except TypeError:
+        except (BaseException, Exception):
             print(f'Error in calculate standing duration: {traceback.format_exc()}')
+            raise
         else:
             smp.TotalParam[32] = [i / (3600 * 24 * 365.242) for i in stand_time_second]  # stand year
 
     elif flag == 'smp':
-        print(params)
+        print(dict(zip([i for i in range(len(params))], params)))
         smp.TotalParam[67:71] = remove_none(smp.TotalParam[67:71], params[0:4], n, 71 - 67)
         smp.TotalParam[58:67] = remove_none(smp.TotalParam[58:67], params[4:13], n, 67 - 58)
         smp.TotalParam[97:100] = remove_none(smp.TotalParam[97:100], params[13:16], n, 100 - 97)
         smp.TotalParam[115:120] = remove_none(smp.TotalParam[115:120], params[16:21], n, 120 - 115)
         smp.TotalParam[126:136] = remove_none(smp.TotalParam[126:136], params[21:31], n, 136 - 126)
-        smp.TotalParam[120:123] = remove_none(smp.TotalParam[120:123], params[31:34], n, 123 - 120)
+        # smp.TotalParam[120:123] = remove_none(smp.TotalParam[120:123], params[31:34], n, 123 - 120)
         smp.TotalParam[100:114] = remove_none(
             smp.TotalParam[100:114],
-            [['Linear', 'Exponential', 'Power'][params[34:37].index(True)] if True in params[34:37] else '', *params[37:]], n, 114 - 100)
+            [['Linear', 'Exponential', 'Power'][params[35:38].index(True)] if True in params[35:38] else '', *params[38:]], n, 114 - 100)
+        pref = dict(zip(preference_keys, params[31:35]))
+        smp.Info.preference.update(pref)
+        for key, comp in get_components(smp).items():
+            if isinstance(comp, Table):
+                comp.decimal_places = pref['decimalPlaces']
+                comp.set_coltypes()
+        smp.AgeSpectraPlot.yaxis.title.text = f"Apparent Age ({str(pref['ageUnit']).capitalize()})"
+        print(smp.Info.preference)
+
     else:
         raise KeyError(f"{flag = } is not supported. It must be 'calc' for Calc Params, "
                        f"'irra' for Irradiation Params, or 'smp' for Sample Params.")
@@ -547,16 +579,22 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
 
 
 def get_sequence(smp: Sample):
+    set1_index = [index for index, _ in enumerate(smp.IsochronMark) if _ in [1, '1']]
+    set2_index = [index for index, _ in enumerate(smp.IsochronMark) if _ in [2, '2']]
+    set3_index = list(set(range(0, len(smp.IsochronMark))) - set(set1_index) - set(set2_index))
+    smp.SelectedSequence1 = set1_index
+    smp.SelectedSequence2 = set2_index
+    smp.UnselectedSequence = set3_index
+    smp.Info.results.selection[0]['data'] = smp.SelectedSequence1
+    smp.Info.results.selection[1]['data'] = smp.SelectedSequence2
+    smp.Info.results.selection[2]['data'] = smp.UnselectedSequence
     return ArArBasic(
         size=len(smp.SequenceName), name=smp.SequenceName, value=smp.SequenceValue, unit=smp.SequenceUnit,
         mark=ArArBasic(
             size=len(smp.IsochronMark), value=smp.IsochronMark,
-            set1=ArArBasic(size=sum([1 if i == 1 else 0 for i in smp.IsochronMark]),
-                           index=[index for index, _ in enumerate(smp.IsochronMark) if _ == 1]),
-            set2=ArArBasic(size=sum([1 if i == 2 else 0 for i in smp.IsochronMark]),
-                           index=[index for index, _ in enumerate(smp.IsochronMark) if _ == 2]),
-            unselected=ArArBasic(size=sum([0 if i == 2 or i == 1 else 1 for i in smp.IsochronMark]),
-                                 index=[index for index, _ in enumerate(smp.IsochronMark) if _ != 1 and _ != 2]),
+            set1=ArArBasic(size=len(set1_index), index=set1_index),
+            set2=ArArBasic(size=len(set2_index), index=set2_index),
+            unselected=ArArBasic(size=len(set3_index), index=set3_index),
         )
     )
 

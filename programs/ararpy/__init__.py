@@ -10,7 +10,7 @@
 """
 
 import pandas as pd
-from . import calc, smp, files, argon_diffusion_simulator as ads, test
+from . import calc, smp, files, thermo, test
 
 
 """ Information """
