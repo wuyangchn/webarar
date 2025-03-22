@@ -743,7 +743,7 @@ DEFAULT_PLOT_STYLES = {
     },
 }
 
-VERSION = '20250301'
+VERSION = '20250321'
 
 NAMED_DICT = {
     "unknown": {"header": SAMPLE_INTERCEPT_HEADERS.copy()},
@@ -847,7 +847,8 @@ class Sample:
         # self.__version = '20240730'  # change parameter table for thermo calculation
         # self.__version = '20241028'  # gain correction
         # self.__version = '20250102'  # gain correction to blanks
-        self.__version = '20250301'  # error sigma adjustment
+        # self.__version = '20250321'  # error sigma adjustment
+        self.__version = '20250301'  # update sample info
 
     @property
     def version(self):

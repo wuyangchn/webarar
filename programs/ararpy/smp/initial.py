@@ -141,7 +141,8 @@ def initial(smp: Sample):
     setattr(smp, 'Info', ArArBasic(
         id='0', name='info', attr_name='Info', arr_version=samples.VERSION,
         sample=ArArBasic(
-            name='SAMPLE NAME', material='MATERIAL', location='LOCATION', type='Unknown'
+            name='SAMPLE NAME', material='MATERIAL', location='LOCATION', type='Unknown', method='',
+            sequence_unit='', weight=''
         ),
         researcher=ArArBasic(
             name='RESEARCHER', addr='ADDRESS', email='EMAIL'

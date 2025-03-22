@@ -12,6 +12,7 @@ from re import findall
 from xlsxwriter.workbook import Workbook
 from xlsxwriter.worksheet import Worksheet
 from xlsxwriter.chartsheet import Chartsheet
+from xlsxwriter.format import Format
 import os
 import sys
 import pickle
@@ -750,6 +751,11 @@ class WritingWorkbook:
         self.axis_font_bold = False
         self.axis_num_font_size = 10
         self.line_width = 1.25
+        self.default_fmt_prop = {
+            'font_name': 'Times New Roman', "font_size": 10, 'num_format': '0.000000',
+            'align': 'center', 'valign': 'vcenter',
+        }
+        self.formats = {'default': Format({'font_name': 'Times New Roman', "font_size": 10, })}
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -774,6 +780,7 @@ class WritingWorkbook:
     def get_xls(self):
         # TypeError: NAN/INF not supported in write_number() without 'nan_inf_to_errors' Workbook() option
         xls = Workbook(self.filepath, {"nan_inf_to_errors": True})
+
         style = xls.add_format(self.style)
 
         sigma = int(self.sample.Info.preference['confidenceLevel'])
@@ -987,227 +994,7 @@ class WritingWorkbook:
             pass
 
         # write result sheet
-        sht_result = xls.add_worksheet('Results')
-        title_fmt = xls.add_format({
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': True,
-            'bg_color': '#ccffff', 'font_color': '#0000ff', 'valign': 'vcenter', 'align': 'center',
-            'top': 0, 'bottom': 0  # border width
-        })
-        title_fmt_2 = xls.add_format({
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': True,
-            'font_color': '#000000', 'valign': 'vcenter', 'align': 'left',
-            'top': 0, 'left': 0, 'bottom': 0, 'right': 0  # border width
-        })
-        two_decimal_fmt = xls.add_format({
-            'num_format': '0.00',
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
-            'font_color': '#000000', 'valign': 'vcenter', 'align': 'center', 'text_wrap': True,
-            'top': 0, 'left': 0, 'bottom': 0, 'right': 0  # border width
-        })
-        five_decimal_fmt = xls.add_format({
-            'num_format': '0.00000',
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
-            'font_color': '#000000', 'valign': 'vcenter', 'align': 'center', 'text_wrap': True,
-            'top': 0, 'left': 0, 'bottom': 0, 'right': 0  # border width
-        })
-        error_fmt = xls.add_format({
-            'num_format': '± 0.00',
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
-            'font_color': '#000000', 'valign': 'vcenter', 'align': 'center', 'text_wrap': True,
-            'top': 0, 'left': 0, 'bottom': 0, 'right': 0  # border width
-        })
-        five_error_fmt = xls.add_format({
-            'num_format': '± 0.00000',
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
-            'font_color': '#000000', 'valign': 'vcenter', 'align': 'center', 'text_wrap': True,
-            'top': 0, 'left': 0, 'bottom': 0, 'right': 0  # border width
-        })
-        percent_fmt = xls.add_format({
-            'num_format': '± 0.00%',
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
-            'font_color': '#000000', 'valign': 'vcenter', 'align': 'center', 'text_wrap': True,
-            'top': 0, 'left': 0, 'bottom': 0, 'right': 0  # border width
-        })
-        int_fmt = xls.add_format({
-            'num_format': '0',
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
-            'font_color': '#000000', 'valign': 'vcenter', 'align': 'center', 'text_wrap': True,
-            'top': 0, 'left': 0, 'bottom': 0, 'right': 0  # border width
-        })
-        string_fmt = xls.add_format({
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
-            'font_color': '#000000', 'valign': 'vcenter', 'align': 'right', 'text_wrap': False,
-            'top': 0, 'left': 0, 'bottom': 0, 'right': 0  # border width
-        })
-        # two_decimal_fmt.set_text_wrap()
-        sht_result.set_column(0, 21, width=8.5)  # column width
-        sht_result.set_column(10, 11, width=3)  # column width
-        sht_result.merge_range(0, 0, 1, 9, 'Sample Information', title_fmt)
-        title_list = [
-            [7, 0, 8, 0, 'Result'], [7, 1, 8, 1, ''], [7, 2, 8, 2, '40(r)/39(k)'], [7, 3, 8, 3, f'{sigma}σ'],
-            [7, 5, 8, 5, f'{sigma}σ'],
-            [7, 6, 8, 6, 'MSWD'], [7, 7, 8, 7, '39Ar(K)'], [7, 8, 8, 8, 'Ca/K'], [7, 9, 8, 9, f'{sigma}σ'],
-            [7, 12, 8, 12, 'Result'], [7, 13, 8, 13, ''], [7, 14, 8, 14, '40(r)/39(k)'], [7, 15, 8, 15, f'{sigma}σ'],
-            [7, 16, 8, 16, 'Age'], [7, 17, 8, 17, f'{sigma}σ'],
-            [7, 18, 8, 18, 'MSWD'], [7, 20, 8, 20, 'Ca/K'], [7, 21, 8, 21, f'{sigma}σ'],
-        ]
-        data_list = [
-            [3, 0, 3, 2, f"Sample = {self.sample.Info.sample.name}"],
-            [3, 3, 3, 5, f"Material = {self.sample.Info.sample.material}"],
-            [3, 6, 3, 8, f"Irradiation = {self.sample.TotalParam[28][0]}"],
-            [4, 0, 4, 2, f"Analyst = {self.sample.Info.laboratory.analyst}"],
-            [4, 3, 4, 5, f"Researcher = {self.sample.Info.researcher.name}"],
-            [4, 6, 4, 8,
-             f"J = {self.sample.TotalParam[67][0]} ± {round(self.sample.TotalParam[68][0] * self.sample.TotalParam[67][0] / 100, len(str(self.sample.TotalParam[67][0])))}"],
-        ]
-        for each in title_list:
-            sht_result.merge_range(*each, title_fmt)
-        sht_result.write_column(7, 4, ['Age', f'[{self.sample.Info.preference["ageUnit"]}]'], title_fmt)
-        sht_result.write_column(7, 19, ['³⁹Ar[K]', '[%, n]'], title_fmt)
-        for each in data_list:
-            sht_result.merge_range(*each, two_decimal_fmt)
-
-        def _write_results(sht: Worksheet, start_row: int, start_col: int, title: str, data: list):
-            if len(data) < 13:
-                return
-            sht.merge_range(start_row, start_col, start_row + 1, start_col + 1, title, title_fmt_2)
-            sht.merge_range(start_row, start_col + 2, start_row + 1, start_col + 2, data[0], five_decimal_fmt)
-            sht.write_number(start_row, start_col + 3, data[1], five_error_fmt)
-            sht.write_number(start_row + 1, start_col + 3, data[2], percent_fmt)
-            sht.merge_range(start_row, start_col + 4, start_row + 1, start_col + 4, data[3], two_decimal_fmt)
-            sht.write_number(start_row, start_col + 5, data[4], error_fmt)
-            sht.write_number(start_row + 1, start_col + 5, data[5], percent_fmt)
-            sht.write_column(start_row + 2, start_col + 4, ['internal error', 'total external error'], string_fmt)
-            sht.write_column(start_row + 2, start_col + 5, data[6:8], error_fmt)
-            sht.merge_range(start_row, start_col + 6, start_row + 1, start_col + 6, data[8], two_decimal_fmt)
-            sht.write_number(start_row, start_col + 7, data[9], percent_fmt)
-            sht.write_number(start_row + 1, start_col + 7, data[10], int_fmt)
-            sht.merge_range(start_row, start_col + 8, start_row + 1, start_col + 8, data[11], five_decimal_fmt)
-            sht.write_number(start_row, start_col + 9, data[12], five_error_fmt)
-            sht.write_number(start_row + 1, start_col + 9, data[13], percent_fmt)
-
-        # TGA
-        try:
-            age_res = self.sample.Info.results.age_spectra['TGA']
-            total_ca = [sum(self.sample.DegasValues[8]), err.add(*self.sample.DegasValues[9])]
-            total_k = [sum(self.sample.DegasValues[20]), err.add(*self.sample.DegasValues[21])]
-            cak = total_ca[0] / total_k[0] / self.sample.TotalParam[20][0]
-            scak = err.div(total_ca, total_k, [self.sample.TotalParam[20][0], self.sample.TotalParam[21][0] * self.sample.TotalParam[20][0] / 100])
-            _write_results(
-                sht_result, 10, 0, 'Total Age',
-                [age_res['F'], age_res['sF'] * sigma, abs(age_res['sF'] * sigma / age_res['F']), age_res['age'],
-                 age_res['s1'] * sigma, abs(age_res['s1'] * sigma / age_res['age']), age_res['s2'] * sigma, age_res['s3'] * sigma,
-                 age_res['MSWD'], age_res['Ar39'] / 100,
-                 age_res['Num'], cak, scak * sigma, abs(scak * sigma / cak)]
-            )
-            _write_results(
-                sht_result, 10, 12, 'Total Age',
-                [age_res['F'], age_res['sF'] * sigma, abs(age_res['sF'] * sigma / age_res['F']), age_res['age'],
-                 age_res['s1'] * sigma, abs(age_res['s1'] * sigma / age_res['age']), age_res['s2'] * sigma, age_res['s3'] * sigma,
-                 age_res['MSWD'], age_res['Ar39'] / 100,
-                 age_res['Num'], cak, scak * sigma, abs(scak * sigma / cak)]
-            )
-        except TypeError:
-            print(traceback.format_exc())
-            pass
-
-        # age spectra, weighted mean age with 296
-        try:
-            age_res = self.sample.Info.results.age_spectra[0]
-            seq = self.sample.SelectedSequence1
-            total_ca = [sum(np.array(self.sample.DegasValues[8])[seq]), err.add(*np.array(self.sample.DegasValues[9])[seq])]
-            total_k = [sum(np.array(self.sample.DegasValues[20])[seq]), err.add(*np.array(self.sample.DegasValues[21])[seq])]
-            cak = total_ca[0] / total_k[0] / self.sample.TotalParam[20][0]
-            scak = err.div(total_ca, total_k, [self.sample.TotalParam[20][0], self.sample.TotalParam[21][0] * self.sample.TotalParam[20][0] / 100])
-            _write_results(
-                sht_result, 15, 0, f'Set 1 Plateau with air ratio {self.sample.TotalParam[0][0]}',
-                [age_res['F'], age_res['sF'] * sigma, abs(age_res['sF'] * sigma / age_res['F']), age_res['age'],
-                 age_res['s1'] * sigma, abs(age_res['s1'] * sigma / age_res['age']), age_res['s2'] * sigma, age_res['s3'] * sigma,
-                 age_res['MSWD'], age_res['Ar39'] / 100,
-                 age_res['Num'], cak, scak * sigma, abs(scak * sigma / cak)]
-            )
-        except (IndexError, TypeError, ZeroDivisionError):
-            print(traceback.format_exc())
-            pass
-        try:
-            age_res = self.sample.Info.results.age_spectra[1]
-            seq = self.sample.SelectedSequence2
-            total_ca = [sum(np.array(self.sample.DegasValues[8])[seq]), err.add(*np.array(self.sample.DegasValues[9])[seq])]
-            total_k = [sum(np.array(self.sample.DegasValues[20])[seq]), err.add(*np.array(self.sample.DegasValues[21])[seq])]
-            cak = total_ca[0] / total_k[0] / self.sample.TotalParam[20][0]
-            scak = err.div(total_ca, total_k, [self.sample.TotalParam[20][0], self.sample.TotalParam[21][0] * self.sample.TotalParam[20][0] / 100])
-            _write_results(
-                sht_result, 15, 12, f'Set 2 Plateau with air ratio {self.sample.TotalParam[0][0]}',
-                [age_res['F'], age_res['sF'] * sigma, abs(age_res['sF'] * sigma / age_res['F']), age_res['age'],
-                 age_res['s1'] * sigma, abs(age_res['s1'] * sigma / age_res['age']), age_res['s2'] * sigma, age_res['s3'] * sigma,
-                 age_res['MSWD'], age_res['Ar39'] / 100,
-                 age_res['Num'], cak, scak * sigma, abs(scak * sigma / cak)]
-            )
-        except (IndexError, TypeError, ZeroDivisionError):
-            print(traceback.format_exc())
-            pass
-
-        # age spectra, weighted mean age with inverse intercept
-        try:
-            age_res = self.sample.Info.results.age_plateau[0]
-            seq = self.sample.SelectedSequence1
-            total_ca = [sum(np.array(self.sample.DegasValues[8])[seq]), err.add(*np.array(self.sample.DegasValues[9])[seq])]
-            total_k = [sum(np.array(self.sample.DegasValues[20])[seq]), err.add(*np.array(self.sample.DegasValues[21])[seq])]
-            cak = total_ca[0] / total_k[0] / self.sample.TotalParam[20][0]
-            scak = err.div(total_ca, total_k, [self.sample.TotalParam[20][0], self.sample.TotalParam[21][0] * self.sample.TotalParam[20][0] / 100])
-            _write_results(
-                sht_result, 20, 0, 'Set 1 Plateau with intercept correction',
-                [age_res['F'], age_res['sF'] * sigma, abs(age_res['sF'] * sigma / age_res['F']), age_res['age'],
-                 age_res['s1'] * sigma, abs(age_res['s1'] * sigma / age_res['age']), age_res['s2'] * sigma, age_res['s3'] * sigma,
-                 age_res['MSWD'], age_res['Ar39'] / 100,
-                 age_res['Num'], cak, scak * sigma, abs(scak * sigma / cak)]
-            )
-        except (IndexError, TypeError, ZeroDivisionError):
-            print(traceback.format_exc())
-            pass
-        try:
-            age_res = self.sample.Info.results.age_plateau[1]
-            seq = self.sample.SelectedSequence2
-            total_ca = [sum(np.array(self.sample.DegasValues[8])[seq]), err.add(*np.array(self.sample.DegasValues[9])[seq])]
-            total_k = [sum(np.array(self.sample.DegasValues[20])[seq]), err.add(*np.array(self.sample.DegasValues[21])[seq])]
-            cak = total_ca[0] / total_k[0] / self.sample.TotalParam[20][0]
-            scak = err.div(total_ca, total_k, [self.sample.TotalParam[20][0], self.sample.TotalParam[21][0] * self.sample.TotalParam[20][0] / 100])
-            _write_results(
-                sht_result, 20, 12, 'Set 2 Plateau with intercept correction',
-                [age_res['F'], age_res['sF'] * sigma, abs(age_res['sF'] * sigma / age_res['F']), age_res['age'],
-                 age_res['s1'] * sigma, abs(age_res['s1'] * sigma / age_res['age']), age_res['s2'] * sigma, age_res['s3'] * sigma,
-                 age_res['MSWD'], age_res['Ar39'] / 100,
-                 age_res['Num'], cak, scak * sigma, abs(scak * sigma / cak)]
-            )
-        except (IndexError, TypeError, ZeroDivisionError):
-            print(traceback.format_exc())
-            pass
-
-        # Isochron
-        for row_index, figure in enumerate(['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7']):
-            for col_index, set in enumerate(['set1', 'set2']):
-                try:
-                    ar39 = self.sample.Info.results.age_plateau[col_index]['Ar39']
-                    num = self.sample.Info.results.age_plateau[col_index]['Num']
-                    age_res = self.sample.Info.results.isochron[figure][col_index]
-                    seq = [self.sample.SelectedSequence1, self.sample.SelectedSequence2][col_index]
-                    total_ca = [sum(np.array(self.sample.DegasValues[8])[seq]),
-                                err.add(*np.array(self.sample.DegasValues[9])[seq])]
-                    total_k = [sum(np.array(self.sample.DegasValues[20])[seq]),
-                               err.add(*np.array(self.sample.DegasValues[21])[seq])]
-                    cak = total_ca[0] / total_k[0] / self.sample.TotalParam[20][0]
-                    scak = err.div(total_ca, total_k, [self.sample.TotalParam[20][0], self.sample.TotalParam[21][0] * self.sample.TotalParam[20][0] / 100])
-                    _name = ['Normal Ioschron', 'Inverse Isochron', 'K-Cl-Ar Plot 1', 'K-Cl-Ar Plot 2', 'K-Cl-Ar Plot 3', '3D plot'][row_index]
-                    _write_results(
-                        sht_result, 25 + row_index * 5, 0 + col_index * 12, f'{["Set 1", "Set 2"][col_index]} {_name}',
-                        [age_res['F'], age_res['sF'] * sigma, abs(age_res['sF'] * sigma / age_res['F']), age_res['age'],
-                         age_res['s1'] * sigma, abs(age_res['s1'] * sigma / age_res['age']), age_res['s2'] * sigma, age_res['s3'] * sigma,
-                         age_res['MSWD'], ar39 / 100,
-                         num, cak, scak * sigma, abs(scak * sigma / cak)]
-                    )
-                except (IndexError, TypeError, ZeroDivisionError):
-                    print(traceback.format_exc())
-                    continue
+        sht_summary = self.write_sht_summary("Summary", xls)
 
         # write tables and charts
         for sht_name, [prop_name, sht_type, row, col, _, smp_attr_name, header_name] in self.template.sheet():
@@ -1223,12 +1010,165 @@ class WritingWorkbook:
             except (BaseException, Exception):
                 print(traceback.format_exc())
                 return None
+
         xls.get_worksheet_by_name("Reference").hide()
-        xls.get_worksheet_by_name("Isochrons").hidden = 0  # unhiden isochrons worksheet
-        xls.get_worksheet_by_name("Results").activate()
+        # xls.get_worksheet_by_name("Isochrons").hidden = 0  # unhiden isochrons worksheet
+        xls.get_worksheet_by_name("Summary").activate()
         xls.close()
         print('导出完毕，文件路径:%s' % self.filepath)
         return True
+
+    def set_cell_format(self):
+        pass
+
+    def get_cell_format(self, class_name):
+        return self.formats.get(class_name, self.formats['default'])
+
+    def write_sht_summary(self, sht_name, xls):
+        sht = xls.add_worksheet(sht_name)
+        sht.hide_gridlines(2)  # 0 = show grids, 1 = hide print grid, else = hide print and screen grids
+        sht.set_column(0, 21, width=12)  # column width
+        sht.set_column(0, 0, width=16)  # column width
+        sht.set_column(2, 2, width=8.5)  # column width
+
+        method = f"{self.sample.Info.sample.method}"
+        name = self.sample.Info.sample.name
+        material = self.sample.Info.sample.material
+        weight = self.sample.Info.sample.weight
+        J_value = self.sample.TotalParam[67][0]
+        J_error = self.sample.TotalParam[68][0]
+        sigma = self.sample.Info.preference['confidenceLevel']
+        sequence_type = {"StepLaser": "Laser", "StepFurnace": "Temperature", "StepCrusher": "Drop", }.get(method, "Step Value")
+        sequence_unit = self.sample.Info.sample.sequence_unit if self.sample.Info.sample.sequence_unit != "" else "Unit"
+        age_unit = self.sample.Info.preference['ageUnit']
+        num_step = len(self.sample.SequenceName)
+        set1_ratio = [self.sample.Info.results.isochron['figure_3'][0]['initial'], self.sample.Info.results.isochron['figure_2'][0]['initial'], self.sample.TotalParam[116][0]][int(self.sample.TotalParam[115][0])]
+        set2_ratio = [self.sample.Info.results.isochron['figure_3'][1]['initial'], self.sample.Info.results.isochron['figure_2'][1]['initial'], self.sample.TotalParam[118][0]][int(self.sample.TotalParam[115][0])]
+
+        content = [
+            [(0, 0, 0, 14), f"Table 1. 40Ar/39Ar dating results", {'bold': 1, 'top': 1, 'bottom': 1, 'align': 'left'}],
+            [(1, 0, 2, 0), f"Step", {'bold': 1}],
+            [(1, 1), f"{sequence_type}", {'bold': 1}],
+            [(2, 1), f"({sequence_unit})", {'bold': 1}],
+            [(1, 2, 2, 2), f"Set", {'bold': 1}],
+            [(1, 3, 2, 3), f"36Arair", {'bold': 1}],
+            [(1, 4, 2, 4), f"36ArCa", {'bold': 1}],
+            [(1, 5, 2, 5), f"36ArCl", {'bold': 1}],
+            [(1, 6, 2, 6), f"36ArK", {'bold': 1}],
+            [(1, 7, 2, 7), f"36Ar*", {'bold': 1}],
+            [(1, 8, 2, 8), f"39Ar/40Ar", {'bold': 1}],
+            [(1, 9, 2, 9), f"36Ar/40Ar", {'bold': 1}],
+            [(1, 10), f"Apparent Age", {'bold': 1}],
+            [(1, 11), f"± {sigma} σ", {'bold': 1}],
+            [(2, 10, 2, 11), f"({age_unit})", {'bold': 1}],
+            [(1, 12), f"40Ar*", {'bold': 1}],
+            [(2, 12), f"(%)", {'bold': 1}],
+            [(1, 13), f"39ArK", {'bold': 1}],
+            [(2, 13), f"(%)", {'bold': 1}],
+            [(1, 14, 2, 14), f"Ca/K", {'bold': 1}],
+            [(3, 0, 3, 14), f"Sample {name} ({material}){' by ' if method != '' else ''}{method}, weight = {weight} mg, J = {J_value} ± {J_error}", {'bold': 1, 'italic': 1, 'top': 6, 'align': 'left'}],
+            [(4, 0, 1), self.sample.SequenceName, {'align': 'left'}],
+            [(4, 1, 1), self.sample.SequenceValue, {'num_format': 'General'}],
+            [(4, 2, 1), list(map(lambda x: int(x) if str(x).isnumeric() else "", self.sample.IsochronMark)), {'num_format': 'General'}],
+            [(4, 3, 1), self.sample.DegasValues[0], {}],
+            [(4, 4, 1), self.sample.DegasValues[8], {}],
+            [(4, 5, 1), self.sample.DegasValues[10], {}],
+            [(4, 6, 1), self.sample.DegasValues[20], {}],
+            [(4, 7, 1), self.sample.DegasValues[24], {}],
+            [(4, 8, 1), self.sample.IsochronValues[6], {}],
+            [(4, 9, 1), self.sample.IsochronValues[8], {}],
+            [(4, 10, 1), self.sample.ApparentAgeValues[2], {}],
+            [(4, 11, 1), list(map(lambda x: 2*x, self.sample.ApparentAgeValues[3])), {'num_format': '± ' + self.default_fmt_prop['num_format']}],
+            [(4, 12, 1), self.sample.ApparentAgeValues[6], {}],
+            [(4, 13, 1), self.sample.ApparentAgeValues[7], {}],
+            [(4, 14, 1), self.sample.PublishValues[9], {}],
+            [(4 + num_step, 0, 0), [''] * 15, {'bold': 1, 'top': 1}],
+
+            [(5 + num_step, 0, 5 + num_step, 8), "Table 2. 40Ar/39Ar age summary", {'bold': 1, 'align': 'left'}],
+            [(6 + num_step, 0, 7 + num_step, 0), "Group", {'bold': 1, 'top': 1}],
+            [(6 + num_step, 1, 7 + num_step, 1), "40Arr/39K", {'bold': 1, 'top': 1}],
+            [(6 + num_step, 2, 7 + num_step, 2), f"± {sigma} σ", {'bold': 1, 'top': 1}],
+            [(6 + num_step, 3), "Age", {'bold': 1, 'top': 1}],
+            [(7 + num_step, 3), f"({age_unit})", {'bold': 1, 'top': 0}],
+            [(6 + num_step, 4), f"Analytical", {'bold': 1, 'top': 1, 'align': 'left'}],
+            [(7 + num_step, 4), f"± {sigma} σ", {'bold': 1, 'top': 0, 'align': 'left'}],
+            [(6 + num_step, 5), f"Internal", {'bold': 1, 'top': 1, 'align': 'left'}],
+            [(7 + num_step, 5), f"± {sigma} σ", {'bold': 1, 'top': 0, 'align': 'left'}],
+            [(6 + num_step, 6), f"Full external", {'bold': 1, 'top': 1, 'align': 'left'}],
+            [(7 + num_step, 6), f"± {sigma} σ", {'bold': 1, 'top': 0, 'align': 'left'}],
+            [(6 + num_step, 7, 7 + num_step, 7), f"MSWD", {'bold': 1, 'top': 1}],
+            [(6 + num_step, 8, 7 + num_step, 8), f"39ArK", {'bold': 1, 'top': 1}],
+            [(8 + num_step, 0), f"Total gas age", {'bold': 1, 'top': 6, 'italic': 1, 'align': 'left'}],
+            [(8 + num_step, 1, 0), [''] * 8, {'top': 6}],
+            [(9 + num_step, 0, 10 + num_step, 0), f"Total", {'bold': 1, 'align': 'center'}],
+            [(12 + num_step, 0), f"40Ar/36Ar ratio ({self.sample.TotalParam[0][0]:.2f}) corrected plateau ages", {'bold': 1, 'italic': 1, 'align': 'left'}],
+            [(18 + num_step, 0), f"{['Intercept of inverse isochron', 'Intercept of normal isochron', 'Inputted argon ratio'][int(self.sample.TotalParam[115][0])]} "
+                                 f"(set 1 {set1_ratio} and set 2 {set2_ratio}) corrected plateau ages", {'bold': 1, 'italic': 1, 'align': 'left'}],
+            [(24 + num_step, 0), f"Inverse isochron ages", {'bold': 1, 'italic': 1, 'align': 'left'}],
+            [(30 + num_step, 0), f"Three-dimension ages", {'bold': 1, 'italic': 1, 'align': 'left'}],
+        ]
+
+        tga_res = self.sample.Info.results.age_spectra['TGA']
+        content.extend([
+            [(9 + num_step, 1, 10 + num_step, 1), tga_res['F'], {'num_format': '0.00000'}],
+            [(9 + num_step, 2, 10 + num_step, 2), tga_res['sF'], {'num_format': '0.00000'}],
+            [(9 + num_step, 3, 10 + num_step, 3), tga_res['age'], {'num_format': '0.00'}],
+            [(9 + num_step, 4), tga_res['s1'] * sigma, {'num_format': '± 0.00', 'align': 'left'}],
+            [(9 + num_step, 5), tga_res['s2'] * sigma, {'num_format': '± 0.00', 'align': 'left'}],
+            [(9 + num_step, 6), tga_res['s3'] * sigma, {'num_format': '± 0.00', 'align': 'left'}],
+            [(10 + num_step, 4), tga_res['s1'] * sigma / abs(tga_res['age']), {'num_format': '± 0.00%', 'align': 'left'}],
+            [(10 + num_step, 5), tga_res['s1'] * sigma / abs(tga_res['age']), {'num_format': '± 0.00%', 'align': 'left'}],
+            [(10 + num_step, 6), tga_res['s1'] * sigma / abs(tga_res['age']), {'num_format': '± 0.00%', 'align': 'left'}],
+            [(9 + num_step, 7, 10 + num_step, 7), tga_res['MSWD'], {'num_format': '0.00'}],
+            [(9 + num_step, 8, 10 + num_step, 8), tga_res['Ar39'] / 100, {'num_format': '0.00%'}],
+        ])
+
+        row = 13
+        ar39 = [0, 0]
+        for res in [
+            self.sample.Info.results.age_spectra, self.sample.Info.results.age_plateau,
+            self.sample.Info.results.isochron['figure_3'], self.sample.Info.results.isochron['figure_7']
+        ]:
+            for index, _ in enumerate(['Set 1', 'Set 2']):
+                ar39[index] = res[index].get('Ar39', ar39[index] * 100) / 100
+                print(res[index])
+                try:
+                    content.extend([
+                        [(row + num_step, 0, row + 1 + num_step, 0), _, {'bold': 1, 'align': 'center'}],
+                        [(row + num_step, 1, row + 1 + num_step, 1), res[index]['F'], {'num_format': '0.00000'}],
+                        [(row + num_step, 2, row + 1 + num_step, 2), res[index]['sF'], {'num_format': '0.00000'}],
+                        [(row + num_step, 3, row + 1 + num_step, 3), res[index]['age'], {'num_format': '0.00'}],
+                        [(row + num_step, 4), res[index]['s1'] * sigma, {'num_format': '± 0.00', 'align': 'left'}],
+                        [(row + num_step, 5), res[index]['s2'] * sigma, {'num_format': '± 0.00', 'align': 'left'}],
+                        [(row + num_step, 6), res[index]['s3'] * sigma, {'num_format': '± 0.00', 'align': 'left'}],
+                        [(row + 1 + num_step, 4), res[index]['s1'] * sigma / abs(res[index]['age']), {'num_format': '± 0.00%', 'align': 'left'}],
+                        [(row + 1 + num_step, 5), res[index]['s1'] * sigma / abs(res[index]['age']), {'num_format': '± 0.00%', 'align': 'left'}],
+                        [(row + 1 + num_step, 6), res[index]['s1'] * sigma / abs(res[index]['age']), {'num_format': '± 0.00%', 'align': 'left'}],
+                        [(row + num_step, 7, row + 1 + num_step, 7), res[index]['MSWD'], {'num_format': '0.00'}],
+                        [(row + num_step, 8, row + 1 + num_step, 8), ar39[index], {'num_format': '0.00%'}],
+                    ])
+                except ZeroDivisionError:
+                    pass
+                row += 2
+            row += 2
+        content.append([(row - 2 + num_step, 0, 0), [''] * 9, {'top': 1}])
+
+        for pos, value, _prop in content:
+            prop = self.default_fmt_prop.copy()
+            prop.update(_prop)
+            fmt = Format(prop, xls.xf_format_indices, xls.dxf_format_indices)
+            xls.formats.append(fmt)
+            if isinstance(value, (list, np.ndarray)) and len(pos) == 3:
+                [sht.write_row, sht.write_column][pos[2]](*pos[:2], value, fmt)
+            elif len(pos) == 2:
+                isnumeric = isinstance(value, (float, int)) and not np.isnan(value) and not np.isinf(value)
+                [sht.write_string, sht.write_number][isnumeric](*pos, value if isnumeric else str(value), fmt)
+            elif len(pos) == 4:
+                isnumeric = isinstance(value, (float, int)) and not np.isnan(value) and not np.isinf(value)
+                sht.merge_range(*pos, value if isnumeric else str(value), fmt)
+
+        return sht
+
 
     def write_sht_table(self, sht_name, prop_name, sht_type, row, col, _, smp_attr_name, header_name, style, xls, sigma=1):
         sht = xls.add_worksheet(sht_name)
@@ -1427,7 +1367,7 @@ class WritingWorkbook:
 
         return chart
 
-    def get_chart_age_spectra(self, xls: Workbook, sht: Chartsheet, data_area: list, axis_range: list, age_unit = 'Ma'):
+    def get_chart_age_spectra(self, xls: Workbook, sht: Chartsheet, data_area: list, axis_range: list, age_unit='Ma'):
         # ==============SpectraDiagram===============
         [xMin, xMax, yMin, yMax] = axis_range
         # Initializing a chart
