@@ -315,11 +315,9 @@ def get_3D_results(data: list, sequence: list, sample: Sample):
         age = basic.calc_age([f, sf], smp=sample)
     except:
         # print(f"Warning: {traceback.format_exc()}")
-        k = [0] * 15
-        age = [0] * 4
-        ar40ar36, sar40ar36, P = 0, 0, 0
-        f, sf = 0, 0
-    iso_res.update(dict(zip(iso_res, [*k, *age, np.nan, ar40ar36, sar40ar36, P, f, sf])))
+        pass
+    else:
+        iso_res.update(dict(zip(iso_res, [*k, *age, np.nan, ar40ar36, sar40ar36, P, f, sf])))
     return iso_res
 
 
