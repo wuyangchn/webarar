@@ -274,7 +274,7 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
                 raise ValueError(f"Step name not found")
         except (TypeError, ValueError, IndexError):
             # When parsing the step name fails, the end of the file has been reached
-            break
+            raise
 
         # other information
         options = get_sample_info(file_contents, optional_info_index, default="", base=[1, 1 - idx, 1])
