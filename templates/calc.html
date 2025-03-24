@@ -205,17 +205,6 @@
         return false;
     }
 
-    $(document).ready(function(){
-        try {
-            let msg = {{ type|default:"nothing"}};
-            if (msg!=="nothing") {
-                alert(`{{ type | safe }}: {{ message | safe}}`)
-            }
-        } catch (e) {
-            // pass
-        }
-    });
-
 </script>
 
 {% endblock %}

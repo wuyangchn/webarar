@@ -150,6 +150,21 @@
         </div>
     </div>
 
+    {% for message in messages %}
+        <div class="popup-container message-popup" style="display: block">
+            <div class="popup-content">
+                {% if 'success' in message.tags %}
+                    <p class="popup-title">Information</p>
+                    <p id="popupMessage" class="popup-message">{{ message }}</p>
+                {% elif 'error' in message.tags %}
+                    <p class="popup-title">Error</p>
+                    <p id="popupMessage" class="popup-message">{{ message }}</p>
+                {% endif %}
+                <button class="btn btn-primary popup-button" value="continue" style="display: inline">OK</button>
+            </div>
+        </div>
+    {% endfor %}
+
     <div style="overflow: auto">
     <!-- overflow: auto for Block Formatting Context, reference: https://juejin.cn/post/6976272394247897101 -->
 
@@ -307,6 +322,16 @@
             {% endblock content %}
 
         </div>
+
+        <script>
+        const popups = document.querySelectorAll('.message-popup');
+        popups.forEach(popup => {
+            const closeButton = popup.querySelector('.popup-button');
+            closeButton.addEventListener('click', () => {
+                popup.style.display = 'none';
+            });
+        });
+        </script>
 
         {% block raw_file_modal %}
         {% endblock raw_file_modal %}
