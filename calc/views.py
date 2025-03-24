@@ -54,9 +54,8 @@ class CalcHtmlView(http_funcs.ArArView):
             sample = ap.from_arr(web_file_path)
         except (Exception, BaseException) as e:
             print(traceback.format_exc())
-            return render(request, 'calc.html', {
-                'title': 'alert', 'type': 'Error', 'msg': 'Fail to open the arr file\n' + str(e)
-            })
+            messages.error(request, e)
+            return render(request, 'calc.html')
         else:
             return http_funcs.open_object_file(request, sample, web_file_path)
 
@@ -69,9 +68,8 @@ class CalcHtmlView(http_funcs.ArArView):
             sample = ap.from_full(file_path=web_file_path, sample_name=file_name)
             sample.recalculate(re_plot=True, re_plot_style=True, re_set_table=True, re_table_style=True)
         except (Exception, BaseException) as e:
-            return render(request, 'calc.html', {
-                'title': 'alert', 'type': 'Error', 'msg': 'Fail to open the xls file\n' + str(e)
-            })
+            messages.error(request, e)
+            return render(request, 'calc.html')
         else:
             return http_funcs.open_object_file(request, sample, web_file_path)
 
@@ -87,12 +85,12 @@ class CalcHtmlView(http_funcs.ArArView):
                 sample.recalculate(re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
                 # ap.recalculate(sample, re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
             except Exception as e:
+                messages.info(request, e)
                 print(f'Error in setting plot: {traceback.format_exc()}')
         except (Exception, BaseException) as e:
             print(traceback.format_exc())
-            return render(request, 'calc.html', {
-                'title': 'alert', 'type': 'Error', 'msg': 'Fail to open the age file\n' + str(e)
-            })
+            messages.error(request, e)
+            return render(request, 'calc.html')
         else:
             return http_funcs.open_object_file(request, sample, web_file_path)
 
