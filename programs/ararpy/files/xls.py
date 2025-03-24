@@ -20,8 +20,7 @@ def open_xls(filepath: str):
             sheet = wb.sheet_by_name(sheet_name)
             res[sheet_name] = [[sheet.cell(row, col).value for col in range(sheet.ncols)] for row in range(sheet.nrows)]
     except biffh.XLRDError as e:
-        print('Error in opening excel file: %s' % str(e))
-        return e
+        raise
     else:
         return res
 

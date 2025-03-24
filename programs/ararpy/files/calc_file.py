@@ -49,8 +49,7 @@ def read_calc_file(file_path: str):
             book_contents[each_sheet] = sheet_contents
         os.remove(decrypt_file_path)
     except Exception as e:
-        print(traceback.format_exc())
-        return False
+        raise
     else:
         return book_contents
 
@@ -420,7 +419,7 @@ def open_full_xls(file_path: str, sample_name: str = ''):
     try:
         res = xls.open_xls(file_path)
     except (Exception, BaseException) as e:
-        return e
+        raise 
     start_row = 5
     rows_num = len(res['Sample Parameters']) - 5
 
@@ -583,8 +582,6 @@ class ArArCalcFile:
 
     def open(self):
         book_contents = read_calc_file(self.file_path)
-        if not book_contents:
-            raise ValueError('Fail to open the file')
         # create data frames for book values
         content = pd.DataFrame(book_contents['Data Tables'])
         logs01 = pd.DataFrame(book_contents['Logs01'])
