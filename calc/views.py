@@ -408,7 +408,6 @@ class RawFileView(http_funcs.ArArView):
         filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_name]
         try:
             raw = ap.smp.raw.to_raw(file_path=file_path, input_filter_path=filter_paths)
-            print("before do regression")
             raw.do_regression()
 
             allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
@@ -429,7 +428,6 @@ class RawFileView(http_funcs.ArArView):
         except (Exception, BaseException):
             print(traceback.format_exc())
             messages.error(request, traceback.format_exc())
-        print("Render")
         return render(request, 'raw_filter.html')
 
     def import_blank_file(self, request, *args, **kwargs):
