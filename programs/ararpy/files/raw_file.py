@@ -345,10 +345,9 @@ def get_raw_data(file_contents: List[List[Union[int, float, str, bool, list]]], 
                 break
 
         step_list.append(current_step)
-        step_index += 1
-        idx = input_filter[32] * step_index
+        idx = input_filter[32] * len(step_list)
 
-        if not check_box_index[0] or step_index >= 500:  # check_box_index[0]: multiple sequences
+        if not check_box_index[0] or len(step_list) >= 500:  # check_box_index[0]: multiple sequences
             break
 
     return step_list
