@@ -137,18 +137,6 @@
         </div><!-- /.modal -->
     </div>
 
-    {% for message in messages %}
-        {% if 'success' in message.tags %}
-            <dialog class="alert alert-success" role="alert"><span style="font-weight:bold">{{ message }}</span></dialog>
-        {% elif 'error' in message.tags %}
-            <p class="alert alert-warning" role="alert" style="position: fixed; z-index: 9999; margin-top: -600px; margin-left: 40%">
-<!--                <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>-->
-                <span style="font-weight:bold">{{ message }}</span>
-            </p>
-        {% endif %}
-    {% endfor %}
-
-
     <script>
         let pages = $(".raw-file-filter-page");
         let max_page = pages.length;

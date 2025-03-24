@@ -1628,7 +1628,10 @@ function dropHandler(ev) {
     let send_erquest = () => {
         for (let i=0;i<files.length;i++) {
              // Ignoring files bigger than about 5 MB
-            if (files[i].size > 5242880 ) {continue;}
+            if (files[i].size > 5242880 ) {
+                showPopupMessage('Error', `The amount of data is too large (${(files[i].size / 1024 / 1024).toFixed(2)} MB), not supported.`, true)
+                continue;
+            }
             let flag = ''
             let file_input_id = ''
             let suffix = files[i].name.split('.').at(-1);
@@ -1646,6 +1649,7 @@ function dropHandler(ev) {
                     file_input_id = 'file-input-4';
                     break
                 default:
+                    showPopupMessage('Error', `Unknown ${suffix} file, not supported.`, true)
                     continue;
             }
 
