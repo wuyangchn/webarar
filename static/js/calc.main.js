@@ -186,12 +186,12 @@ function addNewBlankButtonClicked() {
         let name = newNameList[i];
         let new_sequence = newSequencesList.filter((v, _i) => v.name === name)[0]
         if (!new_sequence.is_blank) {
-            let text = `Sequence with name ${name} is a ${new_sequence.type_str} sequence, but a blank sequence required.`;
-            showPopupMessage("Information",text, false);
+            let text = `Sequence ${name} is a ${new_sequence.type_str} sequence, not a blank sequence.`;
+            showPopupMessage("Information",text, true);
             continue;
         }
         if (existing_blank_names.includes(name)) {
-            showPopupMessage("Information",`Blank with name ${name} exists.`, false);
+            showPopupMessage("Information",`Blank with name ${name} exists.`, true);
             continue;
         }
         addNametoBlankList(name);
@@ -1758,24 +1758,23 @@ function exportSmp(url, download=true, merged_pdf=false) {
             }
         },
         success: function (res) {
-            if (res.status === 'success'){
-                if (res.href.includes('arr')) {
-                    document.getElementById("download-arr").href = res.href;
-                    document.getElementById("download-arr").innerText = res.href.toString().split('/').slice(-1)[0];
-                }
-                if (download) {
-                    closePopupMessage();
-                    showPopupMessage("Information", "Exporting successfully. Starting download.", false)
-                    // showMessage(, 1000);
-                    document.getElementById("export_path_link").href = res.href;
-                    document.getElementById("export_path_link").click();
-                    setConsoleText('Export Successfully! ' + res.href);
-                }
-            } else {
-                showPopupMessage("Error", res.msg, true)
+            if (res.href.includes('arr')) {
+                document.getElementById("download-arr").href = res.href;
+                document.getElementById("download-arr").innerText = res.href.toString().split('/').slice(-1)[0];
+            }
+            if (download) {
+                closePopupMessage();
+                showPopupMessage("Information", "Exporting successfully. Starting download.", false)
+                // showMessage(, 1000);
+                document.getElementById("export_path_link").href = res.href;
+                document.getElementById("export_path_link").click();
+                setConsoleText('Export Successfully! ' + res.href);
             }
             document.getElementById("export_path_link").href = '';
-        }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
     });
 }
 function arrDownloaded() {

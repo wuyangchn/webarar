@@ -90,7 +90,7 @@ def journal_ranking(request):
         except:
             return 0
     data.sort(key=lambda x: (x['tier'], neg_jif(x['jif23'])))
-    log_funcs.set_info_log(http_funcs.get_ip(request), '000', 'info', 'Visit journal ranking html')
+    log_funcs.write_log(http_funcs.get_ip(request), 'info', 'Visit journal ranking html')
     return render(request, 'journal_ranking.html', {'data': ap.smp.json.dumps(data)})
 
 def api_callback(request):

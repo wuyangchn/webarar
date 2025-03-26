@@ -1,11 +1,13 @@
 import pickle
 import uuid
 import json
+from django.http import JsonResponse, HttpResponse
 from django.core.cache import cache
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
+from django.contrib import messages
 from calc import models
-from . import ap
+from . import ap, log_funcs
 
 DEFAULT_CACHE_TIMEOUT = 86400
 
@@ -127,11 +129,9 @@ def open_object_file(request, sample, web_file_path, cache_key=''):
     allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
     allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
     allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
-    return render(request, 'object.html', {
-        'cache_key': json.dumps(cache_key),
-        'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames,
-        'sampleComponents': ap.smp.json.dumps(ap.smp.basic.get_components(sample)),
-    })
+    return {'cache_key': json.dumps(cache_key),
+            'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames,
+            'sampleComponents': ap.smp.json.dumps(ap.smp.basic.get_components(sample)),}
 
 
 def open_last_object(request):
@@ -182,13 +182,28 @@ class ArArView(View):
         self.content = {}
         self.cache_key = ''
         self.sample = ...
+        self.request_msg = ""
+
+        # response
+        self.error_msg = ""
 
         self.dispatch_post_method_name = [
             # Add names in daughter classes
         ]
 
-    def post(self, request, *args, **kwargs):
+        # log_funcs.set_info_log(self.ip, '001', 'info', 'Open raw file')
+        # print(f"{self.ip}, {self.request}")
+
+    def setup(self, request, *args, **kwargs):
+        if hasattr(self, "get") and not hasattr(self, "head"):
+            self.head = self.get
+        self.request = request
+        self.args = args
+        self.kwargs = kwargs
         self.ip = get_ip(self.request)
+        messages.set_level(self.request, 10)  # write debug level
+
+    def post(self, request, *args, **kwargs):
         # Finding a right function to response the request
         self.flag = request.POST.get('flag').lower()
         if self.flag in self.dispatch_post_method_name:
@@ -196,10 +211,9 @@ class ArArView(View):
         else:
             handler = self.flag_not_matched
         print("post: %s" % handler.__name__)
-        return handler(request, *args, **kwargs)
+        return self.handling(handler, request, *args, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
-        self.ip = get_ip(self.request)
         # Rewrite dispatch method to add special responses to ajax requests
         handler = self.http_method_not_allowed  # Default
 
@@ -211,7 +225,7 @@ class ArArView(View):
             pass
         else:
             print("flag: %s" % handler.__name__)
-            return handler(request, *args, **kwargs)
+            return self.handling(handler, request, *args, **kwargs)
 
         # Ajax request, json type content, flag is included in body
         try:
@@ -238,9 +252,34 @@ class ArArView(View):
             handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
 
         print("flag: %s" % handler.__name__)
-        return handler(request, *args, **kwargs)
+        return self.handling(handler, request, *args, **kwargs)
 
     def flag_not_matched(self, request, *args, **kwargs):
         print(f'flag_not_matched: {self.flag}')
         pass
 
+    def handling(self, func, request, *args, **kwargs):
+        method = func.__name__
+        path = request.path
+        protocol = request.environ.get('SERVER_PROTOCOL')
+        log_funcs.write_log(self.ip, 'INFO', f"{method}, {path}, {protocol}")
+        return func(request, *args, **kwargs)
+
+    def JsonResponse(self, data, status=200, **kwargs):
+        if self.error_msg != "":
+            status = 400
+        self.write_log()
+        return JsonResponse(data, status=status, **kwargs)
+
+    def redirect(self, view_name):
+        self.write_log()
+        return redirect(view_name)
+
+    def render(self, request, view_name, *args, **kwargs):
+        self.write_log()
+        return render(request, view_name, *args, **kwargs)
+
+    def write_log(self):
+        for msg in messages.get_messages(self.request):
+            print(f"{msg.level}, {msg.message}, {msg.tags}")
+            log_funcs.write_log(self.ip, msg.level, msg.message)
