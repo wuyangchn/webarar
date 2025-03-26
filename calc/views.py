@@ -5,21 +5,19 @@ import pickle
 import traceback
 import re
 import numpy as np
-import pdf_maker as pm
 import uuid
 import time
 import itertools
 
 # from math import ceil
-from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.conf import settings
 from django.contrib import messages
-
-import programs.ararpy.thermo.basic
-from . import models
-from programs import http_funcs, log_funcs, ap
 from django.core.cache import cache
+
+from . import models
+from programs import http_funcs, ap
+from programs.log_funcs import debug_print, write_log
 
 
 # Create your views here.
@@ -42,79 +40,74 @@ class CalcHtmlView(http_funcs.ArArView):
         ]
 
     def open_raw_file(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '001', 'info', 'Open raw file')
-        return redirect('open_raw_file_filter')
+        return self.redirect('open_raw_file_filter')
 
     def open_arr_file(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '001', 'info', 'Open arr file')
+        web_file_path, file_name, extension = \
+            ap.files.basic.upload(request.FILES.get('arr_file'), settings.UPLOAD_ROOT)
+        messages.info(request, f'Uploaded file: {web_file_path}')
         try:
-            web_file_path, file_name, extension = \
-                ap.files.basic.upload(request.FILES.get('arr_file'), settings.UPLOAD_ROOT)
-            # sample = file_funcs.open_arr_file(web_file_path)
             sample = ap.from_arr(web_file_path)
         except (Exception, BaseException) as e:
-            print(traceback.format_exc())
-            messages.error(request, e)
-            return render(request, 'calc.html')
+            debug_print(traceback.format_exc())
+            messages.error(request, f"Open arr failed: {e}. {file_name = }")
+            return self.render(request, 'calc.html')
         else:
-            return http_funcs.open_object_file(request, sample, web_file_path)
+            return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path))
 
     def open_full_xls_file(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '001', 'info', 'Open calc.full file')
         try:
             web_file_path, file_name, extension = \
                 ap.files.basic.upload(request.FILES.get('full_xls_file'), settings.UPLOAD_ROOT)
+            messages.info(request, f'Uploaded file: {web_file_path}')
             file_name = file_name if '.full' not in file_name else file_name.split('.full')[0]
             sample = ap.from_full(file_path=web_file_path, sample_name=file_name)
             sample.recalculate(re_plot=True, re_plot_style=True, re_set_table=True, re_table_style=True)
         except (Exception, BaseException) as e:
             messages.error(request, e)
-            return render(request, 'calc.html')
+            return self.render(request, 'calc.html')
         else:
-            return http_funcs.open_object_file(request, sample, web_file_path)
+            return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path))
 
     def open_age_file(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '001', 'info', 'Open calc.age file')
         try:
             web_file_path, sample_name, extension = \
                 ap.files.basic.upload(request.FILES.get('age_file'), settings.UPLOAD_ROOT)
-            # sample = file_funcs.open_age_xls(web_file_path)
+            messages.info(request, f'Uploaded file: {web_file_path}')
             sample = ap.from_age(file_path=web_file_path, sample_name=sample_name)
             try:
                 # Re-calculating ratio and plot after reading age or full files
                 sample.recalculate(re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
                 # ap.recalculate(sample, re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
             except Exception as e:
-                messages.info(request, e)
-                print(f'Error in setting plot: {traceback.format_exc()}')
+                messages.error(request, e)
+                debug_print(f'Error in setting plot: {traceback.format_exc()}')
         except (Exception, BaseException) as e:
-            print(traceback.format_exc())
+            debug_print(traceback.format_exc())
             messages.error(request, e)
-            return render(request, 'calc.html')
+            return self.render(request, 'calc.html')
         else:
-            return http_funcs.open_object_file(request, sample, web_file_path)
+            return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path))
 
     def open_current_file(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '001', 'info', 'Open last file')
-        return http_funcs.open_last_object(request)
+        return self.render(request, 'object.html', http_funcs.open_last_object(request))
 
     def open_new_file(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '001', 'info', 'Open new file')
         sample = ap.from_empty()
-        return http_funcs.open_object_file(request, sample, web_file_path='')
+        return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path=''))
 
     def open_multi_files(self, request, *args, **kwargs):
-        msg = ""
         length = int(request.POST.get('length'))
-        # print(f"Number of files: {length}")
+        messages.info(request, f"{length} files uploaded")
         files = {}
         for i in range(length):
             file = request.FILES.get(str(i))
             try:
                 web_file_path, file_name, suffix = ap.files.basic.upload(
                     file, settings.UPLOAD_ROOT)
+                messages.info(request, f'Uploaded file: {web_file_path}')
             except (Exception, BaseException) as e:
-                msg = msg + f"{file} is not supported. "
+                messages.error(request, e)
                 continue
             else:
                 files.update({f"multi_files_{i}": {'name': file_name, 'path': web_file_path, 'suffix': suffix}})
@@ -129,23 +122,23 @@ class CalcHtmlView(http_funcs.ArArView):
                     sample = handler(file['path'], **{'file_name': file['name']})
                 else:
                     raise TypeError(f"File type {file['suffix']} is not supported: {file['name']}")
-            except Exception:
-                print(traceback.format_exc())
+            except (Exception, BaseException) as e:
+                messages.error(request, e)
+                debug_print(traceback.format_exc())
                 continue
             else:
-                contents.append(http_funcs.open_object_file(request, sample, file['path']).component)
+                contents.append(self.render('object.html', http_funcs.open_object_file(request, sample, web_file_path=file['path'])).component)
         response.writelines(contents)
         return response
 
-    @staticmethod
-    def get(request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         # Render calc.html when users are visiting /calc.
-        return render(request, 'calc.html')
+        return self.render(request, 'calc.html')
 
     def flag_not_matched(self, request, *args, **kwargs):
         # Show calc.html when the received flag doesn't exist.
-        log_funcs.set_info_log(self.ip, '001', 'warning', f'Received flag: {self.flag}, it is not matched')
-        return render(request, 'calc.html')
+        messages.error(request, f"{self.flag}, it is not matched")
+        return self.render(request, 'calc.html')
 
 
 class ButtonsResponseObjectView(http_funcs.ArArView):
@@ -157,26 +150,25 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
     def get(self, request, *args, **kwargs):
         # Visiting /calc/object
-        log_funcs.set_info_log(self.ip, '003', 'info', f'GET /calc/object')
-        return http_funcs.open_last_object(request)
+        return self.render(request, 'object.html', http_funcs.open_last_object(request))
 
     def update_sample_photo(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '003', 'info', 'Update sample photo')
         file = request.FILES.get('picture')
-        ap.files.basic.upload(file, os.path.join(settings.STATICFILES_DIRS[0], 'upload'))
-        return JsonResponse({'picture': settings.STATIC_URL + 'upload/' + file.name})
+        web_file_path, name, suffix = ap.files.basic.upload(file, os.path.join(settings.STATICFILES_DIRS[0], 'upload'))
+        messages.info(request, f"Uploaded picture: {web_file_path}")
+        return self.JsonResponse({'picture': settings.STATIC_URL + 'upload/' + file.name})
 
     def get_auto_scale(self, request, *args, **kwargs):
         figure_id = self.body['figure_id']
         xscale, yscale = ap.smp.style.reset_plot_scale(smp=self.sample, only_figure=figure_id)
-        return JsonResponse({
+        return self.JsonResponse({
             'status': 'success', 'xMin': xscale[0], 'xMax': xscale[1], 'xInterval': xscale[2],
             'yMin': yscale[0], 'yMax': yscale[1], 'yInterval': yscale[2]
         })
 
     def update_components_diff(self, request, *args, **kwargs):
         diff = dict(self.body['diff'])
-        # print(f"{diff = }")
+        # debug_print(f"{diff = }")
         for name, attrs in diff.items():
             ap.smp.basic.update_object_from_dict(
                 ap.smp.basic.get_component_byid(self.sample, name), attrs)
@@ -208,7 +200,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         self.sample.sequence()
 
         http_funcs.create_cache(self.sample, self.cache_key)  # Update cache
-        return JsonResponse(res)
+        return self.JsonResponse(res)
 
     def click_points_update_figures(self, request, *args, **kwargs):
 
@@ -219,7 +211,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                                    ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7', ])
         sample = self.sample
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
-        # print(f"{sample.IsochronMark = }")
+        # debug_print(f"{sample.IsochronMark = }")
 
         data_index = clicked_data[-1] - 1  # Isochron plot data label starts from 1, not 0
         sample.set_selection(data_index, [1, 2][current_set == "set2"])
@@ -235,23 +227,19 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # Update isochron table data, changes in isotope table is not required to transfer
         ap.smp.table.update_table_data(sample, only_table='7')
         http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
-        # print(f"在点击事件结束之后 {sample.IsochronMark = }")
+        # debug_print(f"在点击事件结束之后 {sample.IsochronMark = }")
 
-        return JsonResponse({'res': ap.smp.json.dumps(res)})
+        return self.JsonResponse({'res': ap.smp.json.dumps(res)})
 
     def update_handsontable(self, request, *args, **kwargs):
         btn_id = str(self.body['btn_id'])
         recalculate = self.body['recalculate']  # This is always False
         data = self.body['data']
         sample = self.sample
-        log_funcs.set_info_log(
-            self.ip, '003', 'info',
-            f'Update handsontable, sample name: {sample.Info.sample.name}, btn id: {btn_id}'
-        )
+        messages.info(request, f'Update handsontable, sample name: {sample.Info.sample.name}, btn id: {btn_id}')
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
         try:
-            print(sample.SequenceValue)
             if btn_id == '0':  # 实验信息
                 # sample.Info.__dict__.update(data)
                 ap.smp.basic.update_plot_from_dict(sample.Info, data)
@@ -267,7 +255,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
                 data = remove_empty(data)
                 if len(data) == 0:
-                    return JsonResponse({})
+                    return self.JsonResponse({})
 
                 sample.update_table(data, btn_id)
 
@@ -277,14 +265,14 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                     sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
                     # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
 
-            print(sample.SequenceValue)
         except Exception as e:
-            print(traceback.format_exc())
-            return JsonResponse({'msg': f'Error: {e}'}, status=403)
+            debug_print(traceback.format_exc())
+            messages.error(request, e)
+            return self.JsonResponse({'msg': f'Error: {e}'}, status=403)
 
         http_funcs.create_cache(sample, self.cache_key)  # Update cache
         res = ap.smp.basic.get_diff_smp(components_backup, ap.smp.basic.get_components(sample))
-        return JsonResponse({'changed_components': ap.smp.json.dumps(res)})
+        return self.JsonResponse({'changed_components': ap.smp.json.dumps(res)})
 
     def get_regression_result(self, request, *args, **kwargs):
         data = list(self.body.get('data'))
@@ -316,22 +304,23 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             try:
                 handler = handler[method]
                 res = handler(y, x)
-            except:
-                print(traceback.format_exc())
+            except Exception as e:
+                debug_print(traceback.format_exc())
+                messages.error(request, e)
                 res = False
             if res:
                 line_data = [adjusted_x, res[7](adjusted_time)]
-                return JsonResponse({'r2': res[3], 'line_data': line_data, 'sey': res[8]})
-        return JsonResponse({'r2': 'None', 'line_data': [], 'sey': 'None'})
+                return self.JsonResponse({'r2': res[3], 'line_data': line_data, 'sey': res[8]})
+        return self.JsonResponse({'r2': 'None', 'line_data': [], 'sey': 'None'})
 
     def recalculation(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '003', 'info', f'Recalculation, sample name: {self.sample.Info.sample.name}')
+        write_log(self.ip, 'info', f'Recalculation, sample name: {self.sample.Info.sample.name}')
         sample = self.sample
         checked_options = self.content['checked_options']
         others = self.content.pop('others', {})
         isochron_mark = self.content.pop('isochron_mark', False)
-        # print(f"Recalculation Isochron Mark = {isochron_mark}")
-        print(f"{others = }")
+        # debug_print(f"Recalculation Isochron Mark = {isochron_mark}")
+        debug_print(f"{others = }")
         try:
             sample.Info.preference.update({'confidenceLevel': others.get('sigma', sample.Info.preference.get('confidenceLevel', 1))})
         except Exception as e:
@@ -346,17 +335,19 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             sample.recalculate(*checked_options, **others)
             # sample = ap.recalculate(sample, *checked_options)
         except Exception as e:
-            log_funcs.log(traceback.format_exc())
-            return JsonResponse({'msg': f'Error in recalculating: {e}'}, status=403)
+            debug_print(traceback.format_exc())
+            messages.error(request, e)
+            return self.JsonResponse({'msg': f'Error in recalculating: {e}'}, status=403)
         ap.smp.table.update_table_data(sample)  # Update data of tables after re-calculation
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
-        return JsonResponse({'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)})
+        messages.info(request, f"Recalculation completed. {sample.name()}")
+        return self.JsonResponse({'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)})
 
     def flag_not_matched(self, request, *args, **kwargs):
         # Show calc.html when the received flag doesn't exist.
-        return http_funcs.open_last_object(request)
+        return self.render(request, 'object.html', http_funcs.open_last_object(request))
 
 
 class RawFileView(http_funcs.ArArView):
@@ -371,16 +362,13 @@ class RawFileView(http_funcs.ArArView):
 
     def get(self, request, *args, **kwargs):
         # Visiting /calc/raw
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Open raw file filter')
-        return render(request, 'raw_filter.html')
+        return self.render(request, 'raw_filter.html')
 
     def flag_not_matched(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Flag is not matched')
-        return redirect('calc_view')
+        return self.redirect('calc_view')
 
     def close(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Close')
-        return redirect('calc_view')
+        return self.redirect('calc_view')
 
     def raw_files_changed(self, request, *args, **kwargs):
         files = []
@@ -389,7 +377,8 @@ class RawFileView(http_funcs.ArArView):
             try:
                 web_file_path, file_name, suffix = ap.files.basic.upload(
                     file, settings.UPLOAD_ROOT)
-            except (Exception, BaseException):
+            except (Exception, BaseException) as e:
+                messages.error(request, e)
                 continue
             else:
                 files.append({
@@ -397,7 +386,7 @@ class RawFileView(http_funcs.ArArView):
                     'filter': suffix[1:],
                     'filter_list': names
                 })
-        return JsonResponse({'files': files})
+        return self.JsonResponse({'files': files})
 
     def submit(self, request, *args, **kwargs):
         files = json.loads(request.POST.get('raw-file-table'))['files']
@@ -414,19 +403,19 @@ class RawFileView(http_funcs.ArArView):
 
             # update cache
             cache_key = http_funcs.create_cache(raw)
-            return render(request, 'extrapolate.html', {
+            return self.render(request, 'extrapolate.html', {
                 'raw_data': ap.smp.json.dumps(raw), 'raw_cache_key': ap.smp.json.dumps(cache_key),
                 'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
             })
         except FileNotFoundError as e:
             messages.error(request, e)
         except ValueError as e:
-            print(traceback.format_exc())
+            debug_print(traceback.format_exc())
             messages.error(request, e)
         except (Exception, BaseException):
-            print(traceback.format_exc())
+            debug_print(traceback.format_exc())
             messages.error(request, traceback.format_exc())
-        return render(request, 'raw_filter.html')
+        return self.render(request, 'raw_filter.html')
 
     def import_blank_file(self, request, *args, **kwargs):
         file = request.FILES.get('blank_file')
@@ -439,15 +428,15 @@ class RawFileView(http_funcs.ArArView):
             with open(web_file_path, 'rb') as f:
                 sequences = pickle.load(f)
         except pickle.UnpicklingError:
-            return JsonResponse({
+            return self.JsonResponse({
                 'msg': "The file input cannot be unpicked. Please check the file format"},
                 encoder=ap.smp.json.MyEncoder, status=403)
 
         raw.sequence = ap.calc.arr.multi_append(raw.sequence, *sequences)
         http_funcs.create_cache(raw, cache_key=cache_key)
 
-        return JsonResponse({'sequences': sequences}, encoder=ap.smp.json.MyEncoder,
-                            content_type='application/json', safe=True)
+        return self.JsonResponse({'sequences': sequences}, encoder=ap.smp.json.MyEncoder,
+                                 content_type='application/json', safe=True)
 
     def add_empty_blank(self, request, *args, **kwargs):
         raw: ap.RawData = self.sample
@@ -475,7 +464,7 @@ class RawFileView(http_funcs.ArArView):
         raw.sequence.append(new_sequence)
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
 
-        return JsonResponse({'new_sequence': new_sequence},
+        return self.JsonResponse({'new_sequence': new_sequence},
                             encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def change_seq_fitting_method(self, request, *args, **kwargs):
@@ -483,10 +472,10 @@ class RawFileView(http_funcs.ArArView):
         seq_idx = self.body['sequence_index']
         iso_idx = self.body['isotope_index']
         fit_idx = self.body['fitting_index']
-        # print(f"{seq_idx = }, {iso_idx = }, {fit_idx = }")
+        # debug_print(f"{seq_idx = }, {iso_idx = }, {fit_idx = }")
         raw.get_sequence(seq_idx).fitting_method[iso_idx] = fit_idx
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
-        return JsonResponse({})
+        return self.JsonResponse({})
 
     def change_seq_state(self, request, *args, **kwargs):
         raw: ap.RawData = self.sample
@@ -497,12 +486,10 @@ class RawFileView(http_funcs.ArArView):
         seq.as_type(is_blank and "blank")
         seq.is_removed = is_removed
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
-        return JsonResponse({})
+        return self.JsonResponse({})
 
     def to_project_view(self, request, *args, **kwargs):
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Upload raw project')
-        return http_funcs.open_last_object(request)
-        # return redirect('object_views_2')
+        return self.render(request, 'object.html', http_funcs.open_last_object(request))
 
     def calc_raw_chart_clicked(self, request, *args, **kwargs):
 
@@ -524,13 +511,13 @@ class RawFileView(http_funcs.ArArView):
 
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw data in cache
 
-        return JsonResponse({'sequence': raw.sequence[sequence_index]},
-                            encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
+        return self.JsonResponse({'sequence': raw.sequence[sequence_index]},
+                                 encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def calc_raw_average_blanks(self, request, *args, **kwargs):
         blanks = self.body['blanks']
-        log_funcs.set_info_log(
-            self.ip, '004', 'info',
+        write_log(
+            self.ip, 'info',
             f'Calculate average value of selected blanks, '
             f'the number of selected points will be lesser than 4')
         newBlank = []
@@ -555,8 +542,8 @@ class RawFileView(http_funcs.ArArView):
         raw.sequence.append(new_sequence)
         http_funcs.create_cache(raw, cache_key=self.cache_key)
 
-        return JsonResponse({'newBlank': newBlank, 'new_sequence': new_sequence},
-                            encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
+        return self.JsonResponse({'newBlank': newBlank, 'new_sequence': new_sequence},
+                                 encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def calc_raw_interpolated_blanks(self, request, *args, **kwargs):
         """
@@ -582,7 +569,7 @@ class RawFileView(http_funcs.ArArView):
 
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update cache
 
-        return JsonResponse({'sequences': new_sequences},
+        return self.JsonResponse({'sequences': new_sequences},
                             encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def raw_data_submit(self, request, *args, **kwargs):
@@ -595,7 +582,7 @@ class RawFileView(http_funcs.ArArView):
         sampleInfo = self.body['sampleInfo']
         selectedSequences = self.body['selectedSequences']
         fingerprint = self.body['fingerprint']
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Start to submit raw file')
+        write_log(self.ip, 'info', f'Start to submit raw file')
 
         raw: ap.RawData = self.sample
 
@@ -614,19 +601,19 @@ class RawFileView(http_funcs.ArArView):
             sample.set_params(calculationParams['param'], 'calc')
             sample.set_params(sampleParams['param'], 'smp')
         except (BaseException, Exception):
-            print(traceback.format_exc())
+            debug_print(traceback.format_exc())
         try:
             sample.recalculate(*[True] * 11, False, *[True] * 4)  # Calculation after submitting row data
             # ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
             ap.smp.table.update_table_data(sample)  # Update table after submission row data and calculation
         except ValueError:
-            return JsonResponse({'msg': traceback.format_exc()}, status=403)
+            return self.JsonResponse({'msg': traceback.format_exc()}, status=403)
         # update cache
         cache_key = http_funcs.create_cache(sample)
         # write mysql
         http_funcs.set_mysql(request, models.CalcRecord, fingerprint, cache_key=cache_key)
-        log_funcs.set_info_log(self.ip, '004', 'info', f'Success to submit raw file')
-        return JsonResponse({})
+        write_log(self.ip, 'info', f'Success to submit raw file')
+        return self.JsonResponse({})
 
     def check_regression(self, request, *args, **kwargs):
         raw: ap.RawData = self.sample
@@ -645,7 +632,7 @@ class RawFileView(http_funcs.ArArView):
             failed = sorted(list(set([seq[0]+1 for seq in failed])))
             msg = f"Errors: {failed}"
 
-        return JsonResponse({'status': 'successful', 'msg': msg, 'failed': failed}, status=200)
+        return self.JsonResponse({'status': 'successful', 'msg': msg, 'failed': failed}, status=200)
 
     def export_sequence(self, request, *args, **kwargs):
         """
@@ -679,7 +666,7 @@ class RawFileView(http_funcs.ArArView):
         #     f.write(ap.smp.json.dumps(sequences))
         with open(file_path, 'wb') as f:  # save serialized json data to a readable text
             f.write(pickle.dumps(sequences))
-        return JsonResponse({"href": export_href})
+        return self.JsonResponse({"href": export_href})
 
 
 class ParamsSettingView(http_funcs.ArArView):
@@ -691,38 +678,38 @@ class ParamsSettingView(http_funcs.ArArView):
 
     def show_irra(self, request, *args, **kwargs):
         names = list(models.IrraParams.objects.values_list('name', flat=True))
-        log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
-        return render(request, 'irradiation_setting.html', {'allIrraNames': names})
+        messages.info(request, f'Show parameter project names: {names}')
+        return self.render(request, 'irradiation_setting.html', {'allIrraNames': names})
 
     def show_calc(self, request, *args, **kwargs):
         names = list(models.CalcParams.objects.values_list('name', flat=True))
-        log_funcs.set_info_log(self.ip, '005', 'info', f'Show calculation param project names: {names}')
-        return render(request, 'calculation_setting.html', {'allCalcNames': names})
+        messages.info(request, f'Show parameter project names: {names}')
+        return self.render(request, 'calculation_setting.html', {'allCalcNames': names})
 
     def show_smp(self, request, *args, **kwargs):
         names = list(models.SmpParams.objects.values_list('name', flat=True))
-        log_funcs.set_info_log(self.ip, '005', 'info', f'Show sample param project names: {names}')
-        return render(request, 'sample_setting.html', {'allSmpNames': names})
+        messages.info(request, f'Show parameter project names: {names}')
+        return self.render(request, 'sample_setting.html', {'allSmpNames': names})
 
     def show_input_filter(self, request, *args, **kwargs):
         names = list(models.InputFilterParams.objects.values_list('name', flat=True))
-        log_funcs.set_info_log(self.ip, '005', 'info', f'Show input filter project names: {names}')
-        return render(request, 'input_filter_setting.html', {'allInputFilterNames': names})
+        messages.info(request, f'Show parameter project names: {names}')
+        return self.render(request, 'input_filter_setting.html', {'allInputFilterNames': names})
 
     # def show_export_pdf(self, request, *args, **kwargs):
     #     names = list(models.ExportPDFParams.objects.values_list('name', flat=True))
-    #     log_funcs.set_info_log(self.ip, '005', 'info', f'Show export PDF project names: {names}')
-    #     return render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
+    #     log_funcs.set_info_log(self.ip, 'info', f'Show export PDF project names: {names}')
+    #     return self.render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
 
     def change_param_objects(self, request, *args, **kwargs):
         type = str(self.body['type'])  # type = irra, calc, smp
         model_name = f"{''.join([i.capitalize() for i in type.split('-')])}Params"
-        print(f"{type = }")
+        debug_print(f"{type = }")
         try:
             name = self.body['name']
             param_file = getattr(models, model_name).objects.get(name=name).file_path
             param = ap.files.basic.read(param_file)
-            return JsonResponse({'status': 'success', 'param': param})
+            return self.JsonResponse({'status': 'success', 'param': param})
         except KeyError:
             sample = self.sample
             param = []
@@ -754,12 +741,12 @@ class ParamsSettingView(http_funcs.ArArView):
             except IndexError:
                 param = []
             except (BaseException, Exception) as e:
-                print(traceback.format_exc())
+                debug_print(traceback.format_exc())
                 param = []
-            return JsonResponse({'status': 'success', 'param': np.nan_to_num(param).tolist()})
+            return self.JsonResponse({'status': 'success', 'param': np.nan_to_num(param).tolist()})
         except Exception as e:
-            print(traceback.format_exc())
-            return JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n' + str(e)}, status=403)
+            debug_print(traceback.format_exc())
+            return self.JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n' + str(e)}, status=403)
 
     def edit_param_object(self, request, *args, **kwargs):
         ip = http_funcs.get_ip(request)
@@ -773,89 +760,64 @@ class ParamsSettingView(http_funcs.ArArView):
         if flag == 'create':
             email = self.body['email']
             if name == '' or pin == '':
-                log_funcs.set_info_log(
-                    self.ip, '005', 'info', f'Fail to create {type.lower()} project, empty name or pin')
-                return JsonResponse({'msg': 'empty name or pin'}, status=403)
+                messages.error(request, f'Fail to create {type.lower()} project, empty name or pin')
+                return self.JsonResponse({'msg': 'empty name or pin'}, status=403)
             elif model.objects.filter(name=name).exists():
-                log_funcs.set_info_log(
-                    self.ip, '005', 'info', f'Fail to create {type.lower()} project, duplicate name, name: {name}')
-                return JsonResponse({'msg': 'duplicate name'}, status=403)
+                messages.error(request, f'Fail to create {type.lower()} project, duplicate name, name: {name}')
+                return self.JsonResponse({'msg': 'duplicate name'}, status=403)
             else:
                 path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{type}"), params)
                 model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip)
-                log_funcs.set_info_log(
-                    self.ip, '005', 'info',
-                    f'Success to create {type.lower()} project, '
-                    f'name: {name}, email: {email}, file path: {path}')
-                return JsonResponse({'status': 'success'})
+                messages.info(request, f'Success to create {type.lower()} project, name: {name}, email: {email}, file path: {path}')
+                return self.JsonResponse({'status': 'success'})
         else:
             try:
                 old = model.objects.get(name=name)
             except (BaseException, Exception):
-                print(traceback.format_exc())
-                log_funcs.set_info_log(
-                    self.ip, '005', 'info',
-                    f'Fail to change selected {type.lower()} project, '
-                    f'it does not exist in the server, name: {name}')
-                return JsonResponse({'msg': 'current project does not exist'}, status=403)
+                debug_print(traceback.format_exc())
+                messages.error(request, f'Fail to change selected {type.lower()} project, it does not exist in the server, name: {name}')
+                return self.JsonResponse({'msg': 'current project does not exist'}, status=403)
             if pin == old.pin:
                 if flag == 'update':
                     path = ap.files.basic.write(old.file_path, params)
                     old.save()
-                    log_funcs.set_info_log(
-                        self.ip, '005', 'info',
-                        f'Success to update the {type.lower()} project, name: {name}, path: {path}')
-                    return JsonResponse({'status': 'success'})
+                    messages.info(request, f'Success to update the {type.lower()} project, name: {name}, path: {path}')
+                    return self.JsonResponse({'status': 'success'})
                 elif flag == 'delete':
                     if ap.files.basic.delete(old.file_path):
                         old.delete()
-                        log_funcs.set_info_log(
-                            self.ip, '005', 'info',
-                            f'Success to delete the {type.lower()} project does been deleted, name: {name}')
-                        return JsonResponse({'status': 'success'})
+                        messages.info(request, f'Success to delete the {type.lower()} project does been deleted, name: {name}')
+                        return self.JsonResponse({'status': 'success'})
                     else:
-                        log_funcs.set_info_log(
-                            self.ip, '005', 'info',
-                            f'Fail to delete {type.lower()} projects, '
-                            f'something wrong happened, name: {name}')
-                        return JsonResponse({'msg': 'something wrong happened when delete params'}, status=403)
+                        messages.error(request, f'Fail to delete {type.lower()} projects, something wrong happened, name: {name}')
+                        return self.JsonResponse({'msg': 'something wrong happened when delete params'}, status=403)
             else:
-                return JsonResponse({'msg': 'wrong pin'}, status=403)
+                messages.error(request, f'{type.lower()} project, wrong pin {pin}')
+                return self.JsonResponse({'msg': 'wrong pin'}, status=403)
 
 
     def set_params(self, request, *args, **kwargs):
-        def remove_none(old_params, new_params, rows, length):
-            res = [[]] * length
-            for index, item in enumerate(new_params):
-                if item is None:
-                    res[index] = old_params[index]
-                else:
-                    res[index] = [item] * rows
-            return res
-
         params = list(self.body['params'])
         param_type = str(self.body['type'])  # type = 'irra', or 'calc', or 'smp'
         sample = self.sample
-        log_funcs.set_info_log(
-            self.ip, '003', 'info', f'Set params, sample name: {self.sample.Info.sample.name}')
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
 
         try:
             sample.set_params(params, param_type)
         except KeyError:
-            print(traceback.format_exc())
-            return JsonResponse({'msg': f'Unknown type of params : {param_type}'}, status=403)
+            debug_print(traceback.format_exc())
+            return self.JsonResponse({'msg': f'Unknown type of params : {param_type}'}, status=403)
         except (BaseException, Exception) as e:
-            print(traceback.format_exc())
-            return JsonResponse({'msg': f'{type(e).__name__}: {str(e)}'}, status=403)
+            debug_print(traceback.format_exc())
+            return self.JsonResponse({'msg': f'{type(e).__name__}: {str(e)}'}, status=403)
 
         ap.smp.table.update_table_data(sample)  # Update data of tables after changes of calculation parameters
         # update cache
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
-        # print(f"Diff after reset_calc_params: {res}")
-        return JsonResponse({'msg': 'Successfully!', 'changed_components': ap.smp.json.dumps(res)}, status=200)
+        # debug_print(f"Diff after reset_calc_params: {res}")
+        return self.JsonResponse({'msg': 'Successfully!', 'changed_components': ap.smp.json.dumps(res)}, status=200)
 
 
 class ThermoView(http_funcs.ArArView):
@@ -866,9 +828,9 @@ class ThermoView(http_funcs.ArArView):
     # /calc/thermo
     def get(self, request, *args, **kwargs):
         # names = list(models.IrraParams.objects.values_list('name', flat=True))
-        # log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
+        # log_funcs.set_info_log(self.ip, 'info', f'Show irradiation param project names: {names}')
         allThermoNames = list(models.ThermoParams.objects.values_list('name', flat=True))
-        return render(request, 'thermo.html', {'allThermoNames': allThermoNames})
+        return self.render(request, 'thermo.html', {'allThermoNames': allThermoNames})
 
     # /calc/thermo/arr_input
     def arr_input(self, request, *args, **kwargs):
@@ -893,13 +855,13 @@ class ThermoView(http_funcs.ArArView):
                 elif suffix != "":
                     heating_log_file = file_name + suffix
 
-        return JsonResponse({"sample_name": smp_name, "arr_file": arr_file, "heating_log_file": heating_log_file,
+        return self.JsonResponse({"sample_name": smp_name, "arr_file": arr_file, "heating_log_file": heating_log_file,
                              "random_index": random_index, "suffix": suffix})
 
     # /calc/thermo/check_sample
     def check_sample(self, request, *args, **kwargs):
         # names = list(models.IrraParams.objects.values_list('name', flat=True))
-        # log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
+        # log_funcs.set_info_log(self.ip, 'info', f'Show irradiation param project names: {names}')
 
         name = self.body['name']
         arr_file_name = self.body['arr_file_name']
@@ -912,7 +874,7 @@ class ThermoView(http_funcs.ArArView):
 
         loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
         if not os.path.exists(loc) or random_index == "":
-            return JsonResponse({}, status=403)
+            return self.JsonResponse({}, status=403)
 
         if arr_file_name == "":
             for root, dirs, files in os.walk(loc):
@@ -958,7 +920,7 @@ class ThermoView(http_funcs.ArArView):
             else:
                 raise KeyError(f"Geometric model not found: {str(logdr2_method).lower()}")
         except (Exception, BaseException) as e:
-            return JsonResponse({'msg': f"The D/r2 calculation failed. {type(e).__name__}: {str(e)}"}, status=403)
+            return self.JsonResponse({'msg': f"The D/r2 calculation failed. {type(e).__name__}: {str(e)}"}, status=403)
 
         data = np.array([
             sequence.value, te, ti, age, sage, ar, sar, f, dr2, ln_dr2, wt
@@ -970,7 +932,7 @@ class ThermoView(http_funcs.ArArView):
         if os.path.isfile(mch_out) and os.path.isfile(mages_out) and os.path.isfile(ages_sd):
             res = True
 
-        return JsonResponse({'status': 'success', 'has_files': res, 'data': ap.smp.json.dumps(data),
+        return self.JsonResponse({'status': 'success', 'has_files': res, 'data': ap.smp.json.dumps(data),
                              'name': name, 'arr_file_name': arr_file_name})
 
 
@@ -982,12 +944,12 @@ class ThermoView(http_funcs.ArArView):
         data = self.body['data']
         params = self.body['settings']
 
-        print(data)
-        print(params)
+        debug_print(data)
+        debug_print(params)
 
         loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
         if not os.path.exists(loc) or random_index == "":
-            return JsonResponse({"random_index": random_index}, status=403)
+            return self.JsonResponse({"random_index": random_index}, status=403)
 
         file_path = os.path.join(loc, f"{arr_file_name}" + (".arr" if ".arr" not in arr_file_name else ""))
         sample = ap.from_arr(file_path=file_path)
@@ -1014,7 +976,7 @@ class ThermoView(http_funcs.ArArView):
         arr.f = np.where(np.array(arr.f) >= 1, 0.9999999999999999, np.array(arr.f))
         arr.main()
 
-        return JsonResponse({})
+        return self.JsonResponse({})
 
 
     def run_agemon(self, request, *args, **kwargs):
@@ -1025,7 +987,7 @@ class ThermoView(http_funcs.ArArView):
         data = self.body['data']
         loc = os.path.join(settings.MDD_ROOT, random_index)
         if not os.path.exists(loc) or random_index == "":
-            return JsonResponse({}, status=403)
+            return self.JsonResponse({}, status=403)
 
         file_path = os.path.join(loc, f"{arr_file_name}" + (".arr" if ".arr" not in arr_file_name else ""))
         sample = ap.from_arr(file_path=file_path)
@@ -1043,7 +1005,7 @@ class ThermoView(http_funcs.ArArView):
             elif os.name == 'posix':  # Linux
                 source = os.path.join(settings.SETTINGS_ROOT, "mddfuncs.so")
             else:
-                return JsonResponse({}, status=403)
+                return self.JsonResponse({}, status=403)
             ap.smp.diffusion_funcs.run_agemon_dll(sample, source, loc, data, float(max_age))
         else:
             agemon = ap.smp.diffusion_funcs.DiffAgemonFuncs(smp=sample, loc=loc)
@@ -1081,7 +1043,7 @@ class ThermoView(http_funcs.ArArView):
 
 
 
-        return JsonResponse({})
+        return self.JsonResponse({})
 
 
     def run_walker(self, request, *args, **kwargs):
@@ -1097,7 +1059,7 @@ class ThermoView(http_funcs.ArArView):
 
         loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
         if not os.path.exists(loc) or random_index == "":
-            return JsonResponse({"random_index": random_index}, status=403)
+            return self.JsonResponse({"random_index": random_index}, status=403)
         arr_file_path = os.path.join(loc, f"{arr_file_name}" + (".arr" if ".arr" not in arr_file_name else ""))
 
         # setting_params = params[:11]
@@ -1119,7 +1081,7 @@ class ThermoView(http_funcs.ArArView):
         # f = 1e13
         dimension = 3
 
-        print(f"{use_walker1 = }, {k = }, {gs = }, {ad = }, {f = }")
+        debug_print(f"{use_walker1 = }, {k = }, {gs = }, {ad = }, {f = }")
 
         smp = ap.from_arr(arr_file_path)
         ti = np.array(smp.TotalParam[123], dtype=np.float64).round(2)  # time in second
@@ -1146,7 +1108,7 @@ class ThermoView(http_funcs.ArArView):
 
         times = np.cumsum(ti)  # cumulative time
 
-        print(list(zip(temps, times)))
+        debug_print(list(zip(temps, times)))
 
         if checkable_params[9]:  # searching for nearby places
             energies_list = []; fractions_list = []
@@ -1161,7 +1123,7 @@ class ThermoView(http_funcs.ArArView):
             f_combinations = [fractions[: ndoms]]
 
         for index, (_e, _f) in enumerate(list(itertools.product(*[e_combinations, f_combinations]))):
-            print(f"{index = }, {_e = }, {_f = }")
+            debug_print(f"{index = }, {_e = }, {_f = }")
 
             file_name = f"{'walker1' if use_walker1 else 'walker2'} {k=:.1f} " \
                         f"es={'-'.join([str(int(i / 1000)) for i in _e])} " \
@@ -1181,13 +1143,13 @@ class ThermoView(http_funcs.ArArView):
                     atom_density=ad, frequency=f, simulation=False, targets=targets, epsilon=0.05, use_walker1=use_walker1
                 )
             except ap.thermo.arw.OverEpsilonError as e:
-                print(traceback.format_exc())
-                return JsonResponse({})
+                debug_print(traceback.format_exc())
+                return self.JsonResponse({})
             else:
-                print(traceback.format_exc())
+                debug_print(traceback.format_exc())
                 ap.thermo.arw.save_ads(demo, f"{loc}", name=demo.name + f" {(time.time() - _start) / 3600:.2f}h")
 
-        return JsonResponse({})
+        return self.JsonResponse({})
 
 
     def run_40ar_walker(self, request, *args, **kwargs):
@@ -1199,7 +1161,7 @@ class ThermoView(http_funcs.ArArView):
         params = self.body['settings']
         loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
         if not os.path.exists(loc) or random_index == "":
-            return JsonResponse({"random_index": random_index}, status=403)
+            return self.JsonResponse({"random_index": random_index}, status=403)
         arr_file_path = os.path.join(loc, f"{arr_file_name}" + (".arr" if ".arr" not in arr_file_name else ""))
 
         # setting_params = params[:11]
@@ -1223,7 +1185,7 @@ class ThermoView(http_funcs.ArArView):
         # f = 1e13
         dimension = 3
 
-        print(f"Run 40Ar {use_walker1 = }, {k = }, {gs = }, {ad = }, {f = }")
+        debug_print(f"Run 40Ar {use_walker1 = }, {k = }, {gs = }, {ad = }, {f = }")
 
         smp = ap.from_arr(arr_file_path)
 
@@ -1245,13 +1207,13 @@ class ThermoView(http_funcs.ArArView):
         times = np.cumsum(ti)  # cumulative time
         statuses = [True for i in range(len(ti))]
         targets = [0 for i in range(len(ti))]
-        print(list(zip(temps, times)))
+        debug_print(list(zip(temps, times)))
 
         e_combinations = [energies[: ndoms]]
         f_combinations = [fractions[: ndoms]]
 
         for index, (_e, _f) in enumerate(list(itertools.product(*[e_combinations, f_combinations]))):
-            print(f"{index = }, {_e = }, {_f = }")
+            debug_print(f"{index = }, {_e = }, {_f = }")
 
             ## 先模拟热史
 
@@ -1278,10 +1240,10 @@ class ThermoView(http_funcs.ArArView):
                 #     use_walker1=use_walker1, decay=5.53e-10, parent=parent
                 # )
             except ap.thermo.arw.OverEpsilonError as e:
-                print(traceback.format_exc())
-                return JsonResponse({})
+                debug_print(traceback.format_exc())
+                return self.JsonResponse({})
             else:
-                print(traceback.format_exc())
+                debug_print(traceback.format_exc())
                 # ap.thermo.main.save_ads(demo, f"{loc}", name=demo.name + f" {(time.time() - _start) / 3600:.2f}h")
 
                 filename = f"walker2 k=10000.0a es=135-126-152 fs=1-0.97-0.74 dt=3155695200000 parent=800000000 gs=275 ad=0e+00 f=1e+13 ndoms=3 pumping=True multi 1.35h.ads"
@@ -1330,7 +1292,7 @@ class ThermoView(http_funcs.ArArView):
 
                 times = np.cumsum(ti)  # cumulative time
 
-                print(list(zip(temps, times)))
+                debug_print(list(zip(temps, times)))
 
                 try:
                     _start = time.time()
@@ -1341,18 +1303,18 @@ class ThermoView(http_funcs.ArArView):
                         use_walker1=use_walker1, decay=0, parent=0, positions=demo.positions
                     )
                 except ap.thermo.arw.OverEpsilonError as e:
-                    print(traceback.format_exc())
-                    return JsonResponse({})
+                    debug_print(traceback.format_exc())
+                    return self.JsonResponse({})
                 else:
-                    print(traceback.format_exc())
+                    debug_print(traceback.format_exc())
                     ap.thermo.arw.save_ads(demo, f"{loc}", name=demo.name + f" {(time.time() - _start) / 3600:.2f}h")
 
-        return JsonResponse({})
+        return self.JsonResponse({})
 
 
     def plot(self, request, *args, **kwargs):
         # names = list(models.IrraParams.objects.values_list('name', flat=True))
-        # log_funcs.set_info_log(self.ip, '005', 'info', f'Show irradiation param project names: {names}')
+        # log_funcs.set_info_log(self.ip, 'info', f'Show irradiation param project names: {names}')
         sample_name = self.body['sample_name']
         arr_file_name = self.body['arr_file_name']
         heating_log = self.body['heating_log_file_name']
@@ -1362,7 +1324,7 @@ class ThermoView(http_funcs.ArArView):
 
         loc = os.path.join(settings.MDD_ROOT, f'{random_index}')
         if not os.path.exists(loc) or random_index == "":
-            return JsonResponse({}, status=403)
+            return self.JsonResponse({}, status=403)
 
         n = len(data)
         data = ap.calc.arr.transpose(data)
@@ -1423,7 +1385,7 @@ class ThermoView(http_funcs.ArArView):
                         each_line[15:17] = [Tc, sTc]
 
                     except:
-                        print(traceback.format_exc())
+                        debug_print(traceback.format_exc())
                         pass
                 lines.append(each_line)
 
@@ -1469,7 +1431,7 @@ class ThermoView(http_funcs.ArArView):
                 # heating_out = np.loadtxt(os.path.join(loc, f"{file_name}-heated-index.txt"), delimiter=',', dtype=int)
                 # heating_out = np.loadtxt(os.path.join(loc, f"{file_name}-heated-index.txt"), delimiter=',', dtype=int)
             except FileNotFoundError:
-                print(f"FileNotFoundError")
+                debug_print(f"FileNotFoundError")
                 furnace_log = [[], [], [], [], [], []]
                 heating_out = []
             else:
@@ -1500,7 +1462,7 @@ class ThermoView(http_funcs.ArArView):
                         index += 1
                         release_name.append(f"Released{index}: {f}")
                         diff = ap.thermo.arw.read_ads(os.path.join(loc, f))
-                        print(f"{f = }, {len(diff.released_per_step) = }, {diff.atom_density = :.0e}")
+                        debug_print(f"{f = }, {len(diff.released_per_step) = }, {diff.atom_density = :.0e}")
                         ads_released.append(np.array(diff.released_per_step) / diff.natoms)
 
             ads_released = np.transpose(ads_released)
@@ -1512,7 +1474,7 @@ class ThermoView(http_funcs.ArArView):
         spectra_data.append(released)
         release_name = '\n'.join(release_name)
 
-        return JsonResponse({'status': 'success', 'data': ap.smp.json.dumps(spectra_data),
+        return self.JsonResponse({'status': 'success', 'data': ap.smp.json.dumps(spectra_data),
                              'line_data': ap.smp.json.dumps(lines),
                              'wtd_mean_ages': ap.smp.json.dumps(wtd_mean_ages),
                              'release_name': release_name})
@@ -1531,7 +1493,7 @@ class ThermoView(http_funcs.ArArView):
         ap.smp.diffusion_funcs.SmpTemperatureCalibration(
             libano_log_path=libano_log_path, helix_log_path=helix_log_path, loc=loc, name=arr_file_name)
 
-        return JsonResponse({})
+        return self.JsonResponse({})
 
 
 class ExportView(http_funcs.ArArView):
@@ -1542,7 +1504,7 @@ class ExportView(http_funcs.ArArView):
     # /calc/export
     def get(self, request, *args, **kwargs):
         names = list(models.ExportPdfParams.objects.values_list('name', flat=True))
-        return render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
+        return self.render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
 
     def get_plotdata(self, request, *args, **kwargs):
         page_settings = self.body['settings']
@@ -1557,7 +1519,7 @@ class ExportView(http_funcs.ArArView):
                 row['rank'] = int(files_table[index-1]['rank']) + 1
         files_table = sorted(files_table, key=lambda row: int(row['rank']))
 
-        print(files_table)
+        debug_print(files_table)
 
         colors = [
             '#1f3c40', '#e35000', '#e1ae0f', '#3d8ebf', '#77dd83', '#c7ae88', '#83d6bb', '#653013', '#cc5f16',
@@ -1622,7 +1584,7 @@ class ExportView(http_funcs.ArArView):
         file_path = ap.smp.export.export_chart_to_pdf(cvs, file_name=data['file_name'], file_path=file_path, **page_settings)
         export_href = '/' + file_path
 
-        return JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
+        return self.JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
 
 
 class ApiView(http_funcs.ArArView):
@@ -1659,8 +1621,7 @@ class ApiView(http_funcs.ArArView):
     def open_multi(request, *args, **kwargs):
         return CalcHtmlView().open_multi_files(request, *args, **kwargs)
 
-    @staticmethod
-    def multi_files(request, *args, **kwargs):
+    def multi_files(self, request, *args, **kwargs):
         res = []
         try:
             length = int(request.POST.get('length'))
@@ -1668,7 +1629,7 @@ class ApiView(http_funcs.ArArView):
             files = request.FILES.getlist('files')
         else:
             files = [request.FILES.get(str(i)) for i in range(length)]
-        print(f"Number of files: {len(files)}")
+        debug_print(f"Number of files: {len(files)}")
         for file in files:
             try:
                 web_file_path, file_name, suffix = ap.files.basic.upload(
@@ -1679,17 +1640,17 @@ class ApiView(http_funcs.ArArView):
                 res.append({
                     'name': file_name, 'extension': suffix, 'path': web_file_path,
                 })
-        return JsonResponse({'files': res})
+        return self.JsonResponse({'files': res})
 
     def export_arr(self, request, *args, **kwargs):
         sample = self.sample
-        print(self.sample.Info.results.isochron['figure_2'])
+        debug_print(self.sample.Info.results.isochron['figure_2'])
         export_name = ap.files.arr_file.save(settings.DOWNLOAD_ROOT, sample)
         export_href = '/' + settings.DOWNLOAD_URL + export_name
-        log_funcs.set_info_log(self.ip, '003', 'info',
+        write_log(self.ip, 'info',
                                f'Success to export webarar file (.arr), sample name: {sample.Info.sample.name}, '
                                f'export href: {export_href}')
-        return JsonResponse({'status': 'success', 'href': export_href})
+        return self.JsonResponse({'status': 'success', 'href': export_href})
 
     def export_xls(self, request, *args, **kwargs):
         template_filepath = os.path.join(settings.SETTINGS_ROOT, 'excel_export_template.xlstemp')
@@ -1707,16 +1668,16 @@ class ApiView(http_funcs.ArArView):
         try:
             a.get_xls()
         except (BaseException, Exception) as e:
-            print(traceback.format_exc())
-            log_funcs.set_info_log(
-                self.ip, '003', 'info', f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}')
-            return JsonResponse({'status': 'fail', 'msg': e.args[0]})
+            debug_print(traceback.format_exc())
+            self.error_msg += f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}. Error: {str(e)}'
+            write_log(self.ip, 'info', self.error_msg)
+            return self.JsonResponse({'msg': self.error_msg}, status=403)
         else:
             export_href = '/' + settings.DOWNLOAD_URL + f"{self.sample.Info.sample.name}_export.xlsx"
-            log_funcs.set_info_log(
-                self.ip, '003', 'info', f'Success to export excel file (.xls), '
+            write_log(
+                self.ip, 'info', f'Success to export excel file (.xls), '
                                         f'sample name: {self.sample.Info.sample.name}, export href: {export_href}')
-            return JsonResponse({'status': 'success', 'href': export_href})
+            return self.JsonResponse({'status': 'success', 'href': export_href})
 
     def export_opju(self, request, *args, **kwargs):
         name = f"{self.sample.Info.sample.name}_export"
@@ -1741,16 +1702,16 @@ class ApiView(http_funcs.ArArView):
         try:
             a.get_graphs()
         except (Exception, BaseException):
-            log_funcs.set_info_log(
-                self.ip, '003', 'info',
+            write_log(
+                self.ip, 'info',
                 f'Fail to export origin file (.opju), sample name: {self.sample.Info.sample.name}')
-            return JsonResponse({'status': 'fail', 'msg': traceback.format_exc()})
+            return self.JsonResponse({'status': 'fail', 'msg': traceback.format_exc()})
         else:
             export_href = '/' + settings.DOWNLOAD_URL + f"{name}.opju"
-            log_funcs.set_info_log(self.ip, '003', 'info', f'Success to export origin file (.opju), '
+            write_log(self.ip, 'info', f'Success to export origin file (.opju), '
                                                            f'sample name: {self.sample.Info.sample.name}, '
                                                            f'export href: {export_href}')
-            return JsonResponse({'status': 'success', 'href': export_href})
+            return self.JsonResponse({'status': 'success', 'href': export_href})
 
     def export_pdf(self, request, *args, **kwargs):
 
@@ -1768,7 +1729,7 @@ class ApiView(http_funcs.ArArView):
 
         export_href = '/' + settings.DOWNLOAD_URL + f"{name}.pdf"
 
-        return JsonResponse({'status': 'success', 'href': export_href})
+        return self.JsonResponse({'status': 'success', 'href': export_href})
 
         # Write clipboard
         # import win32clipboard as cp
@@ -1800,5 +1761,5 @@ class ApiView(http_funcs.ArArView):
         filepath = ap.smp.export.export_chart_to_pdf(data, filepath, **params)
         export_href = '/' + filepath
 
-        return JsonResponse({'status': 'success', 'href': export_href})
+        return self.JsonResponse({'status': 'success', 'href': export_href})
 

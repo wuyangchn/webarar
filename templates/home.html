@@ -151,18 +151,23 @@
     </div>
 
     {% for message in messages %}
-        <div class="popup-container message-popup" style="display: block">
-            <div class="popup-content">
-                {% if 'success' in message.tags %}
+        {% if 'success' in message.tags %}
+            <div class="popup-container message-popup" style="display: block">
+                <div class="popup-content">
                     <p class="popup-title">Information</p>
                     <p id="popupMessage" class="popup-message">{{ message }}</p>
-                {% elif 'error' in message.tags %}
+                    <button class="btn btn-primary popup-button" value="continue" style="display: inline">OK</button>
+                </div>
+            </div>
+        {% elif 'error' in message.tags %}
+            <div class="popup-container message-popup" style="display: block">
+                <div class="popup-content">
                     <p class="popup-title">Error</p>
                     <p id="popupMessage" class="popup-message">{{ message }}</p>
-                {% endif %}
-                <button class="btn btn-primary popup-button" value="continue" style="display: inline">OK</button>
+                    <button class="btn btn-primary popup-button" value="continue" style="display: inline">OK</button>
+                </div>
             </div>
-        </div>
+        {% endif %}
     {% endfor %}
 
     <div style="overflow: auto">

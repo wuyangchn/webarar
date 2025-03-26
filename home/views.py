@@ -13,7 +13,7 @@ def show(request):
         http_funcs.set_user_sql(request, models.User, fingerprint)
         return JsonResponse({})
     else:
-        log_funcs.set_info_log(http_funcs.get_ip(request), '000', 'info', 'Visit home html')
+        log_funcs.write_log(http_funcs.get_ip(request), 'info', 'Visit home html')
         return render(request, 'home.html')
 
 
