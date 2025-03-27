@@ -1,7 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
 
 class CalcRecord(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -51,6 +49,7 @@ class CalcParams(models.Model):
     name = models.CharField("NAME", unique=True, max_length=64, null=False)
     #
     pin = models.CharField("PIN", max_length=64, null=False)
+    # password = encrypt(models.CharField("PASSWORD", max_length=128))
     # 文件路径
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
@@ -69,6 +68,7 @@ class SmpParams(models.Model):
     name = models.CharField("NAME", unique=True, max_length=64, null=False)
     #
     pin = models.CharField("PIN", max_length=64, null=False)
+    # password = encrypt(models.CharField("PASSWORD", max_length=128))
     # 文件路径
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
@@ -87,6 +87,7 @@ class ThermoParams(models.Model):
     name = models.CharField("NAME", unique=True, max_length=64, null=False)
     #
     pin = models.CharField("PIN", max_length=64, null=False)
+    # password = encrypt(models.CharField("PASSWORD", max_length=128))
     # 文件路径
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
@@ -105,6 +106,7 @@ class InputFilterParams(models.Model):
     name = models.CharField("NAME", unique=True, max_length=64, null=False)
     #
     pin = models.CharField("PIN", max_length=64, null=False)
+    # password = encrypt(models.CharField("PASSWORD", max_length=128))
     # 文件路径
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
@@ -123,6 +125,7 @@ class ExportPdfParams(models.Model):
     name = models.CharField("NAME", unique=True, max_length=64, null=False)
     #
     pin = models.CharField("PIN", max_length=64, null=False)
+    # password = encrypt(models.CharField("PASSWORD", max_length=128))
     # 文件路径
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #

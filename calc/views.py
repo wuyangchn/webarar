@@ -17,7 +17,7 @@ from django.core.cache import cache
 
 from . import models
 from programs import http_funcs, ap
-from programs.log_funcs import debug_print, write_log
+from programs.log_funcs import debug_print
 
 
 # Create your views here.
@@ -236,33 +236,25 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         recalculate = self.body['recalculate']  # This is always False
         data = self.body['data']
         sample = self.sample
-        messages.info(request, f'Update handsontable, sample name: {sample.Info.sample.name}, btn id: {btn_id}')
+        messages.info(request, f'Updating handsontable, btn id: {btn_id}')
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
         try:
             if btn_id == '0':  # 实验信息
-                # sample.Info.__dict__.update(data)
                 ap.smp.basic.update_plot_from_dict(sample.Info, data)
+                messages.info(request, f'Update completed, btn id: {btn_id}')
             else:
-
-                def remove_empty(a: list):
-                    index = 0
-                    for i in range(len(a)):
-                        if not ap.calc.arr.is_empty(a[-(i + 1)]):
-                            index = len(a) - i
-                            break
-                    return ap.calc.arr.transpose(a[:index])
-
-                data = remove_empty(data)
+                data = ap.calc.arr.remove_empty(data)
                 if len(data) == 0:
-                    return self.JsonResponse({})
-
+                    raise ValueError("The length of data list must be greater than 0")
                 sample.update_table(data, btn_id)
-
                 if btn_id == '7':
                     # Re-calculate isochron and plateau data, and replot.
                     # Re-calculation will not be applied automatically when other tables were changed
+                    messages.info(request, f'Recalculating, btn id: {btn_id}, '
+                                           f're_plot=True, isInit=False, isIsochron=True, isPlateau=True')
                     sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
+                    messages.info(request, f'Recalculation completed')
                     # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
 
         except Exception as e:
@@ -314,7 +306,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         return self.JsonResponse({'r2': 'None', 'line_data': [], 'sey': 'None'})
 
     def recalculation(self, request, *args, **kwargs):
-        write_log(self.ip, 'info', f'Recalculation, sample name: {self.sample.Info.sample.name}')
         sample = self.sample
         checked_options = self.content['checked_options']
         others = self.content.pop('others', {})
@@ -342,7 +333,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
-        messages.info(request, f"Recalculation completed. {sample.name()}")
+        messages.info(request, f"Recalculation completed")
         return self.JsonResponse({'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)})
 
     def flag_not_matched(self, request, *args, **kwargs):
@@ -516,10 +507,6 @@ class RawFileView(http_funcs.ArArView):
 
     def calc_raw_average_blanks(self, request, *args, **kwargs):
         blanks = self.body['blanks']
-        write_log(
-            self.ip, 'info',
-            f'Calculate average value of selected blanks, '
-            f'the number of selected points will be lesser than 4')
         newBlank = []
         results = []
         for i in range(5):
@@ -582,7 +569,6 @@ class RawFileView(http_funcs.ArArView):
         sampleInfo = self.body['sampleInfo']
         selectedSequences = self.body['selectedSequences']
         fingerprint = self.body['fingerprint']
-        write_log(self.ip, 'info', f'Start to submit raw file')
 
         raw: ap.RawData = self.sample
 
@@ -612,7 +598,7 @@ class RawFileView(http_funcs.ArArView):
         cache_key = http_funcs.create_cache(sample)
         # write mysql
         http_funcs.set_mysql(request, models.CalcRecord, fingerprint, cache_key=cache_key)
-        write_log(self.ip, 'info', f'Success to submit raw file')
+        messages.info(request, "Submit raw file completed")
         return self.JsonResponse({})
 
     def check_regression(self, request, *args, **kwargs):
@@ -631,7 +617,7 @@ class RawFileView(http_funcs.ArArView):
         if failed:
             failed = sorted(list(set([seq[0]+1 for seq in failed])))
             msg = f"Errors: {failed}"
-
+        messages.info(request, f"Check regression completed. Bad regression sequences: {','.join(failed)}")
         return self.JsonResponse({'status': 'successful', 'msg': msg, 'failed': failed}, status=200)
 
     def export_sequence(self, request, *args, **kwargs):
@@ -662,10 +648,9 @@ class RawFileView(http_funcs.ArArView):
         file_path = os.path.join(settings.DOWNLOAD_ROOT,
                                  f"{sequences[0].name}{' et al' if len(sequences) > 1 else ''}.seq")
         export_href = '/' + settings.DOWNLOAD_URL + f"{sequences[0].name}{' et al' if len(sequences) > 1 else ''}.seq"
-        # with open(file_path, 'w') as f:  # save serialized json data to a readable text
-        #     f.write(ap.smp.json.dumps(sequences))
         with open(file_path, 'wb') as f:  # save serialized json data to a readable text
             f.write(pickle.dumps(sequences))
+        messages.info(request, f"Export selected sequences completed")
         return self.JsonResponse({"href": export_href})
 
 
@@ -704,12 +689,15 @@ class ParamsSettingView(http_funcs.ArArView):
     def change_param_objects(self, request, *args, **kwargs):
         type = str(self.body['type'])  # type = irra, calc, smp
         model_name = f"{''.join([i.capitalize() for i in type.split('-')])}Params"
-        debug_print(f"{type = }")
+        # debug_print(f"{type = }")
         try:
             name = self.body['name']
-            param_file = getattr(models, model_name).objects.get(name=name).file_path
-            param = ap.files.basic.read(param_file)
-            return self.JsonResponse({'status': 'success', 'param': param})
+            obj = getattr(models, model_name).objects.get(name=name)
+            obj.pin = str(name)
+            print(f"{obj.pin = }")
+            obj.save()
+            param = ap.files.basic.read(obj.file_path)
+            return self.JsonResponse({'param': param})
         except KeyError:
             sample = self.sample
             param = []
@@ -743,10 +731,12 @@ class ParamsSettingView(http_funcs.ArArView):
             except (BaseException, Exception) as e:
                 debug_print(traceback.format_exc())
                 param = []
-            return self.JsonResponse({'status': 'success', 'param': np.nan_to_num(param).tolist()})
+            return self.JsonResponse({'param': np.nan_to_num(param).tolist()})
         except Exception as e:
             debug_print(traceback.format_exc())
-            return self.JsonResponse({'status': 'fail', 'msg': 'no param project exists in database\n' + str(e)}, status=403)
+            self.error_msg = f"no param project exists in the database. Error: {e}"
+            messages.error(request, self.error_msg)
+            return self.JsonResponse({'msg': self.error_msg}, status=403)
 
     def edit_param_object(self, request, *args, **kwargs):
         ip = http_funcs.get_ip(request)
@@ -760,41 +750,44 @@ class ParamsSettingView(http_funcs.ArArView):
         if flag == 'create':
             email = self.body['email']
             if name == '' or pin == '':
-                messages.error(request, f'Fail to create {type.lower()} project, empty name or pin')
+                messages.info(request, f'Create parameter project failed, empty name or pin, name: {name}, pin: {pin}')
                 return self.JsonResponse({'msg': 'empty name or pin'}, status=403)
             elif model.objects.filter(name=name).exists():
-                messages.error(request, f'Fail to create {type.lower()} project, duplicate name, name: {name}')
+                messages.info(request, f'Create parameter project failed, duplicate name, name: {name}')
                 return self.JsonResponse({'msg': 'duplicate name'}, status=403)
             else:
                 path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{type}"), params)
                 model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip)
-                messages.info(request, f'Success to create {type.lower()} project, name: {name}, email: {email}, file path: {path}')
+                messages.info(request, f'Create parameter project successfully. A {type.lower()} project has been updated, name: {name}, path: {path}, email: {email}')
                 return self.JsonResponse({'status': 'success'})
         else:
             try:
                 old = model.objects.get(name=name)
             except (BaseException, Exception):
                 debug_print(traceback.format_exc())
-                messages.error(request, f'Fail to change selected {type.lower()} project, it does not exist in the server, name: {name}')
+                messages.error(request, f'The {type.lower()} project does not exist, name: {name}')
                 return self.JsonResponse({'msg': 'current project does not exist'}, status=403)
+
+            # print(f"{old.check_password(pin) = }")
+            # if check_password(pin, old.pin):
             if pin == old.pin:
                 if flag == 'update':
                     path = ap.files.basic.write(old.file_path, params)
                     old.save()
-                    messages.info(request, f'Success to update the {type.lower()} project, name: {name}, path: {path}')
+                    messages.info(request, f'Update parameter project successfully. A {type.lower()} project has been updated, name: {name}, path: {path}')
                     return self.JsonResponse({'status': 'success'})
                 elif flag == 'delete':
                     if ap.files.basic.delete(old.file_path):
                         old.delete()
-                        messages.info(request, f'Success to delete the {type.lower()} project does been deleted, name: {name}')
+                        messages.info(request, f'Delete parameter project successfully. A {type.lower()} project has been deleted, name: {name}')
                         return self.JsonResponse({'status': 'success'})
                     else:
-                        messages.error(request, f'Fail to delete {type.lower()} projects, something wrong happened, name: {name}')
+                        messages.error(request, f'Delete {type.lower()} project failed, name: {name}')
                         return self.JsonResponse({'msg': 'something wrong happened when delete params'}, status=403)
             else:
-                messages.error(request, f'{type.lower()} project, wrong pin {pin}')
-                return self.JsonResponse({'msg': 'wrong pin'}, status=403)
-
+                self.error_msg = f'Wrong Pin. Project: {type.lower()}'
+                messages.error(request, f"Change or delete parameter project failed. {self.error_msg}, wrong pin: {pin}")
+                return self.JsonResponse({'msg': self.error_msg}, status=403)
 
     def set_params(self, request, *args, **kwargs):
         params = list(self.body['params'])
@@ -807,9 +800,11 @@ class ParamsSettingView(http_funcs.ArArView):
             sample.set_params(params, param_type)
         except KeyError:
             debug_print(traceback.format_exc())
+            messages.error(request, f'Unknown type of params : {param_type}')
             return self.JsonResponse({'msg': f'Unknown type of params : {param_type}'}, status=403)
         except (BaseException, Exception) as e:
             debug_print(traceback.format_exc())
+            messages.error(request, f'Set parameters, unknown error: {type(e).__name__}: {str(e)}')
             return self.JsonResponse({'msg': f'{type(e).__name__}: {str(e)}'}, status=403)
 
         ap.smp.table.update_table_data(sample)  # Update data of tables after changes of calculation parameters
@@ -817,6 +812,7 @@ class ParamsSettingView(http_funcs.ArArView):
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
         # debug_print(f"Diff after reset_calc_params: {res}")
+        messages.error(request, f'Set parameters completed')
         return self.JsonResponse({'msg': 'Successfully!', 'changed_components': ap.smp.json.dumps(res)}, status=200)
 
 
@@ -1583,7 +1579,7 @@ class ExportView(http_funcs.ArArView):
         file_path = f"{settings.DOWNLOAD_URL}{data['file_name']}-{uuid.uuid4().hex[:8]}.pdf"
         file_path = ap.smp.export.export_chart_to_pdf(cvs, file_name=data['file_name'], file_path=file_path, **page_settings)
         export_href = '/' + file_path
-
+        messages.info(request, "Export to PDF completed")
         return self.JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
 
 
@@ -1647,9 +1643,7 @@ class ApiView(http_funcs.ArArView):
         debug_print(self.sample.Info.results.isochron['figure_2'])
         export_name = ap.files.arr_file.save(settings.DOWNLOAD_ROOT, sample)
         export_href = '/' + settings.DOWNLOAD_URL + export_name
-        write_log(self.ip, 'info',
-                               f'Success to export webarar file (.arr), sample name: {sample.Info.sample.name}, '
-                               f'export href: {export_href}')
+        messages.info(request, f"Export webarar file (.arr) completed, href: {export_href}")
         return self.JsonResponse({'status': 'success', 'href': export_href})
 
     def export_xls(self, request, *args, **kwargs):
@@ -1670,13 +1664,11 @@ class ApiView(http_funcs.ArArView):
         except (BaseException, Exception) as e:
             debug_print(traceback.format_exc())
             self.error_msg += f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}. Error: {str(e)}'
-            write_log(self.ip, 'info', self.error_msg)
+            messages.error(request, self.error_msg)
             return self.JsonResponse({'msg': self.error_msg}, status=403)
         else:
             export_href = '/' + settings.DOWNLOAD_URL + f"{self.sample.Info.sample.name}_export.xlsx"
-            write_log(
-                self.ip, 'info', f'Success to export excel file (.xls), '
-                                        f'sample name: {self.sample.Info.sample.name}, export href: {export_href}')
+            messages.info(request, f'Success to export excel file (.xls), href: {export_href}')
             return self.JsonResponse({'status': 'success', 'href': export_href})
 
     def export_opju(self, request, *args, **kwargs):
@@ -1701,16 +1693,13 @@ class ApiView(http_funcs.ArArView):
         )
         try:
             a.get_graphs()
-        except (Exception, BaseException):
-            write_log(
-                self.ip, 'info',
-                f'Fail to export origin file (.opju), sample name: {self.sample.Info.sample.name}')
+        except (Exception, BaseException) as e:
+            self.error_msg += f'Fail to export origin file (.opju), sample name: {self.sample.Info.sample.name}. Error: {str(e)}'
+            messages.error(request, self.error_msg)
             return self.JsonResponse({'status': 'fail', 'msg': traceback.format_exc()})
         else:
             export_href = '/' + settings.DOWNLOAD_URL + f"{name}.opju"
-            write_log(self.ip, 'info', f'Success to export origin file (.opju), '
-                                                           f'sample name: {self.sample.Info.sample.name}, '
-                                                           f'export href: {export_href}')
+            messages.info(request, f'Success to export origin file (.opju), href: {export_href}')
             return self.JsonResponse({'status': 'success', 'href': export_href})
 
     def export_pdf(self, request, *args, **kwargs):
@@ -1729,6 +1718,7 @@ class ApiView(http_funcs.ArArView):
 
         export_href = '/' + settings.DOWNLOAD_URL + f"{name}.pdf"
 
+        messages.info(request, f'Success to export pdf, href: {export_href}')
         return self.JsonResponse({'status': 'success', 'href': export_href})
 
         # Write clipboard
@@ -1761,5 +1751,6 @@ class ApiView(http_funcs.ArArView):
         filepath = ap.smp.export.export_chart_to_pdf(data, filepath, **params)
         export_href = '/' + filepath
 
+        messages.info(request, f'Success to export_chart, href: {export_href}')
         return self.JsonResponse({'status': 'success', 'href': export_href})
 
