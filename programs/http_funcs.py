@@ -182,7 +182,6 @@ class ArArView(View):
         self.content = {}
         self.cache_key = ''
         self.sample = ...
-        self.request_msg = ""
 
         # response
         self.error_msg = ""
@@ -267,7 +266,7 @@ class ArArView(View):
 
     def JsonResponse(self, data, status=200, **kwargs):
         if self.error_msg != "":
-            status = 400
+            status = 403
         self.write_log()
         return JsonResponse(data, status=status, **kwargs)
 
@@ -280,6 +279,11 @@ class ArArView(View):
         return render(request, view_name, *args, **kwargs)
 
     def write_log(self):
-        for msg in messages.get_messages(self.request):
-            print(f"{msg.level}, {msg.message}, {msg.tags}")
-            log_funcs.write_log(self.ip, msg.level, msg.message)
+        try:
+            sample_name = self.sample.name()
+        except AttributeError:
+            for msg in messages.get_messages(self.request):
+                log_funcs.write_log(self.ip, msg.level, msg.message)
+        else:
+            for msg in messages.get_messages(self.request):
+                log_funcs.write_log(self.ip, msg.level, msg.message, sample_name=sample_name)

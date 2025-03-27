@@ -502,27 +502,23 @@ function showParamProject(ele, param_type) {
         }),
         contentType:'application/json',
         success: function(res){
-            if (res.status === 'success' && res.param){
-                if (param_type === "irra") {
-                    let irraInput = document.getElementsByClassName(`${ param_type }-params`);
-                    irradiationCyclesChanged(Number(res.param[28]));
-                    $.each(irraInput, function (index, each) {
-                        each.value=res.param[index];
-                    });
-                }
-                if (param_type === "input-filter" || param_type === "calc" || param_type === "smp" || param_type === "thermo" || param_type === "export-pdf") {
-                    let input_box = document.getElementsByClassName(`${ param_type }-params`);
-                    let check_Box = document.getElementsByClassName(`${ param_type }-check-box`);
-                    $.each(input_box, function (index, each) {
-                        each.value=res.param[index];
-                    });
-                    $.each(check_Box, function (index, each) {
-                        each.checked=stringToBoolean(res.param[index+input_box.length]);
-                    });
-                    initialRatioSelectChanged();
-                }
-            } else {
-                showPopupMessage("Error", res.msg, true);
+            if (param_type === "irra") {
+                let irraInput = document.getElementsByClassName(`${ param_type }-params`);
+                irradiationCyclesChanged(Number(res.param[28]));
+                $.each(irraInput, function (index, each) {
+                    each.value=res.param[index];
+                });
+            }
+            if (param_type === "input-filter" || param_type === "calc" || param_type === "smp" || param_type === "thermo" || param_type === "export-pdf") {
+                let input_box = document.getElementsByClassName(`${ param_type }-params`);
+                let check_Box = document.getElementsByClassName(`${ param_type }-check-box`);
+                $.each(input_box, function (index, each) {
+                    each.value=res.param[index];
+                });
+                $.each(check_Box, function (index, each) {
+                    each.checked=stringToBoolean(res.param[index+input_box.length]);
+                });
+                initialRatioSelectChanged();
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -648,7 +644,7 @@ function submitParamObject(type) {
         url: url_edit_param_object,
         name: $('#name1').val(),
         pin: $('#pin1').val(),
-        email: '',
+        email: $('#email1').val(),
         params: getParamsByObjectName(type),
         type: type,
         flag: 'create'});

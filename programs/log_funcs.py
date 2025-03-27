@@ -98,6 +98,6 @@ def _write_log(ip, level, msg='', **kwargs):
         raise ValueError(f"Invalid log level: {level}, valid levels are: {list(logging._nameToLevel.keys())}")
 
     return getattr(logger_collect, level.lower())(
-        f"{format_time(time.time())}|{ip}|{level.upper()}|{msg}")
+        f"{format_time(time.time())}|{ip}|{level.upper()}|{msg}|{''.join([f'{k}={v}' for k,v in kwargs.items()])}")
 
 
