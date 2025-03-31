@@ -8,9 +8,7 @@
 #
 #
 
-from re import findall
 from xlsxwriter.workbook import Workbook
-from xlsxwriter.worksheet import Worksheet
 from xlsxwriter.chartsheet import Chartsheet
 from xlsxwriter.format import Format
 import os
@@ -21,7 +19,7 @@ import pdf_maker as pm
 import numpy as np
 from decimal import Decimal
 
-from ..calc import arr, isochron, spectra, err
+from ..calc import arr, isochron, spectra
 from ..calc.basic import get_random_digits
 from ..calc.plot import get_axis_scale
 from . import basic, sample, consts
@@ -33,7 +31,7 @@ title_size = 11
 label_size = 11
 
 try:
-    from webarar.settings import SETTINGS_ROOT
+    from settings import SETTINGS_ROOT
 except ModuleNotFoundError:
     SETTINGS_ROOT = ""
 
@@ -1531,7 +1529,6 @@ class CreateOriginGraph:
 
     def get_graphs(self):
         import originpro as op
-        import OriginExt
         def origin_shutdown_exception_hook(exctype, value, traceback):
             """Ensures Origin gets shut down if an uncaught exception"""
             op.exit()

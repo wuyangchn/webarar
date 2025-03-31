@@ -1,14 +1,13 @@
 import json
-import os
 
 from django.http import JsonResponse
 
 from home import models as home_models
 from . import models
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from programs import http_funcs, log_funcs, ap
-from webarar import settings
+
 
 # Create your views here.
 
