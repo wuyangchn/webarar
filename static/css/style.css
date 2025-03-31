@@ -75,7 +75,7 @@ body .title[data-title]:after {
     left: 20px;
     bottom: -2.5em;
     border-radius: 4px;
-    white-space: nowrap;
+    white-space: pre;
     /*min-width: 100px;*/
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.16);
     z-index: 99999;
@@ -83,7 +83,7 @@ body .title[data-title]:after {
     opacity: 0;
 }
 
-.irra-params, .calc-params, .smp-params, .sample-info, .input-filter-params, .export-pdf-params, .thermo-params {
+.params-input, .irra-params, .calc-params, .smp-params, .sample-info, .input-filter-params, .export-pdf-params, .thermo-params {
     width: 100%;
     height: 30px;
     padding: 6px 12px;
@@ -109,11 +109,13 @@ input.input-filter-params {
     text-align: center;
 }
 
-.irra-params:focus, .calc-params:focus, .smp-params:focus, .sample-info, .input-filter-params, .export-pdf-params:focus, .thermo-params:focus {
+.params-input:focus, .irra-params:focus, .calc-params:focus, .smp-params:focus, .sample-info, .input-filter-params, .export-pdf-params:focus, .thermo-params:focus {
     border-color: #66afe9;
     outline: 0;
 }
 
+.params-input::-webkit-outer-spin-button,
+.params-input::-webkit-inner-spin-button,
 .irra-params::-webkit-outer-spin-button,
 .irra-params::-webkit-inner-spin-button,
 .calc-params::-webkit-outer-spin-button,
@@ -130,6 +132,7 @@ input.input-filter-params {
 .thermo-params::-webkit-inner-spin-button {
   -webkit-appearance: none !important;
 }
+
 
 .calc-check-box, .smp-check-box, .thermo-check-box, .export-pdf-check-box {
     margin-top: 10px;

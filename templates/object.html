@@ -470,16 +470,16 @@
         <pre id="example_console" class="pre" style="float: left; width: 30%">console log</pre>
         <div id="table_btn_div" style="float: left; position: relative; left: 8%;">
             <button title="Save changes you made on the table, will not recalculate automatically" type="button" class="btn btn-primary" onclick="clickSaveTable()">Save changes</button>
-            <button title="Open irradiation parameters modal box" type="button" class="btn btn-default" onclick="clickSetIrraParams()">Irra Params</button>
-            <button title="Open calculation parameters modal box" type="button" class="btn btn-default" onclick="clickSetCalcParams()">Calc Params</button>
-            <button title="Open preference settings modal box" type="button" class="btn btn-default" onclick="clickSetSmpParams()">Smp Params</button>
+            <button title="Open irradiation parameters modal box" type="button" class="btn btn-default" onclick="clickShowParams('irra')">Irra Params</button>
+            <button title="Open calculation parameters modal box" type="button" class="btn btn-default" onclick="clickShowParams('calc')">Calc Params</button>
+            <button title="Open preference settings modal box" type="button" class="btn btn-default" onclick="clickShowParams('smp')">Smp Params</button>
             <button title="Open recalculation modal box" type="button" class="btn btn-default" data-toggle="modal" data-target="#recalculationModal">Recalculate</button>
             <button title="Open export modal box" type="button" class="btn btn-primary" data-toggle="modal" data-target="#inputExportChoiceModal">Export</button>
         </div>
         <div id="figure_btn_div" style="float: left; position: relative; left: 5%;" hidden>
-            <button title="Open irradiation parameters modal box" type="button" class="btn btn-default" onclick="clickSetIrraParams()">Irra Params</button>
-            <button title="Open calculation parameters modal box" type="button" class="btn btn-default" onclick="clickSetCalcParams()">Calc Params</button>
-            <button title="Open preference settings modal box" type="button" class="btn btn-default" onclick="clickSetSmpParams()">Smp Params</button>
+            <button title="Open irradiation parameters modal box" type="button" class="btn btn-default" onclick="clickShowParams('irra')">Irra Params</button>
+            <button title="Open calculation parameters modal box" type="button" class="btn btn-default" onclick="clickShowParams('calc')">Calc Params</button>
+            <button title="Open preference settings modal box" type="button" class="btn btn-default" onclick="clickShowParams('smp')">Smp Params</button>
             <button title="Open recalculation modal box" type="button" class="btn btn-default" data-toggle="modal" data-target="#recalculationModal">Recalculate</button>
             <button title="Change styles of components in the current figure" type="button" class="btn btn-default" onclick="clickEditFigureStyle()">Styles</button>
             <button title="Copy the current figure to clipboard" type="button" class="btn btn-default" onclick="saveChart(false)">Copy</button>
@@ -499,22 +499,47 @@
                 </div>
                 <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
                     <div style="padding-right: 15px; padding-left: 30px;">
-                        <div class="radio form-inline">
-                            <label>
-                                <input type="radio" name="irraParamsRadio" id="irraParamsRadio1" value="option1" onchange="paramsRadioChanged('irra')" checked>
-                                Use an Irradiation Project
-                            </label>
-                            <select class="form-control" id="irraProjectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px;">
-                                {% for each in allIrraNames %}
-                                    <option>{{ each }}</option>
-                                {% endfor %}
-                            </select>
+                        <div style="width: 500px; float: left; margin-right: 15px">
+                            <div class="radio form-inline">
+                                <label style="width: 250px">
+                                    <input type="radio" name="irraParamsRadio" id="irraParamsRadio1" value="irra" onchange="paramsRadioChanged(this)" checked>
+                                    Use an Parameter set
+                                </label>
+                                <select class="form-control" id="irraProjectName" onchange="showParamProject(this)" style="width: 200px; height: 30px;">
+                                    {% for each in allIrraNames %}
+                                        <option>{{ each }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="radio form-inline">
+                                <label style="width: 250px">
+                                    <input type="radio" name="irraParamsRadio" id="irraParamsRadio2" value="irra" onchange="paramsRadioChanged(this)">
+                                    Use Params in Row
+                                </label>
+                                <select class="form-control rowSelection" id="irraRowNum" onchange="showParamProject(this, 'irra', false)" style="width: 200px; height: 30px;"></select>
+                            </div>
                         </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="irraParamsRadio" id="irraParamsRadio2" value="option2" onchange="paramsRadioChanged('irra')">
-                                Use Input Params
-                            </label>
+                        <div style="width: 500px; float: left; margin-right: 15px; padding-left: 15px">
+                            <div class="radio form-inline">
+                                <label style="width: 210px">
+                                    <input type="radio" name="irraRowNumRadio" id="irraRowNumRadio1" value="option1" onchange="">
+                                    Apply Params to Row
+                                </label>
+                                <select class="form-control rowSelection" id="irraRowNumSelect" onchange="" style="width: 80px; height: 30px;"></select>
+                                <label style="padding-left: 0">
+                                    <input class="params-input" type="text" id="irraRowNumTextInput" onchange="" style="width: 150px; height: 30px" placeholder="e.g., 1-5;8;10">
+                                </label>
+                                <a class="text-muted title" target="_blank" style="display:inline-block"
+                                   data-title="Separators: [ ; ], - for continue steps
+Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
+                                    <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
+                            </div>
+                            <div class="radio form-inline">
+                                <label style="width: 210px">
+                                    <input type="radio" name="irraRowNumRadio" id="irraRowNumRadio2" value="option2" onchange="" checked>
+                                    Apply Params to All Rows
+                                </label>
+                            </div>
                         </div>
                         {% include "irradiation_setting_modal_body_div.html" %}
                     </div>
@@ -542,23 +567,48 @@
                         <h4 class="modal-title">Calculation Parameters</h4>
                     </div>
                     <div class="modal-body modal-page-size" style="overflow: auto">
-                        <div style="padding-right: 15px; padding-left: 30px;">
-                            <div class="radio form-inline">
-                                <label>
-                                    <input type="radio" name="calcParamsRadio" id="calcParamsRadio1" value="option1" onchange="paramsRadioChanged('calc')" checked>
-                                    Use an Calculation Project
-                                </label>
-                                <select class="form-control" id="calcProjectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px;">
-                                    {% for each in allCalcNames %}
-                                        <option>{{ each }}</option>
-                                    {% endfor %}
-                                </select>
+                        <div style="padding-right: 15px; padding-left: 30px">
+                            <div style="width: 500px; float: left; margin-right: 15px">
+                                <div class="radio form-inline">
+                                    <label style="width: 250px">
+                                        <input type="radio" name="calcParamsRadio" id="calcParamsRadio1" value="option1" onchange="paramsRadioChanged('calc')" checked>
+                                        Use an Calculation Project
+                                    </label>
+                                    <select class="form-control" id="calcProjectName" onchange="showParamProject(this)" style="width: 200px; height: 30px;">
+                                        {% for each in allCalcNames %}
+                                            <option>{{ each }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="radio form-inline">
+                                    <label style="width: 250px">
+                                        <input type="radio" name="calcParamsRadio" id="calcParamsRadio2" value="option2" onchange="paramsRadioChanged('calc')">
+                                        Use Params in Row
+                                    </label>
+                                    <select class="form-control rowSelection" id="calcRowNum" onchange="showParamProject(this, 'calc', false)" style="width: 200px; height: 30px;"></select>
+                                </div>
                             </div>
-                            <div class="radio">
-                                <label>
-                                    <input type="radio" name="calcParamsRadio" id="calcParamsRadio2" value="option2" onchange="paramsRadioChanged('calc')">
-                                    Use Input Params
-                                </label>
+                            <div style="width: 500px; float: left; margin-right: 15px; padding-left: 15px">
+                                <div class="radio form-inline">
+                                    <label style="width: 210px">
+                                        <input type="radio" name="calcRowNumRadio" id="calcRowNumRadio1" value="option1" onchange="">
+                                        Apply Params to Row
+                                    </label>
+                                    <select class="form-control rowSelection" id="calcRowNumSelect" onchange="" style="width: 80px; height: 30px;"></select>
+                                    <label style="padding-left: 0">
+                                        <input class="params-input" type="text" id="calcRowNumTextInput" onchange="" style="width: 150px; height: 30px" placeholder="e.g., 1-5;8;10">
+                                    </label>
+                                    <a class="text-muted title" target="_blank" style="display:inline-block"
+                                       data-title="Separators: [ ; ], - for continue steps
+Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
+                                        <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
+                                </div>
+                                <div class="radio form-inline">
+                                    <label style="width: 210px">
+                                        <input type="radio" name="calcRowNumRadio" id="calcRowNumRadio2" value="option2" onchange="" checked>
+                                        Apply Params to All Rows
+                                    </label>
+                                </div>
                             </div>
                             {% include "calculation_setting_modal_body_div.html" %}
                         </div>
@@ -587,27 +637,52 @@
                 </div>
                 <div class="modal-body modal-page-size" style="overflow: auto">
                     <div style="padding-right: 15px; padding-left: 30px;">
-                        <div class="radio form-inline">
-                            <label>
-                                <input type="radio" name="smpParamsRadio" id="smpParamsRadio1" value="option1" onchange="paramsRadioChanged('smp')" checked>
-                                Use a Sample Setting Project
-                            </label>
-                            <label for="smpProjectName"></label>
-                            <select class="form-control" id="smpProjectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px;">
-                                {% for each in allSmpNames %}
-                                    <option>{{ each }}</option>
-                                {% endfor %}
-                            </select>
+                        <div style="width: 500px; float: left; margin-right: 15px">
+                            <div class="radio form-inline">
+                                <label style="width: 250px">
+                                    <input type="radio" name="smpParamsRadio" id="smpParamsRadio1" value="smp" onchange="paramsRadioChanged(this)" checked>
+                                    Use an Parameter set
+                                </label>
+                                <select class="form-control" id="smpProjectName" onchange="showParamProject(this)" style="width: 200px; height: 30px;">
+                                    {% for each in allSmpNames %}
+                                        <option>{{ each }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="radio form-inline">
+                                <label style="width: 250px">
+                                    <input type="radio" name="smpParamsRadio" id="smpParamsRadio2" value="smp" onchange="paramsRadioChanged(this)">
+                                    Use Params in Row
+                                </label>
+                                <select class="form-control rowSelection" id="smpRowNum" onchange="showParamProject(this, 'smp', false)" style="width: 200px; height: 30px;"></select>
+                            </div>
                         </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="smpParamsRadio" id="smpParamsRadio2" value="option2" onchange="paramsRadioChanged('smp')">
-                                Use Input Params
-                            </label>
-                        </div>
+                        <div style="width: 500px; float: left; margin-right: 15px; padding-left: 15px">
+                                <div class="radio form-inline">
+                                    <label style="width: 210px">
+                                        <input type="radio" name="smpRowNumRadio" id="smpRowNumRadio1" value="option1" onchange="">
+                                        Apply Params to Row
+                                    </label>
+                                    <select class="form-control rowSelection" id="smpRowNumSelect" onchange="" style="width: 80px; height: 30px;"></select>
+
+                                    <label style="padding-left: 0">
+                                        <input class="params-input" type="text" id="smpRowNumTextInput" onchange="" style="width: 150px; height: 30px" placeholder="e.g., 1-5;8;10">
+                                    </label>
+                                    <a class="text-muted title" target="_blank" style="display:inline-block"
+                                       data-title="Separators: [ ; ], - for continue steps
+Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
+                                        <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
+                                </div>
+                                <div class="radio form-inline">
+                                    <label style="width: 210px">
+                                        <input type="radio" name="smpRowNumRadio" id="smpRowNumRadio2" value="option2" onchange="" checked>
+                                        Apply Params to All Rows
+                                    </label>
+                                </div>
+                            </div>
                         {% include "sample_setting_modal_body_div.html" %}
+                    </div>
                 </div>
-            </div>
                 <div class="modal-footer">
                     <br>
                     <div style="text-align: center">
@@ -690,8 +765,9 @@
                                     <input type="checkbox" class="calc-check-box">
                                     2. Recalculate Correction Blank
                                 </label>
-                                <a class="text-muted" style="display:inline-block">
-                                    <span title="Gain correction included. Gain correction first, and then apply correction for blank" class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                                <a class="text-muted title" style="display:inline-block"
+                                   data-title="Gain correction included. Gain correction first, and then apply correction for blank">
+                                    <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
                                 </a>
                             </div>
                             <div class="checkbox">
@@ -917,6 +993,17 @@
     // 2023.7.24: svg渲染不支持3D图形
     extendChartFuncs(chart);
     let chart_3D = echarts.init(document.getElementById('figure_3D_container'));
+
+    // initialize params models
+    for (let sle of document.getElementsByClassName('rowSelection')) {
+        for (let i=1;i<=sampleComponents[0].experiment?.step_num;i++){
+            let opt = document.createElement('option');
+            opt.value = i.toString();
+            opt.innerText = i.toString();
+            {#opt.selected = true;#}
+            sle.appendChild(opt);
+        }
+    }
 
     // initialize thermo page
     let thermoTableData = [];

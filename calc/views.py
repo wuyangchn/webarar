@@ -383,6 +383,7 @@ class RawFileView(http_funcs.ArArView):
         files = json.loads(request.POST.get('raw-file-table'))['files']
         file_path = [each['file_path'] for each in files if each['checked']]
         filter_name = [each['filter'] for each in files if each['checked']]
+        print(f"{filter_name = }")
         filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_name]
         try:
             raw = ap.smp.raw.to_raw(file_path=file_path, input_filter_path=filter_paths)
@@ -483,27 +484,29 @@ class RawFileView(http_funcs.ArArView):
         return self.render(request, 'object.html', http_funcs.open_last_object(request))
 
     def calc_raw_chart_clicked(self, request, *args, **kwargs):
+        try:
+            selectionForAll = self.body['selectionForAll']
+            sequence_index = self.body['sequence_index']
+            data_index = self.body['data_index']
+            isotopic_index = self.body['isotopic_index']
+            raw: ap.RawData = self.sample
+            for each in data_index:
+                status = not raw.sequence[sequence_index].flag[each][isotopic_index * 2 + 1]
+                isotopes = list(range(5)) if selectionForAll else [isotopic_index]
+                for _isotope in isotopes:
+                    raw.sequence[sequence_index].flag[each][_isotope * 2 + 1] = status
+                    raw.sequence[sequence_index].flag[each][_isotope * 2 + 2] = status
 
-        selectionForAll = self.body['selectionForAll']
-        sequence_index = self.body['sequence_index']
-        data_index = self.body['data_index']
-        isotopic_index = self.body['isotopic_index']
-
-        raw: ap.RawData = self.sample
-
-        status = not raw.sequence[sequence_index].flag[data_index][isotopic_index * 2 + 1]
-        isotopic_index = list(range(5)) if selectionForAll else [isotopic_index]
-
-        for _isotope in isotopic_index:
-            raw.sequence[sequence_index].flag[data_index][_isotope * 2 + 1] = status
-            raw.sequence[sequence_index].flag[data_index][_isotope * 2 + 2] = status
-
-        raw.do_regression(sequence_index=[sequence_index], isotopic_index=isotopic_index)
-
-        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw data in cache
-
-        return self.JsonResponse({'sequence': raw.sequence[sequence_index]},
-                                 encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
+            raw.do_regression(sequence_index=[sequence_index], isotopic_index=isotopic_index)
+        except (BaseException, Exception) as e:
+            debug_print(traceback.format_exc())
+            self.error_msg = f"{e}"
+            messages.error(request, self.error_msg)
+            return self.JsonResponse({'msg': self.error_msg}, status=403)
+        else:
+            http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw data in cache
+            return self.JsonResponse({'sequence': raw.sequence[sequence_index]},
+                                     encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def calc_raw_average_blanks(self, request, *args, **kwargs):
         blanks = self.body['blanks']
@@ -617,7 +620,7 @@ class RawFileView(http_funcs.ArArView):
         if failed:
             failed = sorted(list(set([seq[0]+1 for seq in failed])))
             msg = f"Errors: {failed}"
-        messages.info(request, f"Check regression completed. Bad regression sequences: {','.join(failed)}")
+            messages.info(request, f"Check regression completed. Bad regression sequences: {failed}")
         return self.JsonResponse({'status': 'successful', 'msg': msg, 'failed': failed}, status=200)
 
     def export_sequence(self, request, *args, **kwargs):
@@ -687,56 +690,64 @@ class ParamsSettingView(http_funcs.ArArView):
     #     return self.render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
 
     def change_param_objects(self, request, *args, **kwargs):
-        type = str(self.body['type'])  # type = irra, calc, smp
-        model_name = f"{''.join([i.capitalize() for i in type.split('-')])}Params"
-        # debug_print(f"{type = }")
+        params_type = str(self.body['type'])  # params_type = irra, calc, smp
+        name = str(self.body['name'])
+        model_name = f"{''.join([i.capitalize() for i in params_type.split('-')])}Params"
+
         try:
-            name = self.body['name']
             obj = getattr(models, model_name).objects.get(name=name)
+        except getattr(models, model_name).DoesNotExist:
+            pass
+        except (Exception, BaseException) as e:
+            messages.error(request, f"{e}")
+            return self.JsonResponse({'msg': f"{e}"}, status=403)
+        else:
             obj.pin = str(name)
             print(f"{obj.pin = }")
             obj.save()
             param = ap.files.basic.read(obj.file_path)
             return self.JsonResponse({'param': param})
-        except KeyError:
+
+        try:
+            row = int(name) - 1
             sample = self.sample
-            param = []
-            try:
-                data = ap.calc.arr.transpose(sample.TotalParam)[0]
-                if 'irra' in type.lower():
-                    param = [*data[0:20], *data[56:58], *data[20:27],
-                             *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
-                if 'calc' in type.lower():
-                    param = [*data[34:56], *data[71:97]]
-                if 'smp' in type.lower():
-                    try:
-                        _ = [i == {'l': 0, 'e': 1, 'p': 2}.get(str(data[100]).lower()[0], 0) for i in range(3)]
-                    except:
-                        _ = [True, False, False]
-                    for i in range(len(data)):
-                        if i in range(101, 114) and not isinstance(data[i], bool):
-                            data[i] = False
-                        elif data[i] is None:
-                            data[i] = np.nan
-                    pref = [sample.Info.preference.get(key, "") for key in ap.smp.initial.preference_keys]
-                    param = [*data[67:71], *data[58:67], *data[97:100], *data[115:120], *data[126:136],
-                             *pref, *_, *data[101:114]]
-                # if 'thermo' in type.lower():
-                #     param = [*data[0:20], *data[56:58], *data[20:27],
-                #              *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
-                if 'export' in type.lower():
-                    param = [True]
-            except IndexError:
-                param = []
-            except (BaseException, Exception) as e:
-                debug_print(traceback.format_exc())
-                param = []
-            return self.JsonResponse({'param': np.nan_to_num(param).tolist()})
-        except Exception as e:
-            debug_print(traceback.format_exc())
-            self.error_msg = f"no param project exists in the database. Error: {e}"
+            data = ap.calc.arr.transpose(sample.TotalParam)[row]
+            if 'irra' in params_type.lower():
+                param = [*data[0:20], *data[56:58], *data[20:27],
+                         *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
+            elif 'calc' in params_type.lower():
+                param = [*data[34:56], *data[71:97]]
+            elif 'smp' in params_type.lower():
+                try:
+                    _ = [i == {'l': 0, 'e': 1, 'p': 2}.get(str(data[100]).lower()[0], 0) for i in range(3)]
+                except:
+                    _ = [True, False, False]
+                for i in range(len(data)):
+                    if i in range(101, 114) and not isinstance(data[i], bool):
+                        data[i] = False
+                    elif data[i] is None:
+                        data[i] = np.nan
+                pref = [sample.Info.preference.get(key, "") for key in ap.smp.initial.preference_keys]
+                param = [*data[67:71], *data[58:67], *data[97:100], *data[115:120], *data[126:136],
+                         *pref, *_, *data[101:114]]
+            # if 'thermo' in type.lower():
+            #     param = [*data[0:20], *data[56:58], *data[20:27],
+            #              *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
+            elif 'export' in params_type.lower():
+                param = [True]
+            else:
+                raise KeyError(f"{params_type} is not a supported parameter type")
+            param = np.nan_to_num(param).tolist()
+        except IndexError as e:
+            self.error_msg = f"{e} (1-based). Index = {name}"
             messages.error(request, self.error_msg)
             return self.JsonResponse({'msg': self.error_msg}, status=403)
+        except (Exception, BaseException) as e:
+            self.error_msg = f"{e}"
+            messages.error(request, self.error_msg)
+            return self.JsonResponse({'msg': self.error_msg}, status=403)
+        else:
+            return self.JsonResponse({'param': param})
 
     def edit_param_object(self, request, *args, **kwargs):
         ip = http_funcs.get_ip(request)
@@ -792,12 +803,14 @@ class ParamsSettingView(http_funcs.ArArView):
     def set_params(self, request, *args, **kwargs):
         params = list(self.body['params'])
         param_type = str(self.body['type'])  # type = 'irra', or 'calc', or 'smp'
+        rows = [i - 1 for i in list(self.body['rows'])]  # zero based
+        debug_print(f"{rows = }")
         sample = self.sample
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
 
         try:
-            sample.set_params(params, param_type)
+            sample.set_params(params, param_type, rows)
         except KeyError:
             debug_print(traceback.format_exc())
             messages.error(request, f'Unknown type of params : {param_type}')
@@ -1577,10 +1590,15 @@ class ExportView(http_funcs.ArArView):
         cvs = [[ap.smp.export.get_cv_from_dict(plot, **next(params_list)) for plot in page] for page in plot_data_list]
 
         file_path = f"{settings.DOWNLOAD_URL}{data['file_name']}-{uuid.uuid4().hex[:8]}.pdf"
-        file_path = ap.smp.export.export_chart_to_pdf(cvs, file_name=data['file_name'], file_path=file_path, **page_settings)
-        export_href = '/' + file_path
-        messages.info(request, "Export to PDF completed")
-        return self.JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
+        try:
+            file_path = ap.smp.export.export_chart_to_pdf(cvs, file_name=data['file_name'], file_path=file_path, **page_settings)
+        except (Exception, BaseException) as e:
+            messages.error(request, e)
+            return self.JsonResponse({'msg': f"{e}"}, status=403)
+        else:
+            export_href = '/' + file_path
+            messages.info(request, f"Export to DPF completed. {file_path = }.")
+            return self.JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
 
 
 class ApiView(http_funcs.ArArView):
@@ -1649,18 +1667,9 @@ class ApiView(http_funcs.ArArView):
     def export_xls(self, request, *args, **kwargs):
         template_filepath = os.path.join(settings.SETTINGS_ROOT, 'excel_export_template.xlstemp')
         export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{self.sample.Info.sample.name}_export.xlsx")
-        default_style = {
-            'font_size': 10, 'font_name': 'Microsoft Sans Serif', 'bold': False,
-            'bg_color': '#FFFFFF',  # back ground
-            'font_color': '#000000', 'align': 'left',
-            'top': 1, 'left': 1, 'right': 1, 'bottom': 1  # border width
-        }
-        a = ap.smp.export.WritingWorkbook(
-            filepath=export_filepath, style=default_style,
-            template_filepath=template_filepath, sample=self.sample)
 
         try:
-            a.get_xls()
+            self.sample.to_excel(file_path=export_filepath, template_filepath=template_filepath)
         except (BaseException, Exception) as e:
             debug_print(traceback.format_exc())
             self.error_msg += f'Fail to export excel file (.xls), sample name: {self.sample.Info.sample.name}. Error: {str(e)}'

@@ -53,36 +53,10 @@
                 <form id="rawFileForm" method="post" enctype="multipart/form-data">
                     <div id="page-1" class="modal-body raw-file-filter-page">
                         <p>Upload files and select filter</p>
-{#                        Step 1: Select input filter and upload raw files#}
-{#                        <div class="radio">#}
-{#                            <label>#}
-{#                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios" value="auto" checked>#}
-{#                                Auto select based on extensions of input files#}
-{#                            </label>#}
-{#                        </div>#}
-{#                        <div class="radio">#}
-{#                            <label>#}
-{#                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios1" value="xls">#}
-{#                                Qtegra export (.xls)#}
-{#                            </label>#}
-{#                            <a class="btn" href="/static/examples/raw-data/raw_example.xls" download>Download a sample file</a>#}
-{#                        </div>#}
-{#                        <div class="radio">#}
-{#                            <label>#}
-{#                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios2" value="ahd">#}
-{#                                Qtegra export (.ahd)#}
-{#                            </label><a class="btn" href="/static/examples/raw-data/raw_example.ahd" download>Download a sample file</a>#}
-{#                        </div>#}
-{#                        <div class="radio">#}
-{#                            <label>#}
-{#                                <input type="radio" name="fileOptionsRadios" id="fileOptionsRadios3" value="Filter 4">#}
-{#                                Other: Select a input filter.</label>#}
-{#<!--                            <a class="btn" href="" download>Download a sample file (pending)</a>-->#}
-{#                        </div>#}
                         <div class="form-group">
-                            <input type="file" id="file-input-1" name="raw_file" multiple="multiple" accept="application/vnd.ms-excel, .ahd, .txt, .seq,.csv" onchange="rawFilesChanged()">
+                            <input type="file" id="file-input-1" name="raw_file" multiple="multiple"
+                                   accept="application/vnd.ms-excel, .ahd, .txt, .seq,.csv" onchange="rawFilesChanged()">
                         </div>
-
                         <div style="">
                             <label>
                                 <input type="text" id="raw-file-table-input" name="raw-file-table" class="sr-only">
@@ -90,35 +64,6 @@
                             <table class="table table-hover" id="raw_file_list"></table>
                         </div>
                     </div>
-
-<!--                    <div id="page-2" class="modal-body raw-file-filter-page">Step 2: Choose a blank correction pattern-->
-<!--                        <div class="radio">-->
-<!--                            <label>-->
-<!--                                <input type="radio" name="blankOptionsRadios" id="blankOptionsRadios1" value="option1" checked>-->
-<!--                                <p style="font-weight: bold">First Extrapolate</p>-->
-<!--                                <p>Conduct regression and extrapolation of the time-resolved mass spectrometer-->
-<!--                                    signals to time zero, followed by subtraction to correct blank.</p>-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                        <div class="radio">-->
-<!--                            <label>-->
-<!--                                <input type="radio" name="blankOptionsRadios" id="blankOptionsRadios2" value="option2" disabled>-->
-<!--                                <p style="font-weight: bold">First Subtract (to be completed)</p>-->
-<!--                                <p>Subtract blank from measured sample signal before extrapolation of-->
-<!--                                    the time-resolved mass spectrometer signals to time zero.</p>-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                        <br>-->
-<!--                        <p>-->
-<!--                            <br>******Explanation******-->
-<!--                            <br>// First Extrapolate: Blank and sample sequences always run separately. Choosing-->
-<!--                            this pattern, regression and extrapolation for each sequence will be performed. Subsequent-->
-<!--                            settings will provide chooses of specific strategies for subtracting blank.-->
-<!--                            <br>// First Subtract: To follow this pattern, measurement cycle numbers of every-->
-<!--                            sample and blank sequences should be same.-->
-<!--                        </p>-->
-<!--                    </div>-->
-
                 </form>
 
                 <div class="modal-footer">
@@ -155,26 +100,14 @@
                     },
                     {field: 'file_name', title: 'File name', width: 20, },
                     {field: 'file_path', title: 'File path', width: 200, },
-                    {field: 'filter', title: 'Filter', width: 100, },
+                    {field: 'filter', title: 'Filter  <select class="input-sm" id="input-filter-title-selection" style="width: 200px" onchange="change_filter_at_title()">', width: 100, },
                     {field: 'operation', title: 'Operation', width: 50, }
                 ]
             }
         );
-        $('#raw_file_list').on('all.bs.table', (e, arg1, arg2) => {
-            let filters = [];
-            // console.log($('#raw_file_list').bootstrapTable('getData'));
-            // console.log($('#raw_file_list').bootstrapTable('getData')[0].checked);
-            $('.input-filter-selection').each((index, ele) => {
-                filters[index] = ele.options[ele.selectedIndex].innerText;
-            });
-            $('#raw-file-table-input').val(JSON.stringify({
-                'files': $('#raw_file_list').bootstrapTable('getData').map((item, index) => {
-                    return {
-                        'file_name': item['file_name'], 'file_path': item['file_path'],
-                        'filter': filters[index], 'checked': item['checked']
-                    }
-                })
-            }))
+        {#$('#raw_file_list').on('all.bs.table', (e, arg) => {#}
+        $('#raw_file_list').on('post-body.bs.table', (e, arg) => {
+            updateRawFileTable();
         })
         //close alert after 3 seconds
         window.setTimeout(function() {
