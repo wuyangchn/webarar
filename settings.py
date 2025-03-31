@@ -219,6 +219,6 @@ LOGGING = {
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 try:
-    from .local_settings import *
+    from webarar.local_settings import *
 except ImportError:
     raise
