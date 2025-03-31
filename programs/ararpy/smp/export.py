@@ -31,7 +31,7 @@ title_size = 11
 label_size = 11
 
 try:
-    from settings import SETTINGS_ROOT
+    from webarar.settings import SETTINGS_ROOT
 except ModuleNotFoundError:
     SETTINGS_ROOT = ""
 
