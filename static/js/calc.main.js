@@ -224,38 +224,61 @@ function rawFilesChanged() {
             let data = table.bootstrapTable('getData');
 
             $.each(files, function (index, file) {
+                let filter_options = `${file.filter_list.map((item, _) => {
+                    if (item.toUpperCase() === file.filter.toUpperCase()) { return "<option selected>" + item + "</option>" }
+                    return "<option>" + item + "</option>"
+                }).join("")}`;
                 table.bootstrapTable('insertRow', {index: data.length + index,
                     row: {
                         'file_name': file.name, 'file_path': file.path,
-                        // 'filter': file.filter,
-                        'filter': `<select class="input-sm input-filter-selection" style="width: 200px" onchange="change_input_filter(this)">${file.filter_list.map((item, _) => {
-                            if (item.toUpperCase() === file.filter.toUpperCase()) {
-                                return "<option selected>" + item + "</option>"
-                            }
-                            return "<option>" + item + "</option>"
-                        }).join("")}$</select>`,
+                        'filter': `<select class="input-sm input-filter-selection" style="width: 200px" onchange="change_input_filter(this)">${filter_options}</select>`,
                         'operation': '<button type="button" class="btn btn-danger" onclick="removeRawFile(id)" ' +
                             'id="btn-raw-file-' + data.length +'">Remove</button>',
                     }
-                })
+                });
+                document.getElementById('input-filter-title-selection').innerHTML = filter_options;
             })
         }
     })
 }
-function change_input_filter(row) {
+function change_input_filter(row, index) {
     // This function is used to keep selected options when rows inserted or removed
+    if (!index) { index = row.selectedIndex }
     let table = $('#raw_file_list');
     let current_data = table.bootstrapTable('getData');
     let tr = row.parentElement.parentElement;
     let row_index = tr.getAttribute("data-index");
     let opts = row.options;
     for (let index=0;index<opts.length;index++){
-        $(opts[index]).attr("selected", index === row.selectedIndex);
+        $(opts[index]).attr("selected", index === index);
     }
     current_data[row_index].filter = row.outerHTML;
     table.bootstrapTable('updateRow', {index: row_index,
         row: current_data
     })
+}
+function change_filter_at_title() {
+    let val = document.getElementById('input-filter-title-selection').value;
+    $.each(document.getElementsByClassName('input-filter-selection'), function (index, each) {
+        each.value = val;
+    });
+    updateRawFileTable()
+}
+function updateRawFileTable() {
+    let filters = [];
+    // console.log($('#raw_file_list').bootstrapTable('getData'));
+    // console.log($('#raw_file_list').bootstrapTable('getData')[0].checked);
+    $('.input-filter-selection').each((index, ele) => {
+        filters[index] = ele.options[ele.selectedIndex]?.innerText;
+    });
+    $('#raw-file-table-input').val(JSON.stringify({
+        'files': $('#raw_file_list').bootstrapTable('getData').map((item, index) => {
+            return {
+                'file_name': item['file_name'], 'file_path': item['file_path'],
+                'filter': filters[index], 'checked': item['checked']
+            }
+        })
+    }))
 }
 function removeRawFile(unique_id) {
     let table = $('#raw_file_list');
@@ -382,7 +405,10 @@ function check_regression() {
                 btns[i-1].className = 'btn btn-warning btn-no-outline';
             }
             showPopupMessage("Information", res.msg, true);
-        }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
     })
 }
 function export_sequence_select_all() {
@@ -455,43 +481,25 @@ function createSmChart(container, option) {
     })
     return chart
 }
-function showParamProject(ele, param_type) {
-    let name = ele? ele.value : undefined;
+function showParamProject(ele, param_type, isProRadio=true) {
     if (ele && !param_type) {
         if (ele.id.toString().includes('irra')) {
             param_type = "irra";
-            if (!$('#irraParamsRadio1').is(':checked')) {
-                return
-            }
         } else if (ele.id.toString().includes('calc')) {
             param_type = "calc";
-            if (!$('#calcParamsRadio1').is(':checked')) {
-                return
-            }
         } else if (ele.id.toString().includes('smp')) {
             param_type = "smp";
-            if (!$('#smpParamsRadio1').is(':checked')) {
-                return
-            }
         } else if (ele.id.toString().includes('inputFilter')) {
             param_type = "input-filter";
-            if (!$('#inputFilterParamsRadio1').is(':checked')) {
-                return
-            }
         } else if (ele.id.toString().includes('thermo')) {
             param_type = "thermo";
-            if (!$('#thermoParamsRadio1').is(':checked')) {
-                return
-            }
         }  else if (ele.id.toString().includes('export')) {
             param_type = "export-pdf";
-            if (!$('#exportParamsRadio1').is(':checked')) {
-                return
-            }
-        } else {
-            return
-        }
+        } else { return }
     }
+    if (!$(`#${param_type}ParamsRadio1`).is(':checked') && isProRadio) { return }
+    if (!$(`#${param_type}ParamsRadio2`).is(':checked') && !isProRadio) { return }
+    let name = ele.value? ele.value : ele;
     $.ajax({
         url: url_show_param_projects,
         type: 'POST',
@@ -537,14 +545,14 @@ function changeSubmitType() {
         $('select[name="projectName"]').attr('disabled', false);
     }
 }
-function chartScatterClicked(params) {
+function chartScatterClicked(data_indexes) {
     $.ajax({
         url: url_raw_data_points_click,
         type: 'POST',
         data: JSON.stringify({
             'selectionForAll': document.getElementById("applySelectionToAll").checked,
             'sequence_index': current_page-1,
-            'data_index': params.dataIndex,
+            'data_index': data_indexes,
             'isotopic_index': getCurrentIsotope(),
             'cache_key': myRawCacheKey,
         }),
@@ -1332,10 +1340,11 @@ function updateSequenceTable() {
     $('#table-sequences').bootstrapTable('load', tableData);
 }
 function paramsRadioChanged(flag) {
+    flag = flag.value? flag.value : flag;
     // flag = 'irra', 'calc', 'smp'
     let inputs = $(`#${flag}ParamsInputForm`).find($('input'));
     if ($(`#${flag}ParamsRadio1`).is(':checked')) {
-        showParamProject(document.getElementById(`${flag}ProjectName`));
+        showParamProject(document.getElementById(`${flag}ProjectName`), flag, true);
         $(`#${flag}ParamsInputForm`).find($('select,input[type="checkbox"],input[type="radio"]')).attr('disabled', true);
         inputs.css('background-color', '#eee');
         inputs.css('border-color', '#ccc');
@@ -1440,7 +1449,7 @@ function getLinkedChart(mainDiv, ...divs) {
                     fill: '#FF0000', overflow: 'break',
                     // Using monospaced font and spaces to align text
                     font: '16px "", Consolas, monospace',
-                    text: option.graphic[0].elements[0].style.text,
+                    text: option.graphic[0].elements?.[0].style.text,
                 },
             }]
         });
@@ -2231,35 +2240,14 @@ async function clickSaveTable() {
         },
     });
 }
-function clickSetIrraParams() {
-    $('#irraParamsRadio1').prop("checked", false);
-    $('#irraParamsRadio2').prop("checked", true);
-    paramsRadioChanged('irra');
+function clickShowParams(flag) {
+    $(`#${flag}ParamsRadio1`).prop("checked", false);
+    $(`#${flag}ParamsRadio2`).prop("checked", true);
+    $(`#${flag}RowNumRadio2`).prop("checked", true);
+    paramsRadioChanged(flag);
     // 显示目前用的参数（第一行）
-    showParamProject(undefined, "irra");
-    $('#editIrraParams').modal('show');
-}
-function clickSetCalcParams() {
-    $('#calcParamsRadio1').prop("checked", false);
-    $('#calcParamsRadio2').prop("checked", true);
-    paramsRadioChanged('calc');
-    // 显示目前用的参数（第一行）
-    showParamProject(undefined, "calc");
-    $('#editCalcParams').modal('show');
-}
-function clickSetSmpParams() {
-    $('#smpParamsRadio1').prop("checked", false);
-    $('#smpParamsRadio2').prop("checked", true);
-    paramsRadioChanged('smp');
-    // 显示目前用的参数（第一行）
-    showParamProject(undefined, "smp");
-    $('#editSmpParams').modal('show');
-    // let initial_params = sampleComponents['figure_1'].initial_params;
-    // $('#initialRatioSelect').val(initial_params.useInverseInitial?'0':initial_params.useNormalInitial?'1':'2');
-    // $('.input-initial-ratio').each(function (index, item) {
-    //     $(this).val(initial_params.useInputInitial[index]);
-    // });
-    // initialSelectChanged();
+    showParamProject(document.getElementById(`${flag}RowNum`), flag, false);
+    $(`#edit${flag.charAt(0).toUpperCase() + flag.slice(1)}Params`).modal('show');
 }
 function clickRecalc() {
     let checked_options = [];
@@ -2337,13 +2325,44 @@ function getTime() {
     let month = date.getMonth() + 1;
     return date.getFullYear() + "/" + month + "/" + date.getDate() + "/ " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
 }
+function parseRowNumStr(str) {
+    let arr = [];
+    if (/^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(str)) {
+        if (Number(str) > 0) {
+            arr.push(Number(str));
+        }
+    }
+    if (str.includes(';')) {
+        str.split(';').forEach((_v, _i) => {
+            parseRowNumStr(_v).forEach((each) => arr.push(each));
+        })
+    }
+    else if (str.includes('；')) {
+        str.split('；').forEach((_v, _i) => {
+            parseRowNumStr(_v).forEach((each) => arr.push(each));
+        })
+    }
+    else if (str.includes('-')) {
+        let s = Number(str.split('-')[0]);
+        let e = Number(str.split('-')[1]);
+        for (let i=Math.max(Math.min(s, e), 1);i<=Math.max(s, e);i++) {
+            arr.push(i);
+        }
+    }
+    return arr
+}
 function readParams(type) {
+    let apply_to_all = $(`#${type}RowNumRadio2`).is(':checked');
+    let str = $(`#${type}RowNumTextInput`).val();
+    let sel = $(`#${type}RowNumSelect`).val();
+    let rows = apply_to_all ? parseRowNumStr(`1-${sampleComponents[0].experiment?.step_num}`) : str==="" ? parseRowNumStr(sel) : parseRowNumStr(str);
     $.ajax({
         url: url_set_params,
         type: 'POST',
         data: JSON.stringify({
             'params': getParamsByObjectName(type),
             'type': type,
+            'rows': rows,
             'cache_key': cache_key,
         }),
         contentType:'application/json',

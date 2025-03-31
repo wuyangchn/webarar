@@ -281,7 +281,7 @@ class ArArView(View):
     def write_log(self):
         try:
             sample_name = self.sample.name()
-        except AttributeError:
+        except (Exception, BaseException):
             for msg in messages.get_messages(self.request):
                 log_funcs.write_log(self.ip, msg.level, msg.message)
         else:

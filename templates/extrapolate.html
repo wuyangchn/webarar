@@ -37,7 +37,7 @@
                         <div class="form-inline">
                             <div class="checkbox-inline">
                                 <label>
-                                    <input id="applySelectionToAll" type="checkbox">Apply adjustment to all isotopes simultaneously
+                                    <input id="applySelectionToAll" type="checkbox">Apply adjustment to all isotopes
                                 </label>
                             </div>
                             <div class="checkbox-inline">
@@ -553,37 +553,81 @@
         let smCharts = [chartSm01, chartSm02, chartSm03, chartSm04, chartSm05]
         setSmChartClickListen(smCharts, chartBig);
         // 鼠标响应事件
-        chartBig.on('click', 'series.scatter', function (params) {chartScatterClicked(params)});
+        chartBig.on('click', 'series.scatter', function (params) {chartScatterClicked([params.dataIndex])});
         for (let i=0;i<smCharts.length;i++){
-            smCharts[i].on('click', 'series.scatter', function (params) {chartScatterClicked(params)});
+            smCharts[i].on('click', 'series.scatter', function (params) {chartScatterClicked([params.dataIndex])});
         }
-        // text moving
-        /*
-        let text_moving = false;
-        chartBig.on('mousedown', function (params) {
-            if (params.componentType === "graphic") {
-                console.log(params)
-                text_moving = true;
+
+        // mouse moving
+        let moving = false;
+        let start_left_top = [];
+        let end_left_top = [];
+        let offsetX = 0;
+        let offsetY = 0;
+        let x, y, w, h;
+        chartBig.getZr().on('mousedown', function (params) {
+            if (!params.target) {
+                moving = true;
+                start_left_top = [params.event.x, params.event.y];
+                offsetX = params.event.x - params.offsetX;
+                offsetY = params.event.y - params.offsetY;
             }
         });
         chartBig.getZr().on('mousemove', function (params) {
-            if (text_moving) {
-                //
+            if (moving) {
+                x = Math.min(start_left_top[0], end_left_top[0]);
+                y = Math.min(start_left_top[1], end_left_top[1]);
+                w = Math.abs(start_left_top[0] - end_left_top[0]);
+                h = Math.abs(start_left_top[1] - end_left_top[1]);
+                end_left_top = [params.event.x, params.event.y];
+                showMouseFrame(x, y, w, h);
+            } else {
+                start_left_top = [];
+                end_left_top = [];
             }
         });
         chartBig.getZr().on('mouseup', function (params) {
-            if (text_moving) {
-                 chartBig.setOption({
-                    graphic: [{
-                        id: 'LinesResults', type: 'text', z: 0, draggable: true,
-                        x: params.event.target.transform[4], y: params.event.target.transform[5],
-                        style: {fill: '#FF0000', overflow: 'break', font: '16px "", Consolas, monospace'},
-                    }]
-                })
-                text_moving = false;
-            }
+            moving = false;
+            start_left_top = [];
+            end_left_top = [];
+            let includedIndexes = [];
+            let i = getCurrentIsotope();
+            getSeriesById('FilledPoints', chartBig.getOption().series)?.data.map((data, index) => {
+                let pos = chartBig.convertToPixel({xAxisIndex: 0, yAxisIndex: 0}, data.slice(i*2+1, i*2+3));
+                if (isInFrame(pos, x, y, w ,h, offsetX, offsetY)) {
+                    includedIndexes.push(index);
+                }
+            })
+            getSeriesById('UnfilledPoints', chartBig.getOption().series)?.data.map((data, index) => {
+                let pos = chartBig.convertToPixel({xAxisIndex: 0, yAxisIndex: 0}, data.slice(i*2+1, i*2+3));
+                if (isInFrame(pos, x, y, w ,h, offsetX, offsetY)) {
+                    includedIndexes.push(index);
+                }
+            })
+            chartScatterClicked(includedIndexes);
+            removeFrame();
         });
-         */
+        function isInFrame(pos, x, y, w, h, offsetX=0, offsetY=0) {
+            return pos[0] + offsetX >= x && pos[0] + offsetX <= x + w && pos[1] + offsetY >= y && pos[1] + offsetY <= y + h;
+        }
+        function showMouseFrame(x, y, w, h) {
+            const frame = document.createElement('div');
+            frame.style.position = 'absolute';
+            frame.style.left = `${x}px`;
+            frame.style.top = `${y}px`;
+            frame.style.zIndex = '999999';
+            frame.style.width = `${w}px`;
+            frame.style.height = `${h}px`;
+            frame.style.border = '2px solid grey';
+            frame.style.pointerEvents = 'none';
+            removeFrame();
+            frame.id = 'echarts-frame';
+            document.body.appendChild(frame);
+        }
+        function removeFrame() {
+            const oldFrame = document.getElementById('echarts-frame');
+            if (oldFrame) { oldFrame.parentNode.removeChild(oldFrame); }
+        }
 
         // 自适应大小
         function chartResize(){
@@ -629,7 +673,7 @@
         $(document).ready(function(){
             $('#modal-extrapolate').modal('show');
             showSequence(1);
-            // 键盘检测左右键
+            // detect keyboard press
             document.onkeydown = function (e) {
                 let current_isotope = getCurrentIsotope();
                 switch (e.code){

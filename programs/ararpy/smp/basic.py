@@ -477,7 +477,7 @@ def get_diff_smp(backup: (dict, Sample), smp: (dict, Sample)):
 # =======================
 # Set parameters
 # =======================
-def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None):
+def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None, rows: Optional[List] =None):
     """
     Parameters
     ----------
@@ -485,23 +485,27 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
     params
     flag : optional, should be one of 'calc', 'irra', and 'smp'. If it is not given,
         the text of the extension without a dot will be used
+    rows
 
     Returns
     -------
 
     """
+    if rows is None:
+        rows = []
+    rows = list(set(rows))
+
     if isinstance(params, str) and os.path.isfile(params):
         if flag is None:
             flag = params.split(".")[-1]
         return set_params(smp, read_params(params), flag=flag)
 
-    def remove_none(old_params, new_params, rows, length):
-        res = [[] for _ in range(length)]
+    def remove_none(old_params, new_params, row_list, length):
+        shape = np.shape(old_params)
+        res = np.copy(old_params)
         for index, item in enumerate(new_params):
-            if item is None:
-                res[index] = old_params[index]
-            else:
-                res[index] = [item] * rows
+            if item is not None:
+                res[index, row_list] = np.full(len(row_list), item).tolist()
         return res
 
     n = len(smp.SequenceName)
@@ -510,12 +514,12 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
         raise ValueError(f"The number of sample sequences is undefined.")
 
     if flag == 'calc':
-        smp.TotalParam[34:56] = remove_none(smp.TotalParam[34:56], params[0:22], n, 56 - 34)
-        smp.TotalParam[71:97] = remove_none(smp.TotalParam[71:97], params[22:48], n, 97 - 71)
+        smp.TotalParam[34:56] = remove_none(smp.TotalParam[34:56], params[0:22], rows, 56 - 34)
+        smp.TotalParam[71:97] = remove_none(smp.TotalParam[71:97], params[22:48], rows, 97 - 71)
     elif flag == 'irra':
-        smp.TotalParam[0:20] = remove_none(smp.TotalParam[0:20], params[0:20], n, 20 - 0)
-        smp.TotalParam[56:58] = remove_none(smp.TotalParam[56:58], params[20:22], n, 57 - 55)  # Cl36/38 productivity
-        smp.TotalParam[20:27] = remove_none(smp.TotalParam[20:27], params[22:29], n, 27 - 20)
+        smp.TotalParam[0:20] = remove_none(smp.TotalParam[0:20], params[0:20], rows, 20 - 0)
+        smp.TotalParam[56:58] = remove_none(smp.TotalParam[56:58], params[20:22], rows, 57 - 55)  # Cl36/38 productivity
+        smp.TotalParam[20:27] = remove_none(smp.TotalParam[20:27], params[22:29], rows, 27 - 20)
         # smp.TotalParam[26] = [params[26]] * n
         irradiation_time = []
         duration = []
@@ -554,15 +558,15 @@ def set_params(smp: Sample, params: Union[List, str], flag: Optional[str] = None
 
     elif flag == 'smp':
         print(dict(zip([i for i in range(len(params))], params)))
-        smp.TotalParam[67:71] = remove_none(smp.TotalParam[67:71], params[0:4], n, 71 - 67)
-        smp.TotalParam[58:67] = remove_none(smp.TotalParam[58:67], params[4:13], n, 67 - 58)
-        smp.TotalParam[97:100] = remove_none(smp.TotalParam[97:100], params[13:16], n, 100 - 97)
-        smp.TotalParam[115:120] = remove_none(smp.TotalParam[115:120], params[16:21], n, 120 - 115)
-        smp.TotalParam[126:136] = remove_none(smp.TotalParam[126:136], params[21:31], n, 136 - 126)
-        # smp.TotalParam[120:123] = remove_none(smp.TotalParam[120:123], params[31:34], n, 123 - 120)
+        smp.TotalParam[67:71] = remove_none(smp.TotalParam[67:71], params[0:4], rows, 71 - 67)
+        smp.TotalParam[58:67] = remove_none(smp.TotalParam[58:67], params[4:13], rows, 67 - 58)
+        smp.TotalParam[97:100] = remove_none(smp.TotalParam[97:100], params[13:16], rows, 100 - 97)
+        smp.TotalParam[115:120] = remove_none(smp.TotalParam[115:120], params[16:21], rows, 120 - 115)
+        smp.TotalParam[126:136] = remove_none(smp.TotalParam[126:136], params[21:31], rows, 136 - 126)
+        # smp.TotalParam[120:123] = remove_none(smp.TotalParam[120:123], params[31:34], rows, 123 - 120)
         smp.TotalParam[100:114] = remove_none(
             smp.TotalParam[100:114],
-            [['Linear', 'Exponential', 'Power'][params[35:38].index(True)] if True in params[35:38] else '', *params[38:]], n, 114 - 100)
+            [['Linear', 'Exponential', 'Power'][params[35:38].index(True)] if True in params[35:38] else '', *params[38:]], rows, 114 - 100)
         pref = dict(zip(preference_keys, params[31:35]))
         smp.Info.preference.update(pref)
         for key, comp in get_components(smp).items():
