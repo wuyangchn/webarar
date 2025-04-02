@@ -409,6 +409,53 @@ class RawFileView(http_funcs.ArArView):
             messages.error(request, traceback.format_exc())
         return self.render(request, 'raw_filter.html')
 
+    def raw_data_submit(self, request, *args, **kwargs):
+        """
+        Raw data submit, return a sample instance and render a object html.
+        """
+        irradiationParams = self.body['irradiationParams']
+        calculationParams = self.body['calculationParams']
+        sampleParams = self.body['sampleParams']
+        sampleInfo = self.body['sampleInfo']
+        selectedSequences = self.body['selectedSequences']
+        fingerprint = self.body['fingerprint']
+
+        raw: ap.RawData = self.sample
+
+        # create sample
+        sample = raw.to_sample(selectedSequences)
+
+        info = {
+            'sample': {'name': sampleInfo[0], 'type': sampleInfo[1], 'material': sampleInfo[2], 'location': sampleInfo[3]},
+            'researcher': {'name': sampleInfo[4]},
+            'laboratory': {'name': sampleInfo[5], 'info': sampleInfo[6], 'analyst': sampleInfo[7]},
+            'experiment': {'name': sampleInfo[0], 'step_num': len(sample.SequenceName)}
+        }
+        sample.set_info(info=info)
+
+        try:
+            rows = list(range(len(sample.SequenceName)))
+            sample.set_params(irradiationParams['param'], 'irra', rows)
+            sample.set_params(calculationParams['param'], 'calc', rows)
+            sample.set_params(sampleParams['param'], 'smp', rows)
+        except (BaseException, Exception):
+            debug_print(traceback.format_exc())
+        try:
+            sample.recalculate(*[True] * 11, False, *[True] * 4)  # Calculation after submitting row data
+            # ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
+            ap.smp.table.update_table_data(sample)  # Update table after submission row data and calculation
+        except ValueError:
+            return self.JsonResponse({'msg': traceback.format_exc()}, status=403)
+        # update cache
+        cache_key = http_funcs.create_cache(sample)
+        # write mysql
+        http_funcs.set_mysql(request, models.CalcRecord, fingerprint, cache_key=cache_key)
+        messages.info(request, "Submit raw file completed")
+        return self.JsonResponse({})
+
+    def to_project_view(self, request, *args, **kwargs):
+        return self.render(request, 'object.html', http_funcs.open_last_object(request))
+
     def import_blank_file(self, request, *args, **kwargs):
         file = request.FILES.get('blank_file')
         cache_key = request.POST.get('cache_key')
@@ -479,9 +526,6 @@ class RawFileView(http_funcs.ArArView):
         seq.is_removed = is_removed
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
         return self.JsonResponse({})
-
-    def to_project_view(self, request, *args, **kwargs):
-        return self.render(request, 'object.html', http_funcs.open_last_object(request))
 
     def calc_raw_chart_clicked(self, request, *args, **kwargs):
         try:
@@ -561,48 +605,6 @@ class RawFileView(http_funcs.ArArView):
 
         return self.JsonResponse({'sequences': new_sequences},
                             encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
-
-    def raw_data_submit(self, request, *args, **kwargs):
-        """
-        Raw data submit, return a sample instance and render a object html.
-        """
-        irradiationParams = self.body['irradiationParams']
-        calculationParams = self.body['calculationParams']
-        sampleParams = self.body['sampleParams']
-        sampleInfo = self.body['sampleInfo']
-        selectedSequences = self.body['selectedSequences']
-        fingerprint = self.body['fingerprint']
-
-        raw: ap.RawData = self.sample
-
-        # create sample
-        sample = raw.to_sample(selectedSequences)
-
-        info = {
-            'sample': {'name': sampleInfo[0], 'type': sampleInfo[1], 'material': sampleInfo[2], 'location': sampleInfo[3]},
-            'researcher': {'name': sampleInfo[4]},
-            'laboratory': {'name': sampleInfo[5], 'info': sampleInfo[6], 'analyst': sampleInfo[7]}
-        }
-        sample.set_info(info=info)
-
-        try:
-            sample.set_params(irradiationParams['param'], 'irra')
-            sample.set_params(calculationParams['param'], 'calc')
-            sample.set_params(sampleParams['param'], 'smp')
-        except (BaseException, Exception):
-            debug_print(traceback.format_exc())
-        try:
-            sample.recalculate(*[True] * 11, False, *[True] * 4)  # Calculation after submitting row data
-            # ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
-            ap.smp.table.update_table_data(sample)  # Update table after submission row data and calculation
-        except ValueError:
-            return self.JsonResponse({'msg': traceback.format_exc()}, status=403)
-        # update cache
-        cache_key = http_funcs.create_cache(sample)
-        # write mysql
-        http_funcs.set_mysql(request, models.CalcRecord, fingerprint, cache_key=cache_key)
-        messages.info(request, "Submit raw file completed")
-        return self.JsonResponse({})
 
     def check_regression(self, request, *args, **kwargs):
         raw: ap.RawData = self.sample
@@ -739,10 +741,12 @@ class ParamsSettingView(http_funcs.ArArView):
                 raise KeyError(f"{params_type} is not a supported parameter type")
             param = np.nan_to_num(param).tolist()
         except IndexError as e:
+            debug_print(f"{traceback.format_exc()}")
             self.error_msg = f"{e} (1-based). Index = {name}"
             messages.error(request, self.error_msg)
             return self.JsonResponse({'msg': self.error_msg}, status=403)
         except (Exception, BaseException) as e:
+            debug_print(f"{traceback.format_exc()}")
             self.error_msg = f"{e}"
             messages.error(request, self.error_msg)
             return self.JsonResponse({'msg': self.error_msg}, status=403)
