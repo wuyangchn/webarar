@@ -19,8 +19,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
 ALLOWED_HOSTS = [
     # '172.24.32.202',  # cug
@@ -108,20 +106,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'webarar.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'webarar',
-        'HOST': '127.0.0.1',
-        'PORT': 3306,
-        'USER': 'root',
-        'PASSWORD': 'x7BtfR6Vm0AlVPRk'  # ubuntu server password
-    }
-}
 
 
 # redis配置, https://blog.csdn.net/jiandanokok/article/details/109426427
@@ -217,6 +201,24 @@ LOGGING = {
 
 # DATA_UPLOAD_MAX_MEMORY_SIZE为10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
+
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+# Database
+# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'your_database_name',
+        'HOST': '127.0.0.1',
+        'PORT': 3306,
+        'USER': 'user',
+        'PASSWORD': 'password'
+    }
+}
+
 
 try:
     from webarar.local_settings import *
