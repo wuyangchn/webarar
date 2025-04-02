@@ -1,3 +1,4 @@
-# from . import (ararpy as ap)
-# import ararpy as ap  # using PyPI uploaded version or local version
-import ararpy_package.ararpy as ap
+try:
+    import ararpy_package.ararpy as ap  # local
+except ModuleNotFoundError:
+    import ararpy as ap                 # using Pip version
