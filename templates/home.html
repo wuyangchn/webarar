@@ -186,9 +186,12 @@
                         <li {% if request.path == '/doc/' %} class="active" {% endif %}><a href="{% url 'doc_main_view' %}" id="a-nav-doc">Documentation</a></li>
                         <li {% if request.path == '/references/' %} class="active" {% endif %}><a href="{% url 'references_view' %}" id="a-nav-ref">References</a></li>
                     </ul>
-                    <div class="nav navbar-nav navbar-right navbar-btn sr-only">
-                        <button type="button" onclick="changelang2en()" class="btn btn-default btn-group-sm">En</button>
-                        <button type="button" onclick="changelang2cn()" class="btn btn-default btn-group-sm">中文</button>
+                    <div class="nav navbar-nav navbar-right" style="line-height: 50px   ">
+                        <span class="text-muted" id="filePathSpan"></span>
+                        <button type="button" onclick="changelang2en()" class="btn btn-default btn-group-sm sr-only">En</button>
+                        <button type="button" onclick="changelang2cn()" class="btn btn-default btn-group-sm sr-only">中文</button>
+                    </div>
+                    <div class="nav navbar-nav navbar-right">
                     </div>
                 </div>
             </div>
