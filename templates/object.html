@@ -866,6 +866,7 @@ Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
                                     <input type="radio" name="errorDisplayRadioOptions" id="errorDisplayRadio2" value="option2" style="margin-top: 5px"> 2σ
                                 </label> level
                             </div>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" value="Apply" onclick="clickForceSyn()">Forced Syn</button>
 
 
                         </form>
@@ -993,17 +994,6 @@ Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
     // 2023.7.24: svg渲染不支持3D图形
     extendChartFuncs(chart);
     let chart_3D = echarts.init(document.getElementById('figure_3D_container'));
-
-    // initialize params models
-    for (let sle of document.getElementsByClassName('rowSelection')) {
-        for (let i=1;i<=sampleComponents[0].experiment?.step_num;i++){
-            let opt = document.createElement('option');
-            opt.value = i.toString();
-            opt.innerText = i.toString();
-            {#opt.selected = true;#}
-            sle.appendChild(opt);
-        }
-    }
 
     // initialize thermo page
     let thermoTableData = [];
