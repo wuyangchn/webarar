@@ -1,5 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 /webarar/local_settings.py
+/programs/__init__.py
 private
 .idea
 git
