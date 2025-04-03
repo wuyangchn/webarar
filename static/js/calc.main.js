@@ -2180,7 +2180,7 @@ async function clickSaveTable() {
         // console.log(table_data);
         if (rows_to_delete.length > 0) {
             await showPopupMessage("Please confirm ...",
-                `The following rows will be deleted: ${rows_to_delete}`, true).then((res) => {
+                `The following rows will be deleted: ${rows_to_delete.map(v => v + 1)}`, true).then((res) => {
                     if (!res) {return}
                     for (let table_id of ["1", "2", "3", "4", "5", "6", "7", "8"]) {
                         if (table_id === getCurrentTableId()) {
@@ -2190,22 +2190,23 @@ async function clickSaveTable() {
                         sampleComponents[table_id].data = sampleComponents[table_id].data.filter(
                             (v, i) => ! rows_to_delete.includes(i) && v.length > 1);
                     }
-                        rows_to_delete = [];
-                        const diff = findDiff(sampleComponentsBackup, sampleComponents);
-                        $.ajax({
-                            url: url_update_components_diff,
-                            type: 'POST',
-                            data: JSON.stringify({
-                                'diff': diff,
-                                'cache_key': cache_key,
-                            }),
-                            contentType:'application/json',
-                            success: function(res){
-                                sampleComponentsBackup = JSON.parse(JSON.stringify(sampleComponents));
-                                showPopupMessage("Information", "Successfully saved!", false);
-                                setConsoleText('Changes Saved');
-                            }
-                        });
+                    sampleComponents[0].experiment.step_num = sampleComponents[0].experiment?.step_num - rows_to_delete.length;
+                    rows_to_delete = [];
+                    const diff = findDiff(sampleComponentsBackup, sampleComponents);
+                    $.ajax({
+                        url: url_update_components_diff,
+                        type: 'POST',
+                        data: JSON.stringify({
+                            'diff': diff,
+                            'cache_key': cache_key,
+                        }),
+                        contentType:'application/json',
+                        success: function(res){
+                            sampleComponentsBackup = JSON.parse(JSON.stringify(sampleComponents));
+                            showPopupMessage("Information", "Successfully saved!", false);
+                            setConsoleText('Changes Saved');
+                        }
+                    });
                 });
             return;
         }
@@ -2241,13 +2242,34 @@ async function clickSaveTable() {
     });
 }
 function clickShowParams(flag) {
+    let options;
+    for (let i=1;i<=sampleComponents[0].experiment?.step_num;i++){
+        options = options + `<option value=${i.toString()}${$(`#${flag}RowNum`).val() === i.toString()?' selected':''}>${i.toString()}</option>`;
+    }
+    $(`#${flag}RowNum`).find('option').remove().end().append(options)
     $(`#${flag}ParamsRadio1`).prop("checked", false);
     $(`#${flag}ParamsRadio2`).prop("checked", true);
     $(`#${flag}RowNumRadio2`).prop("checked", true);
     paramsRadioChanged(flag);
-    // 显示目前用的参数（第一行）
     showParamProject(document.getElementById(`${flag}RowNum`), flag, false);
     $(`#edit${flag.charAt(0).toUpperCase() + flag.slice(1)}Params`).modal('show');
+}
+function clickForceSyn() {
+    $.ajax({
+        url: url_force_syn,
+        type: 'POST',
+        data: JSON.stringify({ 'cache_key': cache_key, }),
+        contentType:'application/json',
+        success: async function(response){
+            sampleComponents = myParse(response.sampleComponents);
+            showPage(getCurrentTableId(), true);
+            showPopupMessage('Information', 'Forcing syn completed!', true)
+            setConsoleText('Forcing syn completed!');
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
+    });
 }
 function clickRecalc() {
     let checked_options = [];
