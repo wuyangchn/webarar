@@ -260,8 +260,7 @@ class ArArView(View):
     def handling(self, func, request, *args, **kwargs):
         method = func.__name__
         path = request.path
-        protocol = request.environ.get('SERVER_PROTOCOL')
-        log_funcs.write_log(self.ip, 'INFO', f"{method}, {path}, {protocol}")
+        log_funcs.write_log(self.ip, 'INFO', f"Received request: {method}, {path}")
         return func(request, *args, **kwargs)
 
     def JsonResponse(self, data, status=200, **kwargs):
@@ -278,12 +277,12 @@ class ArArView(View):
         self.write_log()
         return render(request, view_name, *args, **kwargs)
 
-    def write_log(self):
+    def write_log(self, msg: str = None, level: str = "Info", **kwargs):
+        if msg is not None:
+            return log_funcs.write_log(self.ip, level, msg, kwargs)
         try:
-            sample_name = self.sample.name()
+            kwargs.update({"sample_name": self.sample.name()})
         except (Exception, BaseException):
-            for msg in messages.get_messages(self.request):
-                log_funcs.write_log(self.ip, msg.level, msg.message)
-        else:
-            for msg in messages.get_messages(self.request):
-                log_funcs.write_log(self.ip, msg.level, msg.message, sample_name=sample_name)
+            pass
+        for msg in messages.get_messages(self.request):
+            log_funcs.write_log(self.ip, msg.level, msg.message, **kwargs)

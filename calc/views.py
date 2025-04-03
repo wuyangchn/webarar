@@ -168,7 +168,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
     def update_components_diff(self, request, *args, **kwargs):
         diff = dict(self.body['diff'])
-        # debug_print(f"{diff = }")
+        self.write_log(f"Update components diff, keys of difference: {list(diff.keys())}")
         for name, attrs in diff.items():
             ap.smp.basic.update_object_from_dict(
                 ap.smp.basic.get_component_byid(self.sample, name), attrs)
@@ -264,6 +264,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         http_funcs.create_cache(sample, self.cache_key)  # Update cache
         res = ap.smp.basic.get_diff_smp(components_backup, ap.smp.basic.get_components(sample))
+        messages.info(request, f"Keys of difference: {list(res.keys())}")
         return self.JsonResponse({'changed_components': ap.smp.json.dumps(res)})
 
     def get_regression_result(self, request, *args, **kwargs):
@@ -333,8 +334,17 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # Update cache
         http_funcs.create_cache(sample, self.cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
-        messages.info(request, f"Recalculation completed")
+        messages.info(request, f"Recalculation completed. Keys of difference: {list(res.keys())}")
         return self.JsonResponse({'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)})
+
+    def force_syn(self, request, *args, **kwargs):
+        try:
+            messages.info(request, f"Forcing syn completed")
+            return self.JsonResponse({'sampleComponents': ap.smp.json.dumps(ap.smp.basic.get_components(self.sample))})
+        except (Exception, BaseException) as e:
+            msg = f'Error in forcing syn: {e}'
+            messages.error(request, msg)
+            return self.JsonResponse({'msg': msg}, status=403)
 
     def flag_not_matched(self, request, *args, **kwargs):
         # Show calc.html when the received flag doesn't exist.
@@ -504,7 +514,7 @@ class RawFileView(http_funcs.ArArView):
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
 
         return self.JsonResponse({'new_sequence': new_sequence},
-                            encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
+                                 encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def change_seq_fitting_method(self, request, *args, **kwargs):
         raw: ap.RawData = self.sample
@@ -549,6 +559,7 @@ class RawFileView(http_funcs.ArArView):
             return self.JsonResponse({'msg': self.error_msg}, status=403)
         else:
             http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw data in cache
+            messages.info(request, "Raw data regression completed")
             return self.JsonResponse({'sequence': raw.sequence[sequence_index]},
                                      encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
@@ -695,6 +706,7 @@ class ParamsSettingView(http_funcs.ArArView):
         params_type = str(self.body['type'])  # params_type = irra, calc, smp
         name = str(self.body['name'])
         model_name = f"{''.join([i.capitalize() for i in params_type.split('-')])}Params"
+        self.write_log(f"Change param objects, {name = }, {params_type = }, {model_name = }")
 
         try:
             obj = getattr(models, model_name).objects.get(name=name)
@@ -704,9 +716,6 @@ class ParamsSettingView(http_funcs.ArArView):
             messages.error(request, f"{e}")
             return self.JsonResponse({'msg': f"{e}"}, status=403)
         else:
-            obj.pin = str(name)
-            print(f"{obj.pin = }")
-            obj.save()
             param = ap.files.basic.read(obj.file_path)
             return self.JsonResponse({'param': param})
 
