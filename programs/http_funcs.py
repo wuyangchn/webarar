@@ -129,7 +129,7 @@ def open_object_file(request, sample, web_file_path, cache_key=''):
     allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
     allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
     allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
-    return {'cache_key': json.dumps(cache_key),
+    return {'cache_key': json.dumps(cache_key), 'webFilePath': json.dumps(web_file_path),
             'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames,
             'sampleComponents': ap.smp.json.dumps(ap.smp.basic.get_components(sample)),}
 

@@ -946,7 +946,9 @@ Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
     let figureBtnDiv = $('#figure_btn_div');
     let exampleConsole = document.getElementById('example_console');
     let rightConsole = document.getElementById('right_console');
+    let filePathSpan = document.getElementById('filePathSpan');
     rightConsole.innerText = `Open: ${getTime()}`;
+    filePathSpan.innerText = {{ webFilePath | safe }};
 
     // sigma settings
     $("#errorDisplayRadio1").prop("checked", sampleComponents['0'].preference?.confidenceLevel === 1);
