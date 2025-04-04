@@ -9,6 +9,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+## 2025-4-4
+* Fixed: mead value uncertainty adjustment.
+* Added: J value normalization
+
 ## v0.1.13 2024-10-08
 * Export PDF.
 
