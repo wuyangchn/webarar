@@ -720,9 +720,14 @@ class ParamsSettingView(http_funcs.ArArView):
             return self.JsonResponse({'param': param})
 
         try:
-            row = int(name) - 1
             sample = self.sample
-            data = ap.calc.arr.transpose(sample.TotalParam)[row]
+            if name.lower() == "all":
+                data = []
+                for each_row in sample.TotalParam:
+                    data.append("" if len(set(each_row)) != 1 else each_row[0])
+            else:
+                row = int(name) - 1
+                data = ap.calc.arr.transpose(sample.TotalParam)[row]
             if 'irra' in params_type.lower():
                 param = [*data[0:20], *data[56:58], *data[20:27],
                          *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']

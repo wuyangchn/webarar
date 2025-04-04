@@ -2243,8 +2243,9 @@ async function clickSaveTable() {
 }
 function clickShowParams(flag) {
     let options;
-    for (let i=1;i<=sampleComponents[0].experiment?.step_num;i++){
-        options = options + `<option value=${i.toString()}${$(`#${flag}RowNum`).val() === i.toString()?' selected':''}>${i.toString()}</option>`;
+    for (let i=0;i<=sampleComponents[0].experiment?.step_num;i++){
+        let opt = i === 0 ? "All" : i.toString();
+        options = options + `<option value=${opt}${$(`#${flag}RowNum`).val() === opt?' selected':''}>${opt}</option>`;
     }
     $(`#${flag}RowNum`).find('option').remove().end().append(options)
     $(`#${flag}ParamsRadio1`).prop("checked", false);
