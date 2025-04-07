@@ -454,8 +454,9 @@ class RawFileView(http_funcs.ArArView):
             sample.recalculate(*[True] * 11, False, *[True] * 4)  # Calculation after submitting row data
             # ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
             ap.smp.table.update_table_data(sample)  # Update table after submission row data and calculation
-        except ValueError:
-            return self.JsonResponse({'msg': traceback.format_exc()}, status=403)
+        except (Exception, BaseException) as e:
+            messages.error(request, message=f"Calculation Error: {e}")
+            return self.JsonResponse({'msg': f"Calculation Error: {e}"}, status=403)
         # update cache
         cache_key = http_funcs.create_cache(sample)
         # write mysql

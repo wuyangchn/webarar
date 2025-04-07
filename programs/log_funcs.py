@@ -12,7 +12,7 @@ logfile = os.path.abspath("logs/main.log")
 # Using concurrent_log_handler instead of logging Headler,
 # to avoid PermissionError during rotating the log files
 # https://github.com/Preston-Landers/concurrent-log-handler
-logger_collect.addHandler(ConcurrentTimedRotatingFileHandler(logfile, when='MIDNIGHT', backupCount=3, encoding='utf-8'))
+logger_collect.addHandler(ConcurrentTimedRotatingFileHandler(logfile, when='MIDNIGHT', backupCount=10, encoding='utf-8'))
 logger_collect.setLevel(getattr(logging, 'DEBUG'))
 
 level_int2name = {

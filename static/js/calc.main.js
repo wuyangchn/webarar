@@ -2575,7 +2575,9 @@ function setConsoleText(text) {
 }
 function setRightSideText(sigma=1) {
     let figure = getCurrentTableId();
-    let ageUnit = sampleComponents[0].preference?.ageUnit;
+    let sample_type = sampleComponents[0].sample?.type;
+    let ageUnit = sample_type === "Unknown" ? sampleComponents[0].preference?.ageUnit : "";
+    let flag = sample_type === "Unknown" ? 'Age' : sample_type === "Standard" ? 'J' : sample_type === "Air" ? 'Air' : '';
     let text_list = [];
     if (figure === 'figure_7') {
         let iso_res = sampleComponents[0].results.isochron['figure_7'];
@@ -2623,19 +2625,19 @@ function setRightSideText(sigma=1) {
             line2 = "...";
         }
         text_list = [
-            `Normal Isochron Age (NIA)`, `${nor_res_set1.age.toFixed(2)} ± ${(nor_res_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Inverse Isochron Age (IIA)`, `${inv_res_set1.age.toFixed(2)} ± ${(inv_res_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Weighted Mean Age (WMA)`, `${age_spectra_set1.age.toFixed(2)} ± ${(age_spectra_set1.s1 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Initial Ratio Corrected WMA`, `${plateau_set1.age.toFixed(2)} ± ${(plateau_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set1.age.toFixed(2)} ± ${(nor_res_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set1.age.toFixed(2)} ± ${(inv_res_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set1.age.toFixed(2)} ± ${(age_spectra_set1.s1 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set1.age.toFixed(2)} ± ${(plateau_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
             `Regression Line`, line1,
 
-            `Normal Isochron Age (NIA)`, `${nor_res_set2.age.toFixed(2)} ± ${(nor_res_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Inverse Isochron Age (IIA)`, `${inv_res_set2.age.toFixed(2)} ± ${(inv_res_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Weighted Mean Age (WMA)`, `${age_spectra_set2.age.toFixed(2)} ± ${(age_spectra_set2.s1 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Initial Ratio Corrected WMA`, `${plateau_set2.age.toFixed(2)} ± ${(plateau_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set2.age.toFixed(2)} ± ${(nor_res_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set2.age.toFixed(2)} ± ${(inv_res_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set2.age.toFixed(2)} ± ${(age_spectra_set2.s1 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set2.age.toFixed(2)} ± ${(plateau_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
             `Regression Line`, line2,
 
-            `Total Age`, `${total_age.age.toFixed(2)} ± ${(total_age.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Total ${flag}`, `${total_age.age.toFixed(2)} ± ${(total_age.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
         ];
     }
 
