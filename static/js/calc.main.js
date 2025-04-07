@@ -2577,7 +2577,7 @@ function setRightSideText(sigma=1) {
     let figure = getCurrentTableId();
     let sample_type = sampleComponents[0].sample?.type;
     let ageUnit = sample_type === "Unknown" ? sampleComponents[0].preference?.ageUnit : "";
-    let flag = sample_type === "Unknown" ? 'Age' : sample_type === "Standard" ? 'J' : sample_type === "Air" ? 'Air' : '';
+    let flag = sample_type === "Unknown" ? 'Age' : sample_type === "Standard" ? 'J' : sample_type === "Air" ? 'MDF' : '';
     let text_list = [];
     if (figure === 'figure_7') {
         let iso_res = sampleComponents[0].results.isochron['figure_7'];
