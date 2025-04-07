@@ -780,15 +780,15 @@ class ParamsSettingView(http_funcs.ArArView):
         if flag == 'create':
             email = self.body['email']
             if name == '' or pin == '':
-                messages.info(request, f'Create parameter project failed, empty name or pin, name: {name}, pin: {pin}')
-                return self.JsonResponse({'msg': 'empty name or pin'}, status=403)
+                messages.info(request, f'Create parameter project failed, empty name or verification code, name: {name}, code: {pin}')
+                return self.JsonResponse({'msg': 'empty name or code'}, status=403)
             elif model.objects.filter(name=name).exists():
                 messages.info(request, f'Create parameter project failed, duplicate name, name: {name}')
                 return self.JsonResponse({'msg': 'duplicate name'}, status=403)
             else:
                 path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{type}"), params)
                 model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip)
-                messages.info(request, f'Create parameter project successfully. A {type.lower()} project has been updated, name: {name}, path: {path}, email: {email}')
+                messages.info(request, f'Create parameter project successfully. A {type.lower()} project has been updated, name: {name}, static verification code: {pin}, path: {path}, email: {email}')
                 return self.JsonResponse({'status': 'success'})
         else:
             try:
@@ -815,8 +815,8 @@ class ParamsSettingView(http_funcs.ArArView):
                         messages.error(request, f'Delete {type.lower()} project failed, name: {name}')
                         return self.JsonResponse({'msg': 'something wrong happened when delete params'}, status=403)
             else:
-                self.error_msg = f'Wrong Pin. Project: {type.lower()}'
-                messages.error(request, f"Change or delete parameter project failed. {self.error_msg}, wrong pin: {pin}")
+                self.error_msg = f'Invalid code. Project: {type.lower()}'
+                messages.error(request, f"Change or delete parameter project failed. {self.error_msg}, invalid code: {pin}")
                 return self.JsonResponse({'msg': self.error_msg}, status=403)
 
     def set_params(self, request, *args, **kwargs):
