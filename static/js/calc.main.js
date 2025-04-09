@@ -2578,30 +2578,31 @@ function setRightSideText(sigma=1) {
     let sample_type = sampleComponents[0].sample?.type;
     let ageUnit = sample_type === "Unknown" ? sampleComponents[0].preference?.ageUnit : "";
     let flag = sample_type === "Unknown" ? 'Age' : sample_type === "Standard" ? 'J' : sample_type === "Air" ? 'MDF' : '';
+    let place = sample_type === "Unknown" ? 2 : 4;
     let text_list = [];
     if (figure === 'figure_7') {
         let iso_res = sampleComponents[0].results.isochron['figure_7'];
         text_list = [
-            `z = ${iso_res[0]['m1'].toFixed(2)} x ${iso_res[0]['m2'] > 0?'+':'-'} 
-            ${Math.abs(iso_res[0]['m2']).toFixed(2)} y ${iso_res[0]['k'] > 0?'+':'-'} 
-            ${Math.abs(iso_res[0]['k']).toFixed(2)}`,
-            `t = ${iso_res[0]['age'].toFixed(2)} ± ${(iso_res[0]['s1'] * sigma).toFixed(2)} | ${(iso_res[0]['s2'] * sigma).toFixed(2)} | ${(iso_res[0]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `MSWD = ${iso_res[0]['MSWD'].toFixed(2)}, r2 = ${iso_res[0]['R2'].toFixed(2)}, Di = ${iso_res[0]['iter']}, 
-            χ2 = ${iso_res[0]['Chisq'].toFixed(2)}, p = ${iso_res[0]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[0]['rs'].toFixed(2)}%`,
-            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[0]['initial'].toFixed(2)} ± ${iso_res[0]['sinitial'].toFixed(2)}`,
+            `z = ${iso_res[0]['m1'].toFixed(place)} x ${iso_res[0]['m2'] > 0?'+':'-'} 
+            ${Math.abs(iso_res[0]['m2']).toFixed(place)} y ${iso_res[0]['k'] > 0?'+':'-'} 
+            ${Math.abs(iso_res[0]['k']).toFixed(place)}`,
+            `t = ${iso_res[0]['age'].toFixed(place)} ± ${(iso_res[0]['s1'] * sigma).toFixed(place)} | ${(iso_res[0]['s2'] * sigma).toFixed(place)} | ${(iso_res[0]['s3'] * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `MSWD = ${iso_res[0]['MSWD'].toFixed(place)}, r2 = ${iso_res[0]['R2'].toFixed(place)}, Di = ${iso_res[0]['iter']}, 
+            χ2 = ${iso_res[0]['Chisq'].toFixed(place)}, p = ${iso_res[0]['Pvalue'].toFixed(place)}, avg. error = ${iso_res[0]['rs'].toFixed(place)}%`,
+            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[0]['initial'].toFixed(place)} ± ${iso_res[0]['sinitial'].toFixed(place)}`,
             "", "", "", "", "", "",
 
-            `z = ${iso_res[1]['m1'].toFixed(2)} x ${iso_res[1]['m2'] > 0?'+':'-'} 
-            ${Math.abs(iso_res[1]['m2']).toFixed(2)} y ${iso_res[1]['k'] > 0?'+':'-'} 
-            ${Math.abs(iso_res[1]['k']).toFixed(2)}`,
-            `t = ${iso_res[1]['age'].toFixed(2)} ± ${iso_res[1]['s1'].toFixed(2)} | ${iso_res[1]['s2'].toFixed(2)} | ${iso_res[1]['s3'].toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `MSWD = ${iso_res[1]['MSWD'].toFixed(2)}, r2 = ${iso_res[1]['R2'].toFixed(2)}, Di = ${iso_res[1]['iter']}, 
-            χ2 = ${iso_res[1]['Chisq'].toFixed(2)}, p = ${iso_res[1]['Pvalue'].toFixed(2)}, avg. error = ${iso_res[1]['rs'].toFixed(2)}%`,
-            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[1]['initial'].toFixed(2)} ± ${(iso_res[1]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)`,
+            `z = ${iso_res[1]['m1'].toFixed(place)} x ${iso_res[1]['m2'] > 0?'+':'-'} 
+            ${Math.abs(iso_res[1]['m2']).toFixed(place)} y ${iso_res[1]['k'] > 0?'+':'-'} 
+            ${Math.abs(iso_res[1]['k']).toFixed(place)}`,
+            `t = ${iso_res[1]['age'].toFixed(place)} ± ${iso_res[1]['s1'].toFixed(place)} | ${iso_res[1]['s2'].toFixed(place)} | ${iso_res[1]['s3'].toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `MSWD = ${iso_res[1]['MSWD'].toFixed(place)}, r2 = ${iso_res[1]['R2'].toFixed(place)}, Di = ${iso_res[1]['iter']}, 
+            χ2 = ${iso_res[1]['Chisq'].toFixed(place)}, p = ${iso_res[1]['Pvalue'].toFixed(place)}, avg. error = ${iso_res[1]['rs'].toFixed(place)}%`,
+            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[1]['initial'].toFixed(place)} ± ${(iso_res[1]['sinitial'] * sigma).toFixed(place)} (${sigma}σ)`,
             "",
 
-            `Unselected`, `t = ${iso_res[2]['age'].toFixed(2)} ± ${(iso_res[2]['s1'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[2]['initial'].toFixed(2)} ± ${(iso_res[2]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)`,
+            `Unselected`, `t = ${iso_res[2]['age'].toFixed(place)} ± ${(iso_res[2]['s1'] * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[2]['initial'].toFixed(place)} ± ${(iso_res[2]['sinitial'] * sigma).toFixed(place)} (${sigma}σ)`,
             "",
         ]
     }
@@ -2625,19 +2626,19 @@ function setRightSideText(sigma=1) {
             line2 = "...";
         }
         text_list = [
-            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set1.age.toFixed(2)} ± ${(nor_res_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set1.age.toFixed(2)} ± ${(inv_res_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set1.age.toFixed(2)} ± ${(age_spectra_set1.s1 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set1.age.toFixed(2)} ± ${(plateau_set1.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set1.age.toFixed(place)} ± ${(nor_res_set1.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set1.age.toFixed(place)} ± ${(inv_res_set1.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set1.age.toFixed(place)} ± ${(age_spectra_set1.s1 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set1.age.toFixed(place)} ± ${(plateau_set1.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
             `Regression Line`, line1,
 
-            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set2.age.toFixed(2)} ± ${(nor_res_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set2.age.toFixed(2)} ± ${(inv_res_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set2.age.toFixed(2)} ± ${(age_spectra_set2.s1 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
-            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set2.age.toFixed(2)} ± ${(plateau_set2.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set2.age.toFixed(place)} ± ${(nor_res_set2.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set2.age.toFixed(place)} ± ${(inv_res_set2.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set2.age.toFixed(place)} ± ${(age_spectra_set2.s1 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set2.age.toFixed(place)} ± ${(plateau_set2.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
             `Regression Line`, line2,
 
-            `Total ${flag}`, `${total_age.age.toFixed(2)} ± ${(total_age.s2 * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)`,
+            `Total ${flag}`, `${total_age.age.toFixed(place)} ± ${(total_age.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
         ];
     }
 
