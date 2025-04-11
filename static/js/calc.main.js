@@ -2589,13 +2589,13 @@ function setRightSideText(sigma=1) {
             `t = ${iso_res[0]['age'].toFixed(place)} ± ${(iso_res[0]['s1'] * sigma).toFixed(place)} | ${(iso_res[0]['s2'] * sigma).toFixed(place)} | ${(iso_res[0]['s3'] * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
             `MSWD = ${iso_res[0]['MSWD'].toFixed(place)}, r2 = ${iso_res[0]['R2'].toFixed(place)}, Di = ${iso_res[0]['iter']}, 
             χ2 = ${iso_res[0]['Chisq'].toFixed(place)}, p = ${iso_res[0]['Pvalue'].toFixed(place)}, avg. error = ${iso_res[0]['rs'].toFixed(place)}%`,
-            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[0]['initial'].toFixed(place)} ± ${iso_res[0]['sinitial'].toFixed(place)}`,
+            `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[0]['initial'].toFixed(place)} ± ${(iso_res[0]['sinitial'] * sigma).toFixed(place)} (${sigma}σ)`,
             "", "", "", "", "", "",
 
             `z = ${iso_res[1]['m1'].toFixed(place)} x ${iso_res[1]['m2'] > 0?'+':'-'} 
             ${Math.abs(iso_res[1]['m2']).toFixed(place)} y ${iso_res[1]['k'] > 0?'+':'-'} 
             ${Math.abs(iso_res[1]['k']).toFixed(place)}`,
-            `t = ${iso_res[1]['age'].toFixed(place)} ± ${iso_res[1]['s1'].toFixed(place)} | ${iso_res[1]['s2'].toFixed(place)} | ${iso_res[1]['s3'].toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `t = ${iso_res[1]['age'].toFixed(place)} ± ${(iso_res[1]['s1'] * sigma).toFixed(place)} | ${(iso_res[1]['s2'] * sigma).toFixed(place)} | ${(iso_res[1]['s3'] * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
             `MSWD = ${iso_res[1]['MSWD'].toFixed(place)}, r2 = ${iso_res[1]['R2'].toFixed(place)}, Di = ${iso_res[1]['iter']}, 
             χ2 = ${iso_res[1]['Chisq'].toFixed(place)}, p = ${iso_res[1]['Pvalue'].toFixed(place)}, avg. error = ${iso_res[1]['rs'].toFixed(place)}%`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[1]['initial'].toFixed(place)} ± ${(iso_res[1]['sinitial'] * sigma).toFixed(place)} (${sigma}σ)`,
