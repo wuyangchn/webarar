@@ -1319,7 +1319,7 @@ function updateCharts(smCharts, bigChart, sequence_index, animation, fitting_met
                 ['Average'].concat(myRawData.sequence[sequence_index].results[i][4]),
             ];
             bigChart.setOption({
-                title: {text: `${myRawData.sequence[sequence_index].name}  ${myRawData.sequence[sequence_index].datetime}  ${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][i]}`},
+                title: {text: `${myRawData.sequence[sequence_index].name}  ${myRawData.sequence[sequence_index].datetime}  ${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][i]} ${myRawData.sequence[sequence_index].type_str}`},
                 graphic: [{
                     id: 'LinesResults', type: 'text', z: 0, draggable: true,
                     style: {fill: '#FF0000', overflow: 'break', text: text_table(text), font: '16px "", Consolas, monospace'},
