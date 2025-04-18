@@ -382,6 +382,7 @@ class RawFileView(http_funcs.ArArView):
                 messages.error(request, e)
                 continue
             else:
+                self.write_log(f"Read raw file: {web_file_path}")
                 files.append({
                     'name': file_name, 'extension': suffix, 'path': web_file_path,
                     'filter': suffix[1:],
@@ -747,9 +748,10 @@ class ParamsSettingView(http_funcs.ArArView):
                 pref = [sample.Info.preference.get(key, "") for key in ap.smp.initial.preference_keys]
                 param = [*data[67:71], *data[58:67], *data[97:100], *data[115:120], *data[126:136],
                          *pref, *_, *data[101:114]]
-            # if 'thermo' in type.lower():
-            #     param = [*data[0:20], *data[56:58], *data[20:27],
-            #              *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
+            elif 'thermo' in params_type.lower():
+                # param = [*data[0:20], *data[56:58], *data[20:27],
+                #          *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
+                pass
             elif 'export' in params_type.lower():
                 param = [True]
             else:
