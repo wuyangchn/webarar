@@ -249,8 +249,8 @@ function change_input_filter(row, index) {
     let tr = row.parentElement.parentElement;
     let row_index = tr.getAttribute("data-index");
     let opts = row.options;
-    for (let index=0;index<opts.length;index++){
-        $(opts[index]).attr("selected", index === index);
+    for (let i=0;i<opts.length;i++){
+        $(opts[i]).attr("selected", index === i);
     }
     current_data[row_index].filter = row.outerHTML;
     table.bootstrapTable('updateRow', {index: row_index,
