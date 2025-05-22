@@ -693,14 +693,37 @@
                         break;
                 }
             }
-            // 手动设置disable属性
-            paramsRadioChanged('irra');
-            paramsRadioChanged('calc');
-            paramsRadioChanged('smp');
             // 页面标题
             document.getElementById('page-title').innerText = myRawData.name;
-            let info = [myRawData.name, myRawData.type, "material", "location", "researcher",
-                "laboratory", "more information", "analyst"];
+            // 手动设置disable属性
+            paramsRadioChanged('irra', () => {
+                let name = myRawData.sequence[0].options.IrraName;
+                if (name !== "") { $(`#${"irra"}ProjectName`).val(name).change(); }  // trigger change()
+            });
+            paramsRadioChanged('calc', () => {
+                let name = myRawData.sequence[0].options.CalcName;
+                if (name !== "") { $(`#${"calc"}ProjectName`).val(name).change(); }
+            });
+            paramsRadioChanged('smp', () => {
+                $(`#${"smp"}ParamsRadio2`).prop('checked', true).change();
+                $.each(document.getElementsByClassName('smp-params'), function (index, each) {
+                    switch (index) {
+                        case 0: each.value = Number(myRawData.sequence[0].options.Jv); break;
+                        case 1: each.value = Number(myRawData.sequence[0].options.Jsig); break;
+                        case 2: each.value = Number(myRawData.sequence[0].options.MDF); break;
+                        case 3: each.value = Number(myRawData.sequence[0].options.MDFSig); break;
+                        case 4: each.value = myRawData.sequence[0].options.StdName; break;
+                        case 5: each.value = Number(myRawData.sequence[0].options.StdAge); break;
+                        case 6: each.value = Number(myRawData.sequence[0].options.StdAgeSig); break;
+                        default: //
+                    }
+                });
+            });
+            let info = [
+                myRawData.name, myRawData.type, myRawData.sequence[0].options.SmpMatr,
+                myRawData.sequence[0].options.SmpLoc, myRawData.sequence[0].options.Researcher,
+                myRawData.sequence[0].options.Lab, "more information", myRawData.sequence[0].options.Analyst
+            ];
             $.each(document.getElementsByClassName('sample-info'), function (index, each) {
                 try {
                     each.value = info[index];
