@@ -30,7 +30,7 @@
     });
 </script>
 
-<div class="jumbotron" style="height: 830px">
+<div class="jumbotron" style="height: 1000px">
     <div class="container">
 {#        <h2 class="text-center" style="color: #c0c0c0">Start from...</h2>#}
         <div class="upload-drop-zone" id="drop-zone">
@@ -93,9 +93,7 @@
                             - Correction Factors<br>
                             - ...<br>
                         </p>
-                        <p>
-                            <a href="{% url 'params_views' 'show_irra' %}" class="btn btn-primary" role="button">Edit</a>
-                        </p>
+                        <p><a href="{% url 'params_views' 'show_irra' %}" class="btn btn-primary" role="button">Edit</a></p>
                     </div>
                 </div>
             </div>
@@ -108,9 +106,7 @@
                             - Isotopic Mass<br>
                             - ...<br>
                         </p>
-                        <p>
-                            <a href="{% url 'params_views' 'show_calc' %}" class="btn btn-primary" role="button">Edit</a>
-                        </p>
+                        <p><a href="{% url 'params_views' 'show_calc' %}" class="btn btn-primary" role="button">Edit</a></p>
                     </div>
                 </div>
             </div>
@@ -123,42 +119,39 @@
                             - Other Options<br>
                             - ...<br>
                         </p>
-                        <p>
-                            <a href="{% url 'params_views' 'show_smp' %}" class="btn btn-primary" role="button">Edit</a>
-                        </p>
+                        <p><a href="{% url 'params_views' 'show_smp' %}" class="btn btn-primary" role="button">Edit</a></p>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-md-4">
                 <div class="thumbnail">
                     <div class="caption">
-                        <h3>Raw Data Input Filter</h3>
-                        </p><br>
-                        <p>
-                            <a href="{% url 'params_views' 'show_input_filter' %}" class="btn btn-primary" role="button">Edit</a>
-                        </p>
+                        <h3>Raw Data Input Filter</h3><br>
+                        <p><a href="{% url 'params_views' 'show_input_filter' %}" class="btn btn-primary" role="button">Edit</a></p>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-md-4">
                 <div class="thumbnail">
                     <div class="caption">
-                        <h3>Draw PDF Figures</h3>
-                        </p><br>
-                        <p>
-                            <a href="{% url 'export_home' %}" class="btn btn-primary" role="button">Edit / Plot</a>
-                        </p>
+                        <h3>Draw PDF Figures</h3><br>
+                        <p><a href="{% url 'export_home' %}" class="btn btn-primary" role="button">Edit / Plot</a></p>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-md-4">
                 <div class="thumbnail">
                     <div class="caption">
-                        <h3>Ar-Ar thermochronometry</h3>
-                        </p><br>
-                        <p>
-                            <a href="{% url 'thermo_home' %}" class="btn btn-primary" role="button">Edit / Plot</a>
-                        </p>
+                        <h3>Database</h3><br>
+                        <p><a href="{% url 'params_views' 'show_database' %}" class="btn btn-primary" role="button">Show</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="thumbnail">
+                    <div class="caption">
+                        <h3>Ar-Ar thermochronometry</h3><br>
+                        <p><a href="{% url 'thermo_home' %}" class="btn btn-primary" role="button">Edit / Plot</a></p>
                     </div>
                 </div>
             </div>

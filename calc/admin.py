@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import CalcRecord, CalcParams, IrraParams, SmpParams, InputFilterParams, ThermoParams, ExportPdfParams
+from .models import CalcRecord, CalcParams, IrraParams, SmpParams, InputFilterParams, ThermoParams, ExportPdfParams, \
+    DBInstruments, DBLaboratories, DBStandards
 
 # Register your models here.
 
@@ -15,6 +16,24 @@ class ParamsAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+class ArArDBInsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'ip', 'name', 'insert_time', 'update_time', 'uploader_email', 'manufacturer', 'cup_structure',
+                    'amplifier', 'sensitivity', 'resolution', 'papers', 'info')
+    search_fields = ('name',)
+
+
+class ArArDBLabAdmin(admin.ModelAdmin):
+    list_display = ('id', 'ip', 'name', 'insert_time', 'update_time', 'uploader_email', 'country', 'city',
+                    'manager', 'instruments', 'papers', 'info')
+    search_fields = ('name',)
+
+
+class ArArDBStdAdmin(admin.ModelAdmin):
+    list_display = ('id', 'ip', 'name', 'insert_time', 'update_time', 'uploader_email', 'material', 'location',
+                    'age', 'age_error', 'arp', 'arp_error', 'kp', 'kp_error', 'arrp', 'arrp_error', 'papers', 'info')
+    search_fields = ('name',)
+
+
 admin.site.register(CalcRecord, CalcRecordAdmin)
 admin.site.register(CalcParams, ParamsAdmin)
 admin.site.register(IrraParams, ParamsAdmin)
@@ -22,4 +41,7 @@ admin.site.register(SmpParams, ParamsAdmin)
 admin.site.register(InputFilterParams, ParamsAdmin)
 admin.site.register(ThermoParams, ParamsAdmin)
 admin.site.register(ExportPdfParams, ParamsAdmin)
+admin.site.register(DBInstruments, ArArDBInsAdmin)
+admin.site.register(DBLaboratories, ArArDBLabAdmin)
+admin.site.register(DBStandards, ArArDBStdAdmin)
 

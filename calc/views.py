@@ -127,7 +127,9 @@ class CalcHtmlView(http_funcs.ArArView):
                 debug_print(traceback.format_exc())
                 continue
             else:
-                contents.append(self.render('object.html', http_funcs.open_object_file(request, sample, web_file_path=file['path'])).component)
+                contents.append(self.render('object.html', http_funcs.open_object_file(request, sample,
+                                                                                       web_file_path=file[
+                                                                                           'path'])).component)
         response.writelines(contents)
         return response
 
@@ -281,8 +283,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             ))
         for each in adjusted_x:
             adjusted_time.append(ap.calc.basic.get_datetime(*re.findall(r"\d+", each)[0],
-                base=[int(year), int(month), int(day), int(hour), int(min)]
-            ))
+                                                            base=[int(year), int(month), int(day), int(hour), int(min)]
+                                                            ))
         y = data[1]
         x, y = zip(*sorted(zip(x, y), key=lambda _x: _x[0]))
         handler = {
@@ -314,7 +316,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # debug_print(f"Recalculation Isochron Mark = {isochron_mark}")
         debug_print(f"{others = }")
         try:
-            sample.Info.preference.update({'confidenceLevel': others.get('sigma', sample.Info.preference.get('confidenceLevel', 1))})
+            sample.Info.preference.update(
+                {'confidenceLevel': others.get('sigma', sample.Info.preference.get('confidenceLevel', 1))})
         except Exception as e:
             pass
         if isochron_mark:
@@ -437,7 +440,8 @@ class RawFileView(http_funcs.ArArView):
         sample = raw.to_sample(selectedSequences)
 
         info = {
-            'sample': {'name': sampleInfo[0], 'type': sampleInfo[1], 'material': sampleInfo[2], 'location': sampleInfo[3]},
+            'sample': {'name': sampleInfo[0], 'type': sampleInfo[1], 'material': sampleInfo[2],
+                       'location': sampleInfo[3]},
             'researcher': {'name': sampleInfo[4]},
             'laboratory': {'name': sampleInfo[5], 'info': sampleInfo[6], 'analyst': sampleInfo[7]},
             'experiment': {'name': sampleInfo[0], 'step_num': len(sample.SequenceName)}
@@ -617,7 +621,7 @@ class RawFileView(http_funcs.ArArView):
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update cache
 
         return self.JsonResponse({'sequences': new_sequences},
-                            encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
+                                 encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
     def check_regression(self, request, *args, **kwargs):
         raw: ap.RawData = self.sample
@@ -629,11 +633,11 @@ class RawFileView(http_funcs.ArArView):
             for ar in range(5):
                 regression_res = seq.results[ar][seq.fitting_method[ar]]
                 if not all([isinstance(i, (float, int)) for i in regression_res]):
-                    failed.append([seq.index, seq.name, f"Ar{36+ar}"])
+                    failed.append([seq.index, seq.name, f"Ar{36 + ar}"])
 
         msg = "All sequence are valid for later calculation!"
         if failed:
-            failed = sorted(list(set([seq[0]+1 for seq in failed])))
+            failed = sorted(list(set([seq[0] + 1 for seq in failed])))
             msg = f"Errors: {failed}"
             messages.info(request, f"Check regression completed. Bad regression sequences: {failed}")
         return self.JsonResponse({'status': 'successful', 'msg': msg, 'failed': failed}, status=200)
@@ -699,10 +703,28 @@ class ParamsSettingView(http_funcs.ArArView):
         messages.info(request, f'Show parameter project names: {names}')
         return self.render(request, 'input_filter_setting.html', {'allInputFilterNames': names})
 
-    # def show_export_pdf(self, request, *args, **kwargs):
-    #     names = list(models.ExportPDFParams.objects.values_list('name', flat=True))
-    #     log_funcs.set_info_log(self.ip, 'info', f'Show export PDF project names: {names}')
-    #     return self.render(request, 'export_pdf_setting.html', {'allExportPDFNames': names})
+    def show_database(self, request, *args, **kwargs):
+        return self.render(request, 'show_database.html', {'data': ap.smp.json.dumps([])})
+
+    def change_database(self, request, *args, **kwargs):
+        db_type = str(self.body.get('type', 'Standards'))  # db_type = Standards, Instruments, Laboratories
+        fields = {
+            'Standards': [
+                'name', 'material', 'location', 'age', 'age_error', 'arp', 'arp_error', 'kp', 'kp_error',
+                'arrp', 'arrp_error', 'papers', 'info'
+            ],
+            'Instruments': [
+                'name', 'manufacturer', 'cup_structure', 'amplifier', 'sensitivity', 'resolution', 'papers', 'info'
+            ],
+            'Laboratories': [
+                'name', 'country', 'city', 'manager', 'instruments', 'papers', 'info'
+            ]
+        }[db_type]
+        data = list(
+            getattr(models, f"DB{db_type}").objects.values(*fields)
+        )
+        return self.JsonResponse({'data': data})
+
 
     def change_param_objects(self, request, *args, **kwargs):
         params_type = str(self.body['type'])  # params_type = irra, calc, smp
@@ -782,7 +804,8 @@ class ParamsSettingView(http_funcs.ArArView):
         if flag == 'create':
             email = self.body['email']
             if name == '' or pin == '':
-                messages.info(request, f'Create parameter project failed, empty name or verification code, name: {name}, code: {pin}')
+                messages.info(request,
+                              f'Create parameter project failed, empty name or verification code, name: {name}, code: {pin}')
                 return self.JsonResponse({'msg': 'empty name or code'}, status=403)
             elif model.objects.filter(name=name).exists():
                 messages.info(request, f'Create parameter project failed, duplicate name, name: {name}')
@@ -790,7 +813,8 @@ class ParamsSettingView(http_funcs.ArArView):
             else:
                 path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{type}"), params)
                 model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip)
-                messages.info(request, f'Create parameter project successfully. A {type.lower()} project has been updated, name: {name}, static verification code: {pin}, path: {path}, email: {email}')
+                messages.info(request,
+                              f'Create parameter project successfully. A {type.lower()} project has been updated, name: {name}, static verification code: {pin}, path: {path}, email: {email}')
                 return self.JsonResponse({'status': 'success'})
         else:
             try:
@@ -806,19 +830,22 @@ class ParamsSettingView(http_funcs.ArArView):
                 if flag == 'update':
                     path = ap.files.basic.write(old.file_path, params)
                     old.save()
-                    messages.info(request, f'Update parameter project successfully. A {type.lower()} project has been updated, name: {name}, path: {path}')
+                    messages.info(request,
+                                  f'Update parameter project successfully. A {type.lower()} project has been updated, name: {name}, path: {path}')
                     return self.JsonResponse({'status': 'success'})
                 elif flag == 'delete':
                     if ap.files.basic.delete(old.file_path):
                         old.delete()
-                        messages.info(request, f'Delete parameter project successfully. A {type.lower()} project has been deleted, name: {name}')
+                        messages.info(request,
+                                      f'Delete parameter project successfully. A {type.lower()} project has been deleted, name: {name}')
                         return self.JsonResponse({'status': 'success'})
                     else:
                         messages.error(request, f'Delete {type.lower()} project failed, name: {name}')
                         return self.JsonResponse({'msg': 'something wrong happened when delete params'}, status=403)
             else:
                 self.error_msg = f'Invalid code. Project: {type.lower()}'
-                messages.error(request, f"Change or delete parameter project failed. {self.error_msg}, invalid code: {pin}")
+                messages.error(request,
+                               f"Change or delete parameter project failed. {self.error_msg}, invalid code: {pin}")
                 return self.JsonResponse({'msg': self.error_msg}, status=403)
 
     def set_params(self, request, *args, **kwargs):
@@ -886,7 +913,7 @@ class ThermoView(http_funcs.ArArView):
                     heating_log_file = file_name + suffix
 
         return self.JsonResponse({"sample_name": smp_name, "arr_file": arr_file, "heating_log_file": heating_log_file,
-                             "random_index": random_index, "suffix": suffix})
+                                  "random_index": random_index, "suffix": suffix})
 
     # /calc/thermo/check_sample
     def check_sample(self, request, *args, **kwargs):
@@ -930,7 +957,8 @@ class ThermoView(http_funcs.ArArView):
         elif argon == 'total':
             all_ar = np.array(sample.CorrectedValues, dtype=np.float64)  # 20-21 Argon
             ar, sar = ap.calc.arr.add(*all_ar.reshape(5, 2, len(all_ar[0])))
-            ar = np.array(ar); sar = np.array(sar)
+            ar = np.array(ar);
+            sar = np.array(sar)
         else:
             raise KeyError
         age = np.array(sample.ApparentAgeValues[2], dtype=np.float64)  # 2-3 age
@@ -963,8 +991,7 @@ class ThermoView(http_funcs.ArArView):
             res = True
 
         return self.JsonResponse({'status': 'success', 'has_files': res, 'data': ap.smp.json.dumps(data),
-                             'name': name, 'arr_file_name': arr_file_name})
-
+                                  'name': name, 'arr_file_name': arr_file_name})
 
     def run_arrmulti(self, request, *args, **kwargs):
         sample_name = self.body['sample_name']
@@ -1007,7 +1034,6 @@ class ThermoView(http_funcs.ArArView):
         arr.main()
 
         return self.JsonResponse({})
-
 
     def run_agemon(self, request, *args, **kwargs):
         sample_name = self.body['sample_name']
@@ -1071,10 +1097,7 @@ class ThermoView(http_funcs.ArArView):
 
             agemon.main()
 
-
-
         return self.JsonResponse({})
-
 
     def run_walker(self, request, *args, **kwargs):
         sample_name = self.body['sample_name']
@@ -1124,24 +1147,25 @@ class ThermoView(http_funcs.ArArView):
         if checkable_params[6]:  # including pumping phases
             for i in range(0, len(ti) * 2, 2):
                 if checkable_params[7]:  # pumping out after, like Y56
-                    ti = np.insert(ti, i+1, pumping)
+                    ti = np.insert(ti, i + 1, pumping)
                     if checkable_params[8]:  # heating durations include pumping-out phases
                         ti[i] -= pumping
                 else:
                     ti = np.insert(ti, i, pumping)
                     # times = np.insert(times, i, times[i] - pumping)
                     if checkable_params[8]:  # heating durations include pumping-out phases
-                        ti[i+1] -= pumping
-                temps = np.insert(temps, i+1, temps[i])
-                targets = np.insert(targets, i+1, targets[i])
-                statuses.insert(i+1, False)
+                        ti[i + 1] -= pumping
+                temps = np.insert(temps, i + 1, temps[i])
+                targets = np.insert(targets, i + 1, targets[i])
+                statuses.insert(i + 1, False)
 
         times = np.cumsum(ti)  # cumulative time
 
         debug_print(list(zip(temps, times)))
 
         if checkable_params[9]:  # searching for nearby places
-            energies_list = []; fractions_list = []
+            energies_list = [];
+            fractions_list = []
             for each in energies[: ndoms]:
                 energies_list.append([each + i * 1000 for i in range(-1, 2, 1)])
             for each in fractions[: ndoms]:
@@ -1170,7 +1194,8 @@ class ThermoView(http_funcs.ArArView):
                 demo, status = ap.thermo.arw.run(
                     times, temps, statuses,
                     _e, _f, ndoms, file_name=file_name, k=k, grain_szie=gs, dimension=dimension,
-                    atom_density=ad, frequency=f, simulation=False, targets=targets, epsilon=0.05, use_walker1=use_walker1
+                    atom_density=ad, frequency=f, simulation=False, targets=targets, epsilon=0.05,
+                    use_walker1=use_walker1
                 )
             except ap.thermo.arw.OverEpsilonError as e:
                 debug_print(traceback.format_exc())
@@ -1180,7 +1205,6 @@ class ThermoView(http_funcs.ArArView):
                 ap.thermo.arw.save_ads(demo, f"{loc}", name=demo.name + f" {(time.time() - _start) / 3600:.2f}h")
 
         return self.JsonResponse({})
-
 
     def run_40ar_walker(self, request, *args, **kwargs):
         sample_name = self.body['sample_name']
@@ -1279,9 +1303,9 @@ class ThermoView(http_funcs.ArArView):
                 filename = f"walker2 k=10000.0a es=135-126-152 fs=1-0.97-0.74 dt=3155695200000 parent=800000000 gs=275 ad=0e+00 f=1e+13 ndoms=3 pumping=True multi 1.35h.ads"
                 filename = "walker2 k=3000.0a es=135-126-152 fs=1-0.97-0.74 dt=3155695200000 parent=800000000 gs=275 ad=0e+00 f=1e+13 ndoms=3 temp={200.0, 10.0, 300.0, 400.0, 150.0, 25.0, 250.0, 350.0} pumping=True multi 4.99h.ads"
                 filename = "walker2 k=1000.0a es=135-126-152 fs=1-0.97-0.74 dt=3155695200000 parent=800000000 gs=275 ad=0e+00 f=1e+13 ndoms=3 pumping=False multi 12.27h.ads"
-                filename = os.path.join(r"D:\DjangoProjects\webarar\private\mdd\20240920_24FY88a\thermo-history", filename)
+                filename = os.path.join(r"D:\DjangoProjects\webarar\private\mdd\20240920_24FY88a\thermo-history",
+                                        filename)
                 demo = ap.thermo.arw.read_ads(filename)
-
 
                 ## 再模拟实验过程
 
@@ -1328,7 +1352,8 @@ class ThermoView(http_funcs.ArArView):
                     _start = time.time()
                     k = 3600 * 24 * 365.2425 * k
                     demo, status = ap.thermo.arw.run(
-                        times, temps, statuses, _e, _f, ndoms, file_name=file_name, k=k, grain_szie=gs, dimension=dimension,
+                        times, temps, statuses, _e, _f, ndoms, file_name=file_name, k=k, grain_szie=gs,
+                        dimension=dimension,
                         atom_density=ad, frequency=f, simulation=False, targets=targets, epsilon=0.05,
                         use_walker1=use_walker1, decay=0, parent=0, positions=demo.positions
                     )
@@ -1340,7 +1365,6 @@ class ThermoView(http_funcs.ArArView):
                     ap.thermo.arw.save_ads(demo, f"{loc}", name=demo.name + f" {(time.time() - _start) / 3600:.2f}h")
 
         return self.JsonResponse({})
-
 
     def plot(self, request, *args, **kwargs):
         # names = list(models.IrraParams.objects.values_list('name', flat=True))
@@ -1391,7 +1415,8 @@ class ThermoView(http_funcs.ArArView):
                             k1 = k1 / (radius * 0.0001) ** 2  # μm to m
                         # Closure temperature
                         k2 = -10 * m * ap.thermo.basic.GAS_CONSTANT * np.log(base)  # activation energy, kJ
-                        k3, _ = ap.thermo.basic.get_tc(da2=k1, sda2=0, E=k2 * 1000, sE=0, pho=0, cooling_rate=cooling_rate, A=A)
+                        k3, _ = ap.thermo.basic.get_tc(da2=k1, sda2=0, E=k2 * 1000, sE=0, pho=0,
+                                                       cooling_rate=cooling_rate, A=A)
                         return k1, k2, k3  # da2, E, Tc
 
                     try:
@@ -1430,7 +1455,9 @@ class ThermoView(http_funcs.ArArView):
                         age.append(data[5][i])
                         sage.append(data[6][i])
                         indexes.append(i)
-                wtd_mean_ages.append([data[9][min(indexes) - 1] * 100 if min(indexes) != 0 else 0, data[9][max(indexes)] * 100, *ap.calc.arr.wtd_mean(age, sage)])
+                wtd_mean_ages.append(
+                    [data[9][min(indexes) - 1] * 100 if min(indexes) != 0 else 0, data[9][max(indexes)] * 100,
+                     *ap.calc.arr.wtd_mean(age, sage)])
 
         if plot_params[2]:  # cooling history
             if read_from_ins:
@@ -1498,17 +1525,16 @@ class ThermoView(http_funcs.ArArView):
             ads_released = np.transpose(ads_released)
 
             for i in range(len(ads_released)):
-                released.append([i+1, sum(ar[0:i+1]) / sum(ar), *ads_released[i]])
+                released.append([i + 1, sum(ar[0:i + 1]) / sum(ar), *ads_released[i]])
         else:
             released.append([])
         spectra_data.append(released)
         release_name = '\n'.join(release_name)
 
         return self.JsonResponse({'status': 'success', 'data': ap.smp.json.dumps(spectra_data),
-                             'line_data': ap.smp.json.dumps(lines),
-                             'wtd_mean_ages': ap.smp.json.dumps(wtd_mean_ages),
-                             'release_name': release_name})
-
+                                  'line_data': ap.smp.json.dumps(lines),
+                                  'wtd_mean_ages': ap.smp.json.dumps(wtd_mean_ages),
+                                  'release_name': release_name})
 
     def read_log(self, request, *args, **kwargs):
         sample_name = self.body['sample_name']
@@ -1546,7 +1572,7 @@ class ExportView(http_funcs.ArArView):
         for index, row in enumerate(files_table):
             row.update({'rank': int(row['position'])})
             if int(row['position']) == 0 and index != 0:
-                row['rank'] = int(files_table[index-1]['rank']) + 1
+                row['rank'] = int(files_table[index - 1]['rank']) + 1
         files_table = sorted(files_table, key=lambda row: int(row['rank']))
 
         debug_print(files_table)
@@ -1578,22 +1604,35 @@ class ExportView(http_funcs.ArArView):
         } if data == {} else data
 
         # ------ 构建数据 -------
-        page_num = -1; c = 0; plot_data_list = []; params_list = []
+        page_num = -1;
+        c = 0;
+        plot_data_list = [];
+        params_list = []
         for index, row in enumerate(files_table):
-            params_list.append(dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in ap.files.basic.read(models.ExportPdfParams.objects.get(name=row['setting']).file_path)])))
+            params_list.append(dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in ap.files.basic.read(
+                models.ExportPdfParams.objects.get(name=row['setting']).file_path)])))
             if index == 0 or int(row['position']) == 1:
-                page_num += 1; c = 0; plot_data_list.append([]); xn = 0; yn = 0; sn = 0
+                page_num += 1;
+                c = 0;
+                plot_data_list.append([]);
+                xn = 0;
+                yn = 0;
+                sn = 0
             plot_together = int(row['position']) == 0
-            plot_data = ap.smp.export.get_plot_data(smp=get_smp(row['file_path']), diagram=row['diagram'], color=colors[c] if plot_together else 'black')
+            plot_data = ap.smp.export.get_plot_data(smp=get_smp(row['file_path']), diagram=row['diagram'],
+                                                    color=colors[c] if plot_together else 'black')
             if freshing:  # freshing: 获取 前端 axis属性，更新series
-                plot_data['xAxis'] = data['data'][page_num]['xAxis'][xn:xn+len(plot_data['xAxis'])]
-                plot_data['yAxis'] = data['data'][page_num]['yAxis'][yn:yn+len(plot_data['yAxis'])]
-                xn = xn + len(plot_data['xAxis']); yn = yn + len(plot_data['yAxis'])
+                plot_data['xAxis'] = data['data'][page_num]['xAxis'][xn:xn + len(plot_data['xAxis'])]
+                plot_data['yAxis'] = data['data'][page_num]['yAxis'][yn:yn + len(plot_data['yAxis'])]
+                xn = xn + len(plot_data['xAxis']);
+                yn = yn + len(plot_data['yAxis'])
                 if preview:  # preview: 完全从前端读取 点击 fresh的时候 fresh == True and preview == False  点击 preview 的时候 fresh == True and preview == True
-                    plot_data['series'] = data['data'][page_num]['series'][sn:sn+len(plot_data['series'])]
+                    plot_data['series'] = data['data'][page_num]['series'][sn:sn + len(plot_data['series'])]
                     sn = sn + len(plot_data['series'])
                 else:
-                    plot_data['series'] = ap.smp.export.get_plot_series_data(smp=get_smp(row['file_path']), diagram=row['diagram'], color=colors[c] if plot_together else 'black', xAxis=plot_data['xAxis'], yAxis=plot_data['yAxis'])
+                    plot_data['series'] = ap.smp.export.get_plot_series_data(smp=get_smp(row['file_path']),
+                                                                             diagram=row['diagram'], color=colors[
+                            c] if plot_together else 'black', xAxis=plot_data['xAxis'], yAxis=plot_data['yAxis'])
             if plot_together:
                 plot_data_list[-1][-1]['series'].extend(plot_data['series'])
             else:
@@ -1612,7 +1651,8 @@ class ExportView(http_funcs.ArArView):
 
         file_path = f"{settings.DOWNLOAD_URL}{data['file_name']}-{uuid.uuid4().hex[:8]}.pdf"
         try:
-            file_path = ap.smp.export.export_chart_to_pdf(cvs, file_name=data['file_name'], file_path=file_path, **page_settings)
+            file_path = ap.smp.export.export_chart_to_pdf(cvs, file_name=data['file_name'], file_path=file_path,
+                                                          **page_settings)
         except (Exception, BaseException) as e:
             messages.error(request, e)
             return self.JsonResponse({'msg': f"{e}"}, status=403)

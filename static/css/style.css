@@ -408,3 +408,12 @@ input.input-filter-params {
 .label-right {
     width: 45%;
 }
+
+.description-words {
+    font-style: italic;
+}
+
+.under {
+    text-decoration: underline;
+    color: #721c24;
+}

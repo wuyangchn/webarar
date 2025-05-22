@@ -47,10 +47,8 @@
             }
         }
         function clear_search() {
-            if ($('#search').val().length !== 0) {
-                $('#search').val('');
-                refresh_table();
-            }
+            $('#search').val('');
+            refresh_table();
         }
         function search_journal() {
             if ($('#search').val().length !== 0) {

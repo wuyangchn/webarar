@@ -481,7 +481,10 @@ function createSmChart(container, option) {
     })
     return chart
 }
-function showParamProject(ele, param_type, isProRadio=true) {
+function showDatabase(ele, callback=null) {
+    //
+}
+function showParamProject(ele, param_type, isProRadio=true, callback=null) {
     if (ele && !param_type) {
         if (ele.id.toString().includes('irra')) {
             param_type = "irra";
@@ -508,6 +511,7 @@ function showParamProject(ele, param_type, isProRadio=true) {
             'type': param_type,
             'cache_key': typeof cache_key !== 'undefined'? cache_key: undefined,
         }),
+        async: true,
         contentType:'application/json',
         success: function(res){
             if (param_type === "irra") {
@@ -528,6 +532,7 @@ function showParamProject(ele, param_type, isProRadio=true) {
                 });
                 initialRatioSelectChanged();
             }
+            if (callback) {callback()}
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
@@ -1339,12 +1344,12 @@ function updateSequenceTable() {
     }
     $('#table-sequences').bootstrapTable('load', tableData);
 }
-function paramsRadioChanged(flag) {
+function paramsRadioChanged(flag, callback=null) {
     flag = flag.value? flag.value : flag;
     // flag = 'irra', 'calc', 'smp'
     let inputs = $(`#${flag}ParamsInputForm`).find($('input'));
     if ($(`#${flag}ParamsRadio1`).is(':checked')) {
-        showParamProject(document.getElementById(`${flag}ProjectName`), flag, true);
+        showParamProject(document.getElementById(`${flag}ProjectName`), flag, true, callback);
         $(`#${flag}ParamsInputForm`).find($('select,input[type="checkbox"],input[type="radio"]')).attr('disabled', true);
         inputs.css('background-color', '#eee');
         inputs.css('border-color', '#ccc');
