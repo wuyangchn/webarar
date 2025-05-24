@@ -587,6 +587,7 @@
             }
         });
         chartBig.getZr().on('mouseup', function (params) {
+            if (!moving) { return; }
             moving = false;
             start_left_top = [];
             end_left_top = [];
