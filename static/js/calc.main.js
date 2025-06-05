@@ -230,7 +230,8 @@ function rawFilesChanged() {
                 }).join("")}`;
                 table.bootstrapTable('insertRow', {index: data.length + index,
                     row: {
-                        'file_name': file.name, 'file_path': file.path,
+                        'file_name': file.name,
+                        'file_path': file.path,
                         'filter': `<select class="input-sm input-filter-selection" style="width: 200px" onchange="change_input_filter(this)">${filter_options}</select>`,
                         'operation': '<button type="button" class="btn btn-danger" onclick="removeRawFile(id)" ' +
                             'id="btn-raw-file-' + data.length +'">Remove</button>',
@@ -423,9 +424,23 @@ function export_sequence_deselect_all() {
 }
 
 
+function getExportedData(table){
+    let settings = (ele) => ele.options[ele.selectedIndex].innerText;
+    return table.bootstrapTable('getData').map((item, index) => {
+        return {
+            'checked': item['checked'],
+            'file_name': item['file_name'],
+            'file_path': item['file_path'],
+            'diagram': settings($('.input-filter-selection-diagram')[index]),
+            'setting': settings($('.input-filter-selection-setting')[index]),
+            'position': settings($('.input-filter-selection-position')[index]),
+        }
+    })
+}
 // export to pdf
 function filesToExportChanged() {
     let table = $('#export_arr_file_list');
+    let data = getExportedData(table);
     if ($('#files_to_export').val() === '') {return}
     let formData = new FormData(document.getElementById("editExportForm"));
     $.ajax({
@@ -439,27 +454,27 @@ function filesToExportChanged() {
         success: function(res){
             $('#files_to_export').val('');
             let files = JSON.parse(res).files;
-            let data = table.bootstrapTable('getData');
             let diagram = 'Age Spectra';
             let setting = 'spectra';
             let data_length = data.length;
             $.each(files, function (index, file) {
                 table.bootstrapTable('insertRow', {index: data.length + index,
                     row: {
-                        'file_name': file.name, 'file_path': file.path,
-                        'diagram': `<select class="input-sm input-filter-selection" style="width: 150px">${diagram_list.map((item, _) => {
+                        'file_name': file.name,
+                        'file_path': file.path,
+                        'diagram': `<select class="input-sm input-filter-selection-diagram" style="width: 100px">${diagram_list.map((item, _) => {
                             if (item.toUpperCase() === diagram.toUpperCase()) {
                                 return "<option selected>" + item + "</option>"
                             }
                             return "<option>" + item + "</option>"
                         }).join("")}$</select>`,
-                        'setting': `<select class="input-sm input-filter-selection-setting" style="width: 150px">${setting_list.map((item, _) => {
+                        'setting': `<select class="input-sm input-filter-selection-setting" style="width: 100px">${setting_list.map((item, _) => {
                             if (item.toUpperCase() === setting.toUpperCase()) {
                                 return "<option selected>" + item + "</option>"
                             }
                             return "<option>" + item + "</option>"
                         }).join("")}$</select>`,
-                        'position': `<select class="input-sm input-filter-selection-position" style="width: 150px">${position_list.map((item, _) => {
+                        'position': `<select class="input-sm input-filter-selection-position" style="width: 50px">${position_list.map((item, _) => {
                             if (item.toUpperCase() === (data_length + index + 1).toString().toUpperCase()) {
                                 return "<option selected>" + item + "</option>"
                             }
@@ -467,6 +482,12 @@ function filesToExportChanged() {
                         }).join("")}$</select>`,
                     }
                 })
+            })
+            $.each(data, function(index, row) {
+                table.bootstrapTable(row.checked ? 'check' : 'uncheck', index);
+                $('.input-filter-selection-diagram').eq(index).val(row.diagram);
+                $('.input-filter-selection-setting').eq(index).val(row.setting);
+                $('.input-filter-selection-position').eq(index).val(row.position);
             })
         }
     })
@@ -1920,7 +1941,7 @@ function processQueue() {
 
 async function clickPoints(params) {
 
-    if (isProcessing) {return}  // 判断是否还有未结束的运算，已彻底消除点击散点过快选点跳跃的问题，但是会严重影响操作时间
+    if (isProcessing) {return}  // 判断是否还有未结束的运算，以彻底消除点击散点过快选点跳跃的问题
 
     let current_set = ['set1', 'set2'][isochronLine1Btn.checked ? 0 : 1];
     let current_figure = getCurrentTableId();
@@ -2306,7 +2327,6 @@ function clickRecalc() {
             $('#promptModal').remove();
             await delay(500);
             let results = myParse(response.res);
-            console.log(results);
             sampleComponents = assignDiff(sampleComponents, results);
             showPage(getCurrentTableId(), true);
             closePopupMessage();
@@ -2575,7 +2595,6 @@ function showUploadPictureBtn() {
 }
 function setConsoleText(text) {
     exampleConsole.innerText = `${getTime()} ${text}`;
-    console.log(`${getTime()} ${text}`);
     document.getElementById('page-title').innerText = sampleComponents['0'].sample.name;
 }
 function setRightSideText(sigma=1) {
@@ -3273,7 +3292,7 @@ function renderAgeBarItem(param, api){
 function getIsochronEchart(chart, figure_id, animation, sigma=1) {
     let figure = sampleComponents[figure_id];
     let ageUnit = sampleComponents[0].preference?.ageUnit;
-    console.log(figure.data);
+    // console.log(figure.data);
     let res = sampleComponents[0].results.isochron[figure_id];
     let option = {
         title: {
@@ -3829,7 +3848,6 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=fals
                     // formatter: figure.text2.text,
                     formatter: (params) => {
                         if (figure.text2.text === "") {
-                            console.log(sampleComponents['0'].sample.type);
                             if (sampleComponents['0'].sample.type === "Unknown") {
                                 figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
                             }
@@ -4781,8 +4799,9 @@ function extendChartFuncs(chart) {
     }
     chart.registerMouseClick = (func) => {
         chart.getZr().on('mousedown', function (event) {
-            console.log("getZr().on(mousedown)");
-            console.log(event);
+            // console.log("getZr().on(mousedown)");
+            // console.log(event);
+            // pass
         });
         chart.on('mousedown', (params) => {
             const seriesId = params.seriesId;
@@ -4792,7 +4811,6 @@ function extendChartFuncs(chart) {
                 let pos = chart.convertToPixel({xAxisIndex: series.xAxisIndex, yAxisIndex: series.yAxisIndex}, series.data[0]);
                 let offsetX = params.event.offsetX - pos?.[0];
                 let offsetY = params.event.offsetY - pos?.[1];
-                console.log(`params.event.offsetX = ${params.event.offsetX}`);
                 chart.updateSeries({id: seriesId, onDragged: true, dragOffset: [offsetX, offsetY]}, false);
             } else if (series?.checkable) {
                 // else, like a scatter, do something
@@ -4802,7 +4820,6 @@ function extendChartFuncs(chart) {
     }
 
     chart.getPlotData = () => {
-        console.log(chart);
         let data = {};
         let com = chart._model._componentsMap;
         data.name = com.get('title')[0].option.text;

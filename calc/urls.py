@@ -4,8 +4,6 @@ from . import views
 urlpatterns = [
     # /calc, opening file via different buttons
     path('', views.CalcHtmlView.as_view(), name="calc_view"),
-    # /calc/object
-    # path('object', views.ButtonsResponseObjectView.as_view(), name="object_views_2"),
     # /calc/object/..., three methods: path, post, ajax
     path('object/<str:flag>', views.ButtonsResponseObjectView.as_view(), name="object_views"),
     # /calc/raw
@@ -22,4 +20,8 @@ urlpatterns = [
     path('export/<str:flag>', views.ExportView.as_view(), name="export_views"),
     # api
     path('api/<str:flag>', views.ApiView.as_view(), name="api_views"),
+
+    # This must be the last, matching other flags.
+    # /calc/flag
+    path('<str:flag>', views.CalcHtmlView.as_view(), name="calc_sub_view"),
 ]

@@ -24,8 +24,6 @@
             let num = 0
             for (var i = 0; i < data.length; i++) {
                 var search_words = eval("/^.*?"+search+".*?$/");
-                {#console.log(search_words);#}
-                {#console.log(search_words.test(data[i]['journal']));#}
                 if (tiers.includes(data[i]['tier']) && disciplines.includes(data[i]['subject']) && search_words.test(data[i]['full_name'])) {
                     var tr = document.createElement('tr');
                     tbody.appendChild(tr);

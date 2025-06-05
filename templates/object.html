@@ -1194,7 +1194,6 @@ Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
                     params.seriesName.includes('Text') ? dispatchClickComponents(params, 'text') : dispatchClickComponents(params, params.seriesType)
                     break
                 case "title":
-                    {#console.log(params);#}
                     dispatchClickComponents(params, 'text', 'title')
                     break
             }

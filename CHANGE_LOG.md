@@ -9,6 +9,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+## 2025-06-04
+* Fixed: Exporting pdf issues
+* Added: Open example buttons
+
 ## 2025-5-22
 * Added: Parsing a string including experiment information
 * Added: Ar-Ar database

@@ -147,9 +147,9 @@ function linest(a0, a1, ...args) {
         throw new Error("The determinant of the given matrix must not be zero");
     }
 
-    console.log(x);
-    console.log(y);
-    console.log(inv_xtx);
+    // console.log(x);
+    // console.log(y);
+    // console.log(inv_xtx);
 
     const beta = numeric.dot(inv_xtx, numeric.dot(numeric.transpose(x), y));
     // Calculate Y values based on the fitted formula

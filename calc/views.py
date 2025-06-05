@@ -96,6 +96,11 @@ class CalcHtmlView(http_funcs.ArArView):
         sample = ap.from_empty()
         return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path=''))
 
+    def open_example_file(self, request, *args, **kwargs):
+        file_path = 'static/readme/22WHA0433.arr'
+        sample = ap.from_arr(file_path=file_path)
+        return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path=file_path))
+
     def open_multi_files(self, request, *args, **kwargs):
         length = int(request.POST.get('length'))
         messages.info(request, f"{length} files uploaded")
@@ -723,7 +728,6 @@ class ParamsSettingView(http_funcs.ArArView):
             getattr(models, f"DB{db_type}").objects.values(*fields)
         )
         return self.JsonResponse({'data': data})
-
 
     def change_param_objects(self, request, *args, **kwargs):
         params_type = str(self.body['type'])  # params_type = irra, calc, smp
@@ -1572,9 +1576,7 @@ class ExportView(http_funcs.ArArView):
             row.update({'rank': int(row['position'])})
             if int(row['position']) == 0 and index != 0:
                 row['rank'] = int(files_table[index - 1]['rank']) + 1
-        files_table = sorted(files_table, key=lambda row: int(row['rank']))
-
-        debug_print(files_table)
+        # files_table = sorted(files_table, key=lambda row: int(row['rank']))
 
         colors = [
             '#1f3c40', '#e35000', '#e1ae0f', '#3d8ebf', '#77dd83', '#c7ae88', '#83d6bb', '#653013', '#cc5f16',
@@ -1597,6 +1599,12 @@ class ExportView(http_funcs.ArArView):
         ]
         page_settings = dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in page_settings]))
 
+        options = {
+            'line_width': 0.5,
+            'line_caps': "square",
+            'color': 'black',
+        }
+
         data = {
             "data": [],
             "file_name": "WebArAr"
@@ -1612,14 +1620,18 @@ class ExportView(http_funcs.ArArView):
                 models.ExportPdfParams.objects.get(name=row['setting']).file_path)])))
             if index == 0 or int(row['position']) == 1:
                 page_num += 1;
-                c = 0;
                 plot_data_list.append([]);
                 xn = 0;
                 yn = 0;
                 sn = 0
+            if int(row['position']) > 0:
+                c = 0
             plot_together = int(row['position']) == 0
-            plot_data = ap.smp.export.get_plot_data(smp=get_smp(row['file_path']), diagram=row['diagram'],
-                                                    color=colors[c] if plot_together else 'black')
+            if plot_together:
+                c += 1
+            options.update({'color': colors[c]})
+            plot_data = ap.smp.export.get_plot_data(
+                smp=get_smp(row['file_path']), diagram=row['diagram'], **options)
             if freshing:  # freshing: 获取 前端 axis属性，更新series
                 plot_data['xAxis'] = data['data'][page_num]['xAxis'][xn:xn + len(plot_data['xAxis'])]
                 plot_data['yAxis'] = data['data'][page_num]['yAxis'][yn:yn + len(plot_data['yAxis'])]
@@ -1636,7 +1648,6 @@ class ExportView(http_funcs.ArArView):
                 plot_data_list[-1][-1]['series'].extend(plot_data['series'])
             else:
                 plot_data_list[-1].append(plot_data)
-            c += 1
 
         data['data'] = []
         for page in plot_data_list:
@@ -1653,6 +1664,7 @@ class ExportView(http_funcs.ArArView):
             file_path = ap.smp.export.export_chart_to_pdf(cvs, file_name=data['file_name'], file_path=file_path,
                                                           **page_settings)
         except (Exception, BaseException) as e:
+            debug_print(traceback.format_exc())
             messages.error(request, e)
             return self.JsonResponse({'msg': f"{e}"}, status=403)
         else:
@@ -1703,7 +1715,7 @@ class ApiView(http_funcs.ArArView):
             files = request.FILES.getlist('files')
         else:
             files = [request.FILES.get(str(i)) for i in range(length)]
-        debug_print(f"Number of files: {len(files)}")
+        files = sorted(files, key=lambda f: f.name)
         for file in files:
             try:
                 web_file_path, file_name, suffix = ap.files.basic.upload(
