@@ -97,7 +97,7 @@ class CalcHtmlView(http_funcs.ArArView):
         return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path=''))
 
     def open_example_file(self, request, *args, **kwargs):
-        file_path = 'static/readme/22WHA0433.arr'
+        file_path = 'static/readme/Example.arr'
         sample = ap.from_arr(file_path=file_path)
         return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path=file_path))
 
@@ -1641,9 +1641,8 @@ class ExportView(http_funcs.ArArView):
                     plot_data['series'] = data['data'][page_num]['series'][sn:sn + len(plot_data['series'])]
                     sn = sn + len(plot_data['series'])
                 else:
-                    plot_data['series'] = ap.smp.export.get_plot_series_data(smp=get_smp(row['file_path']),
-                                                                             diagram=row['diagram'], color=colors[
-                            c] if plot_together else 'black', xAxis=plot_data['xAxis'], yAxis=plot_data['yAxis'])
+                    plot_data['series'] = ap.smp.export.get_plot_series_data(
+                        smp=get_smp(row['file_path']), diagram=row['diagram'], color=colors[c] if plot_together else 'black', xAxis=plot_data['xAxis'], yAxis=plot_data['yAxis'])
             if plot_together:
                 plot_data_list[-1][-1]['series'].extend(plot_data['series'])
             else:

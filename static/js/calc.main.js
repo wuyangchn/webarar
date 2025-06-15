@@ -1658,8 +1658,8 @@ function dropHandler(ev) {
     }
     let send_erquest = () => {
         for (let i=0;i<files.length;i++) {
-             // Ignoring files bigger than about 5 MB
-            if (files[i].size > 5242880 ) {
+             // Ignoring files bigger than about 20 MB
+            if (files[i].size > 20 * 1024 * 1024 ) {
                 showPopupMessage('Error', `The amount of data is too large (${(files[i].size / 1024 / 1024).toFixed(2)} MB), not supported.`, true)
                 continue;
             }
@@ -3822,7 +3822,7 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=fals
                     formatter: (params) => {
                         if (figure.text1.text === "" || recalculate) {
                             if (sampleComponents['0'].sample.type === "Unknown") {
-                                figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[0]['Ar39'].toFixed(2)}%\nn = ${res[0]['Num']}, χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                                figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${(res[0]['Ar39']*100).toFixed(2)}%\nn = ${res[0]['Num']}, χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
                                 figure.text1.text = `WMJ = ${res[0]['F'].toFixed(8)} ± ${(res[0]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
@@ -3849,7 +3849,7 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=fals
                     formatter: (params) => {
                         if (figure.text2.text === "") {
                             if (sampleComponents['0'].sample.type === "Unknown") {
-                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${res[1]['Ar39'].toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
+                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${(res[0]['Ar39']*100).toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
                                 figure.text2.text = `WMJ = ${res[1]['F'].toFixed(8)} ± ${(res[1]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
@@ -3919,7 +3919,7 @@ function getDegasPatternEchart(chart, figure_id, animation) {
             let degas_data = figure.info[index]?item:[];
             degas_data = degas_data.map((v, i) => [i + 1, v]);  // set category of xaxis as index from 1
             return {
-                name: ['Ar36a', 'Ar37Ca', 'Ar38Cl', 'Ar39K', 'Ar40r', 'Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][index],
+                name: ['Ar36a', 'Ar37Ca', 'Ar38Cl', 'Ar39K', 'Ar40*', 'Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][index],
                 type: 'line', symbolSize: 6, z: 2, data: degas_data, silent: true,
                 lineStyle: {width: 1, type: 'solid'},
                 itemStyle: {borderColor: '#222', borderWidth: 2, opacity: 0.8},
