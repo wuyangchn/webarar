@@ -405,7 +405,8 @@ class RawFileView(http_funcs.ArArView):
         filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_name]
         try:
             raw = ap.smp.raw.to_raw(file_path=file_path, input_filter_path=filter_paths)
-            raw.do_regression()
+            if not all([str(name).lower() == "seq" for name in filter_name]):
+                raw.do_regression()
 
             allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
             allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
