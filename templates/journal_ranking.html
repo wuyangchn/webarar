@@ -22,27 +22,39 @@
         function write_tbody(tiers, disciplines, search) {
             $("#tbody").empty();
             let num = 0
-            for (var i = 0; i < data.length; i++) {
-                var search_words = eval("/^.*?"+search+".*?$/");
-                if (tiers.includes(data[i]['tier']) && disciplines.includes(data[i]['subject']) && search_words.test(data[i]['full_name'])) {
-                    var tr = document.createElement('tr');
-                    tbody.appendChild(tr);
+            data.forEach((journal, index) => {
+                const search_words = eval("/^.*?"+search+".*?$/");
+                if (tiers.includes(journal.tier) && disciplines.includes(journal.subject) && search_words.test(journal.full_name)) {
                     num = num + 1;
-                    var th = document.createElement('th');
+                    let tr = document.createElement('tr');
+                    tr.style.backgroundColor = num%2===0? '#fffaf0':'#ffffff';
+                    tbody.appendChild(tr);
+                    let th = document.createElement('th');
                     th.innerHTML = num;
                     tr.appendChild(th);
-                    for (var k in data[i]) {
-                        var td = document.createElement('td');
-                        if (k==='journal' && search.length !== 0) {
-                            var splited = data[i][k].split(search);
-                            td.innerHTML = splited.join('<em style=\"background-color: yellow\">' + search + '</em>');
-                        } else {
-                            td.innerHTML = data[i][k];
+                    for (let key in journal) {
+                        if (!journal.hasOwnProperty(key)) { continue; }
+                        const value = journal[key];
+                        const td = document.createElement('td');
+                        switch (key) {
+                            case "full_name":
+                                td.innerHTML = search.length === 0 ? value : value.split(search).join(`<em style=\"background-color: yellow\">${search}</em>`);
+                                break;
+                            case "letpub_id":
+                                td.innerHTML = value === 0 ? `N/A` : `<button onclick=open_letpub(${value})>GoTo</button>`;
+                                break;
+                            default:
+                                td.innerHTML = value;
+                                break;
                         }
                         tr.appendChild(td);
                     }
                 }
-            }
+            });
+        }
+        function open_letpub(id) {
+            window.open(`https://www.letpub.com.cn/index.php?journalid=${id}&page=journalapp&view=detail`, 'myWindow', 'width=1200,height=1000');
+            window.close();
         }
         function clear_search() {
             $('#search').val('');
@@ -126,7 +138,7 @@
                 <button onclick="search_journal()">搜索</button>
                 <button style="margin-left: 2px" onclick="clear_search()">清空</button>
                 <label>（按级别+影响因子排序，影响因子查询：<a target="_blank" href="https://jcr.clarivate.com/jcr/browse-journals">https://jcr.clarivate.com/jcr/browse-journals)</a></label>
-                <label> 反馈：<a href="mailto:wuycug@hotmail.com" target="_blank">wuycug@hotmail.com</a></label><br>
+                <label> 数据来自网络，不对数据准确性负责，发现错误请反馈：<a href="mailto:wuycug@hotmail.com" target="_blank">wuycug@hotmail.com</a></label><br>
                 <div id="discipline_div" style="margin-top: 5px; margin-bottom: 5px; margin-right: 80px">
                 </div>
                 <label><input type="checkbox" checked class="tier" value="T1" onchange="refresh_table()">T1</label>
@@ -149,6 +161,7 @@
                 <th style="width: 120px">2021 IF</th>
                 <th style="width: 120px">2022 IF</th>
                 <th style="width: 120px">2023 IF</th>
+                <th style="width: 120px">LetPub</th>
 {#                <th style="width: 120px">IF Diff 23-22</th>#}
             </tr>
         </thead>

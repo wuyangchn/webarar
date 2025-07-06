@@ -13,6 +13,7 @@ class Journal(models.Model):
     category = models.CharField("CATEGORY", max_length=500)
     issn = models.CharField("ISSN", max_length=64)
     eissn = models.CharField("EISSN", max_length=64)
+    letpub_id = models.BigIntegerField("LETPUB_ID", unique=False, default=0)
 
 
 class CUGJournalRanking(models.Model):
@@ -27,3 +28,4 @@ class CUGJournalRanking(models.Model):
     jif23 = models.CharField("JIF23", max_length=64, default="N/A")
     issn = models.CharField("ISSN", max_length=64, default="N/A")
     eissn = models.CharField("EISSN", max_length=64, default="N/A")
+    letpub_id = models.BigIntegerField("LETPUB_ID", unique=False, default=0)

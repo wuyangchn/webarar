@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from home import models as home_models
 from . import models
 from django.shortcuts import render
+import requests
+import json
 
 from programs import http_funcs, log_funcs, ap
 
@@ -79,7 +81,28 @@ def journal_ranking(request):
     #         'IF21': jifs[0], 'IF22': jifs[1], 'IF23': jifs[2],
     #         'Diff': get_diff(jifs[1], jifs[2])
     #     })
-    data = list(models.CUGJournalRanking.objects.values('full_name', 'tier', 'subject', 'tag', 'jif21', 'jif22', 'jif23'))
+    # for journal in models.CUGJournalRanking.objects.all():
+    #     if ord(journal.full_name[0]) > 125:
+    #         continue
+    #     if journal.letpub_id != 0 and '&' not in journal.full_name:
+    #         continue
+    #     # if journal.full_name.upper() != 'LASER & PHOTONICS REVIEWS':
+    #     #     continue
+    #     res = requests.get(f'https://www.letpub.com.cn/journalappAjaxXS.php?querytype=autojournal&term={journal.full_name}')
+    #     if res.status_code == 200:
+    #         data_list = json.loads(res.text)
+    #         if len(data_list) == 0:
+    #             continue
+    #         for data in data_list:
+    #             if data['label'].upper() == journal.full_name.upper():
+    #                 print(f"{journal.full_name = }, {journal.issn = }, {data = }")
+    #                 jid = data['id']
+    #                 journal.letpub_id = int(jid)
+    #                 if journal.issn == data_list[0]['issn']:
+    #                     journal.issn = data['issn']
+    #                 journal.save()
+    #                 break
+    data = list(models.CUGJournalRanking.objects.values('full_name', 'tier', 'subject', 'tag', 'jif21', 'jif22', 'jif23', 'letpub_id'))
 
     def neg_jif(jif):
         if isinstance(jif, str) and not jif.isprintable():
@@ -91,6 +114,7 @@ def journal_ranking(request):
     data.sort(key=lambda x: (x['tier'], neg_jif(x['jif23'])))
     log_funcs.write_log(http_funcs.get_ip(request), 'info', 'Visit journal ranking html')
     return render(request, 'journal_ranking.html', {'data': ap.smp.json.dumps(data)})
+
 
 def api_callback(request):
     return journal_ranking(request)
