@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CUG Journal Ranking 2023</title>
+    <title>地大最新期刊分类 (2023) - CUG Journal Ranking 2023</title>
     <link rel="icon" href="/static/image/logo32blue.svg">
     <!-- 兼容性设置 -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -54,7 +54,6 @@
         }
         function open_letpub(id) {
             window.open(`https://www.letpub.com.cn/index.php?journalid=${id}&page=journalapp&view=detail`, 'myWindow', 'width=1200,height=1000');
-            window.close();
         }
         function clear_search() {
             $('#search').val('');
@@ -71,7 +70,7 @@
             $("input[class='tier']:checked").each(function () {
                 tiers.push($(this).val());
             })
-            $("input[class='not_geology']:checked,input[class='geology']:checked").each(function () {
+            $("input.discipline:checked").each(function () {
                 disciplines.push($(this).val());
             })
             if (disciplines.length !== 0 && $("#no_discipline").is(':checked')) {
@@ -86,7 +85,7 @@
         function select_no_discipline() {
             var flag = false;
             if ($('#no_discipline').is(':checked')) {
-                $("input[class='geology']:checked,[class='not_geology']:checked").each(function () {
+                $("input.discipline:checked").each(function () {
                     $(this).prop('checked', false);
                     flag = true;
                 });
@@ -97,7 +96,7 @@
         function select_all_disciplines() {
             var flag = false;
             if ($('#all_disciplines').is(':checked')) {
-                $("input[class='geology']:not(:checked),input[class='not_geology']:not(:checked)").each(function () {
+                $("input.discipline:not(:checked)").each(function () {
                     $(this).prop('checked', true);
                     flag = true;
                 });
@@ -109,16 +108,55 @@
         function select_geology() {
             var flag = false;
             if ($('#geology_disciplines').is(':checked')) {
-                $("input[class='geology']:not(:checked)").each(function () {
+                $("input.geology:not(:checked)").each(function () {
                     $(this).prop('checked', true);
                     flag = true;
                 });
-                $("input[class='not_geology']:checked").each(function () {
+                $("input.not_geology:checked, input.social_sciences:checked").each(function () {
                     $(this).prop('checked', false);
                     flag = true;
                 });
             }
             $('#no_discipline').prop('checked', false);
+            $('#social_sciences_disciplines').prop('checked', false);
+            $('#natural_sciences_disciplines').prop('checked', false);
+            $('#all_disciplines').prop('checked', false);
+            if (flag) {refresh_table();}
+        }
+        function select_natural_sciences() {
+            var flag = false;
+            if ($('#natural_sciences_disciplines').is(':checked')) {
+                $("input.natural_sciences:not(:checked)").each(function () {
+                    $(this).prop('checked', true);
+                    flag = true;
+                });
+                $("input.social_sciences:checked").each(function () {
+                    $(this).prop('checked', false);
+                    flag = true;
+                });
+            }
+            $('#no_discipline').prop('checked', false);
+            $('#social_sciences_disciplines').prop('checked', false);
+            $('#geology_disciplines').prop('checked', false);
+            $('#all_disciplines').prop('checked', false);
+            if (flag) {refresh_table();}
+        }
+        function select_social_sciences() {
+            var flag = false;
+            if ($('#social_sciences_disciplines').is(':checked')) {
+                $("input.social_sciences:not(:checked)").each(function () {
+                    $(this).prop('checked', true);
+                    flag = true;
+                });
+                $("input.natural_sciences:checked").each(function () {
+                    $(this).prop('checked', false);
+                    flag = true;
+                });
+            }
+            $('#no_discipline').prop('checked', false);
+            $('#geology_disciplines').prop('checked', false);
+            $('#natural_sciences_disciplines').prop('checked', false);
+            $('#all_disciplines').prop('checked', false);
             if (flag) {refresh_table();}
         }
         $(document).ready(function () {
@@ -127,18 +165,22 @@
     </script>
 </head>
 <body>
-    <a style="color: black;" target="_blank" href="https://eniec.cug.edu.cn/info/1048/1885.htm"><h1 style="margin-left: 80px">地大最新期刊分类（2023）</h1></a>
+    <h1 style="margin-left: 80px">地大最新期刊分类（2023）</h1>
     <div style="margin-left: 80px">
         <br>
             <div>
+                <label>[查看<a target="_blank" href="https://eniec.cug.edu.cn/info/1048/1885.htm">学校公告</a>]</label>
+                <label>[按级别+影响因子排序，影响因子查询：<a target="_blank" href="https://jcr.clarivate.com/jcr/browse-journals">https://jcr.clarivate.com/jcr/browse-journals</a>]</label>
+                <label>[数据来自网络，不对数据准确性负责，发现错误请反馈：<a href="mailto:wuycug@hotmail.com" target="_blank">wuycug@hotmail.com</a>]</label>
+                <label>[查看<a href="http://kyy.neu.edu.cn/2024/0716/c10457a266027/page.psp" target="_blank">Nature Index</a>期刊目录]</label><br>
                 <label style="color: orangered"><input id="geology_disciplines" class="discipline_selector" type="checkbox" checked onchange="select_geology()">地学类</label>
+                <label><input id="natural_sciences_disciplines" class="discipline_selector" type="checkbox" onchange="select_natural_sciences()">理工类</label>
+                <label><input id="social_sciences_disciplines" class="discipline_selector" type="checkbox" onchange="select_social_sciences()">人文社科类</label>
                 <label><input id="all_disciplines" class="discipline_selector" type="checkbox" onchange="select_all_disciplines()">全部学科</label>
                 <label><input id="no_discipline" type="checkbox" onchange="select_no_discipline()">全部取消</label>
                 <label><input id="search" type="search" style="width: 200px"></label>
                 <button onclick="search_journal()">搜索</button>
                 <button style="margin-left: 2px" onclick="clear_search()">清空</button>
-                <label>（按级别+影响因子排序，影响因子查询：<a target="_blank" href="https://jcr.clarivate.com/jcr/browse-journals">https://jcr.clarivate.com/jcr/browse-journals)</a></label>
-                <label> 数据来自网络，不对数据准确性负责，发现错误请反馈：<a href="mailto:wuycug@hotmail.com" target="_blank">wuycug@hotmail.com</a></label><br>
                 <div id="discipline_div" style="margin-top: 5px; margin-bottom: 5px; margin-right: 80px">
                 </div>
                 <label><input type="checkbox" checked class="tier" value="T1" onchange="refresh_table()">T1</label>
@@ -175,27 +217,44 @@
     let data = {{ data | safe }};
     let tbody = document.querySelector('tbody');
     let geology_disciplines = [
-        '地球物理学', '地质学', '地质资源与地质工程（地球信息）', '地质资源与地质工程（工程地质）',
-        '地质资源与地质工程（勘察地球物理）', '地质资源与地质工程（岩土钻掘）', '地质资源与地质工程（资源）', '海洋科学',
-        '石油与天然气工程', '理工综合类'
+        '理工综合类', '地质学', '大气科学', '海洋科学', '地球物理学',
+        '石油与天然气工程', '环境科学与工程', '测绘科学与技术', '地质资源与地质工程（资源）', '地质资源与地质工程（地球信息）',
+        '地质资源与地质工程（勘察地球物理）', '地质资源与地质工程（岩土钻掘）', '地质资源与地质工程（工程地质）'
+    ];
+    let natural_sciences_disciplines = [
+        '信息与通信工程', '物理学', '土木工程', '水利工程', '环境科学与工程',
+        '机械工程', '安全科学与工程', '地质资源与地质工程（资源）', '地球物理学', '数学',
+        '计算机科学与技术', '地理科学', '地质资源与地质工程（勘察地球物理）', '化学', '石油与天然气工程',
+        '材料科学与工程', '地质资源与地质工程（工程地质）', '大气科学', '地质学', '软件工程',
+        '海洋科学', '测绘科学与技术', '生物学', '地质资源与地质工程（岩土钻掘）', '地质资源与地质工程（地球信息）',
+        '控制科学与工程', '应用经济学', '理工综合类'
+    ];
+    let social_sciences_disciplines = [
+        '工商管理', '管理科学与工程', '外国语言文学', '新闻传播学', '法学',
+        '马克思主义理论', '设计学', '教育学', '公共管理', '体育学',
+        '心理学'
     ];
     let all_disciplines = [
-        '信息与通信工程', '物理学', '土木工程', '水利工程', '环境科学与工程', '机械工程', '工商管理', '安全科学与工程', '地质资源与地质工程（资源）', '地球物理学',
-        '管理科学与工程', '数学', '外国语言文学', '新闻传播学', '计算机科学与技术', '地理科学', '法学', '马克思主义理论', '设计学', '教育学',
-        '地质资源与地质工程（勘察地球物理）', '化学', '石油与天然气工程', '公共管理', '材料科学与工程', '地质资源与地质工程（工程地质）', '大气科学', '地质学', '软件工程',
-        '海洋科学', '体育学', '心理学', '测绘科学与技术', '生物学', '地质资源与地质工程（岩土钻掘）', '地质资源与地质工程（地球信息）', '控制科学与工程', '应用经济学', '理工综合类'
+        '理工综合类', '地质学', '大气科学', '海洋科学', '地球物理学',
+        '石油与天然气工程', '环境科学与工程', '测绘科学与技术', '地质资源与地质工程（资源）', '地质资源与地质工程（地球信息）',
+        '地质资源与地质工程（勘察地球物理）', '地质资源与地质工程（岩土钻掘）', '地质资源与地质工程（工程地质）',
+
+        '信息与通信工程', '物理学', '土木工程', '水利工程', '机械工程',
+        '安全科学与工程', '数学', '计算机科学与技术', '地理科学', '化学',
+        '材料科学与工程', '软件工程', '生物学', '控制科学与工程', '应用经济学',
+
+        '工商管理', '管理科学与工程', '外国语言文学', '新闻传播学', '法学',
+        '马克思主义理论', '设计学', '教育学', '公共管理', '体育学',
+        '心理学',
     ];
-    for (var i=0;i<all_disciplines.length;i++) {
-        if (geology_disciplines.includes(all_disciplines[i])) {
-            $("#discipline_div").append(
-                '<label style="color: orangered"><input type="checkbox" class="geology" checked value=' + all_disciplines[i] + ' onchange="refresh_table()">' + all_disciplines[i] + '</label>'
-            );
-        } else {
-            $("#discipline_div").append(
-                '<label><input type="checkbox" class="not_geology" value=' + all_disciplines[i] + ' onchange="refresh_table()">' + all_disciplines[i] + '</label>'
-            );
-        }
-    }
+
+    all_disciplines.forEach((discipline, index) => {
+        let color = geology_disciplines.includes(discipline) ? "orangered" : "black";
+        let classified = geology_disciplines.includes(discipline) ? "geology natural_sciences discipline" : natural_sciences_disciplines.includes(discipline) ? "not_geology natural_sciences discipline" : "social_sciences discipline";
+        let checked = geology_disciplines.includes(discipline) ? "checked" : "";
+        $("#discipline_div").append(`<label style="color: ${color}"><input type="checkbox" class="${classified}" ${checked} value="${discipline}" name="${discipline}" onchange="refresh_table()">${discipline}</label>`);
+    })
+
     function post_fingerprint_journal_ranking(value) {
         $.ajax({
             url: "{% url 'journal_ranking' %}",

@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from home import models as home_models
 from . import models
 from django.shortcuts import render
-import requests
+# import requests
 import json
 
 from programs import http_funcs, log_funcs, ap
