@@ -1,11 +1,12 @@
-import json
 
 from django.http import JsonResponse
 
 from home import models as home_models
 from . import models
 from django.shortcuts import render
+from django.conf import settings
 # import requests
+# import json
 import json
 
 from programs import http_funcs, log_funcs, ap
@@ -45,12 +46,31 @@ def journal_ranking(request):
     # JIF23_list = ap.files.xls.open_xls(os.path.join(settings.STATICFILES_DIRS[0], f'document/JCR_JIF_2023.xls'))
     # JIF23_list = JIF23_list['JCR_JIF_2023'][1:]
     # JIF23_dict = {}
+    # import os
+    # JIF24_list = ap.files.xls.open_xls(os.path.join(settings.STATICFILES_DIRS[0], f'document/JCR_JIF_2024.xls'))
+    # JIF24_list = JIF24_list['JCR_JIF_2024'][1:]
+    # JIF24_dict = {}
+    # JIF24_dict = {
+    #     "STATISTICAL ANALYSIS AND DATA MINING": 3.6,
+    #     "JOURNAL OF DATABASE MANAGEMENT": 0.8,
+    #     "INTERNATIONAL JOURNAL OF OIL GAS AND COAL TECHNOLOGY": 0.7,
+    # }
     # for journal in JIF21_list:
     #     JIF21_dict.update({str(journal[0]).upper(): journal})
     # for journal in JIF22_list:
     #     JIF22_dict.update({str(journal[0]).upper(): journal})
     # for journal in JIF23_list:
     #     JIF23_dict.update({str(journal[0]).upper(): journal})
+    # for journal in JIF24_list:
+    #     JIF24_dict.update({str(journal[1]).upper(): journal})
+    #
+    # for key, values in JIF24_dict.items():
+    #     for journal in models.CUGJournalRanking.objects.filter(full_name__iexact=str(key).upper()):
+    #         journal.jif24 = values
+    #         journal.save()
+    #     for journal in models.Journal.objects.filter(full_name__iexact=str(key).upper()):
+    #         journal.jif24 = values
+    #         journal.save()
 
     # def get_diff(a, b):
     #     try:
@@ -102,7 +122,9 @@ def journal_ranking(request):
     #                     journal.issn = data['issn']
     #                 journal.save()
     #                 break
-    data = list(models.CUGJournalRanking.objects.values('full_name', 'tier', 'subject', 'tag', 'jif21', 'jif22', 'jif23', 'letpub_id'))
+
+    data = list(models.CUGJournalRanking.objects.values(
+        'full_name', 'tier', 'subject', 'tag', 'jif21', 'jif22', 'jif23', 'jif24', 'letpub_id'))
 
     def neg_jif(jif):
         if isinstance(jif, str) and not jif.isprintable():
@@ -111,7 +133,7 @@ def journal_ranking(request):
             return -float(jif)
         except:
             return 0
-    data.sort(key=lambda x: (x['tier'], neg_jif(x['jif23'])))
+    data.sort(key=lambda x: (x['tier'], neg_jif(x['jif24'])))
     log_funcs.write_log(http_funcs.get_ip(request), 'info', 'Visit journal ranking html')
     return render(request, 'journal_ranking.html', {'data': ap.smp.json.dumps(data)})
 

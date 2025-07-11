@@ -5,12 +5,12 @@ from .models import Journal, CUGJournalRanking
 
 
 class JournalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'short_name', 'jif21', 'jif22', 'jif23', 'category', 'issn', 'eissn', 'letpub_id')
+    list_display = ('id', 'full_name', 'short_name', 'jif21', 'jif22', 'jif23', 'jif24', 'category', 'issn', 'eissn', 'letpub_id')
     search_fields = ('full_name',)
 
 
 class CUGJournalRankingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'tier', 'jif21', 'jif22', 'jif23', 'tag', 'subject', 'short_name', 'issn', 'eissn', 'letpub_id')
+    list_display = ('id', 'full_name', 'tier', 'jif21', 'jif22', 'jif23', 'jif24', 'tag', 'subject', 'short_name', 'issn', 'eissn', 'letpub_id')
     search_fields = ('full_name',)
 
 

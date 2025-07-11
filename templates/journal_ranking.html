@@ -43,6 +43,9 @@
                             case "letpub_id":
                                 td.innerHTML = value === 0 ? `N/A` : `<button onclick=open_letpub(${value})>GoTo</button>`;
                                 break;
+                            case "tier":
+                                td.innerHTML = `<span style=\"font-weight: bold\">${value}</span>`;
+                                break;
                             default:
                                 td.innerHTML = value;
                                 break;
@@ -159,8 +162,14 @@
             $('#all_disciplines').prop('checked', false);
             if (flag) {refresh_table();}
         }
+        function keyDownHandler(ev) {
+            if (ev.keyCode === 13 && document.activeElement === document.getElementById('search')) {
+                search_journal();
+            }
+        }
         $(document).ready(function () {
             refresh_table();
+            window.addEventListener('keydown', keyDownHandler);
         });
     </script>
 </head>
@@ -170,7 +179,7 @@
         <br>
             <div>
                 <label>[查看<a target="_blank" href="https://eniec.cug.edu.cn/info/1048/1885.htm">学校公告</a>]</label>
-                <label>[按级别+影响因子排序，影响因子查询：<a target="_blank" href="https://jcr.clarivate.com/jcr/browse-journals">https://jcr.clarivate.com/jcr/browse-journals</a>]</label>
+                <label>[按级别+最新影响因子排序，影响因子查询：<a target="_blank" href="https://jcr.clarivate.com/jcr/browse-journals">https://jcr.clarivate.com/jcr/browse-journals</a>]</label>
                 <label>[数据来自网络，不对数据准确性负责，发现错误请反馈：<a href="mailto:wuycug@hotmail.com" target="_blank">wuycug@hotmail.com</a>]</label>
                 <label>[查看<a href="http://kyy.neu.edu.cn/2024/0716/c10457a266027/page.psp" target="_blank">Nature Index</a>期刊目录]</label><br>
                 <label style="color: orangered"><input id="geology_disciplines" class="discipline_selector" type="checkbox" checked onchange="select_geology()">地学类</label>
@@ -200,9 +209,10 @@
                 <th style="width: 50px">级别</th>
                 <th>学科</th>
                 <th style="width: 100px">大类</th>
-                <th style="width: 120px">2021 IF</th>
-                <th style="width: 120px">2022 IF</th>
-                <th style="width: 120px">2023 IF</th>
+                <th style="width: 120px">2021 JIF</th>
+                <th style="width: 120px">2022 JIF</th>
+                <th style="width: 120px">2023 JIF</th>
+                <th style="width: 120px">2024 JIF</th>
                 <th style="width: 120px">LetPub</th>
 {#                <th style="width: 120px">IF Diff 23-22</th>#}
             </tr>
