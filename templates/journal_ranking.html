@@ -170,6 +170,7 @@
         $(document).ready(function () {
             refresh_table();
             window.addEventListener('keydown', keyDownHandler);
+            $('#total_counter').text(total_count);
         });
     </script>
 </head>
@@ -179,9 +180,11 @@
         <br>
             <div>
                 <label>[查看<a target="_blank" href="https://eniec.cug.edu.cn/info/1048/1885.htm">学校公告</a>]</label>
-                <label>[按级别+最新影响因子排序，影响因子查询：<a target="_blank" href="https://jcr.clarivate.com/jcr/browse-journals">https://jcr.clarivate.com/jcr/browse-journals</a>]</label>
-                <label>[数据来自网络，不保证100%准确，发现错误可反馈：<a href="mailto:wuycug@hotmail.com" target="_blank">wuycug@hotmail.com</a>]</label>
-                <label>[查看<a href="http://kyy.neu.edu.cn/2024/0716/c10457a266027/page.psp" target="_blank">Nature Index</a>期刊目录]</label><br>
+                <label>[按级别+最新影响因子排序]</label>
+                <label>[数据来自网络，不保证100%准确，反馈：<a href="mailto:wuycug@hotmail.com" target="_blank">wuycug@hotmail.com</a>]</label>
+                <label>[<a target="_blank" href="https://jcr.clarivate.com/jcr/browse-journals">查询影响因子</a>]</label>
+                <label>[查看<a href="http://kyy.neu.edu.cn/2024/0716/c10457a266027/page.psp" target="_blank">Nature Index</a>期刊目录]</label>
+                <label>[数据库更新时间：2025-07-14，浏览次数：<span id="total_counter"></span>]</label><br>
                 <label style="color: orangered"><input id="geology_disciplines" class="discipline_selector" type="checkbox" checked onchange="select_geology()">地学类</label>
                 <label><input id="natural_sciences_disciplines" class="discipline_selector" type="checkbox" onchange="select_natural_sciences()">理工类</label>
                 <label><input id="social_sciences_disciplines" class="discipline_selector" type="checkbox" onchange="select_social_sciences()">人文社科类</label>
@@ -225,6 +228,7 @@
 </body>
 <script>
     let data = {{ data | safe }};
+    let total_count = {{ total_count | safe }};
     let tbody = document.querySelector('tbody');
     let geology_disciplines = [
         '理工综合类', '地质学', '大气科学', '海洋科学', '地球物理学',

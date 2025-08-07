@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from home import models as home_models
 from . import models
 from django.shortcuts import render
-from django.conf import settings
+# from django.conf import settings
 # import requests
 # import json
 import json
@@ -135,7 +135,19 @@ def journal_ranking(request):
             return 0
     data.sort(key=lambda x: (x['tier'], neg_jif(x['jif24'])))
     log_funcs.write_log(http_funcs.get_ip(request), 'info', 'Visit journal ranking html')
-    return render(request, 'journal_ranking.html', {'data': ap.smp.json.dumps(data)})
+
+    if not home_models.User.objects.filter(uuid=str('--journalrankingvisitorcounter--')).exists():
+        home_models.User.objects.create(
+            uuid=str('--journalrankingvisitorcounter--'),
+            ip='127.0.0.1',
+            device='N/A',
+            count=1
+        )
+    _user = home_models.User.objects.get(uuid=str('--journalrankingvisitorcounter--'))
+    _user.count = _user.count + 1
+    _user.save()
+
+    return render(request, 'journal_ranking.html', {'data': ap.smp.json.dumps(data), 'total_count': _user.count})
 
 
 def api_callback(request):
