@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, views_thermo
 
 urlpatterns = [
     # /calc, opening file via different buttons
@@ -13,8 +13,8 @@ urlpatterns = [
     # /calc/params/...
     path('params/<str:flag>', views.ParamsSettingView.as_view(), name="params_views"),
     # /calc/thermo/...
-    path('thermo', views.ThermoView.as_view(), name="thermo_home"),
-    path('thermo/<str:flag>', views.ThermoView.as_view(), name="thermo_views"),
+    path('thermo', views_thermo.ThermoView.as_view(), name="thermo_home"),
+    path('thermo/<str:flag>', views_thermo.ThermoView.as_view(), name="thermo_views"),
     # /calc/export/...
     path('export', views.ExportView.as_view(), name="export_home"),
     path('export/<str:flag>', views.ExportView.as_view(), name="export_views"),

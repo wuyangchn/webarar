@@ -1219,10 +1219,16 @@ function submitExtrapolate() {
 function submitOrSave() {
     if ($('#submitBtn').text() === 'Submit') {
         $('#modal-submit').modal('show');
-    } else {
+    } else if ($('#submitBtn').text() === 'Save') {
         $('#modal-save').modal('show');
         $('#name2').val($('select[name="projectName"]:first').val());
+    } else {
+        
     }
+}
+function saveExportSettings() {
+    $('#modal-save').modal('show');
+    $('#name2').val($('select[name="projectName"]:first').val());
 }
 function submitRawData() {
     // Get boostraptable content
@@ -2499,7 +2505,7 @@ function showPage(table_id, recalculate=false) {
             let table = sampleComponents[table_id];
             showTable();
             let header = table.header.map((col) => sigma === 2 ? col.replace("1σ", "2σ") : col.replace("2σ", "1σ"));
-            let data = table.data.map((row) => row.map((col, index) => col = header[index].includes("2σ") ? col * 2 : col));
+            let data = table.data.map((row) => row.map((col, index) => col = header[index]?.includes("2σ") ? col * 2 : col));
             hot.updateSettings({
                 colHeaders: header,
                 data: extendData(data),
@@ -3825,10 +3831,10 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=fals
                                 figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${(res[0]['Ar39']*100).toFixed(2)}%\nn = ${res[0]['Num']}, χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
-                                figure.text1.text = `WMJ = ${res[0]['F'].toFixed(8)} ± ${(res[0]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                                figure.text1.text = `WMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nWMJ = ${res[0]['age'].toFixed(6)} ± ${(res[0]['s2'] * sigma).toFixed(6)} (${sigma}σ)\nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Air") {
-                                figure.text1.text = `WMMDF = ${res[0]['F'].toFixed(8)} ± ${(res[0]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                                figure.text1.text = `WMAR = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nWMMDF = ${res[0]['age'].toFixed(4)} ± ${(res[0]['s2'] * sigma).toFixed(4)} (${sigma}σ)\nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
                                 // figure.text1.text = "";
                             }
                         }
@@ -3849,13 +3855,13 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=fals
                     formatter: (params) => {
                         if (figure.text2.text === "") {
                             if (sampleComponents['0'].sample.type === "Unknown") {
-                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${(res[0]['Ar39']*100).toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`
+                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${(res[1]['Ar39']*100).toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
-                                figure.text2.text = `WMJ = ${res[1]['F'].toFixed(8)} ± ${(res[1]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
+                                figure.text2.text = `WMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nWMJ = ${res[1]['age'].toFixed(6)} ± ${(res[1]['s2'] * sigma).toFixed(6)} (${sigma}σ)\nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Air") {
-                                figure.text2.text = `WMMDF = ${res[1]['F'].toFixed(8)} ± ${(res[1]['sF'] * sigma).toFixed(8)} (${sigma}σ)\nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
+                                figure.text2.text = `WMAR = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nWMMDF = ${res[1]['age'].toFixed(4)} ± ${(res[1]['s2'] * sigma).toFixed(4)} (${sigma}σ)\nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
                             }
                         }
                         return figure.text2.text;
@@ -4890,7 +4896,7 @@ function handsontableRemoveRow(key, options) {
 function exportChart(data, download=true) {
     let href = "";
     $.ajax({
-        url: url_export_chart,
+        url: url_thermo_export_chart,
         type: 'POST',
         async: false,
         data: JSON.stringify({

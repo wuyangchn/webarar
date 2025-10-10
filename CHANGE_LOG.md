@@ -9,6 +9,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+## 2025-10-09
+* Fixed: typo, text in figures
+
 ## 2025-07-05
 * Added: buttons to open letpub website for journals (www.webarar.net/references/journal_ranking)
 

@@ -57,7 +57,7 @@
                     <span class="glyphicon glyphicon-picture"></span>  Nor. Isochron
                 </button>
                 <button id="figure_3" name="table_name" value="Inv. Ioschron" class="list-group-item" onclick=showPage(id)>
-                    <span class="glyphicon glyphicon-picture"></span>  Inv. Ioschron
+                    <span class="glyphicon glyphicon-picture"></span>  Inv. Isochron
                 </button>
                 <button id="figure_4" name="table_name" value="K-Cl-Ar 1" class="list-group-item" onclick=showPage(id)>
                     <span class="glyphicon glyphicon-picture"></span>  K-Cl-Ar 1
@@ -981,7 +981,7 @@ Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
         viewportColumnRenderingOffset: 120,  // 渲染视图之外的列，解决滑动时的卡顿
         afterChange: (changes) => {
             changes?.forEach(([row, prop, oldValue, newValue]) => {
-                if (getCurrentTableId() !== '7' || oldValue === newValue || prop !== 2) {return}
+                if (oldValue === newValue || prop !== 2) {return}
                 isochron_marks_changed = true;  // Mark isochron table changes
             });
         }

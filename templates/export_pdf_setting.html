@@ -44,48 +44,49 @@
         </form>
 
         <div class="modal fade" id="editExportParams" data-keyboard="true" tabindex="-1" role="dialog" aria-hidden="true">
-                <!-- /.modal 导出功能的参数设置 -->
-                <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-export-params">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">Export Parameters</h4>
-                        </div>
-                        <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
-                            <div style="padding-right: 15px; padding-left: 30px;">
-                                <div class="radio form-inline">
-                                    <label>
-                                        <input type="radio" name="exportParamsRadio" id="export-pdfParamsRadio1" value="option1" onchange="paramsRadioChanged('export')" checked>
-                                        Use a Export Setting Project
-                                    </label>
-                                    <select class="form-control" name="projectName" id="exportProjectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px;">
-                                        {% for each in allExportPDFNames %}
-                                            <option>{{ each }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="radio">
-                                    <label>
-                                        <input type="radio" name="exportParamsRadio" id="exportParamsRadio2" value="option2" onchange="paramsRadioChanged('export')">
-                                        Use Input Params
-                                    </label>
-                                </div>
-                                {% include "export_pdf_setting_modal_body_div.html" %}
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <br>
-                            <div style="text-align: center">
+            <!-- /.modal 导出功能的参数设置 -->
+            <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-export-params">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Export Parameters</h4>
+                    </div>
+                    <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
+                        <div style="padding-right: 15px; padding-left: 30px;">
+                            <div class="radio form-inline">
                                 <label>
-                                    <input type="checkbox" value="" checked hidden>
-{#                                    Attention: Recalculation will not be applied automatically, please click recalculate after parameter changes#}
+                                    <input type="radio" name="exportParamsRadio" id="export-pdfParamsRadio1" value="option1" onchange="paramsRadioChanged('export')" checked>
+                                    Use a Export Setting Project
                                 </label>
-                                <button type="button" class="btn btn-primary" value="Save" data-dismiss="modal" onclick="submitOrSave()">Save</button>
+                                <select class="form-control" name="projectName" id="exportProjectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px;">
+                                    {% for each in allExportPDFNames %}
+                                        <option>{{ each }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
-
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="exportParamsRadio" id="exportParamsRadio2" value="option2" onchange="paramsRadioChanged('export')">
+                                    Use Input Params
+                                </label>
+                            </div>
+                            {% include "export_pdf_setting_modal_body_div.html" %}
                         </div>
-                    </div><!-- /.modal-content -->
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <br>
+                        <div style="text-align: center">
+                            <label>
+                                <input type="checkbox" value="" checked hidden>
+{#                                    Attention: Recalculation will not be applied automatically, please click recalculate after parameter changes#}
+                            </label>
+                            <button type="button" class="btn btn-primary" value="Close" data-dismiss="modal">Apply</button>
+                            <button type="button" class="btn btn-primary" value="Save" data-dismiss="modal" onclick="saveExportSettings()">Save</button>
+                        </div>
+
+                    </div>
+                </div><!-- /.modal-content -->
             </div>
+        </div>
     </div>
 </div>
 
@@ -123,6 +124,7 @@
 
 
 <script>
+let plotData = {{ PlotData | safe }};
 
 const diagram_list = [
     'Age Spectra', 'Inverse Isochron','Degas Pattern',
@@ -464,6 +466,23 @@ function _dropHandler(ev) {
 $(document).ready(function(){
     showParamProject(document.getElementById('exportProjectName'), 'export-pdf');
     paramsRadioChanged('export');
+
+    if (plotData){
+        // 获取目标容器并将生成的树状结构插入到页面中
+        const treeContainer = document.querySelector('.x-tree-div');
+        treeContainer.innerHTML = ''; // This removes all child elements
+
+        let ul = document.createElement('ul');
+        ul.classList.add('x-tree-root-ct', 'x-tree-lines', 'x-tree-node-active');
+
+        const tree = Json2Tree('myPlotData', plotData);
+        ul.appendChild(tree);
+
+        treeContainer.appendChild(ul);
+        let embedElement = document.getElementById("pdfEmbed");
+        embedElement.src = res.href;
+    }
+
 });
 
 </script>

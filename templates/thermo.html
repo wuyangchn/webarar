@@ -45,8 +45,9 @@
                 <label><input id="max_age" type="number" class="button" style="width: 200px"> Max Age</label>
             </div>
             <label><button class="btn-info" onclick="ChangeSettings()">Settings</button></label>
-            <label><button class="btn-info" onclick="CheckSample()">Check</button></label>
+            <label><button class="btn-info" onclick="ChangePageSettings()">PageSettings</button></label>
             <div>
+            <label><button class="btn-info" onclick="CheckSample()">Check</button></label>
             <label><button class="btn-info" onclick="RunArrmulti()">RunArrmulti</button></label>
             <label><button class="btn-info" onclick="RunAgemon()">RunAgemon</button></label>
             </div>
@@ -56,6 +57,7 @@
             </div>
             <div>
             <label><button id="plot_diff" class="btn-danger" onclick="PlotDiff()">Plot</button></label>
+            <label><button id="plot_diff" class="btn-danger" onclick="ClickCalculateTc()">Calculate Tc</button></label>
             <label><button id="export_chart" class="btn-danger" onclick="ThermoExportChart()">Export</button></label>
             </div>
         </div>
@@ -101,6 +103,50 @@
 {#                            Attention: Recalculation will not be applied automatically, please click recalculate after parameter changes#}
                     </label>
                     <button type="button" class="btn btn-primary" value="Apply" data-dismiss="modal" onclick="">Apply</button>
+                </div>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+
+
+<div class="modal fade" id="editExportParams" data-keyboard="true" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- /.modal 导出功能的参数设置 -->
+    <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-export-params">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Export Parameters</h4>
+            </div>
+            <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
+                <div style="padding-right: 15px; padding-left: 30px;">
+                    <div class="radio form-inline">
+                        <label>
+                            <input type="radio" name="exportParamsRadio" id="export-pdfParamsRadio1" value="option1" onchange="paramsRadioChanged('export')" checked>
+                            Use a Export Setting Project
+                        </label>
+                        <select class="form-control" name="projectName" id="exportProjectName" onchange="showParamProject(this)" style="width: 200px; margin-left: 50px; height: 30px;">
+                            {% for each in allExportPDFNames %}
+                                <option>{{ each }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="exportParamsRadio" id="exportParamsRadio2" value="option2" onchange="paramsRadioChanged('export')">
+                            Use Input Params
+                        </label>
+                    </div>
+                    {% include "export_pdf_setting_modal_body_div.html" %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <br>
+                <div style="text-align: center">
+                    <label>
+                        <input type="checkbox" value="" checked hidden>
+                    </label>
+                    <button type="button" class="btn btn-primary" value="Save" data-dismiss="modal" onclick="submitOrSave()">Save</button>
                 </div>
 
             </div>
@@ -192,7 +238,6 @@
         PlotDiff();
     });
     charts[1].registerMouseClick((params) => {});
-    charts[6].registerMouseMove('Text', (params) => {});
     charts[6].registerMouseClick((params) => {});
 
     charts[0].setOption({
@@ -337,6 +382,25 @@
             },
         });
     }
+    function ClickCalculateTc() {
+        $.ajax({
+            url: url_thermo_calculate_tc,
+            type: 'POST',
+            async: false,
+            data: JSON.stringify({
+                'sample_name': $('#sample_name').val(),
+                'data': transpose(table_data),
+                'settings': getParamsByObjectName('thermo'),
+            }),
+            contentType:'application/json',
+            success: function(res){
+                document.getElementById("export_path_link").href = res.href;
+                document.getElementById("export_path_link").click();
+                document.getElementById("export_path_link").href = '';
+                href = res.href;
+            }
+        })
+    }
     function PlotDiff() {
         let groups = {};
         transpose(table_data).forEach((row, index) => {
@@ -356,6 +420,7 @@
             //
         }
         charts[0].clearSeries();
+        charts[6].clearSeries();
         Object.entries(groups).map(([key, value]) => {
             // console.log(value);
             let series = {
@@ -412,57 +477,75 @@
                 }, {});
                 let k6 = data[6];
 
+                const chart_0 = charts[0];
+                const chart_1 = charts[1];
+                const chart_2 = charts[2];
+                const chart_3 = charts[3];
+                const chart_4 = charts[4];
+                const chart_5 = charts[5];
+                const chart_6 = charts[6];
+
                 lines.map((each_line, _) => {
                     let index = _ + 1;
-                    let line_data = getLineData(charts[0], each_line[0], each_line[2]);
-                    plotSubPlot(charts[0], `Regression-${index}`, line_data, "line", "line", "none", color_map[index], {x: 0, y: 1}, true);
-                    plotSubPlot(charts[0], `Text-${index}`, text_data_chart0[_], "scatter", "text", "circle", "none", {x: 0, y: 1},
+                    let line_data = getLineData(chart_0, each_line[0], each_line[2]);
+                    plotSubPlot(chart_0, `Regression-${index}`, line_data, "line", "line", "none", color_map[index], {x: 0, y: 1}, true);
+                    plotSubPlot(chart_0, `Text-${index}`, text_data_chart0[_], "scatter", "text", "circle", "none", {x: 0, y: 1},
                         true, true, `Intercept: ${each_line[0].toFixed(2)} ± ${each_line[1].toFixed(2)}\nSlop: ${each_line[2].toFixed(2)} ± ${each_line[3].toFixed(2)}\nE: ${each_line[13].toFixed(2)} ± ${each_line[14].toFixed(2)} kJ/mol \nTc: ${each_line[15].toFixed(2)} ± ${each_line[16].toFixed(2)}°C`,
                         true, 14, color_map[index]);
-                    charts[0].registerMouseMove(`Text-${index}`, (params) => {});
+                    chart_0.registerMouseMove(`Text-${index}`, (params) => {});
 
-                    plotSubPlot(charts[1], `WMA-${index}`, [[wtd_mean_ages[_][0], wtd_mean_ages[_][2]], [wtd_mean_ages[_][1], wtd_mean_ages[_][2]]], "line", "line", "none", color_map[index], {x:0, y:1}, true, false, "", false, 16, color_map[index], 2);
-                    let ya = charts[1]._model._componentsMap.get('yAxis')[0].axis.scale._extent;
-                    plotSubPlot(charts[1], `Text-${index}`, [[(wtd_mean_ages[_][0] + wtd_mean_ages[_][1]) / 2, wtd_mean_ages[_][2] + (ya[1] - ya[0]) * 0.05]], "scatter", "text", "circle", "none", {x: 0, y: 1},
+                    plotSubPlot(chart_1, `WMA-${index}`, [[wtd_mean_ages[_][0], wtd_mean_ages[_][2]], [wtd_mean_ages[_][1], wtd_mean_ages[_][2]]], "line", "line", "none", color_map[index], {x:0, y:1}, true, false, "", false, 16, color_map[index], 2);
+                    let ya = chart_1._model._componentsMap.get('yAxis')[0].axis.scale._extent;
+                    plotSubPlot(chart_1, `Text-${index}`, [[(wtd_mean_ages[_][0] + wtd_mean_ages[_][1]) / 2, wtd_mean_ages[_][2] + (ya[1] - ya[0]) * 0.05]], "scatter", "text", "circle", "none", {x: 0, y: 1},
                         true, true, `WMA = ${wtd_mean_ages[_][2].toFixed(2)} ± ${wtd_mean_ages[_][3].toFixed(2)} Ma`,
                         true, 14, color_map[index]);
-                    charts[1].registerMouseMove(`Text-${index}`, (params) => {});
+                    chart_1.registerMouseMove(`Text-${index}`, (params) => {});
                 })
-                plotSubPlot(charts[1], "line1", k0, "line", "line", "none", "black", {x:0, y:1});
-                plotSubPlot(charts[1], "line2", k0, "line", "line", "none", "black", {x:0, y:2});
-                plotSubPlot(charts[3], "SP", k4, "line", "line", "none", "green", {x:0, y:2});
-                plotSubPlot(charts[3], "AP", k4, "line", "line", "none", "blue", {x:0, y:3});
-                plotSubPlot(charts[3], "Calibrated1", k4, "line", "line", "none", "red", {x:0, y:4});
-                //plotSubPlot(charts[3], "Calibrated2", k4.filter((v, i) => v[6] < 9999), "line", "line", "none", "yellow", {x:0, y:4});
+                plotSubPlot(chart_1, "line1", k0, "line", "line", "none", "black", {x:0, y:1});
+                plotSubPlot(chart_1, "line2", k0, "line", "line", "none", "black", {x:0, y:2});
+                plotSubPlot(chart_3, "SP", k4, "line", "line", "none", "green", {x:0, y:2});
+                plotSubPlot(chart_3, "AP", k4, "line", "line", "none", "blue", {x:0, y:3});
+                plotSubPlot(chart_3, "Calibrated1", k4, "line", "line", "none", "red", {x:0, y:4});
+                //plotSubPlot(chart_3, "Calibrated2", k4.filter((v, i) => v[6] < 9999), "line", "line", "none", "yellow", {x:0, y:4});
                 Object.keys(k5).forEach(key => {
                     console.log(`${key}`);
                     if (Number(key) !== 9999) {
-                        plotSubPlot(charts[3], `Collected1_${key}`, k5[key], "line", "line", "none", "yellow", {x:0, y:4});
+                        plotSubPlot(chart_3, `Collected1_${key}`, k5[key], "line", "line", "none", "yellow", {x:0, y:4});
                     }
                 });
-                charts[6].clearSeries();
+
+                // 如果把line对象在text之前渲染，会导致text不能拖动，id、name、draggble等属性不正确，不清楚原因
+                plotSubPlot(chart_6, "Text", getPercentagePos(chart_6, 0.4, 0.5), "scatter", "text",
+                    "circle", "none", {x: 0, y: 1}, true, true, release_name, true, 12, 'black', 1)
+                chart_6.registerMouseMove(`Text`, (params) => {});
                 for (let i=1;i<k6[0]?.length;i++){
-                    let color = i===1?"red":"blue";
+                    let color = i===1?"red":color_map[i%10];
                     let label = i===1?$('#sample_name').val():`Released${i}`
-                    plotSubPlot(charts[6], label, k6, "line", "line", "none", color, {x:0, y:i});
+                    plotSubPlot(chart_6, label, k6, "line", "line", "none", color, {x:0, y:i});
                 }
-                plotSubPlot(charts[6], "Text", getPercentagePos(charts[6], 0.4, 0.5), "scatter", "text",
-                    "circle", "none", {x: 0, y: 1}, true, true, release_name, true, 12);
 
-                const draw_agemon = false;
+                const draw_agemon = true;
                 if (draw_agemon) {
-                    charts[1].showLegend(false);
-                    k1.forEach((data, index) => {
-                        let t = transpose(data);
-                        plotSubPlot(charts[1], index.toString(), t, "line", "line", "none", "red", {x: 0, y: 1}, false);
-                        // plotSubPlot(charts[1], index.toString(), t, "line", "none", "red", {x: 0, y: 2}, false);
+                    //chart_1.showLegend(false);
+                    //k1.forEach((data, index) => {
+                    //    let t = transpose(data);
+                    //    plotSubPlot(chart_1, index.toString(), t, "line", "line", "none", "red", {x: 0, y: 1}, false);
+                    //    // plotSubPlot(chart_1, index.toString(), t, "line", "none", "red", {x: 0, y: 2}, false);
+                    //});
+
+                    chart_2.showLegend(false);
+                    k1.forEach((each_spectra, index) => {
+                        let t = transpose(each_spectra);
+                        plotSubPlot(chart_2, `Line1_${index.toString()}`, t, "line", "line", "none", "red", {x: 0, y: 1}, false);
+                        plotSubPlot(chart_2, `Line2_${index.toString()}`, t, "line", "line", "none", "red", {x: 0, y: 2}, false);
+                        // plotSubPlot(chart_1, index.toString(), t, "line", "none", "red", {x: 0, y: 2}, false);
                     });
 
-                    charts[2].showLegend(false);
-                    k2.forEach((data, index) => {
-                        let t = transpose(data);
-                        plotSubPlot(charts[2], index.toString(), t, "line", "line", "none", "black", {x: 0, y: 1}, false);
-                    });
+                    // chart_2.showLegend(false);
+                    // k2.forEach((data, index) => {
+                    //     let t = transpose(data);
+                    //     plotSubPlot(chart_2, index.toString(), t, "line", "line", "none", "black", {x: 0, y: 1}, false);
+                    // });
                 }
                 // forEach(charts, (chart, index) => { chart.resize(); });
             },
@@ -512,6 +595,9 @@
     }
     function ChangeSettings() {
         $('#editThermoParams').modal('show');
+    }
+    function ChangePageSettings() {
+        $('#editExportParams').modal('show');
     }
     function RunAgemon() {
         //
