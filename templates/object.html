@@ -473,14 +473,14 @@
             <button title="Open irradiation parameters modal box" type="button" class="btn btn-default" onclick="clickShowParams('irra')">Irra Params</button>
             <button title="Open calculation parameters modal box" type="button" class="btn btn-default" onclick="clickShowParams('calc')">Calc Params</button>
             <button title="Open preference settings modal box" type="button" class="btn btn-default" onclick="clickShowParams('smp')">Smp Params</button>
-            <button title="Open recalculation modal box" type="button" class="btn btn-default" data-toggle="modal" data-target="#recalculationModal">Recalculate</button>
+            <button title="Open recalculation modal box" type="button" class="btn btn-default" onclick="clickShowModal('recalculation')">Recalculate</button>
             <button title="Open export modal box" type="button" class="btn btn-primary" data-toggle="modal" data-target="#inputExportChoiceModal">Export</button>
         </div>
         <div id="figure_btn_div" style="float: left; position: relative; left: 5%;" hidden>
             <button title="Open irradiation parameters modal box" type="button" class="btn btn-default" onclick="clickShowParams('irra')">Irra Params</button>
             <button title="Open calculation parameters modal box" type="button" class="btn btn-default" onclick="clickShowParams('calc')">Calc Params</button>
             <button title="Open preference settings modal box" type="button" class="btn btn-default" onclick="clickShowParams('smp')">Smp Params</button>
-            <button title="Open recalculation modal box" type="button" class="btn btn-default" data-toggle="modal" data-target="#recalculationModal">Recalculate</button>
+            <button title="Open recalculation modal box" type="button" class="btn btn-default" onclick="clickShowModal('recalculation')">Recalculate</button>
             <button title="Change styles of components in the current figure" type="button" class="btn btn-default" onclick="clickEditFigureStyle()">Styles</button>
             <button title="Copy the current figure to clipboard" type="button" class="btn btn-default" onclick="saveChart(false)">Copy</button>
 {#            <button title="Export current figure as a Vector Graphics file" type="button" class="btn btn-default" onclick="saveChart(true)">SVG</button>#}
@@ -951,8 +951,9 @@ Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
     filePathSpan.innerText = {{ webFilePath | safe }};
 
     // sigma settings
-    $("#errorDisplayRadio1").prop("checked", sampleComponents['0'].preference?.confidenceLevel === 1);
-    $("#errorDisplayRadio2").prop("checked", sampleComponents['0'].preference?.confidenceLevel === 2);
+    let confidence_level = sampleComponents['0'].preference?.confidenceLevel;
+    $("#errorDisplayRadio1").prop("checked", confidence_level === 1);
+    $("#errorDisplayRadio2").prop("checked", confidence_level === 2);
 
     let ctrlIsPressed = false
     let isochron_marks_changed = false

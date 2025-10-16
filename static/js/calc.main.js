@@ -1293,9 +1293,10 @@ function getSelectedData(sequence_data, sequence_flag) {
 function generateLinesData(func, xmin=0, xmax=200, num=20) {
     let data = [];
     let step = (xmax - xmin) / num;
-    for (let i = 0; i <= num; i += 1) {
+    for (let i = 0; i < num; i += 1) {
         data.push([xmin + i * step, func(xmin + i * step)]);
     }
+    data.push([xmax, func(xmax)]);
     return data;
 }
 function updateCharts(smCharts, bigChart, sequence_index, animation, fitting_method) {
@@ -2279,13 +2280,25 @@ function clickShowParams(flag) {
         let opt = i === 0 ? "All" : i.toString();
         options = options + `<option value=${opt}${$(`#${flag}RowNum`).val() === opt?' selected':''}>${opt}</option>`;
     }
-    $(`#${flag}RowNum`).find('option').remove().end().append(options)
+    $(`#${flag}RowNum`).find('option').remove().end().append(options);
     $(`#${flag}ParamsRadio1`).prop("checked", false);
     $(`#${flag}ParamsRadio2`).prop("checked", true);
     $(`#${flag}RowNumRadio2`).prop("checked", true);
     paramsRadioChanged(flag);
     showParamProject(document.getElementById(`${flag}RowNum`), flag, false);
     $(`#edit${flag.charAt(0).toUpperCase() + flag.slice(1)}Params`).modal('show');
+}
+function clickShowModal(modal_id) {
+    switch (modal_id) {
+        case "recalculation":
+            $("#errorDisplayRadio1").prop("checked", confidence_level === 1);
+            $("#errorDisplayRadio2").prop("checked", confidence_level === 2);
+            $(`#${modal_id}Modal`).modal('show');
+            break;
+        default:
+            break;
+    }
+
 }
 function clickForceSyn() {
     $.ajax({
@@ -2470,7 +2483,6 @@ function showPage(table_id, recalculate=false) {
         } else {isochron_marks_changed = false}
     }
     let tables = document.getElementsByName('table_name')
-    let sigma = $("#errorDisplayRadio2").is(':checked') ? 2 : 1;
     const backup = JSON.parse(JSON.stringify(sampleComponents));
     let comp = sampleComponents[table_id];
     for (let i=0; i<tables.length;i++){
@@ -2502,32 +2514,31 @@ function showPage(table_id, recalculate=false) {
             $('#inputAnalyst').val(sampleComponents['0'].laboratory.analyst);
             break
         case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8":
-            let table = sampleComponents[table_id];
             showTable();
-            let header = table.header.map((col) => sigma === 2 ? col.replace("1σ", "2σ") : col.replace("2σ", "1σ"));
-            let data = table.data.map((row) => row.map((col, index) => col = header[index]?.includes("2σ") ? col * 2 : col));
+            let header = comp.header.map((col) => confidence_level === 2 ? col.replace("1σ", "2σ") : col.replace("2σ", "1σ"));
+            let data = comp.data.map((row) => row.map((col, index) => col = header[index]?.includes("2σ") ? col * 2 : col));
             hot.updateSettings({
                 colHeaders: header,
                 data: extendData(data),
-                columns: table.coltypes,
+                columns: comp.coltypes,
             });
             hot.render();
             break
         case "figure_1": case "figure_2": case "figure_3": case "figure_4": case "figure_5": case "figure_6":
             showFigure();
-            setRightSideText(sigma);
+            setRightSideText(confidence_level);
             chart.clear();
             if (table_id==="figure_1") {
-                chart = getSpectraEchart(chart, table_id, true, sigma, recalculate);
+                chart = getSpectraEchart(chart, table_id, true, confidence_level, recalculate);
             } else {
-                chart = getIsochronEchart(chart, table_id, true, sigma);
+                chart = getIsochronEchart(chart, table_id, true, confidence_level);
             }
             chart.resize();
             getChartInterval(chart, comp);
             break
         case "figure_7":
             showFigure();
-            setRightSideText(sigma);
+            setRightSideText(confidence_level);
             figureContainer.hide();
             figure3DContainer.show();
             chart_3D.clear();
@@ -4141,10 +4152,12 @@ function change_selection(clicked_index, current_set, base = 0) {
             sampleComponents[figure][key].data = [...value];
         }
     });
-    sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
-        item[2] = data.set1.includes(index) ? 1 : data.set2.includes(index) ? 2 : ''
-        return item
-    });
+    for (let i=1;i<=8;i++) {
+        sampleComponents[i].data = sampleComponents[i].data.map((item, index) => {
+            item[2] = data.set1.includes(index) ? 1 : data.set2.includes(index) ? 2 : ''
+            return item
+        });
+    }
     sampleComponents[0].results.selection = dict_update(sampleComponents[0].results.selection,
         {0: {data: data.set1}, 1: {data: data.set2}, 2: {data: data.set3}});
 }
@@ -4180,7 +4193,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4199,7 +4212,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4245,7 +4258,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
             [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4266,7 +4279,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
             [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4311,7 +4324,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4330,7 +4343,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4375,7 +4388,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
             [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4396,7 +4409,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
             [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4441,7 +4454,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [f, sf, r, sr] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4460,7 +4473,7 @@ function re_plot_isochrons(options={}) {
         if (results !== false) {
             [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
             [f, sf, r, sr] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
                 "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
@@ -4493,8 +4506,8 @@ function re_plot_isochrons(options={}) {
     // figure_7
     if (calc_figure_7) {
         const total_params = numeric.transpose(sampleComponents[8].data);
-        const ar38ar36 = total_params[6][0];
-        const sar38ar36 = ar38ar36 * total_params[7][0] / 100;
+        const ar38ar36 = total_params[7][0];
+        const sar38ar36 = ar38ar36 * total_params[8][0] / 100;
         figure_id = "figure_7";
         set = "set1";
         [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
@@ -4504,7 +4517,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [(a + b * ar38ar36) * (-1 / k), errDiv(a + b * ar38ar36, errAdd(sa, errMul(b, sb, ar38ar36, sar38ar36)), -k, sk)];
             [f, sf] = [k, sk];
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
                 "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4521,7 +4534,7 @@ function re_plot_isochrons(options={}) {
             [r, sr] = [(a + b * ar38ar36) * (-1 / k), errDiv(a + b * ar38ar36, errAdd(sa, errMul(b, sb, ar38ar36, sar38ar36)), -k, sk)];
             [f, sf] = [k, sk];
             [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
             dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
                 "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
                 "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4562,24 +4575,24 @@ function re_plot_age_spectra() {
 
     // default age spectra
     const spectra_values = numeric.transpose(sampleComponents[6].data);
-    sampleComponents["figure_1"].data = ageSpectraPoints(spectra_values[9], spectra_values[4], spectra_values[5]);
+    sampleComponents["figure_1"].data = ageSpectraPoints(spectra_values[10], spectra_values[5], spectra_values[6]);
 
     let get_partial_data = (array, rows) => array.map((v, i) => {
         if (i >= Math.min(...rows) && i <= Math.max(...rows)) { return v }
     }).filter((v, _) => v !== undefined);
 
     let f, sf, age, s1, s2, s3, num, mswd, chi_square, p_value, f_array;
-
+    let using_Min = true;
     let unit = sampleComponents[0].preference?.ageUnit;
     let unit_factor = unit === "Ga" ? 1000000000 : unit === "Ma" ? 1000000 : 1000;
 
     // set1
     try {
-        f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set1"].data));
+        f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[3], spectra_values[4]]), sampleComponents["figure_2"]["set1"].data));
         [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+        [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
         dict_update(sampleComponents[0]["results"]["age_spectra"][0], {
-            "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set1"].data)),
+            "Ar39": arr_sum(get_partial_data(spectra_values[10], sampleComponents["figure_2"]["set1"].data)),
             "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
             "rs": NaN, "Chisq": chi_square
         });
@@ -4590,11 +4603,11 @@ function re_plot_age_spectra() {
 
     // set2
     try {
-        f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[2], spectra_values[3]]), sampleComponents["figure_2"]["set2"].data));
+        f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[3], spectra_values[4]]), sampleComponents["figure_2"]["set2"].data));
         [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+        [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
         dict_update(sampleComponents[0]["results"]["age_spectra"][1], {
-            "Ar39": arr_sum(get_partial_data(spectra_values[9], sampleComponents["figure_2"]["set2"].data)),
+            "Ar39": arr_sum(get_partial_data(spectra_values[10], sampleComponents["figure_2"]["set2"].data)),
             "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
             "rs": NaN, "Chisq": chi_square
         });
@@ -4605,21 +4618,21 @@ function re_plot_age_spectra() {
 
     // age spectra for set1 and set2
     const parameters = numeric.transpose(sampleComponents[8].data);
-    const r_model = parameters[117];  // 0 for inverse, 1 for normal, 2 for input
-    const r1 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][0]["initial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][0]["initial"] : parameters[118][i])
-    const sr1 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][0]["sinitial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][0]["sinitial"] : parameters[119][i])
-    const r2 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][1]["initial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][1]["initial"] : parameters[120][i])
-    const sr2 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][1]["sinitial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][1]["sinitial"] : parameters[121][i])
+    const r_model = parameters[118];  // 0 for inverse, 1 for normal, 2 for input
+    const r1 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][0]["initial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][0]["initial"] : parameters[119][i])
+    const sr1 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][0]["sinitial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][0]["sinitial"] : parameters[120][i])
+    const r2 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][1]["initial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][1]["initial"] : parameters[121][i])
+    const sr2 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][1]["sinitial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][1]["sinitial"] : parameters[122][i])
     const degas_values = numeric.transpose(sampleComponents[4].data);
     const total_values = numeric.transpose(sampleComponents[3].data);
-    const ar40 = total_values[10];
-    const sar40 = total_values[11];
-    const ar36a = degas_values[2];
-    const sar36a = degas_values[3];
-    const ar40k = degas_values[32];
-    const sar40k = degas_values[33];
-    const ar39k = degas_values[22];
-    const sar39k = degas_values[23];
+    const ar40 = total_values[11];
+    const sar40 = total_values[12];
+    const ar36a = degas_values[3];
+    const sar36a = degas_values[4];
+    const ar40k = degas_values[33];
+    const sar40k = degas_values[34];
+    const ar39k = degas_values[23];
+    const sar39k = degas_values[24];
     let line_points, ages, set;
 
     // calc mean age
@@ -4628,14 +4641,14 @@ function re_plot_age_spectra() {
         set = 'set1';
         f_array = ar40.map((_, i) => calcAr40r_39k(r1[i], sr1[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
             ar40[i], sar40[i], ar40k[i], sar40k[i]));
-        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], unit_factor, true, i)));
-        line_points = ageSpectraPoints(spectra_values[9], ages[0], ages[2], sampleComponents["figure_2"][set].data);
+        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], unit_factor, using_Min, i)));
+        line_points = ageSpectraPoints(spectra_values[10], ages[0], ages[2], sampleComponents["figure_2"][set].data);
         sampleComponents["figure_1"][set].data = line_points;
         f_array = numeric.transpose(f_array.map((v, i) => {
             if (i >= Math.min(...sampleComponents["figure_2"][set].data) && i <= Math.max(...sampleComponents["figure_2"][set].data)) { return v }
         }).filter((v, _) => v !== undefined));
         [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+        [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
         dict_update(sampleComponents[0]["results"]["age_plateau"][0], {
             "Ar39": line_points[line_points.length-1][0] - line_points[0][0],
             "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4652,14 +4665,14 @@ function re_plot_age_spectra() {
         set = 'set2';
         f_array = ar40.map((_, i) => calcAr40r_39k(r2[i], sr2[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
             ar40[i], sar40[i], ar40k[i], sar40k[i]));
-        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], unit_factor, true, i)));
-        line_points = ageSpectraPoints(spectra_values[9], ages[0], ages[2], sampleComponents["figure_2"][set].data);
+        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], unit_factor, using_Min, i)));
+        line_points = ageSpectraPoints(spectra_values[10], ages[0], ages[2], sampleComponents["figure_2"][set].data);
         sampleComponents["figure_1"][set].data = line_points;
         f_array = numeric.transpose(f_array.map((v, i) => {
             if (i >= Math.min(...sampleComponents["figure_2"][set].data) && i <= Math.max(...sampleComponents["figure_2"][set].data)) { return v }
         }).filter((v, _) => v !== undefined));
         [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf, unit_factor);
+        [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
         dict_update(sampleComponents[0]["results"]["age_plateau"][1], {
             "Ar39": line_points[line_points.length-1][0] - line_points[0][0],
             "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
@@ -4676,34 +4689,34 @@ function re_plot_age_spectra() {
 function calc_age(F, sF, unit_factor = 1, using_Min = true, idx = 0, auto_change_to_general = true) {
 
     const parameters = numeric.transpose(sampleComponents[8].data);
-    const J = parameters[69];  // J values
-    const sJ = arr_multiply_by_number(arr_mul(parameters[70], J), 1 / 100);
-    const L = parameters[36];  // decay constant of 40K
-    const sL = arr_multiply_by_number(arr_mul(parameters[37], L), 1 / 100);
+    const J = parameters[70];  // J values
+    const sJ = arr_multiply_by_number(arr_mul(parameters[71], J), 1 / 100);
+    const L = parameters[37];  // decay constant of 40K
+    const sL = arr_multiply_by_number(arr_mul(parameters[38], L), 1 / 100);
 
     let res;
 
     if (using_Min) {
-        const Le = parameters[38];  // decay constant of 40K(EC)
-        const sLe = arr_multiply_by_number(arr_mul(parameters[39], Le), 1 / 100);
-        const Lb = parameters[40];  // decay constant of 40K(B-)
-        const sLb = arr_multiply_by_number(arr_mul(parameters[41], Lb), 1 / 100);
-        const A = parameters[50];  // decay activity of 40K
-        const sA = arr_multiply_by_number(arr_mul(parameters[51], A), 1 / 100);
-        const Ae = parameters[52];  // decay activity of 40K(EC)
-        const sAe = arr_multiply_by_number(arr_mul(parameters[53], Ae), 1 / 100);
-        const Ab = parameters[54];  // decay activity of 40K(B-)
-        const sAb = arr_multiply_by_number(arr_mul(parameters[55], Ab), 1 / 100);
-        const t = parameters[61];  // standard age in Ma
-        const st = arr_multiply_by_number(arr_mul(parameters[62], t), 1 / 100);
-        const W = parameters[83];  // 40K Mass
-        const sW = arr_multiply_by_number(arr_mul(parameters[84], W), 1 / 100);
-        const Y = parameters[87];  // Year constant
-        const sY = arr_multiply_by_number(arr_mul(parameters[88], Y), 1 / 100);
-        const f = parameters[89];  // 40K/K ratio
-        const sf = arr_multiply_by_number(arr_mul(parameters[90], f), 1 / 100);
-        const No = parameters[85];  // Avogadro constant
-        const sNo = arr_multiply_by_number(arr_mul(parameters[86], No), 1 / 100);
+        const Le = parameters[39];  // decay constant of 40K(EC)
+        const sLe = arr_multiply_by_number(arr_mul(parameters[40], Le), 1 / 100);
+        const Lb = parameters[41];  // decay constant of 40K(B-)
+        const sLb = arr_multiply_by_number(arr_mul(parameters[42], Lb), 1 / 100);
+        const A = parameters[51];  // decay activity of 40K
+        const sA = arr_multiply_by_number(arr_mul(parameters[52], A), 1 / 100);
+        const Ae = parameters[53];  // decay activity of 40K(EC)
+        const sAe = arr_multiply_by_number(arr_mul(parameters[54], Ae), 1 / 100);
+        const Ab = parameters[55];  // decay activity of 40K(B-)
+        const sAb = arr_multiply_by_number(arr_mul(parameters[56], Ab), 1 / 100);
+        const t = parameters[62];  // standard age in Ma
+        const st = arr_multiply_by_number(arr_mul(parameters[63], t), 1 / 100);
+        const W = parameters[84];  // 40K Mass
+        const sW = arr_multiply_by_number(arr_mul(parameters[85], W), 1 / 100);
+        const Y = parameters[88];  // Year constant
+        const sY = arr_multiply_by_number(arr_mul(parameters[89], Y), 1 / 100);
+        const f = parameters[90];  // 40K/K ratio
+        const sf = arr_multiply_by_number(arr_mul(parameters[91], f), 1 / 100);
+        const No = parameters[86];  // Avogadro constant
+        const sNo = arr_multiply_by_number(arr_mul(parameters[87], No), 1 / 100);
         const conf = {
             'L': L[idx], 'sL': sL[idx], 'Le': Le[idx], 'sLe': sLe[idx], 'Lb': Lb[idx], 'sLb': sLb[idx],
             'A': A[idx], 'sA': sA[idx], 'Ae': Ae[idx], 'sAe': sAe[idx], 'Ab': Ab[idx], 'sAb': sAb[idx],

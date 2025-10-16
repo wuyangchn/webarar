@@ -653,8 +653,8 @@ class ThermoView(http_funcs.ArArView):
         n = len(data)
         data = ap.calc.arr.transpose(data)
 
-        read_from_ins = True
-        # read_from_ins = False
+        # read_from_ins = True
+        read_from_ins = False
 
         use_ln = True if str(params[6]).lower() == 'ln' else False
         logdr2_method = params[7]  # xlogd (logr/r0) method
@@ -749,7 +749,7 @@ class ThermoView(http_funcs.ArArView):
 
                 sample = ap.from_arr(file_path=arr_file_path)
 
-                arr = ap.smp.diffusion_funcs.DiffDraw(smp=sample, loc=loc, sname=sample_name)
+                arr = ap.smp.diffusion_funcs.DiffDraw(smp=sample, loc=loc, name=sample_name)
                 arr.ni = n
                 arr.telab = [i + 273.15 for i in data[3]]
                 arr.tilab = [i * 60 for i in data[4]]
