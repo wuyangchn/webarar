@@ -18,7 +18,7 @@ from calc.models import ReceivedFiles
 
 class Command(BaseCommand):
 
-    help = '每天00:00清空「2天前当天」的上传文件（数据库+硬盘）'
+    help = 'Clear uploaded fold regularly (files uploaded > 24 hours ago are automatically cleared on 00:00 every day.)'
 
     def handle(self, *args, **options):
         file_ops = {
