@@ -1,11 +1,15 @@
+import os
 import pickle
+import secrets
 import uuid
 import json
+import time
 from django.http import JsonResponse, HttpResponse
 from django.core.cache import cache
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
+from django.contrib.auth import logout
 from calc import models
 from . import ap, log_funcs
 
@@ -59,7 +63,7 @@ def create_cache(obj, cache_key=''):
     The cache key will also be sent to user so that changes from front can be identified.
     """
     if not cache_key:
-        cache_key = create_cache_key()
+        cache_key = generate_uid()
     cache_value = pickle.dumps(obj)
     # cache_value = basic_funcs.getJsonDumps(sample)
     cache.set(cache_key, cache_value, timeout=DEFAULT_CACHE_TIMEOUT)
@@ -74,6 +78,16 @@ def create_cache_key():
     computer’s network address
     """
     return str(uuid.uuid4().hex)
+
+
+def generate_uid():
+    """
+    32-character string, first-16-character is a timestamp, ending with 16-character urandom
+    Returns
+    -------
+
+    """
+    return str(int(time.time() * 1000000)) + secrets.token_hex(8)
 
 
 def touch_cache(cache_key=''):
@@ -154,6 +168,77 @@ def open_last_object(request):
     return open_object_file(request, sample, web_file_path='', cache_key=cache_key)
 
 
+def upload(file, media_dir, request=None, user_id=None, mysql=None):
+    try:
+        uid = generate_uid()
+        name, suffix = os.path.splitext(file.name)
+        if suffix.lower() not in [
+            '.xls', '.age', '.xlsx', '.arr', '.jpg', '.png', '.txt',
+            '.log', '.seq', '.json', '.ahd', '.csv', '.ngxdp']:
+            raise TypeError(f"Unsupported file format: {suffix}")
+        # web_file_path = os.path.join(media_dir, file.name)
+        web_file_path = os.path.join(media_dir, f"{uid}{suffix}")
+        with open(web_file_path, 'wb') as f:
+            for chunk in file.chunks():
+                f.write(chunk)
+        print("File path on the server: %s" % web_file_path)
+    except PermissionError:
+        raise ValueError(f'Permission denied')
+    except (Exception, BaseException) as e:
+        raise ValueError(f'Error in opening file: {e}')
+    else:
+        # write to database
+        # name, file path on server, ip, device, ....
+        if request:
+            ip = get_ip(request)
+            user_id = request.COOKIES.get("anonymous_user_id") if user_id is None else user_id
+            mysql = models.ReceivedFiles if mysql is None else mysql
+            print(f"{user_id = }, {web_file_path = }")
+            if user_id:
+                mysql.objects.create(
+                    uuid=str(user_id),
+                    ip=ip,
+                    file_path=web_file_path,
+                    original_name=file.name,
+                    deleted=False,
+                )
+        return web_file_path, uid, suffix
+
+
+class AnonymousUserIDMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # 处理请求
+        response = self.get_response(request)
+        # 匿名用户：检查是否有匿名ID Cookie
+        anonymous_id = request.COOKIES.get("anonymous_user_id")
+
+        # 已登录用户跳过（直接用user.id识别）
+        # logout(request)
+        # print(f"用户是否登录：{request.user.is_authenticated}")
+        # print(f"用户对象：{type(request.user)}")
+
+        if request.user.is_authenticated and anonymous_id:
+            return response
+
+        if not anonymous_id:
+            # 生成唯一ID（UUID4随机且唯一）
+            anonymous_id = str(uuid.uuid4())
+
+        # 设置Cookie（过期时间：365天，可调整）
+        response.set_cookie(
+            key="anonymous_user_id",
+            value=anonymous_id,
+            max_age=365 * 24 * 60 * 60,  # 1年有效期
+            httponly=True,  # 禁止JS读取，防止XSS攻击
+            secure=request.is_secure(),  # HTTPS下启用（生产环境推荐）
+            samesite="Lax"  # 防止CSRF攻击
+        )
+        return response
+
+
 class ArArView(View):
     """
     This class is rewritten based on View and is used to dispatch requests from client side.
@@ -182,6 +267,7 @@ class ArArView(View):
         self.content = {}
         self.cache_key = ''
         self.sample = ...
+        self.fingerprint = ...
 
         # response
         self.error_msg = ""
@@ -215,6 +301,22 @@ class ArArView(View):
     def dispatch(self, request, *args, **kwargs):
         # Rewrite dispatch method to add special responses to ajax requests
         handler = self.http_method_not_allowed  # Default
+
+        # fingerprint
+        try:
+            self.fingerprint = request.POST.get('fingerprint')
+        except (Exception, BaseException):
+            pass
+
+        # # cookie
+        #     if request.user.is_authenticated:
+        #         visitor_id = request.user.id
+        #         visitor_type = "登录用户"
+        #     else:
+        #         visitor_id = request.COOKIES.get("anonymous_user_id")
+        #         visitor_type = "匿名用户"
+        #
+        #     return HttpResponse(f"{visitor_type}，唯一标识：{visitor_id}")
 
         # Ajax request, formdata type content, flag is included in POST
         try:

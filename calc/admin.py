@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import CalcRecord, CalcParams, IrraParams, SmpParams, InputFilterParams, ThermoParams, ExportPdfParams, \
-    DBInstruments, DBLaboratories, DBStandards
+    DBInstruments, DBLaboratories, DBStandards, ReceivedFiles
 
 # Register your models here.
 
@@ -34,6 +34,12 @@ class ArArDBStdAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+class FilesOnServerDB(admin.ModelAdmin):
+    list_display = ('id', 'uuid', 'ip', 'file_path', 'original_name', 'insert_time', 'update_time', 'deleted',
+                    'deleted_time')
+    search_fields = ('uuid', 'file_path', 'name',)
+
+
 admin.site.register(CalcRecord, CalcRecordAdmin)
 admin.site.register(CalcParams, ParamsAdmin)
 admin.site.register(IrraParams, ParamsAdmin)
@@ -44,4 +50,5 @@ admin.site.register(ExportPdfParams, ParamsAdmin)
 admin.site.register(DBInstruments, ArArDBInsAdmin)
 admin.site.register(DBLaboratories, ArArDBLabAdmin)
 admin.site.register(DBStandards, ArArDBStdAdmin)
+admin.site.register(ReceivedFiles, FilesOnServerDB)
 

@@ -14,7 +14,6 @@
     }
 
     $(document).ready(function(){
-       $('#file-btn-1').click(function(){$('#file-submit').click()});
        $('#file-btn-2').click(function(){$('#file-input-2').click()});
        $('#file-btn-3').click(function(){$('#file-input-3').click()});
        $('#file-btn-4').click(function(){$('#file-input-4').click()});
@@ -25,9 +24,11 @@
        $('#file-input-4').change(function(){show_loading("#file-btn-4");$('#file-submit').click()});
     });
     $(document).ready(function(){
+       $('#file-btn-1').click(function(){show_loading("#file-btn-1");$('#file-submit').click()});
        $('#file-btn-5').click(function(){show_loading("#file-btn-5");$('#file-submit').click()});
        $('#file-btn-6').click(function(){show_loading("#file-btn-6");$('#file-submit').click()});
        $('#file-btn-7').click(function(){show_loading("#file-btn-7");$('#file-submit').click()});
+       $('#file-btn-8').click(function(){show_loading("#file-btn-8");$('#file-submit').click()});
     });
 </script>
 
@@ -75,13 +76,18 @@
                         </button>
                     </div>
                     <div class="form-group">
+                        <button id="file-btn-6" type="button" class="btn btn-primary btn-lg ladda-button" data-style="zoom-out" onclick="set_form_trigger('open_new_file')">
+                            <span class="ladda-label"><span style="color: red; font-weight: bolder">New</span></span>
+                        </button>
+                    </div>
+                    <div class="form-group">
                         <button id="file-btn-7" type="button" class="btn btn-primary btn-lg ladda-button" data-style="zoom-out" onclick="set_form_trigger('open_example_file')">
                             <span class="ladda-label">Open Example</span>
                         </button>
                     </div>
                     <div class="form-group">
-                        <button id="file-btn-6" type="button" class="btn btn-primary btn-lg ladda-button" data-style="zoom-out" onclick="set_form_trigger('open_new_file')">
-                            <span class="ladda-label">New</span>
+                        <button id="file-btn-8" type="button" class="btn btn-primary btn-lg ladda-button" data-style="zoom-out" onclick="set_form_trigger('delete_uploaded_files')">
+                            <span class="ladda-label">Delete uploaded files</span>
                         </button>
                     </div>
                 </div>

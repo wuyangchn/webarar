@@ -10,10 +10,12 @@ import time
 import itertools
 
 # from math import ceil
+from django.db import transaction
 from django.http import HttpResponse
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
+from django.utils import timezone
 
 from . import models
 from programs import http_funcs, ap
@@ -44,7 +46,7 @@ class CalcHtmlView(http_funcs.ArArView):
 
     def open_arr_file(self, request, *args, **kwargs):
         web_file_path, file_name, extension = \
-            ap.files.basic.upload(request.FILES.get('arr_file'), settings.UPLOAD_ROOT)
+            http_funcs.upload(request.FILES.get('arr_file'), settings.UPLOAD_ROOT, request=request)
         messages.info(request, f'Uploaded file: {web_file_path}')
         try:
             sample = ap.from_arr(web_file_path)
@@ -58,7 +60,7 @@ class CalcHtmlView(http_funcs.ArArView):
     def open_full_xls_file(self, request, *args, **kwargs):
         try:
             web_file_path, file_name, extension = \
-                ap.files.basic.upload(request.FILES.get('full_xls_file'), settings.UPLOAD_ROOT)
+                http_funcs.upload(request.FILES.get('full_xls_file'), settings.UPLOAD_ROOT, request=request)
             messages.info(request, f'Uploaded file: {web_file_path}')
             file_name = file_name if '.full' not in file_name else file_name.split('.full')[0]
             sample = ap.from_full(file_path=web_file_path, sample_name=file_name)
@@ -72,7 +74,7 @@ class CalcHtmlView(http_funcs.ArArView):
     def open_age_file(self, request, *args, **kwargs):
         try:
             web_file_path, sample_name, extension = \
-                ap.files.basic.upload(request.FILES.get('age_file'), settings.UPLOAD_ROOT)
+                http_funcs.upload(request.FILES.get('age_file'), settings.UPLOAD_ROOT, request=request)
             messages.info(request, f'Uploaded file: {web_file_path}')
             sample = ap.from_age(file_path=web_file_path, sample_name=sample_name)
             try:
@@ -108,8 +110,8 @@ class CalcHtmlView(http_funcs.ArArView):
         for i in range(length):
             file = request.FILES.get(str(i))
             try:
-                web_file_path, file_name, suffix = ap.files.basic.upload(
-                    file, settings.UPLOAD_ROOT)
+                web_file_path, file_name, suffix = http_funcs.upload(
+                    file, settings.UPLOAD_ROOT, request=request)
                 messages.info(request, f'Uploaded file: {web_file_path}')
             except (Exception, BaseException) as e:
                 messages.error(request, e)
@@ -138,6 +140,9 @@ class CalcHtmlView(http_funcs.ArArView):
         response.writelines(contents)
         return response
 
+    def delete_uploaded_files(self, request, *args, **kwargs):
+        return self.redirect('delete_uploaded_files')
+
     def get(self, request, *args, **kwargs):
         # Render calc.html when users are visiting /calc.
         return self.render(request, 'calc.html')
@@ -161,7 +166,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
     def update_sample_photo(self, request, *args, **kwargs):
         file = request.FILES.get('picture')
-        web_file_path, name, suffix = ap.files.basic.upload(file, os.path.join(settings.STATICFILES_DIRS[0], 'upload'))
+        web_file_path, name, suffix = http_funcs.upload(file, settings.UPLOAD_ROOT, request=request)
         messages.info(request, f"Uploaded picture: {web_file_path}")
         return self.JsonResponse({'picture': settings.STATIC_URL + 'upload/' + file.name})
 
@@ -359,6 +364,63 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         # Show calc.html when the received flag doesn't exist.
         return self.render(request, 'object.html', http_funcs.open_last_object(request))
 
+    def get_uploaded_files(self, request, *args, **kwargs):
+        files = []
+        uuid = request.COOKIES.get("anonymous_user_id")
+        for record in models.ReceivedFiles.objects.filter(uuid=uuid):
+            print(record.deleted)
+            if record.deleted:
+                continue
+            files.append({
+                'uuid': record.uuid, 'path': record.file_path, 'name': record.original_name,
+                'time': record.insert_time.strftime("%Y-%m-%d %H:%M:%S %z"),
+            })
+        return self.JsonResponse({'files': files})
+
+    def delete_selected_files(self, request, *args, **kwargs):
+        paths = self.body['paths']
+        file_ops = {
+            "deleted": [],  # 成功物理删除的文件路径
+            "failed": []  # 物理删除失败的文件（含原因）
+        }
+        try:
+            # 事务包裹：确保批量操作的原子性（要么全成功，要么全回滚）
+            now = timezone.now()
+            with transaction.atomic():
+
+                for path in paths:
+                    try:
+                        os.remove(path)
+                        file_ops["deleted"].append(path)
+                    except Exception as e:
+                        file_ops["failed"].append({
+                            "path": path,
+                            "error": str(e),
+                            "error_type": type(e).__name__
+                        })
+
+                rows = models.ReceivedFiles.objects.filter(file_path__in=file_ops['deleted'])
+                updated_count = rows.update(
+                    deleted=True,
+                    deleted_time=now,
+                )
+                affected_count = updated_count
+
+            msg = f"{affected_count} files deleted\n"
+            for each in file_ops['failed']:
+                msg += f"path = {each['path']}, error = {each['error']}\n"
+
+            res = {
+                "success": True,
+                "message": msg,
+                "affected_count": affected_count,
+            }
+        except Exception as e:
+            messages.error(request, e)
+            return self.JsonResponse({'msg': "Failed to delete selected files", }, status=403)
+
+        return self.JsonResponse(res)
+
 
 class RawFileView(http_funcs.ArArView):
     def __init__(self, **kwargs):
@@ -385,8 +447,8 @@ class RawFileView(http_funcs.ArArView):
         names = list(models.InputFilterParams.objects.values_list('name', flat=True))
         for file in request.FILES.getlist('raw_file'):
             try:
-                web_file_path, file_name, suffix = ap.files.basic.upload(
-                    file, settings.UPLOAD_ROOT)
+                web_file_path, file_name, suffix = http_funcs.upload(
+                    file, settings.UPLOAD_ROOT, request=request)
             except (Exception, BaseException) as e:
                 messages.error(request, e)
                 continue
@@ -401,12 +463,13 @@ class RawFileView(http_funcs.ArArView):
 
     def submit(self, request, *args, **kwargs):
         files = json.loads(request.POST.get('raw-file-table'))['files']
-        file_path = [each['file_path'] for each in files if each['checked']]
-        filter_name = [each['filter'] for each in files if each['checked']]
-        filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_name]
+        file_names = [each['file_name'] for each in files if each['checked']]
+        file_paths = [each['file_path'] for each in files if each['checked']]
+        filter_names = [each['filter'] for each in files if each['checked']]
+        filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_names]
         try:
-            raw = ap.smp.raw.to_raw(file_path=file_path, input_filter_path=filter_paths)
-            if not all([str(name).lower() == "seq" for name in filter_name]):
+            raw = ap.smp.raw.to_raw(file_path=file_paths, input_filter_path=filter_paths, file_name=file_names)
+            if not all([str(name).lower() == "seq" for name in filter_names]):
                 raw.do_regression()
 
             allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
@@ -483,8 +546,8 @@ class RawFileView(http_funcs.ArArView):
         cache_key = request.POST.get('cache_key')
         raw: ap.RawData = pickle.loads(cache.get(cache_key))
 
-        web_file_path, file_name, suffix = ap.files.basic.upload(
-            file, settings.UPLOAD_ROOT)
+        web_file_path, file_name, suffix = http_funcs.upload(
+            file, settings.UPLOAD_ROOT, request=request)
         try:
             with open(web_file_path, 'rb') as f:
                 sequences = pickle.load(f)
@@ -845,7 +908,7 @@ class ParamsSettingView(http_funcs.ArArView):
                         return self.JsonResponse({'status': 'success'})
                     else:
                         messages.error(request, f'Delete {type.lower()} project failed, name: {name}')
-                        return self.JsonResponse({'msg': 'something wrong happened when delete params'}, status=403)
+                        return self.JsonResponse({'msg': 'something wrong in deleting params'}, status=403)
             else:
                 self.error_msg = f'Invalid code. Project: {type.lower()}'
                 messages.error(request,
@@ -906,7 +969,7 @@ class ThermoView(http_funcs.ArArView):
         for i in range(len(request.FILES)):
             try:
                 file = request.FILES.get(str(i))
-                web_file_path, file_name, suffix = ap.files.basic.upload(file, destination_folder)
+                web_file_path, file_name, suffix = http_funcs.upload(file, destination_folder, request=request)
             except (Exception, BaseException) as e:
                 pass
             else:
@@ -2131,6 +2194,29 @@ class ExportView(http_funcs.ArArView):
             return self.JsonResponse({'data': ap.smp.json.dumps(data), 'href': export_href})
 
 
+class DeleteUploadedFilesView(http_funcs.ArArView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.dispatch_post_method_name = []
+
+    # /calc/delete_uploaded_files
+    def get(self, request, *args, **kwargs):
+        user_id = request.COOKIES.get("anonymous_user_id")
+        print(f"{user_id = }")
+        return self.render(request, 'delete_uploaded_files.html')
+
+    def close(self, request, *args, **kwargs):
+        return self.redirect('calc_view')
+
+    def submit(self, request, *args, **kwargs):
+        # files = json.loads(request.POST.get('raw-file-table'))['files']
+        # file_names = [each['file_name'] for each in files if each['checked']]
+        # file_paths = [each['file_path'] for each in files if each['checked']]
+        # filter_names = [each['filter'] for each in files if each['checked']]
+        # filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_names]
+        return self.redirect('calc_view')
+
+
 class ApiView(http_funcs.ArArView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -2176,8 +2262,8 @@ class ApiView(http_funcs.ArArView):
         files = sorted(files, key=lambda f: f.name)
         for file in files:
             try:
-                web_file_path, file_name, suffix = ap.files.basic.upload(
-                    file, settings.UPLOAD_ROOT)
+                web_file_path, file_name, suffix = http_funcs.upload(
+                    file, settings.UPLOAD_ROOT, request=request)
             except (Exception, BaseException):
                 continue
             else:

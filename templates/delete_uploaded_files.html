@@ -1,0 +1,74 @@
+{% extends 'calc.html' %}
+
+{% block raw_file_modal %}
+    <script>
+        $(document).ready(function(){
+            $('#showDeleteUploadedFilesModal').click();
+            $('#uploaded_file_list').bootstrapTable(
+                {
+                    clickToSelect: false,                //是否启用点击选中行
+                    uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+                    columns: [
+                        {field: 'checked', checkbox: true, width: 20, formatter: function () {return true}},
+                        {field: 'number', title: 'No.', width: 20, },
+                        {field: 'file_path', title: 'File path on the server', width: 200, },
+                        {field: 'file_name', title: 'Orinigal file name', width: 20, },
+                        {field: 'insert_time', title: 'Upload time', width: 20, },
+                        {field: 'operation', title: 'Operation', width: 20, }
+                    ]
+                }
+            );
+            showFilesToDelete();
+        });
+    </script>
+    <!-- 按钮触发模态框 -->
+    <button class="btn btn-primary btn-lg sr-only" data-toggle="modal" data-target="#deleteUploadedFilesModal" id="showDeleteUploadedFilesModal">Modal</button>
+    <!-- 模态框( Modal )  -->
+    <div class="modal fade" id="deleteUploadedFilesModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-width-85">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Delete Uploaded Files</h4>
+                </div>
+                <form id="filesToDeleteForm" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <p>
+                            Files uploaded by users to Webarar will be renamed with a unique string,
+                            and <span style="color: red; font-weight: bolder">automatically and permanently deleted
+                            within 24 to 48 hours</span>. If you wish to manually delete
+                            files in advance, please click "Delete". Webarar identifies users of different terminals
+                            by recording cookies. If you clear your browser cookies, new user id will be generated
+                            upon your next visit, which may prevent you from viewing or manually deleting files
+                            uploaded previously. However, there is no need to worry—we reiterate that Webarar will
+                            permanently delete any files you uploaded to the server within 24 to 48 hours.
+                        </p>
+                    </div>
+                </form>
+                <div style="">
+                    <table class="table table-hover" id="uploaded_file_list"></table>
+                </div>
+
+                <div class="modal-footer">
+                    <div>
+                        <button type="button" class="btn btn-primary" onclick="showFilesToDelete()">Find Files</button>
+                        <input type="submit" form="filesToDeleteForm" class="btn btn-default" name="flag" value="Close">
+                        <button type="button" class="btn btn-primary" onclick="deleteSelectedFiles()">Delete Selected</button>
+{#                        <input type="submit" form="filesToDeleteForm" class="btn btn-primary" name="flag" id="submitBtn" value="Delete Selected">#}
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+
+    <script>
+        //close alert after 3 seconds
+        window.setTimeout(function() {
+            $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove();
+            });
+        }, 3000);
+
+    </script>
+
+{% endblock %}

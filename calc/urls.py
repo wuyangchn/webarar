@@ -4,6 +4,8 @@ from . import views, views_thermo
 urlpatterns = [
     # /calc, opening file via different buttons
     path('', views.CalcHtmlView.as_view(), name="calc_view"),
+    # /calc/delete_uploaded_files
+    path('delete_uploaded_files', views.DeleteUploadedFilesView.as_view(), name="delete_uploaded_files"),
     # /calc/object/..., three methods: path, post, ajax
     path('object/<str:flag>', views.ButtonsResponseObjectView.as_view(), name="object_views"),
     # /calc/raw

@@ -298,7 +298,7 @@
     charts[2].setOption({
         title: {text: 'Cooling History'},
         xAxis: [{
-            id: '1', name: 'Age (Ma)', type: 'value', nameLocation: 'middle', nameGap: 25,
+            id: '1', name: 'Cumulative Argon Released (%)', type: 'value', nameLocation: 'middle', nameGap: 25,
             nameTextStyle: {
                 fontSize: 16, fontFamily: 'Microsoft Sans Serif',
                 rich: {
@@ -308,7 +308,7 @@
             },
         }],
         yAxis: [{
-            id: '1', name: 'Temperature (°C)', type: 'value', nameLocation: 'middle', nameGap: 25,
+            id: '1', name: 'Age (Ma)', type: 'value', nameLocation: 'middle', nameGap: 25,
             nameTextStyle: { fontSize: 16, fontFamily: 'Microsoft Sans Serif', },
         }],
     });
@@ -533,11 +533,11 @@
                     //    // plotSubPlot(chart_1, index.toString(), t, "line", "none", "red", {x: 0, y: 2}, false);
                     //});
 
-                    chart_2.showLegend(false);
+                    chart_1.showLegend(false);
                     k1.forEach((each_spectra, index) => {
                         let t = transpose(each_spectra);
-                        plotSubPlot(chart_2, `Line1_${index.toString()}`, t, "line", "line", "none", "red", {x: 0, y: 1}, false);
-                        plotSubPlot(chart_2, `Line2_${index.toString()}`, t, "line", "line", "none", "red", {x: 0, y: 2}, false);
+                        plotSubPlot(chart_1, `Line1_${index.toString()}`, t, "line", "line", "none", "red", {x: 0, y: 1}, false);
+                        plotSubPlot(chart_1, `Line2_${index.toString()}`, t, "line", "line", "none", "red", {x: 0, y: 2}, false);
                         // plotSubPlot(chart_1, index.toString(), t, "line", "none", "red", {x: 0, y: 2}, false);
                     });
 

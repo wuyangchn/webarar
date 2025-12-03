@@ -242,6 +242,68 @@ function rawFilesChanged() {
         }
     })
 }
+function showFilesToDelete() {
+    let table = $('#uploaded_file_list');
+    $.ajax({
+        url: url_get_files_to_delete,
+        type: 'POST',
+        async : true,
+        contentType:'application/json',
+        success: function(res){
+            let files = res.files;
+            table.bootstrapTable('removeAll');
+            $.each(files, function (index, file) {
+                table.bootstrapTable('insertRow', {index: index,
+                    row: {
+                        'number': index + 1,
+                        'file_path': file.path,
+                        'file_name': file.name,
+                        'insert_time': file.time,
+                        'operation': '<button type="button" class="btn btn-danger" onclick="deleteUploadedFilesOnTable(id)" ' +
+                            'id="btn-raw-file-' + index +'">Delete</button>',
+                    }
+                });
+            })
+            table.bootstrapTable('refresh');
+        }
+    })
+}
+function deleteUploadedFilesOnTable(row_index) {
+    let table = $('#uploaded_file_list');
+    let data = table.bootstrapTable('getData');
+    const rowIndexes = Array.isArray(row_index) ? row_index : (typeof row_index === 'string' && row_index.trim() !== '')
+            ? [Number(row_index.slice(13))] : [];
+    const paths = [];
+    rowIndexes.forEach(index => {
+        const targetRow = data.find(row => row.number === index + 1);
+        if (targetRow) { paths.push(targetRow.file_path || ''); }
+    })
+    $.ajax({
+        url: url_delete_selected_files,
+        type: 'POST',
+        data: JSON.stringify({
+            'indexes': rowIndexes,
+            'paths': paths,
+        }),
+        contentType:'application/json',
+        success: function(res){
+            $.each(rowIndexes, function (index, each) {
+                table.bootstrapTable('updateRow', {index: each,
+                    row: {
+                        'operation': '<button type="button" class="btn btn-grey">Deleted</button>',
+                    }
+                });
+            });
+            showPopupMessage('Information', res.message, true);
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
+    })
+}
+function deleteSelectedFiles() {
+
+}
 function change_input_filter(row, index) {
     // This function is used to keep selected options when rows inserted or removed
     if (!index) { index = row.selectedIndex }

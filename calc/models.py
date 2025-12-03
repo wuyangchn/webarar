@@ -201,3 +201,23 @@ class DBLaboratories(models.Model):
     papers = models.CharField("PAPERS", max_length=1000, null=True)
     info = models.CharField("INFO", max_length=1000, null=True)
 
+
+class ReceivedFiles(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    uuid = models.CharField("USER_UUID", max_length=64)
+    # ip地址
+    ip = models.GenericIPAddressField("IP")
+    # 服务器文件地址
+    file_path = models.CharField("FILE_PATH", max_length=1000, null=True)
+    # 原始文件名
+    original_name = models.CharField("FILE_NAME", max_length=1000, null=True)
+    # 自动记录插入时间
+    insert_time = models.DateTimeField("INSERT_TIME", auto_now_add=True)
+    # 自动记录更新时间
+    update_time = models.DateTimeField("UPDATE_TIME", auto_now=True)
+    #
+    deleted = models.BooleanField('DELETED', null=True)
+    # 删除时间
+    deleted_time = models.DateTimeField("DELETED_TIME", auto_now=False, null=True)
+
+

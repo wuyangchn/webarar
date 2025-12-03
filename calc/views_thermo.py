@@ -51,12 +51,12 @@ class ThermoView(http_funcs.ArArView):
         for i in range(len(request.FILES)):
             try:
                 file = request.FILES.get(str(i))
-                web_file_path, file_name, suffix = ap.files.basic.upload(file, destination_folder)
+                web_file_path, file_name, suffix = http_funcs.upload(file, destination_folder, request=request)
+                arr_file = file_name + suffix
             except (Exception, BaseException) as e:
                 pass
             else:
                 if str(suffix).lower() == ".arr":
-                    arr_file = file_name + suffix
                     sample = ap.from_arr(file_path=web_file_path)
                     smp_name = sample.name()
                 elif suffix != "":

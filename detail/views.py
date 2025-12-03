@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 import traceback
-from programs import ap
+from programs import ap, http_funcs
 
 # Create your views here.
 
@@ -22,7 +22,7 @@ def experiment_log(request):
     file = request.FILES.get(str(0))
     res = ''
     try:
-        web_file_path, file_name, suffix = ap.files.basic.upload(file, settings.UPLOAD_ROOT)
+        web_file_path, file_name, suffix = http_funcs.upload(file, settings.UPLOAD_ROOT, request=request)
     except (Exception, BaseException) as e:
         msg = f"{file} is not supported. "
     else:
