@@ -8,7 +8,8 @@ from concurrent_log_handler import ConcurrentTimedRotatingFileHandler, Concurren
 # https://blog.csdn.net/tofu_yi/article/details/118566756
 # https://zhuanlan.zhihu.com/p/445411809
 logger_collect = logging.getLogger('collect')
-logfile = os.path.abspath("logs/main.log")
+# logfile = os.path.abspath("logs/main.log")
+logfile = os.path.join(settings.LOG_DIR, 'main.log')
 # Using concurrent_log_handler instead of logging Headler,
 # to avoid PermissionError during rotating the log files
 # https://github.com/Preston-Landers/concurrent-log-handler

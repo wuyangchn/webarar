@@ -21,10 +21,15 @@
                                     <option>{{ each }}</option>
                                 {% endfor %}
                             </select>
+                            <div class="checkbox" style="margin-top: 0; margin-bottom: 0">
+                                <label class="title" style="margin-left: 50px; width: 300px" data-title="Filtering to show only my uploads based on an anonymous id saved in your browser.">
+                                <input type="checkbox" id="inputFilterShowMyUploads" value="" style="margin-top: 10px" onchange="showOnlyMyUploads(this)">
+                                Show only my uploads</label>
+                            </div>
                         </div>
                         <div class="radio">
                             <label>
-                                <input type="radio" name="paramsRadio" id="inputFilterParamsRadio2" value="option2" onchange="changeSubmitType()">
+                                <input type="radio" name="paramsRadio" id="input-filterParamsRadio2" value="option2" onchange="changeSubmitType()">
                                 Create New
                             </label>
                         </div>

@@ -140,15 +140,17 @@ function linest(a0, a1, ...args) {
     const n = x[0].length; // number of unknown x, constant is seen as x^0
     const y = numeric.transpose([a0]);
 
+    // console.log(x);
+    // console.log(y);
+
     let inv_xtx;
     try {
         inv_xtx = numeric.inv(numeric.dot(numeric.transpose(x), x));
     } catch (error) {
-        throw new Error("The determinant of the given matrix must not be zero");
+        // throw new Error("The determinant of the given matrix must not be zero");
+        return false  // cl的图经常会有xy为空数组的情况会报错
     }
 
-    // console.log(x);
-    // console.log(y);
     // console.log(inv_xtx);
 
     const beta = numeric.dot(inv_xtx, numeric.dot(numeric.transpose(x), y));
@@ -310,7 +312,9 @@ function wtd3DRegression(x, sx, y, sy, z, sz, r1, r2, r3, f = 1, convergence = 0
     const new_c = (a, b) => mZ(a, b) - a * mX(a, b) - b * mY(a, b);
 
     // Initial values of a, b, and c from OLS
-    let [c, sc, k2, k3, k4, [_1, a, b], [_2, sa, sb]] = linest(z, x, y).slice(0, 7);
+    const linest_res = linest(z, x, y);
+    if (!linest_res) { return false }
+    let [c, sc, k2, k3, k4, [_1, a, b], [_2, sa, sb]] = linest_res.slice(0, 7);
     let last_a = 1e10, k = 1, mswd = 1000; // Error magnification factor
 
     while (Math.abs(a - last_a) >= Math.abs(a * convergence / 100)) {

@@ -35,6 +35,8 @@ class IrraParams(models.Model):
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
     uploader_email = models.EmailField('UPLOADER_EMAIL', max_length=64, null=True)
+    #
+    uploader_uuid = models.CharField('UPLOADER_UUID', max_length=64, null=True)
 
 
 class CalcParams(models.Model):
@@ -54,6 +56,8 @@ class CalcParams(models.Model):
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
     uploader_email = models.EmailField('UPLOADER_EMAIL', max_length=64, null=True)
+    #
+    uploader_uuid = models.CharField('UPLOADER_UUID', max_length=64, null=True)
 
 
 class SmpParams(models.Model):
@@ -73,6 +77,8 @@ class SmpParams(models.Model):
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
     uploader_email = models.EmailField('UPLOADER_EMAIL', max_length=64, null=True)
+    #
+    uploader_uuid = models.CharField('UPLOADER_UUID', max_length=64, null=True)
 
 
 class ThermoParams(models.Model):
@@ -92,6 +98,8 @@ class ThermoParams(models.Model):
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
     uploader_email = models.EmailField('UPLOADER_EMAIL', max_length=64, null=True)
+    #
+    uploader_uuid = models.CharField('UPLOADER_UUID', max_length=64, null=True)
 
 
 class InputFilterParams(models.Model):
@@ -111,6 +119,8 @@ class InputFilterParams(models.Model):
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
     uploader_email = models.EmailField('UPLOADER_EMAIL', max_length=64, null=True)
+    #
+    uploader_uuid = models.CharField('UPLOADER_UUID', max_length=64, null=True)
 
 
 class ExportPdfParams(models.Model):
@@ -130,6 +140,8 @@ class ExportPdfParams(models.Model):
     file_path = models.CharField("FILE_PATH", max_length=1000, null=False)
     #
     uploader_email = models.EmailField('UPLOADER_EMAIL', max_length=64, null=True)
+    #
+    uploader_uuid = models.CharField('UPLOADER_UUID', max_length=64, null=True)
 
 
 class DBStandards(models.Model):

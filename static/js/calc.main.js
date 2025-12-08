@@ -225,7 +225,7 @@ function rawFilesChanged() {
 
             $.each(files, function (index, file) {
                 let filter_options = `${file.filter_list.map((item, _) => {
-                    if (item.toUpperCase() === file.filter.toUpperCase()) { return "<option selected>" + item + "</option>" }
+                    if (item.toUpperCase().includes(file.filter.toUpperCase())) { return "<option selected>" + item + "</option>" }
                     return "<option>" + item + "</option>"
                 }).join("")}`;
                 table.bootstrapTable('insertRow', {index: data.length + index,
@@ -277,7 +277,7 @@ function deleteUploadedFilesOnTable(row_index) {
     rowIndexes.forEach(index => {
         const targetRow = data.find(row => row.number === index + 1);
         if (targetRow) { paths.push(targetRow.file_path || ''); }
-    })
+    });
     $.ajax({
         url: url_delete_selected_files,
         type: 'POST',
@@ -292,7 +292,7 @@ function deleteUploadedFilesOnTable(row_index) {
                     row: {
                         'operation': '<button type="button" class="btn btn-grey">Deleted</button>',
                     }
-                });
+                })
             });
             showPopupMessage('Information', res.message, true);
         },
@@ -302,7 +302,14 @@ function deleteUploadedFilesOnTable(row_index) {
     })
 }
 function deleteSelectedFiles() {
-
+    let table = $('#uploaded_file_list');
+    let data = table.bootstrapTable('getData');
+    let rowIndexes = [];
+    data.forEach(row => {
+        // indexes based on 0
+        if (row['checked']) { rowIndexes.push(Number(row['number']) - 1) }
+    });
+    deleteUploadedFilesOnTable(rowIndexes);
 }
 function change_input_filter(row, index) {
     // This function is used to keep selected options when rows inserted or removed
@@ -587,7 +594,7 @@ function showParamProject(ele, param_type, isProRadio=true, callback=null) {
     if (!$(`#${param_type}ParamsRadio2`).is(':checked') && !isProRadio) { return }
     let name = ele.value? ele.value : ele;
     $.ajax({
-        url: url_show_param_projects,
+        url: url_change_param_objects,
         type: 'POST',
         data: JSON.stringify({
             'name': name,
@@ -616,6 +623,52 @@ function showParamProject(ele, param_type, isProRadio=true, callback=null) {
                 initialRatioSelectChanged();
             }
             if (callback) {callback()}
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
+    })
+}
+function showOnlyMyUploads(ele, param_type) {
+    if (ele && !param_type) {
+        if (ele.id.toString().includes('irra')) {
+            param_type = "irra";
+        } else if (ele.id.toString().includes('calc')) {
+            param_type = "calc";
+        } else if (ele.id.toString().includes('smp')) {
+            param_type = "smp";
+        } else if (ele.id.toString().includes('inputFilter')) {
+            param_type = "input-filter";
+        } else if (ele.id.toString().includes('thermo')) {
+            param_type = "thermo";
+        }  else if (ele.id.toString().includes('export')) {
+            param_type = "export-pdf";
+        } else { return }
+    }
+    if ($(`#${param_type}ParamsRadio2`).is(':checked')) { return }
+    $.ajax({
+        url: url_get_param_names,
+        type: 'POST',
+        data: JSON.stringify({
+            'checked': ele.checked,
+            'type': param_type,
+        }),
+        async: true,
+        contentType:'application/json',
+        success: function(res){
+            const select = document.querySelector('select[name="projectName"]');
+            if (select) {
+                select.innerHTML = '';
+                res.names.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    select.appendChild(option);
+                });
+            }
+            if (res.names.length > 0) {
+                showParamProject(select);
+            }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
@@ -1006,8 +1059,11 @@ function getExtrapolateDefaultOption(){
         legend: {show: true, top:'5%',
             data: [
                 'Filled Points', 'Unfilled Points',
-                'Line Regression', 'Quad Regression', 'Poly Regression',
-                'Exp Regression', 'Pow Regression', 'Average',
+                'Line Regression', 'Quad Regression',
+                // 'Poly Regression',
+                'Exp Regression',
+                // 'Pow Regression',
+                'Average',
             ]},
         grid: {show: true, borderWidth: 1, borderColor: '#333', top: '5%', left: '5%', bottom: '5%', right: '5%'},
         xAxis: {name: '', type: 'value', nameLocation: 'middle', nameGap: -20,
@@ -1031,18 +1087,18 @@ function getExtrapolateDefaultOption(){
                 lineStyle: {color: '#5cb85c'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
             {id: 'QuadRegression', name: 'Quad Regression', type: 'line', color: '#d8c400', clip: true, triggerLineEvent: false,
                 lineStyle: {color: '#d8c400'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
-            {id: 'PolyRegression', name: 'Poly Regression', type: 'line', color: '#f0ad4e', clip: true, triggerLineEvent: false,
-                lineStyle: {color: '#f0ad4e'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
+            // {id: 'PolyRegression', name: 'Poly Regression', type: 'line', color: '#f0ad4e', clip: true, triggerLineEvent: false,
+            //     lineStyle: {color: '#f0ad4e'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
             {id: 'ExpRegression', name: 'Exp Regression', type: 'line', color: '#d9534f', clip: true, triggerLineEvent: false,
                 lineStyle: {color: '#d9534f'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
-            {id: 'PowRegression', name: 'Pow Regression', type: 'line', color: '#329ea8', clip: true, triggerLineEvent: false,
-                lineStyle: {color: '#329ea8'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
+            // {id: 'PowRegression', name: 'Pow Regression', type: 'line', color: '#329ea8', clip: true, triggerLineEvent: false,
+            //     lineStyle: {color: '#329ea8'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
             {id: 'Average', name: 'Average', type: 'line', color: '#808080', clip: true, triggerLineEvent: false,
                 lineStyle: {color: '#808080', type: 'dashed'}, showSymbol: false, symbolSize: 0, data: [], z: 0},
         ],
         graphic: [{
-            id: 'LinesResults', type: 'text', z: 0, draggable: true, x: 100, y: 400,
-            style: {fill: '#FF0000', overflow: 'break', font: '16px "", Consolas, monospace'},
+            id: 'LinesResults', type: 'text', z: 0, draggable: true, x: 300, y: 100,
+            style: {fill: '#FF0000', overflow: 'break', font: '18px "", Consolas, monospace'},
         }]
     };
 }
@@ -1388,13 +1444,14 @@ function updateCharts(smCharts, bigChart, sequence_index, animation, fitting_met
                     lineStyle: {width: fitting_method[i]===1?5:2},
                 },
                 {name: 'Exp Regression', tooltip: {formatter: 'Exponential'}, data: generateLinesData(
-                    (x) => coeff[i][2][0] * coeff[i][2][1] ** x + coeff[i][2][2], 0, xmax),
+                    // y = a + exp(b * x) + c 2025-12-07
+                    (x) => coeff[i][2][0] * Math.exp(coeff[i][2][1] * x) + coeff[i][2][2], 0, xmax),
                     lineStyle: {width: fitting_method[i]===2?5:2},
                 },
-                {name: 'Pow Regression', tooltip: {formatter: 'Power'}, data: generateLinesData(
-                    (x) => coeff[i][3][0] * x ** coeff[i][3][1] + coeff[i][3][2], 0, xmax),
-                    lineStyle: {width: fitting_method[i]===3?5:2},
-                },
+                // {name: 'Pow Regression', tooltip: {formatter: 'Power'}, data: generateLinesData(
+                //     (x) => coeff[i][3][0] * x ** coeff[i][3][1] + coeff[i][3][2], 0, xmax),
+                //     lineStyle: {width: fitting_method[i]===3?5:2},
+                // },
                 {name: 'Average', tooltip: {formatter: 'Average'}, data: generateLinesData(
                     (x) => coeff[i][4][0], 0, xmax, 1),
                     lineStyle: {width: fitting_method[i]===4?5:2},
@@ -1404,20 +1461,24 @@ function updateCharts(smCharts, bigChart, sequence_index, animation, fitting_met
         };
         smCharts[i].setOption(option);
         if (smCharts[i].getOption().series[0].color === FILLED_POINTS_COLOR) {
+            let res = myRawData.sequence[sequence_index].results[i]
+            let parseRes = (res) => {
+                return [typeof res[0] === 'number'?res[0].toFixed(5):res[0], res[1].toFixed(5), isFinite(res[2])?res[2].toFixed(3)+'%':res[2], res[3].toFixed(5)]
+            }
             bigChart.setOption(option);
             let text = [
-                ['', 'Intercept', 'Standard error', 'Relative error', 'R2'],
-                ['Linear'].concat(myRawData.sequence[sequence_index].results[i][0]),
-                ['Quadratic'].concat(myRawData.sequence[sequence_index].results[i][1]),
-                ['Exponential'].concat(myRawData.sequence[sequence_index].results[i][2]),
-                ['Power'].concat(myRawData.sequence[sequence_index].results[i][3]),
-                ['Average'].concat(myRawData.sequence[sequence_index].results[i][4]),
+                ['', 'Intercept', 'SE', 'RSE', 'R2'],
+                ['Linear'].concat(parseRes(res[0])),
+                ['Quadratic'].concat(parseRes(res[1])),
+                ['Exponential'].concat(parseRes(res[2])),
+                // ['Power'].concat(parseRes(res[3])),
+                ['Average'].concat(parseRes(res[4]))
             ];
             bigChart.setOption({
                 title: {text: `${myRawData.sequence[sequence_index].name}  ${myRawData.sequence[sequence_index].datetime}  ${['Ar36', 'Ar37', 'Ar38', 'Ar39', 'Ar40'][i]} ${myRawData.sequence[sequence_index].type_str} ${myRawData.sequence[sequence_index].label}`},
                 graphic: [{
                     id: 'LinesResults', type: 'text', z: 0, draggable: true,
-                    style: {fill: '#FF0000', overflow: 'break', text: text_table(text), font: '16px "", Consolas, monospace'},
+                    style: {fill: '#FF0000', overflow: 'break', text: text_table(text), font: '18px "", Consolas, monospace'},
                 }]
             })
         }

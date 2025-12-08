@@ -202,7 +202,7 @@ def upload(file, media_dir, request=None, user_id=None, mysql=None):
                     original_name=file.name,
                     deleted=False,
                 )
-        return web_file_path, uid, suffix
+        return web_file_path, name, suffix
 
 
 class AnonymousUserIDMiddleware:
@@ -231,7 +231,7 @@ class AnonymousUserIDMiddleware:
         response.set_cookie(
             key="anonymous_user_id",
             value=anonymous_id,
-            max_age=365 * 24 * 60 * 60,  # 1年有效期
+            max_age=100 * 365 * 24 * 60 * 60,  # 1年有效期
             httponly=True,  # 禁止JS读取，防止XSS攻击
             secure=request.is_secure(),  # HTTPS下启用（生产环境推荐）
             samesite="Lax"  # 防止CSRF攻击

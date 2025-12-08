@@ -366,9 +366,8 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
     def get_uploaded_files(self, request, *args, **kwargs):
         files = []
-        uuid = request.COOKIES.get("anonymous_user_id")
-        for record in models.ReceivedFiles.objects.filter(uuid=uuid):
-            print(record.deleted)
+        user_id = request.COOKIES.get("anonymous_user_id")
+        for record in models.ReceivedFiles.objects.filter(uuid=user_id):
             if record.deleted:
                 continue
             files.append({
@@ -378,6 +377,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         return self.JsonResponse({'files': files})
 
     def delete_selected_files(self, request, *args, **kwargs):
+        indexes = self.body['indexes']
         paths = self.body['paths']
         file_ops = {
             "deleted": [],  # 成功物理删除的文件路径
@@ -772,6 +772,17 @@ class ParamsSettingView(http_funcs.ArArView):
         messages.info(request, f'Show parameter project names: {names}')
         return self.render(request, 'input_filter_setting.html', {'allInputFilterNames': names})
 
+    def get_param_names(self, request, *args, **kwargs):
+        checked = bool(self.body['checked'])
+        param_type = str(self.body['type'])
+        user_id = request.COOKIES.get("anonymous_user_id")
+        model_name = f"{''.join([i.capitalize() for i in param_type.split('-')])}Params"
+        model = getattr(models, model_name)
+        queryset = model.objects.filter(uploader_uuid=user_id) if checked else model.objects.all()
+        names = list(queryset.values_list('name', flat=True))
+        print(f"{checked = }, {names = }, {param_type = }")
+        return self.JsonResponse({'names': names})
+
     def show_database(self, request, *args, **kwargs):
         return self.render(request, 'show_database.html', {'data': ap.smp.json.dumps([])})
 
@@ -861,13 +872,14 @@ class ParamsSettingView(http_funcs.ArArView):
             return self.JsonResponse({'param': param})
 
     def edit_param_object(self, request, *args, **kwargs):
+        user_id = request.COOKIES.get("anonymous_user_id")
         ip = http_funcs.get_ip(request)
         flag = str(self.body['flag']).lower()
         name = self.body['name']
         pin = self.body['pin']
         params = self.body['params']
-        type = str(self.body['type'])  # type = irra, calc, smp, input-filter
-        model_name = f"{''.join([i.capitalize() for i in type.split('-')])}Params"
+        param_type = str(self.body['type'])  # type = irra, calc, smp, input-filter
+        model_name = f"{''.join([i.capitalize() for i in param_type.split('-')])}Params"
         model = getattr(models, model_name)
         if flag == 'create':
             email = self.body['email']
@@ -879,17 +891,18 @@ class ParamsSettingView(http_funcs.ArArView):
                 messages.info(request, f'Create parameter project failed, duplicate name, name: {name}')
                 return self.JsonResponse({'msg': 'duplicate name'}, status=403)
             else:
-                path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{type}"), params)
-                model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip)
+                path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{param_type}"), params)
+                model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip,
+                                     uploader_uuid=user_id)
                 messages.info(request,
-                              f'Create parameter project successfully. A {type.lower()} project has been updated, name: {name}, static verification code: {pin}, path: {path}, email: {email}')
+                              f'Create parameter project successfully. A {param_type.lower()} project has been updated, name: {name}, static verification code: {pin}, path: {path}, email: {email}')
                 return self.JsonResponse({'status': 'success'})
         else:
             try:
                 old = model.objects.get(name=name)
             except (BaseException, Exception):
                 debug_print(traceback.format_exc())
-                messages.error(request, f'The {type.lower()} project does not exist, name: {name}')
+                messages.error(request, f'The {param_type.lower()} project does not exist, name: {name}')
                 return self.JsonResponse({'msg': 'current project does not exist'}, status=403)
 
             # if check_password(pin, old.pin):
@@ -898,19 +911,19 @@ class ParamsSettingView(http_funcs.ArArView):
                     path = ap.files.basic.write(old.file_path, params)
                     old.save()
                     messages.info(request,
-                                  f'Update parameter project successfully. A {type.lower()} project has been updated, name: {name}, path: {path}')
+                                  f'Update parameter project successfully. A {param_type.lower()} project has been updated, name: {name}, path: {path}')
                     return self.JsonResponse({'status': 'success'})
                 elif flag == 'delete':
                     if ap.files.basic.delete(old.file_path):
                         old.delete()
                         messages.info(request,
-                                      f'Delete parameter project successfully. A {type.lower()} project has been deleted, name: {name}')
+                                      f'Delete parameter project successfully. A {param_type.lower()} project has been deleted, name: {name}')
                         return self.JsonResponse({'status': 'success'})
                     else:
-                        messages.error(request, f'Delete {type.lower()} project failed, name: {name}')
+                        messages.error(request, f'Delete {param_type.lower()} project failed, name: {name}')
                         return self.JsonResponse({'msg': 'something wrong in deleting params'}, status=403)
             else:
-                self.error_msg = f'Invalid code. Project: {type.lower()}'
+                self.error_msg = f'Invalid code. Project: {param_type.lower()}'
                 messages.error(request,
                                f"Change or delete parameter project failed. {self.error_msg}, invalid code: {pin}")
                 return self.JsonResponse({'msg': self.error_msg}, status=403)
@@ -2201,19 +2214,12 @@ class DeleteUploadedFilesView(http_funcs.ArArView):
 
     # /calc/delete_uploaded_files
     def get(self, request, *args, **kwargs):
-        user_id = request.COOKIES.get("anonymous_user_id")
-        print(f"{user_id = }")
         return self.render(request, 'delete_uploaded_files.html')
 
     def close(self, request, *args, **kwargs):
         return self.redirect('calc_view')
 
     def submit(self, request, *args, **kwargs):
-        # files = json.loads(request.POST.get('raw-file-table'))['files']
-        # file_names = [each['file_name'] for each in files if each['checked']]
-        # file_paths = [each['file_path'] for each in files if each['checked']]
-        # filter_names = [each['filter'] for each in files if each['checked']]
-        # filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_names]
         return self.redirect('calc_view')
 
 

@@ -2,7 +2,7 @@
     <form id="input_filter_form" method="post">
         <!-- Extension  -->
         <div style="width: 500px; float: left; border: 1px solid #ccc; padding-left: 15px; margin-right: 15px">
-            <label style="width: 400px; text-align: left; font-weight: bold">Extension</label>
+            <label style="width: 400px; text-align: left; font-weight: bold">Format</label>
             <div class="form-inline">
                 <label style="width: 100px; text-align: left">Extension</label>
                 <label><input type="text" class="input-filter-params" style="width: 70px;" value="ahd"></label>
@@ -10,7 +10,7 @@
                 <label><select class="input-filter-params" style="width: 150px;">
                     <option value="0">Text</option>
                     <option value="1">Excel</option>
-                    <option value="2">Qtegra Exported XLS</option>
+{#                    <option value="2">Qtegra Exported XLS</option>#}
                     <option value="3">Seq</option>
                 </select></label>
             </div>
@@ -55,7 +55,7 @@
 
             <div>
                 <div class="form-inline">
-                    <label style="width: 110px; text-align: left">Ar40 Intensity</label>
+                    <label style="width: 110px; text-align: left"><sup>40</sup>Ar Intensity</label>
                     <label class="title" data-title="Indices: [row, col], 1-based">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="1">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="2">
@@ -67,7 +67,7 @@
                     </label>
                 </div>
                 <div class="form-inline">
-                    <label style="width: 110px; text-align: left">Ar39 Intensity</label>
+                    <label style="width: 110px; text-align: left"><sup>39</sup>Ar Intensity</label>
                     <label class="title" data-title="Indices: [row, col], 1-based">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="2">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="2">
@@ -79,7 +79,7 @@
                     </label>
                 </div>
                 <div class="form-inline">
-                    <label style="width: 110px; text-align: left">Ar38 Intensity</label>
+                    <label style="width: 110px; text-align: left"><sup>38</sup>Ar Intensity</label>
                     <label class="title" data-title="Indices: [row, col], 1-based">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="3">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="2">
@@ -91,7 +91,7 @@
                     </label>
                 </div>
                 <div class="form-inline">
-                    <label style="width: 110px; text-align: left">Ar37 Intensity</label>
+                    <label style="width: 110px; text-align: left"><sup>37</sup>Ar Intensity</label>
                     <label class="title" data-title="Indices: [row, col], 1-based">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="4">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="2">
@@ -103,7 +103,7 @@
                     </label>
                 </div>
                 <div class="form-inline">
-                    <label style="width: 110px; text-align: left">Ar36 Intensity</label>
+                    <label style="width: 110px; text-align: left"><sup>36</sup>Ar Intensity</label>
                     <label class="title" data-title="Indices: [row, col], 1-based">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="5">
                         <input type="number" min="0" step="1" class="input-filter-params" style="width: 50px;" value="2">
@@ -168,23 +168,24 @@
                 </label>
                 <a class="text-muted title" target="" style="display:inline-block"
                    data-title='
-    "ExpName": "en",        "StepName": "sn",
-    "StepType": "st",       "StepLabel": "sl",
-    "ZeroYear": "date",     "ZeroHour": "time",
-    "ZeroMon": "mon",       "ZeroMin": "min",
-    "ZeroDay": "day",       "ZeroSec": "sec",
-    "SmpName": "smpn",      "SmpLoc": "smpl",
-    "SmpMatr": "smpm",      "ExpType": "et",
-    "SmpWeight": "smpw",    "Stepunit": "su",
-    "HeatingTime": "ht",    "InstrName": "inn",
-    "Researcher": "re",     "Analyst": "an",
-    "Lab": "la",            "Jv": "jv",
-    "Jsig": "je",           "CalcName": "cp",
-    "IrraName": "in",       "IrraLabel": "il",
-    "IrraPosH": "ih",       "IrraPosX": "ix",
-    "IrraPosY": "iy",       "StdName": "stdn",
-    "StdAge": "stda",       "StdAgeSig": "stds",
-    "MDF": "mdf",       "MDFSig": "mdfs",
+    "ExpName": "en", "StepName": "sn",
+    "StepType": "st", "StepLabel": "sl",
+    "ZeroYear": "date", "ZeroHour": "time",
+    "ZeroMon": "mon", "ZeroMin": "min",
+    "ZeroDay": "day", "ZeroSec": "sec",
+    "SmpName": "smpn", "SmpLoc": "smpl",
+    "SmpMatr": "smpm", "ExpType": "et",
+    "SmpWeight": "smpw", "Stepunit": "su",
+    "HeatingTime": "ht",
+    "InstrName": "inn", "Researcher": "re",
+    "Analyst": "an", "Lab": "la",
+    "Jv": "jv", "Jsig": "je",
+    "MDF": "mdf", "MDFSig": "mdfe",
+    "CalcName": "cp", "IrraName": "in",
+    "IrraLabel": "il", "IrraPosH": "ih",
+    "IrraPosX": "ix", "IrraPosY": "iy",
+    "StdName": "stdn",
+    "StdAge": "stda", "StdAgeSig": "stde",
 '>
                     <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
             </div>
