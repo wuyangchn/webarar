@@ -285,39 +285,37 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         method = str(self.body.get('method'))
         adjusted_x = list(self.body.get('x'))
 
-        x, adjusted_time = [], []
-        year, month, day, hour, min, second = re.findall(r"\d+", data[0][0])[0]
-        for each in data[0]:
-            x.append(ap.calc.basic.get_datetime(
-                *re.findall(r"\d+", each)[0],
-                base=[int(year), int(month), int(day), int(hour), int(min)]
-            ))
-        for each in adjusted_x:
-            adjusted_time.append(ap.calc.basic.get_datetime(*re.findall(r"\d+", each)[0],
-                                                            base=[int(year), int(month), int(day), int(hour), int(min)]
-                                                            ))
+        base = [int(i) for i in re.findall(r"\d+", data[0][0])[:5]]
+        x = [ap.calc.basic.get_datetime(*re.findall(r"\d+", each)[:6], base=base) for each in data[0]]
         y = data[1]
         x, y = zip(*sorted(zip(x, y), key=lambda _x: _x[0]))
         handler = {
             'linear': ap.calc.regression.linest,
-            'average': ap.calc.regression.average,
             'quadratic': ap.calc.regression.quadratic,
-            'polynomial': ap.calc.regression.polynomial,
-            'power': ap.calc.regression.power,
+            # 'polynomial': ap.calc.regression.polynomial,
             'exponential': ap.calc.regression.exponential,
+            # 'power': ap.calc.regression.power,
+            'average': ap.calc.regression.average,
         }
         if method in handler.keys():
             try:
                 handler = handler[method]
                 res = handler(y, x)
+                if not res:
+                    raise ValueError
             except Exception as e:
                 debug_print(traceback.format_exc())
                 messages.error(request, e)
-                res = False
-            if res:
-                line_data = [adjusted_x, res[7](adjusted_time)]
-                return self.JsonResponse({'r2': res[3], 'line_data': line_data, 'sey': res[8]})
-        return self.JsonResponse({'r2': 'None', 'line_data': [], 'sey': 'None'})
+            else:
+                step_data = []
+                for each in adjusted_x:
+                    adjusted_time = ap.calc.basic.get_datetime(*re.findall(r"\d+", each)[:6], base=base)
+                    adjusted_y = res[7]([adjusted_time])[0]
+                    if np.isfinite(adjusted_y):
+                        step_data.append([each, adjusted_y])
+                step_data = ap.calc.arr.transpose(step_data)
+                return self.JsonResponse({'r2': res[3], 'step_data': step_data, 'line_data': [], 'sey': res[8]})
+        return self.JsonResponse({'r2': 'None', 'step_data': [], 'line_data': [], 'sey': 'None'})
 
     def recalculation(self, request, *args, **kwargs):
         sample = self.sample

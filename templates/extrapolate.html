@@ -108,7 +108,7 @@
                 <div class="modal-header">
                     <h4 class="modal-title">Blank Correction</h4>
                 </div>
-                <div class="modal-body modal-page-size" style="overflow: auto; padding-right: 15px; padding-left: 15px;">
+                <div class="modal-body modal-page-size" style="overflow: auto; padding-right: 15px; padding-left: 15px; padding-top: 5px;">
                     <div class="form-inline">
                         <label>Fixed Values:
                             <select id="corrBlankMethod" class="form-control" onchange="corrBlankMethodChanged()">
@@ -160,7 +160,6 @@
                         </div>
 
                     </div>
-
                 </div>
                 <div class="modal-footer">
 
@@ -199,41 +198,41 @@
                                 <select name="blankInterpolate" class="form-control">
                                     <option value="0">Linear Fit</option>
                                     <option value="1" selected>Quadratic Fit</option>
-                                    <option value="2">Polynomial Fit</option>
+{#                                    <option value="2">Polynomial Fit</option>#}
                                     <option value="3">Exponential Fit</option>
-                                    <option value="4">Power Fit</option>
+{#                                    <option value="4">Power Fit</option>#}
                                     <option value="5">Average</option>
                                 </select>
                                 <select name="blankInterpolate" class="form-control" style="display: none">
                                     <option value="0">Linear Fit</option>
                                     <option value="1" selected>Quadratic Fit</option>
-                                    <option value="2">Polynomial Fit</option>
+{#                                    <option value="2">Polynomial Fit</option>#}
                                     <option value="3">Exponential Fit</option>
-                                    <option value="4">Power Fit</option>
+{#                                    <option value="4">Power Fit</option>#}
                                     <option value="5">Average</option>
                                 </select>
                                 <select name="blankInterpolate" class="form-control" style="display: none">
                                     <option value="0">Linear Fit</option>
                                     <option value="1" selected>Quadratic Fit</option>
-                                    <option value="2">Polynomial Fit</option>
+{#                                    <option value="2">Polynomial Fit</option>#}
                                     <option value="3">Exponential Fit</option>
-                                    <option value="4">Power Fit</option>
+{#                                    <option value="4">Power Fit</option>#}
                                     <option value="5">Average</option>
                                 </select>
                                 <select name="blankInterpolate" class="form-control" style="display: none">
                                     <option value="0">Linear Fit</option>
                                     <option value="1" selected>Quadratic Fit</option>
-                                    <option value="2">Polynomial Fit</option>
+{#                                    <option value="2">Polynomial Fit</option>#}
                                     <option value="3">Exponential Fit</option>
-                                    <option value="4">Power Fit</option>
+{#                                    <option value="4">Power Fit</option>#}
                                     <option value="5">Average</option>
                                 </select>
                                 <select name="blankInterpolate" class="form-control" style="display: none">
                                     <option value="0">Linear Fit</option>
                                     <option value="1" selected>Quadratic Fit</option>
-                                    <option value="2">Polynomial Fit</option>
+{#                                    <option value="2">Polynomial Fit</option>#}
                                     <option value="3">Exponential Fit</option>
-                                    <option value="4">Power Fit</option>
+{#                                    <option value="4">Power Fit</option>#}
                                     <option value="5">Average</option>
                                 </select>
                             </label>
@@ -373,66 +372,10 @@
                 </div>
                 <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
                     <div style="padding-right: 15px; padding-left: 30px;">
-                        <div class="div-params" style="border: 1px none #d5d5d5; border-radius: 4px; width: 100%; height: auto; float: left">
-                            <form id="sampleInfoInputForm" method="post">
-                                <!--  sample info  -->
-                                <div style="width: 500px; float: left; border: 1px solid #ccc; padding-left: 15px; margin-right: 15px">
-                                    <label style="width: 400px; text-align: left; font-weight: bold">Sample Info</label>
-                                    <div class="form-inline">
-                                        <label style="width: 180px; text-align: left">Sample Name</label>
-                                        <label>
-                                            <input type="text" class="sample-info" style="width: 460px;">
-                                        </label>
-                                    </div>
-                                    <div class="form-inline">
-                                        <label class="control-label">Type
-                                            <select class="sample-info" style="font-weight: normal">
-                                                <option value="Unknown">Unknown</option>
-                                                <option value="Standard">Standard</option>
-                                                <option value="Air">Air</option>
-                                            </select>
-                                        </label>
-                                    </div>
-                                    <div class="form-inline">
-                                        <label style="width: 180px; text-align: left">Sample Material</label>
-                                        <label>
-                                            <input type="text" class="sample-info" style="width: 460px;">
-                                        </label>
-                                    </div>
-                                    <div class="form-inline">
-                                        <label style="width: 180px; text-align: left">Sample Location</label>
-                                        <label>
-                                            <input type="text" class="sample-info" style="width: 460px;">
-                                        </label>
-                                    </div>
-                                    <div class="form-inline">
-                                        <label style="width: 180px; text-align: left">Researcher</label>
-                                        <label>
-                                            <input type="text" class="sample-info" style="width: 460px;">
-                                        </label>
-                                    </div>
-                                    <div class="form-inline">
-                                        <label style="width: 180px; text-align: left">Laboratory</label>
-                                        <label>
-                                            <input type="text" class="sample-info" style="width: 460px;">
-                                        </label>
-                                    </div>
-                                    <div class="form-inline">
-                                        <label style="width: 180px; text-align: left">Laboratory More</label>
-                                        <label>
-                                            <textarea class="form-control sample-info" style="width: 460px;" rows="3"></textarea>
-                                        </label>
-                                    </div>
-                                    <div class="form-inline">
-                                        <label style="width: 180px; text-align: left">Analyst</label>
-                                        <label>
-                                            <input type="text" class="sample-info" style="width: 460px;">
-                                        </label>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                        <div class="radio form-inline"></div>
+                        {% include "sample_info_modal_body_div.html" %}
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <br>

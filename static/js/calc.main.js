@@ -922,12 +922,12 @@ function getInterpolatedBlank() {
         // Note only consider unknown sequences and selected blank sequences
         let datetime_list = myRawData.sequence.filter((item, index) =>
             nameList.includes(item.name) || !item.is_blank).map((v, i) => v.datetime);
-        let line_results = {
+        let regression_results = {
             linear: getRegressionResults(scatter_data, 'linear', datetime_list),
             quadratic: getRegressionResults(scatter_data, 'quadratic', datetime_list),
-            polynomial: getRegressionResults(scatter_data, 'polynomial', datetime_list),
+            // polynomial: getRegressionResults(scatter_data, 'polynomial', datetime_list),
             exponential: getRegressionResults(scatter_data, 'exponential', datetime_list),
-            power: getRegressionResults(scatter_data, 'power', datetime_list),
+            // power: getRegressionResults(scatter_data, 'power', datetime_list),
             average: getRegressionResults(scatter_data, 'average', datetime_list),
         }
         each.setOption({
@@ -944,12 +944,12 @@ function getInterpolatedBlank() {
             series: [
                 {id: 'FilledPoints', encode: {x: 0, y: index===0?1:index}, data: blank_data},
                 {id: 'UnfilledPoints', encode: {x: 0, y: index===0?1:index}, data: []},
-                {id: 'LineRegression', data: transpose(line_results.linear.line_data)},
-                {id: 'QuadRegression', data: transpose(line_results.quadratic.line_data)},
-                {id: 'PolyRegression', data: transpose(line_results.polynomial.line_data)},
-                {id: 'ExpRegression', data: transpose(line_results.exponential.line_data)},
-                {id: 'PowRegression', data: transpose(line_results.power.line_data)},
-                {id: 'Average', data: transpose(line_results.average.line_data)},
+                {id: 'LineRegression', data: transpose(regression_results.linear.step_data)},
+                {id: 'QuadRegression', data: transpose(regression_results.quadratic.step_data)},
+                // {id: 'PolyRegression', data: transpose(regression_results.polynomial.step_data)},
+                {id: 'ExpRegression', data: transpose(regression_results.exponential.step_data)},
+                // {id: 'PowRegression', data: transpose(regression_results.power.step_data)},
+                {id: 'Average', data: transpose(regression_results.average.step_data)},
             ],
             graphic: [{
                 id: 'LinesResults',
@@ -957,12 +957,12 @@ function getInterpolatedBlank() {
                     font: '16px "", Consolas, monospace',
                     text: text_table([
                         ['', 'Standard Error of Estimate', 'R2'],
-                        ['Linear', line_results.linear.sey, line_results.linear.r2],
-                        ['Quadratic', line_results.quadratic.sey, line_results.quadratic.r2],
-                        ['Polynomial', line_results.polynomial.sey, line_results.polynomial.r2],
-                        ['Exponential', line_results.exponential.sey, line_results.exponential.r2],
-                        ['Power', line_results.power.sey, line_results.power.r2],
-                        ['Average', line_results.average.sey, line_results.average.r2],
+                        ['Linear', regression_results.linear.sey, regression_results.linear.r2],
+                        ['Quadratic', regression_results.quadratic.sey, regression_results.quadratic.r2],
+                        // ['Polynomial', regression_results.polynomial.sey, regression_results.polynomial.r2],
+                        ['Exponential', regression_results.exponential.sey, regression_results.exponential.r2],
+                        // ['Power', regression_results.power.sey, regression_results.power.r2],
+                        ['Average', regression_results.average.sey, regression_results.average.r2],
                     ], {hsep: '  ', align: ['l', 'l', 'l'] })
                 },
             }],
@@ -1642,37 +1642,37 @@ function getLinkedChart(mainDiv, ...divs) {
         }
         let scatterData = [transpose(filledData)[params.encode.x[0]], transpose(filledData)[params.encode.y[0]]];
         let datetime_list = myRawData.sequence.map((v, i) => v.datetime);
-        let lineResults = {
+        let regressionResults = {
             linear: getRegressionResults(scatterData, 'linear', datetime_list),
             quadratic: getRegressionResults(scatterData, 'quadratic', datetime_list),
-            polynomial: getRegressionResults(scatterData, 'polynomial', datetime_list),
+            // polynomial: getRegressionResults(scatterData, 'polynomial', datetime_list),
             exponential: getRegressionResults(scatterData, 'exponential', datetime_list),
-            power: getRegressionResults(scatterData, 'power', datetime_list),
+            // power: getRegressionResults(scatterData, 'power', datetime_list),
             average: getRegressionResults(scatterData, 'average', datetime_list),
         }
         chartSmall[chartIndex].setOption({
             series: [
                 {id: 'FilledPoints', encode: getSeriesById('FilledPoints', option.series).encode, data: filledData},
                 {id: 'UnfilledPoints', encode: getSeriesById('UnfilledPoints', option.series).encode, data: unfilledData},
-                {id: 'LineRegression', data: transpose(lineResults.linear.line_data)},
-                {id: 'QuadRegression', data: transpose(lineResults.quadratic.line_data)},
-                {id: 'PolyRegression', data: transpose(lineResults.polynomial.line_data)},
-                {id: 'ExpRegression', data: transpose(lineResults.exponential.line_data)},
-                {id: 'PowRegression', data: transpose(lineResults.power.line_data)},
-                {id: 'Average', data: transpose(lineResults.average.line_data)},
+                {id: 'LineRegression', data: transpose(regressionResults.linear.step_data)},
+                {id: 'QuadRegression', data: transpose(regressionResults.quadratic.step_data)},
+                // {id: 'PolyRegression', data: transpose(regressionResults.polynomial.step_data)},
+                {id: 'ExpRegression', data: transpose(regressionResults.exponential.step_data)},
+                // {id: 'PowRegression', data: transpose(regressionResults.power.step_data)},
+                {id: 'Average', data: transpose(regressionResults.average.step_data)},
             ],
             graphic: [{
                 id: 'LinesResults', invisible: true, type: 'text',
                 style: {
                     fill: '#FF0000', overflow: 'break', font: '16px "", Consolas, monospace',
                     text: text_table([
-                        ['', 'Standard Error of Estimate', 'R2'],
-                        ['Linear', lineResults.linear.sey, lineResults.linear.r2],
-                        ['Quadratic', lineResults.quadratic.sey, lineResults.quadratic.r2],
-                        ['Polynomial', lineResults.polynomial.sey, lineResults.polynomial.r2],
-                        ['Exponential', lineResults.exponential.sey, lineResults.exponential.r2],
-                        ['Power', lineResults.power.sey, lineResults.power.r2],
-                        ['Average', lineResults.average.sey, lineResults.average.r2],
+                        ['', 'Regression Standard Error', 'R2'],
+                        ['Linear', regressionResults.linear.sey, regressionResults.linear.r2],
+                        ['Quadratic', regressionResults.quadratic.sey, regressionResults.quadratic.r2],
+                        // ['Polynomial', regressionResults.polynomial.sey, regressionResults.polynomial.r2],
+                        ['Exponential', regressionResults.exponential.sey, regressionResults.exponential.r2],
+                        // ['Power', regressionResults.power.sey, regressionResults.power.r2],
+                        ['Average', regressionResults.average.sey, regressionResults.average.r2],
                     ], {hsep: '  ', align: ['l', 'l', 'l'] })
                 },
             }],
@@ -1702,7 +1702,7 @@ function getLinkedChart(mainDiv, ...divs) {
 }
 
 function getRegressionResults(data, method, x) {
-    let result = {r2: 'None', sey: 'None', line_data: []};
+    let result = {r2: 'None', sey: 'None', line_data: [], step_data: []};
     $.ajax({
         url: url_get_regression_result,
         type: 'POST',
@@ -1713,8 +1713,8 @@ function getRegressionResults(data, method, x) {
         }),
         async : false,
         contentType:'application/json',
-        success: function(data, textStatus, jqXHR){
-            result = data;
+        success: function(res){
+            result = res;
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
