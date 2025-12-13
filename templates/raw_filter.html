@@ -48,15 +48,17 @@
         <div class="modal-dialog modal-dialog-width-85">
             <div class="modal-content">
                 <div class="modal-header">
+                    <a href="{% url 'calc_view' %}" class="close">&times;</a>
                     <h4 class="modal-title" id="myModalLabel">Raw File Filter</h4>
                 </div>
                 <form id="rawFileForm" method="post" enctype="multipart/form-data">
                     <div id="page-1" class="modal-body raw-file-filter-page">
-                        <p>Upload files and select filter</p>
+                        <p><strong>Step 1:</strong> Upload your files</p>
                         <div class="form-group">
                             <input type="file" id="file-input-1" name="raw_file" multiple="multiple"
                                    accept="application/vnd.ms-excel,.ahd,.txt,.seq,.csv,.ngxdp" onchange="rawFilesChanged()">
                         </div>
+                        <p><strong>Step 2:</strong> Select a filter for each uploaded file</p>
                         <div style="">
                             <label>
                                 <input type="text" id="raw-file-table-input" name="raw-file-table" class="sr-only">
@@ -93,13 +95,13 @@
                 uniqueId: "id",                     //每一行的唯一标识，一般为主键列
                 columns: [
                     {field: 'checked', checkbox: true, width: 20, formatter: function () {return true}},
-                    {field: 'id', title: 'Sequence', width: 20,
+                    {field: 'id', title: 'No.', width: 20,
                         formatter: function (value, row, index) {
                             return index + 1
                         }
                     },
-                    {field: 'file_name', title: 'Name', width: 20, },
-                    {field: 'file_path', title: 'File path', width: 200, },
+                    {field: 'file_name', title: 'Original Name', width: 20, },
+                    {field: 'file_path', title: 'Sanitized Filename', width: 200, },
                     {field: 'filter', title: 'Filter  <select class="input-sm" id="input-filter-title-selection" style="width: 200px" onchange="change_filter_at_title()">', width: 100, },
                     {field: 'operation', title: 'Operation', width: 50, }
                 ]

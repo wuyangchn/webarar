@@ -284,23 +284,22 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
         data = list(self.body.get('data'))
         method = str(self.body.get('method'))
         adjusted_x = list(self.body.get('x'))
-
         base = [int(i) for i in re.findall(r"\d+", data[0][0])[:5]]
         x = [ap.calc.basic.get_datetime(*re.findall(r"\d+", each)[:6], base=base) for each in data[0]]
         y = data[1]
         x, y = zip(*sorted(zip(x, y), key=lambda _x: _x[0]))
         handler = {
-            'linear': ap.calc.regression.linest,
-            'quadratic': ap.calc.regression.quadratic,
+            'linear': [ap.calc.regression.linest, ap.calc.regression.linest_var],
+            'quadratic': [ap.calc.regression.quadratic, ap.calc.regression.quadratic_var],
             # 'polynomial': ap.calc.regression.polynomial,
-            'exponential': ap.calc.regression.exponential,
+            'exponential': [ap.calc.regression.exponential, ap.calc.regression.exponential_var],
             # 'power': ap.calc.regression.power,
-            'average': ap.calc.regression.average,
+            'average': [ap.calc.regression.average, ap.calc.regression.average_var],
         }
         if method in handler.keys():
             try:
-                handler = handler[method]
-                res = handler(y, x)
+                [fit_handler, var_handler] = handler[method]
+                res = fit_handler(y, x)
                 if not res:
                     raise ValueError
             except Exception as e:
@@ -310,9 +309,10 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 step_data = []
                 for each in adjusted_x:
                     adjusted_time = ap.calc.basic.get_datetime(*re.findall(r"\d+", each)[:6], base=base)
-                    adjusted_y = res[7]([adjusted_time])[0]
-                    if np.isfinite(adjusted_y):
-                        step_data.append([each, adjusted_y])
+                    y, var_y = var_handler(res[5], res[6], adjusted_time)
+                    err_y = var_y ** .5
+                    if np.isfinite(y):
+                        step_data.append([each, y, err_y, abs(err_y / y) * 100, res[3]])
                 step_data = ap.calc.arr.transpose(step_data)
                 return self.JsonResponse({'r2': res[3], 'step_data': step_data, 'line_data': [], 'sey': res[8]})
         return self.JsonResponse({'r2': 'None', 'step_data': [], 'line_data': [], 'sey': 'None'})
@@ -446,23 +446,27 @@ class RawFileView(http_funcs.ArArView):
         for file in request.FILES.getlist('raw_file'):
             try:
                 web_file_path, file_name, suffix = http_funcs.upload(
-                    file, settings.UPLOAD_ROOT, request=request)
+                    file, settings.UPLOAD_ROOT, request=request, check_suffix=False)
             except (Exception, BaseException) as e:
                 messages.error(request, e)
                 continue
             else:
                 self.write_log(f"Read raw file: {web_file_path}")
                 files.append({
-                    'name': file_name, 'extension': suffix, 'path': web_file_path,
-                    'filter': suffix[1:],
-                    'filter_list': names
+                    'name': file_name, 'extension': suffix,
+                    'path': os.path.basename(web_file_path),
+                    'filter': suffix[1:], 'filter_list': names
                 })
         return self.JsonResponse({'files': files})
 
     def submit(self, request, *args, **kwargs):
+        """
+        Raw files submitted, do regression
+        """
         files = json.loads(request.POST.get('raw-file-table'))['files']
         file_names = [each['file_name'] for each in files if each['checked']]
         file_paths = [each['file_path'] for each in files if each['checked']]
+        file_paths = [os.path.join(settings.UPLOAD_ROOT, f"{each}") for each in file_paths]
         filter_names = [each['filter'] for each in files if each['checked']]
         filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_names]
         try:
@@ -505,13 +509,23 @@ class RawFileView(http_funcs.ArArView):
 
         # create sample
         sample = raw.to_sample(selectedSequences)
-
         info = {
-            'sample': {'name': sampleInfo[0], 'type': sampleInfo[1], 'material': sampleInfo[2],
-                       'location': sampleInfo[3]},
-            'researcher': {'name': sampleInfo[4]},
-            'laboratory': {'name': sampleInfo[5], 'info': sampleInfo[6], 'analyst': sampleInfo[7]},
-            'experiment': {'name': sampleInfo[0], 'step_num': len(sample.SequenceName)}
+            'experiment': {
+                'name': sampleInfo[0], 'type': sampleInfo[1], 'instrument': sampleInfo[2],
+                'step_num': len(sample.SequenceName),
+            },
+            'laboratory': {
+                'name': sampleInfo[3], 'info': sampleInfo[4], 'analyst': sampleInfo[5],
+            },
+            'sample': {
+                'name': sampleInfo[6], 'type': sampleInfo[7], 'material': sampleInfo[8],
+                'weight': sampleInfo[9], 'location': sampleInfo[10],
+            },
+            'researcher': {'name': sampleInfo[11]},
+            'irradiation': {
+                'label': sampleInfo[12],
+                'pos_h': sampleInfo[13], 'pos_x': sampleInfo[14], 'pos_y': sampleInfo[15],
+            },
         }
         sample.set_info(info=info)
 
@@ -560,35 +574,6 @@ class RawFileView(http_funcs.ArArView):
         return self.JsonResponse({'sequences': sequences}, encoder=ap.smp.json.MyEncoder,
                                  content_type='application/json', safe=True)
 
-    def add_empty_blank(self, request, *args, **kwargs):
-        raw: ap.RawData = self.sample
-        new_blank_sequence = {
-            'name': ['EMPTY'],
-            'experimentTime': "1996-08-09T08:00:00",
-            'Ar36': [[0, 0, 0, 0]],
-            'Ar37': [[0, 0, 0, 0]],
-            'Ar38': [[0, 0, 0, 0]],
-            'Ar39': [[0, 0, 0, 0]],
-            'Ar40': [[0, 0, 0, 0]],
-        }
-        new_sequence = ap.Sequence(
-            index='undefined', name=f"empty", data=None, fitting_method=[0, 0, 0, 0, 0],
-            datetime=new_blank_sequence['experimentTime'], type_str='blank', is_estimated=True,
-            results=[
-                new_blank_sequence['Ar36'],
-                new_blank_sequence['Ar37'],
-                new_blank_sequence['Ar38'],
-                new_blank_sequence['Ar39'],
-                new_blank_sequence['Ar40'],
-            ],
-        )
-
-        raw.sequence.append(new_sequence)
-        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
-
-        return self.JsonResponse({'new_sequence': new_sequence},
-                                 encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
-
     def change_seq_fitting_method(self, request, *args, **kwargs):
         raw: ap.RawData = self.sample
         seq_idx = self.body['sequence_index']
@@ -616,15 +601,14 @@ class RawFileView(http_funcs.ArArView):
             sequence_index = self.body['sequence_index']
             data_index = self.body['data_index']
             isotopic_index = self.body['isotopic_index']
+            isotopes = list(range(5)) if selectionForAll else [isotopic_index]
             raw: ap.RawData = self.sample
             for each in data_index:
                 status = not raw.sequence[sequence_index].flag[each][isotopic_index * 2 + 1]
-                isotopes = list(range(5)) if selectionForAll else [isotopic_index]
                 for _isotope in isotopes:
                     raw.sequence[sequence_index].flag[each][_isotope * 2 + 1] = status
                     raw.sequence[sequence_index].flag[each][_isotope * 2 + 2] = status
-
-            raw.do_regression(sequence_index=[sequence_index], isotopic_index=isotopic_index)
+            raw.do_regression(sequence_index=[sequence_index], isotopic_index=isotopes)
         except (BaseException, Exception) as e:
             debug_print(traceback.format_exc())
             self.error_msg = f"{e}"
@@ -636,8 +620,43 @@ class RawFileView(http_funcs.ArArView):
             return self.JsonResponse({'sequence': raw.sequence[sequence_index]},
                                      encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
 
+    def add_empty_blank(self, request, *args, **kwargs):
+        raw: ap.RawData = self.sample
+        name = self.body.get("new_blank_name", "")
+        if name == "":
+            name = "Empty"
+        new_blank_sequence = {
+            'name': [name],
+            'experimentTime': "1996-08-09T08:00:00",
+            'Ar36': [[0, 0, 0, 0]],
+            'Ar37': [[0, 0, 0, 0]],
+            'Ar38': [[0, 0, 0, 0]],
+            'Ar39': [[0, 0, 0, 0]],
+            'Ar40': [[0, 0, 0, 0]],
+        }
+        new_sequence = ap.Sequence(
+            index='undefined', name=name, data=None, fitting_method=[0, 0, 0, 0, 0],
+            datetime=new_blank_sequence['experimentTime'], type_str='blank', is_estimated=True,
+            results=[
+                new_blank_sequence['Ar36'],
+                new_blank_sequence['Ar37'],
+                new_blank_sequence['Ar38'],
+                new_blank_sequence['Ar39'],
+                new_blank_sequence['Ar40'],
+            ],
+        )
+
+        raw.sequence.append(new_sequence)
+        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
+
+        return self.JsonResponse({'new_sequence': new_sequence},
+                                 encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
+
     def calc_raw_average_blanks(self, request, *args, **kwargs):
         blanks = self.body['blanks']
+        name = self.body.get("new_blank_name", "")
+        if name == "":
+            name = f"average({', '.join([j[0]['name'] for j in blanks])})"
         newBlank = []
         results = []
         for i in range(5):
@@ -652,7 +671,7 @@ class RawFileView(http_funcs.ArArView):
             newBlank.append(isotope)
             results.append([[_intercept, _err, _relative_err, np.nan]])
         new_sequence = ap.Sequence(
-            index='undefined', name=f"average({', '.join([j[0]['name'] for j in blanks])})", data=None,
+            index='undefined', name=name, data=None,
             datetime='', type_str='blank', results=results, fitting_method=[0, 0, 0, 0, 0], is_estimated=True,
         )
 
@@ -675,20 +694,22 @@ class RawFileView(http_funcs.ArArView):
         -------
 
         """
-
         interpolated_blank = self.body['interpolated_blank']
+        name = self.body.get("new_blank_name", "")
+        if name == "":
+            name = "Interpolated Blank"
         raw: ap.RawData = self.sample
         new_sequences = [ap.Sequence(
-            name="Interpolated Blank", results=[[[iso[1], 0, np.NaN, np.NaN]] for iso in row],
+            name=name, results=[[[iso[1], iso[2], iso[3], iso[4]]] for iso in row],
             fitting_method=[0, 0, 0, 0, 0], index=index, datetime=row[0][0], type_str='blank',
             is_estimated=True,
         ) for index, row in enumerate(interpolated_blank)]
-        raw.interpolated_blank = new_sequences
-
+        if raw.interpolated_blank is None:
+            raw.interpolated_blank = []
+        raw.interpolated_blank = ap.calc.arr.multi_append(raw.interpolated_blank, *new_sequences)
         http_funcs.create_cache(raw, cache_key=self.cache_key)  # update cache
-
-        return self.JsonResponse({'sequences': new_sequences},
-                                 encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
+        return self.JsonResponse({'sequences': new_sequences}, encoder=ap.smp.json.MyEncoder,
+                                 content_type='application/json', safe=True)
 
     def check_regression(self, request, *args, **kwargs):
         raw: ap.RawData = self.sample
@@ -778,7 +799,6 @@ class ParamsSettingView(http_funcs.ArArView):
         model = getattr(models, model_name)
         queryset = model.objects.filter(uploader_uuid=user_id) if checked else model.objects.all()
         names = list(queryset.values_list('name', flat=True))
-        print(f"{checked = }, {names = }, {param_type = }")
         return self.JsonResponse({'names': names})
 
     def show_database(self, request, *args, **kwargs):

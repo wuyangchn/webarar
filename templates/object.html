@@ -84,7 +84,7 @@
         </div>
         <div id="sample_info_container" class="col-xs-11 col-md-10 thumbnail" style="float:left;overflow: hidden">
             <div class="col-xs-6 text-left">
-                <h2 class="h2 align-top" id="sample_name_title">Sample Name</h2>
+                <h2 class="h2 align-top" id="exp_name_title">Sample Name</h2>
                 <br>
                 <form class="form-horizontal" method="post" enctype="multipart/form-data">
                     <label class="sr-only" for="inputFingerprint">Fingerprint
@@ -92,15 +92,27 @@
                     </label>
 
                     <div class="form-group">
-                        <label for="inputName" class="col-sm-2 control-label">Name</label>
+                        <label for="inputExpName" class="col-sm-2 control-label">Experiment Name</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputName" name="Name" value="Name">
+                            <input type="text" class="form-control" id="inputExpName" name="Name" value="Name">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="inputType" class="col-sm-2 control-label">Type</label>
+                        <label for="inputExpType" class="col-sm-2 control-label">Experiment Type</label>
                         <div class="col-sm-10">
-                            <label><select id="inputType" class="form-control" style="font-weight: normal">
+                            <input type="text" class="form-control" id="inputExpType" name="Name" value="Name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputSmpName" class="col-sm-2 control-label">Sample Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputSmpName" name="Name" value="Name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputSmpType" class="col-sm-2 control-label">Sample Type</label>
+                        <div class="col-sm-10">
+                            <label><select id="inputSmpType" class="form-control" style="font-weight: normal">
                                 <option value="Unknown">Unknown</option>
                                 <option value="Standard">Standard</option>
                                 <option value="Air">Air</option>
@@ -840,7 +852,7 @@ Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
                             <div class="checkbox">
                                 <label>
                                     <input type="checkbox" class="calc-check-box">
-                                    14. Reset Figure Style
+                                    14. Reset Plot Style
                                 </label>
                             </div>
                             <div class="checkbox">

@@ -30,6 +30,27 @@
        $('#file-btn-7').click(function(){show_loading("#file-btn-7");$('#file-submit').click()});
        $('#file-btn-8').click(function(){show_loading("#file-btn-8");$('#file-submit').click()});
     });
+    $(document).ready(function(){
+        // 修复多层Modal关闭后背景滚动条显示的问题
+        $(document).on('hidden.bs.modal', '.modal', function() {
+        // 检查当前页面是否还有处于显示状态的Modal
+        if ($('.modal.in').length > 0) {
+            $('body').addClass('modal-open');
+            // 修复body的右侧padding（防止滚动条消失后内容偏移）
+            var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            $('body').css('padding-right', scrollbarWidth + 'px');
+        } else {
+            // 所有Modal都关闭，恢复body样式
+            $('body').removeClass('modal-open');
+            $('body').css('padding-right', '');
+        }
+        });
+        // 监听Modal的show.bs.modal事件，提前锁定滚动（增强兼容性）
+        $(document).on('show.bs.modal', '.modal', function() {
+            var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            $('body').addClass('modal-open').css('padding-right', scrollbarWidth + 'px');
+        });
+    });
 </script>
 
 <div class="jumbotron" style="height: 1000px">
@@ -154,7 +175,7 @@
             <div class="col-sm-6 col-md-4">
                 <div class="thumbnail">
                     <div class="caption">
-                        <h3>Database</h3><br>
+                        <h3>Database (to be finished)</h3><br>
                         <p><a href="{% url 'params_views' 'show_database' %}" class="btn btn-primary" role="button">Show</a></p>
                     </div>
                 </div>

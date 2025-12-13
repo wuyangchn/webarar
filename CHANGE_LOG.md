@@ -9,6 +9,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+## 2025-12-12
+* Fixed: Issues on importing raw files
+
 ## 2025-12-08
 * Added: Filtering param projects by user id
 

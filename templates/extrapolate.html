@@ -20,6 +20,7 @@
         <div class="modal-dialog modal-dialog-width-85">
             <div class="modal-content">
                 <div class="modal-header">
+                    <a href="{% url 'calc_view' %}" class="close">&times;</a>
                     <h4 class="modal-title">Zero-time Extrapolation</h4>
                 </div>
                 <div class="modal-body modal-page-size" style="height: calc(100vh - 270px)">
@@ -37,11 +38,11 @@
                         <div class="form-inline">
                             <div class="checkbox-inline">
                                 <label>
-                                    <input id="applySelectionToAll" type="checkbox">Apply adjustment to all isotopes
+                                    <input id="applySelectionToAll" type="checkbox">Apply to All Isotopes
                                 </label>
                             </div>
                             <div class="checkbox-inline">
-                                <label>Fitting method:
+                                <label>Fit Method:
                                     <select id="fitMethod" class="form-control" onchange="fitMethodChanged()" onkeydown="function _ignoreKey(e) {
                                         if(e.keyCode === 37 || e.keyCode === 39) { // left or right
                                             e.preventDefault();
@@ -64,12 +65,12 @@
 
                             <div class="checkbox-inline">
                                 <label>
-                                    <input id="isBlank" type="checkbox" onchange="seqStateChanged()">Set as blank sequence
+                                    <input id="isBlank" type="checkbox" onchange="seqStateChanged()">Mark as Blank
                                 </label>
                             </div>
                             <div class="checkbox-inline">
                                 <label>
-                                    <input id="isRemoved" type="checkbox" onchange="seqStateChanged()">Remove this sequence
+                                    <input id="isRemoved" type="checkbox" onchange="seqStateChanged()">Remove Sequence
                                 </label>
                             </div>
 
@@ -82,7 +83,7 @@
                             <button class="btn btn-default" onclick="export_sequence()">Export Sequence</button></label>
                         <label title="Check if results of regression are all valid.">
                             <button class="btn btn-default" onclick="check_regression()">Check Regression</button></label>
-                        <a title="Close" id="btn-Close-1" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
+                        <a title="Close" id="btn-Close-1" href="{% url 'calc_view' %}" class="btn btn-default">Close</a>
                         <label title="Continue">
                             <button type="submit" class="btn btn-primary" name="btn" value="Submit" onclick="submitExtrapolate()">Submit</button></label>
                     </div>
@@ -106,6 +107,7 @@
         <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-blank">
             <div class="modal-content">
                 <div class="modal-header">
+                    <a href="{% url 'calc_view' %}" class="close">&times;</a>
                     <h4 class="modal-title">Blank Correction</h4>
                 </div>
                 <div class="modal-body modal-page-size" style="overflow: auto; padding-right: 15px; padding-left: 15px; padding-top: 5px;">
@@ -127,30 +129,31 @@
                     <div class="col-md-6">
                         <form>
                             <div class="form-group">
-                                <label for="inputBlankSequences">Input</label>
+                                <label for="inputBlankSequences">Input Sequences:</label>
                                 <div>
                                     <input type="text" class="form-control" id="inputBlankSequences" placeholder="Blank Sequence, splits sequences with semicolons (;)">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="outputBlankSequences">Output</label>
+                                <label for="outputBlankSequences">New Blank:</label>
                                 <div>
-                                    <input type="text" class="form-control" id="outputBlankSequences" placeholder="uneditable" disabled>
+                                    <input type="text" class="form-control" id="outputBlankSequences" placeholder="">
                                 </div>
                             </div>
                         </form>
                         <div class="text: center" style="display: inline">
                             <button type="button" class="btn btn-primary" onclick="getAverageofBlanks()">Average()</button>
                             <button type="button" class="btn btn-primary" onclick="getInterpolatedBlank()">Interpolate()</button>
-                            <button type="button" class="btn btn-primary" onclick="addNewBlankButtonClicked()">Add to list</button>
+                            <button type="button" class="btn btn-primary" onclick="addNewBlankButtonClicked()">Add to List</button>
                             <button type="button" class="btn btn-primary" onclick="getEmptyBlank()">Add Empty Blank</button>
-                            <button id="file-btn-import-blank" type="button" class="btn btn-primary">Import from Sequences</button>
+                            <button id="file-btn-import-blank" type="button" class="btn btn-primary">Import from Files</button>
                             <form id="form-import-blank-file" enctype="multipart/form-data">
                                 <label><input type="file" style="display: none" id="file-input-import-blank" name="blank_file" accept=".xls, .seq"></label>
                                 <label><input type="text" style="display: none" id="file-input-cache-key" name="cache_key"></label>
                             </form>
                         </div>
                         <div class="row">
+                            <div class="col-xs-11 col-md-11"><label>Blank Sequences:</label></div>
                             <div class="col-xs-11 col-md-11">
                                 <ul id="listGroupBlankName" class="list-group" style="margin-top: 10px"></ul>
                             </div>
@@ -158,17 +161,23 @@
                                 <ul id="listGroupBlankBtn" class="list-group" style="margin-top: 10px"></ul>
                             </div>
                         </div>
-
                     </div>
                 </div>
                 <div class="modal-footer">
 
-                <br>
-                <div class="pull-right">
-                    <button type="button" class="btn btn-default" onclick="showModal('modal-extrapolate')">Last</button>
-                    <a id="btn-Close-2" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
-                    <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-irradiation-params')">Next</button>
-                </div>
+                    <br>
+                    <div class="pull-right">
+                        <a id="btn-Close-2" href="{% url 'calc_view' %}" class="btn btn-default">Close</a>
+                    </div>
+                    <div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-default" onclick="showModal('modal-extrapolate')">Last
+                                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+                            <label style="width: 40px; font-weight: normal">1/5</label>
+                            <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-irradiation-params')">Next
+                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+                        </div>
+                    </div>
 
                 </div>
             </div><!-- /.modal-content -->
@@ -177,6 +186,7 @@
         <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-interpolate-blank" hidden>
             <div class="modal-content">
                 <div class="modal-header">
+                    <button type="button" class="close" onclick="showModalDialog('modal-dialog-blank')">&times;</button>
                     <h4 class="modal-title">Blank Interpolation</h4>
                 </div>
                 <div class="modal-body modal-page-size" id="modal-body-interpolate-blank" style="overflow: auto; padding-right: 15px; padding-left: 15px;">
@@ -250,6 +260,7 @@
         <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-irradiation-params" hidden>
             <div class="modal-content">
                 <div class="modal-header">
+                    <a href="{% url 'calc_view' %}" class="close">&times;</a>
                     <h4 class="modal-title">Irradiation Parameters</h4>
                 </div>
                 <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
@@ -278,9 +289,16 @@
                 <div class="modal-footer">
                     <br>
                     <div class="pull-right">
-                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-blank')">Last</button>
-                        <a id="btn-Close-3" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
-                        <button type="button" class="btn btn-primary" value="Submit" onclick="showModalDialog('modal-dialog-calc-params')">Next</button>
+                        <a id="btn-Close-3" href="{% url 'calc_view' %}" class="btn btn-default">Close</a>
+                    </div>
+                    <div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-blank')">Last
+                                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+                            <label style="width: 40px; font-weight: normal">2/5</label>
+                            <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-calc-params')">Next
+                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+                        </div>
                     </div>
                 </div>
             </div><!-- /.modal-content -->
@@ -289,6 +307,7 @@
         <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-calc-params" hidden>
             <div class="modal-content">
                 <div class="modal-header">
+                    <a href="{% url 'calc_view' %}" class="close">&times;</a>
                     <h4 class="modal-title">Calculation Parameters</h4>
                 </div>
                 <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
@@ -316,9 +335,16 @@
                 <div class="modal-footer">
                     <br>
                     <div class="pull-right">
-                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-irradiation-params')">Last</button>
-                        <a id="btn-Close-4" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
-                        <button type="button" class="btn btn-primary" value="Submit" onclick="showModalDialog('modal-dialog-sample-params')">Next</button>
+                        <a id="btn-Close-4" href="{% url 'calc_view' %}" class="btn btn-default">Close</a>
+                    </div>
+                    <div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-irradiation-params')">Last
+                                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+                            <label style="width: 40px; font-weight: normal">3/5</label>
+                            <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-sample-params')">Next
+                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+                        </div>
                     </div>
                 </div>
             </div><!-- /.modal-content -->
@@ -327,6 +353,7 @@
         <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-sample-params" hidden>
             <div class="modal-content">
                 <div class="modal-header">
+                    <a href="{% url 'calc_view' %}" class="close">&times;</a>
                     <h4 class="modal-title">Specific Parameters</h4>
                 </div>
 
@@ -356,9 +383,16 @@
                 <div class="modal-footer">
                     <br>
                     <div class="pull-right">
-                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-calc-params')">Last</button>
-                        <a id="btn-Close-4" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
-                        <button type="button" class="btn btn-primary" value="Submit" onclick="showModalDialog('modal-dialog-sample-info')">Next</button>
+                        <a id="btn-Close-4" href="{% url 'calc_view' %}" class="btn btn-default">Close</a>
+                    </div>
+                    <div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-calc-params')">Last
+                                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+                            <label style="width: 40px; font-weight: normal">4/5</label>
+                            <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-sample-info')">Next
+                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+                        </div>
                     </div>
 
                 </div>
@@ -368,7 +402,8 @@
         <div class="modal-dialog modal-dialog-width-85" id="modal-dialog-sample-info" hidden>
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Sample Info</h4>
+                    <a href="{% url 'calc_view' %}" class="close">&times;</a>
+                    <h4 class="modal-title">Sample & Experiment Info</h4>
                 </div>
                 <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
                     <div style="padding-right: 15px; padding-left: 30px;">
@@ -380,9 +415,16 @@
                 <div class="modal-footer">
                     <br>
                     <div class="pull-right">
-                        <button type="button" class="btn btn-default" value="Last Page" onclick="showModalDialog('modal-dialog-sample-params')">Last</button>
-                        <a id="btn-Close-5" href="{% url 'calc_view' %}"  class="btn btn-default">Close</a>
-                        <button type="button" class="btn btn-primary" value="Submit" onclick="submitRawData()">Submit</button>
+                        <a id="btn-Close-5" href="{% url 'calc_view' %}" class="btn btn-default">Close</a>
+                    </div>
+                    <div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-sample-params')">Last
+                                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+                            <label style="width: 40px; font-weight: normal">5/5</label>
+                            <button type="button" class="btn btn-primary" value="Submit" onclick="submitRawData()">Submit
+                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+                        </div>
                     </div>
                 </div>
             </div><!-- /.modal-content -->
@@ -413,7 +455,7 @@
         <div class="modal-dialog" style="width: 1100px">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title" id="modal-export-sequence-title">Select sequences to export</h4>
                 </div>
                 <div class="modal-body">
@@ -619,6 +661,7 @@
             showSequence(1);
             // detect keyboard press
             document.onkeydown = function (e) {
+                if (!$('#modal-extrapolate').is(':visible')) { return }
                 let current_isotope = getCurrentIsotope();
                 switch (e.code){
                     case 'ArrowLeft':  // or kedCode === 37, left
@@ -663,10 +706,11 @@
                     }
                 });
             });
+            const options = myRawData.sequence[0].options;
             let info = [
-                myRawData.name, myRawData.type, myRawData.sequence[0].options.SmpMatr,
-                myRawData.sequence[0].options.SmpLoc, myRawData.sequence[0].options.Researcher,
-                myRawData.sequence[0].options.Lab, "more information", myRawData.sequence[0].options.Analyst
+                myRawData.name, options.ExpType, options.InstrName, options.Lab, "more information", options.Analyst,
+                options.SmpName, myRawData.type, options.SmpMatr, options.SmpWeight, options.SmpLoc, options.Researcher,
+                options.IrraLabel, options.IrraPosH, options.IrraPosX, options.IrraPosY
             ];
             $.each(document.getElementsByClassName('sample-info'), function (index, each) {
                 try {

@@ -1,7 +1,7 @@
 """
 Import ararpy
 """
-version = "20251207"
+version = "20251212"
 # import ararpy as ap                 # using Pip version
 try:
     from .local_init import *

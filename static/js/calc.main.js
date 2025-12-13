@@ -182,12 +182,12 @@ function addNewBlankButtonClicked() {
     let newNameList = newBlankName.split(';');
     let existing_blank_names = myRawData.sequence.filter((seq, index) => seq.is_blank).map(
         (seq, index) => seq.name)
+    let not_blanks = [];
     for (let i = 0; i < newNameList.length; i++) {
         let name = newNameList[i];
         let new_sequence = newSequencesList.filter((v, _i) => v.name === name)[0]
         if (!new_sequence.is_blank) {
-            let text = `Sequence ${name} is a ${new_sequence.type_str} sequence, not a blank sequence.`;
-            showPopupMessage("Information",text, true);
+            not_blanks.push(`${name}`);
             continue;
         }
         if (existing_blank_names.includes(name)) {
@@ -199,6 +199,9 @@ function addNewBlankButtonClicked() {
         option.value = name;
         option.innerText = name;
         myRawData.sequence.push(...newSequencesList.filter((v, _i) => v.name === name));
+    }
+    if (not_blanks.length > 0) {
+        showPopupMessage("Information", `The following sequences are not blanks:\n`+not_blanks.join(','), true);
     }
     $('#table-sequences').bootstrapTable('destroy');
     initialTable(myRawData.sequence.filter((v, i) => v.is_blank).map((v, i) => v.name));
@@ -329,8 +332,11 @@ function change_input_filter(row, index) {
 }
 function change_filter_at_title() {
     let val = document.getElementById('input-filter-title-selection').value;
+    const table_data = $('#raw_file_list').bootstrapTable('getData');
     $.each(document.getElementsByClassName('input-filter-selection'), function (index, each) {
-        each.value = val;
+        if (table_data[index]['checked']) {
+            each.value = val;
+        }
     });
     updateRawFileTable()
 }
@@ -366,6 +372,7 @@ function getEmptyBlank() {
         url: url_raw_empty_blank,
         type: 'POST',
         data: JSON.stringify({
+            'new_blank_name': document.getElementById('outputBlankSequences').value,
             'cache_key': myRawCacheKey,
         }),
         contentType:'application/json',
@@ -458,10 +465,10 @@ function export_sequence() {
     }
 }
 function check_regression() {
-    let selectedSequences = $('#table-sequences').bootstrapTable('getSelections');
-    selectedSequences.map((each, index) => {
-        each['blank'] = $('#blank-sele'+each.id).find("option:selected").text();
-    })
+    // let selectedSequences = $('#table-sequences').bootstrapTable('getSelections');
+    // selectedSequences.map((each, index) => {
+    //     each['blank'] = $('#blank-sele'+each.id).find("option:selected").text();
+    // })
     $.ajax({
         url: url_raw_check_regression,
         type: 'POST',
@@ -710,8 +717,14 @@ function chartScatterClicked(data_indexes) {
 function corrBlankMethodChanged(blank_sequences=[]) {
     blank_sequences = blank_sequences.length === 0?myRawData.sequence.filter(
         (seq, index) => seq.is_blank && (!seq.is_estimated)):blank_sequences;
-    if (blank_sequences.length === 0) {return}
     let unknown_sequences = myRawData.sequence.filter((seq, index) => !seq.is_blank);
+    if (blank_sequences.length === 0 || unknown_sequences.length === 0) {return}
+    for (let i=0;i<blank_sequences.length;i++){
+        blank_sequences[i].index = new Date(blank_sequences[i].datetime).getTime();
+    }
+    for (let i=0;i<unknown_sequences.length;i++){
+        unknown_sequences[i].index = new Date(unknown_sequences[i].datetime).getTime();
+    }
     let matched_blank_name = [];
     switch ($('#corrBlankMethod').val()) {
         case "0":
@@ -882,6 +895,7 @@ function getAverageofBlanks() {
         type: 'POST',
         data: JSON.stringify({
             'blanks': blanksInfos,
+            'new_blank_name': document.getElementById('outputBlankSequences').value,
             'cache_key': myRawCacheKey,
         }),
         contentType:'application/json',
@@ -914,6 +928,12 @@ function getInterpolatedBlank() {
         return [blank[0].time, blank[0].intercept, blank[1].intercept,
             blank[2].intercept, blank[3].intercept, blank[4].intercept];
     });
+
+    // 通过DOM获取已存在的ECharts实例，若存在则销毁
+    ['figure-main', 'figure-01', 'figure-02', 'figure-03', 'figure-04', 'figure-05'].forEach((div, index) => {
+        const _ = echarts.getInstanceByDom(document.getElementById(div));
+        if (_) {_.off('click');}
+    })
 
     showModalDialog('modal-dialog-interpolate-blank');
     let charts = getLinkedChart('figure-main', 'figure-01', 'figure-02', 'figure-03', 'figure-04', 'figure-05');
@@ -971,7 +991,7 @@ function getInterpolatedBlank() {
         each.resize();
     });
 
-    $('#modal-dialog-interpolate-blank :button[name="apply"]').on('click', (event)=>{
+    $('#modal-dialog-interpolate-blank :button[name="apply"]').off('click').on('click', (event)=>{
         // 0 for linear, 1 for quadratic, 2 for polynomial, 3 for exponential, 4 for power, 5 for average
         let selects = $('#modal-dialog-interpolate-blank select[name="blankInterpolate"]');
         let interpolated_blank = Array(5);
@@ -986,47 +1006,52 @@ function getInterpolatedBlank() {
             return
         }
 
-        interpolated_blank = transpose(interpolated_blank)
-
+        interpolated_blank = transpose(interpolated_blank);
+        let output_name = document.getElementById('outputBlankSequences').value;
         $.ajax({
             url: url_raw_interpolated_blanks,
             type: 'POST',
             data: JSON.stringify({
                 'interpolated_blank': interpolated_blank,
+                'new_blank_name': output_name,
                 'cache_key': myRawCacheKey,
             }),
             contentType:'application/json',
             dataType: 'text',
             success: function(res){
                 res = myParse(res);
-                myRawData['interpolated_blank'] = res.sequences;
+                output_name = res.sequences[0].name
+                if (Array.isArray(myRawData['interpolated_blank'])) {
+                    myRawData['interpolated_blank'].push(...res.sequences)
+                } else {
+                    myRawData['interpolated_blank'] = res.sequences;
+                }
+                newSequencesList.push({
+                    "index": "undefined",
+                    "name": output_name,
+                    "datetime": "",
+                    "data": null,
+                    "flag": null,
+                    "type_str": "blank",
+                    "results": [
+                        [["Interpolated Blank", NaN, NaN, NaN]],
+                        [["Interpolated Blank", NaN, NaN, NaN]],
+                        [["Interpolated Blank", NaN, NaN, NaN]],
+                        [["Interpolated Blank", NaN, NaN, NaN]],
+                        [["Interpolated Blank", NaN, NaN, NaN]],
+                    ],
+                    "coefficients": [],
+                    "fitting_method": [0, 0, 0, 0, 0],
+                    "is_blank": true,
+                    "is_unknown": false,
+                    "is_estimated": true,
+                })
+                // Back to blank selection page
+                // $('#outputBlankSequences').val("Interpolated Blank");
+                $('#outputBlankSequences').val(output_name);
+                showModalDialog('modal-dialog-blank');
             }
         });
-
-        newSequencesList.push({
-            "index": "undefined",
-            "name": "Interpolated Blank",
-            "datetime": "",
-            "data": null,
-            "flag": null,
-            "type_str": "blank",
-            "results": [
-                [["Interpolated Blank", NaN, NaN, NaN]],
-                [["Interpolated Blank", NaN, NaN, NaN]],
-                [["Interpolated Blank", NaN, NaN, NaN]],
-                [["Interpolated Blank", NaN, NaN, NaN]],
-                [["Interpolated Blank", NaN, NaN, NaN]],
-            ],
-            "coefficients": [],
-            "fitting_method": [0, 0, 0, 0, 0],
-            "is_blank": true,
-            "is_unknown": false,
-            "is_air": false,
-            "is_estimated": true,
-        })
-        // Back to blank selection page
-        $('#outputBlankSequences').val("Interpolated Blank");
-        showModalDialog('modal-dialog-blank');
     });
 }
 function getBlankInfo(item) {
@@ -1134,7 +1159,7 @@ function initialTable(blankNameList) {
             uniqueId: "id",                     //每一行的唯一标识，一般为主键列
             columns: [
                 {field: 'checked', checkbox: true, width: 20},
-                {field: 'id', title: 'Sequence', width: 20,},
+                {field: 'id', title: 'No.', width: 20,},
                 {field: 'label', title: 'Label', width: 50,},
                 {field: 'unknown', title: 'Unknown', width: 200,},
                 {field: 'blank', title: 'Blank', width: 200,
@@ -1435,15 +1460,18 @@ function updateCharts(smCharts, bigChart, sequence_index, animation, fitting_met
                     name: 'Unfilled Points', data: unselected, encode: {x: i * 2 + 1, y: i * 2 + 2},
                     label: {show: false, position: 'top', formatter: (params) => params.dataIndex + 1},
                 },
-                {name: 'Line Regression', tooltip: {formatter: 'Linear'}, data: generateLinesData(
+                {
+                    name: 'Line Regression', tooltip: {formatter: 'Linear'}, data: generateLinesData(
                     (x) => coeff[i][0][0] + x * coeff[i][0][1], 0, xmax, 1),
                     lineStyle: {width: fitting_method[i]===0?5:2},
                 },
-                {name: 'Quad Regression', tooltip: {formatter: 'Quadratic'}, data: generateLinesData(
+                {
+                    name: 'Quad Regression', tooltip: {formatter: 'Quadratic'}, data: generateLinesData(
                     (x) => coeff[i][1][0] + x * coeff[i][1][1] + x * x * coeff[i][1][2], 0, xmax),
                     lineStyle: {width: fitting_method[i]===1?5:2},
                 },
-                {name: 'Exp Regression', tooltip: {formatter: 'Exponential'}, data: generateLinesData(
+                {
+                    name: 'Exp Regression', tooltip: {formatter: 'Exponential'}, data: generateLinesData(
                     // y = a + exp(b * x) + c 2025-12-07
                     (x) => coeff[i][2][0] * Math.exp(coeff[i][2][1] * x) + coeff[i][2][2], 0, xmax),
                     lineStyle: {width: fitting_method[i]===2?5:2},
@@ -1452,7 +1480,8 @@ function updateCharts(smCharts, bigChart, sequence_index, animation, fitting_met
                 //     (x) => coeff[i][3][0] * x ** coeff[i][3][1] + coeff[i][3][2], 0, xmax),
                 //     lineStyle: {width: fitting_method[i]===3?5:2},
                 // },
-                {name: 'Average', tooltip: {formatter: 'Average'}, data: generateLinesData(
+                {
+                    name: 'Average', tooltip: {formatter: 'Average'}, data: generateLinesData(
                     (x) => coeff[i][4][0], 0, xmax, 1),
                     lineStyle: {width: fitting_method[i]===4?5:2},
                 },
@@ -1490,7 +1519,8 @@ function updateSequenceTable() {
     for (let i=0; i<unknown_sequence.length; i++){
         tableData.push({
             'checked': !unknown_sequence[i].is_removed, 'id': i+1,
-            'unknown': unknown_sequence[i].name, 'label': unknown_sequence[i].type_str
+            // 'unknown': unknown_sequence[i].name, 'label': unknown_sequence[i].type_str
+            'unknown': unknown_sequence[i].name, 'label': unknown_sequence[i].label
         });
     }
     $('#table-sequences').bootstrapTable('load', tableData);
@@ -1641,7 +1671,14 @@ function getLinkedChart(mainDiv, ...divs) {
             filledData.push(scatterValue);
         }
         let scatterData = [transpose(filledData)[params.encode.x[0]], transpose(filledData)[params.encode.y[0]]];
-        let datetime_list = myRawData.sequence.map((v, i) => v.datetime);
+        // let datetime_list = myRawData.sequence.map((v, i) => v.datetime);
+        let names = document.getElementById('inputBlankSequences').value;
+        let separator = names.includes(';') ? ';' : ' ';
+        let nameList = names.split(separator);
+        if (nameList.indexOf('') !== -1) {nameList.splice(nameList.indexOf(''), 1)}
+        if (nameList.length === 0) {return}
+        let datetime_list = myRawData.sequence.filter((item, index) =>
+            nameList.includes(item.name) || !item.is_blank).map((v, i) => v.datetime);
         let regressionResults = {
             linear: getRegressionResults(scatterData, 'linear', datetime_list),
             quadratic: getRegressionResults(scatterData, 'quadratic', datetime_list),
@@ -1678,6 +1715,7 @@ function getLinkedChart(mainDiv, ...divs) {
             }],
         })
 
+        // 刷新大图
         smallChartClicked(chartIndex, chartSmall[chartIndex])
 
     }
@@ -1949,7 +1987,7 @@ async function saveChart(isExport=true) {
     }
     let svgBase64 = chart.getDataURL({type: export_type});
     let a = document.getElementById("export_path_link");
-    let file_name = sampleComponents['0'].sample.name+' '+$('#'+getCurrentTableId()).val()+".svg"
+    let file_name = sampleComponents['0'].experiment.name+' '+$('#'+getCurrentTableId()).val()+".svg"
     if (isExport){
         if (getCurrentTableId() === 'figure_7') {
             setConsoleText('3D plot cannot be exported currently');
@@ -2316,11 +2354,14 @@ function apply3DSetting() {
 }
 async function clickSaveTable() {
     let table_data;
-    let input_type = document.getElementById("inputType");
+    let input_type = document.getElementById("inputSmpType");
     if (getCurrentTableId() === "0"){
         table_data = {
+            "experiment": {
+                "name": $('#inputExpName').val(), "type": $('#inputExpType').val()
+            },
             "sample": {
-                "name": $('#inputName').val(), "type": $("#inputType option:selected").text(),
+                "name": $('#inputSmpName').val(), "type": $("#inputSmpType option:selected").text(),
                 "material": $('#inputMaterial').val(), "location": $('#inputLocation').val()
             },
             "researcher" : {"name": $('#inputResearcher').val(),},
@@ -2387,7 +2428,7 @@ async function clickSaveTable() {
         success: function(res){
             let changed_components = myParse(res.changed_components);
             assignDiff(sampleComponents, changed_components);
-            if (getCurrentTableId() === "0"){$('#sample_name_title').text($('#inputName').val())}
+            if (getCurrentTableId() === "0"){$('#exp_name_title').text($('#inputExpName').val())}
             isochron_marks_changed = false;
             showPopupMessage("Information", "Successfully saved!", false);
             setConsoleText('Changes Saved');
@@ -2625,10 +2666,11 @@ function showPage(table_id, recalculate=false) {
             figureBtnDiv.hide();
             thermoPageContainer.hide();
             // update sample information
-            $('#sample_name_title').text(sampleComponents['0'].sample.name);
-            $('#inputName').val(sampleComponents['0'].sample.name);
-            $('#inputType').val(sampleComponents['0'].sample.type);
-            //document.getElementById('inputType').value=sampleComponents['0'].sample.type;
+            $('#exp_name_title').text(sampleComponents['0'].experiment.name);
+            $('#inputExpName').val(sampleComponents['0'].experiment.name);
+            $('#inputExpType').val(sampleComponents['0'].experiment.type);
+            $('#inputSmpName').val(sampleComponents['0'].sample.name);
+            $('#inputSmpType').val(sampleComponents['0'].sample.type);
             $('#inputMaterial').val(sampleComponents['0'].sample.material);
             $('#inputLocation').val(sampleComponents['0'].sample.location);
             $('#inputResearcher').val(sampleComponents['0'].researcher.name);
@@ -2735,7 +2777,7 @@ function showUploadPictureBtn() {
 }
 function setConsoleText(text) {
     exampleConsole.innerText = `${getTime()} ${text}`;
-    document.getElementById('page-title').innerText = sampleComponents['0'].sample.name;
+    document.getElementById('page-title').innerText = sampleComponents['0'].experiment.name;
 }
 function setRightSideText(sigma=1) {
     let figure = getCurrentTableId();

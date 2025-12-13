@@ -168,11 +168,11 @@ def open_last_object(request):
     return open_object_file(request, sample, web_file_path='', cache_key=cache_key)
 
 
-def upload(file, media_dir, request=None, user_id=None, mysql=None):
+def upload(file, media_dir, request=None, user_id=None, mysql=None, check_suffix=True):
     try:
         uid = generate_uid()
         name, suffix = os.path.splitext(file.name)
-        if suffix.lower() not in [
+        if check_suffix and suffix.lower() not in [
             '.xls', '.age', '.xlsx', '.arr', '.jpg', '.png', '.txt',
             '.log', '.seq', '.json', '.ahd', '.csv', '.ngxdp']:
             raise TypeError(f"Unsupported file format: {suffix}")
@@ -181,7 +181,7 @@ def upload(file, media_dir, request=None, user_id=None, mysql=None):
         with open(web_file_path, 'wb') as f:
             for chunk in file.chunks():
                 f.write(chunk)
-        print("File path on the server: %s" % web_file_path)
+        # print("File path on the server: %s" % web_file_path)
     except PermissionError:
         raise ValueError(f'Permission denied')
     except (Exception, BaseException) as e:
@@ -193,7 +193,6 @@ def upload(file, media_dir, request=None, user_id=None, mysql=None):
             ip = get_ip(request)
             user_id = request.COOKIES.get("anonymous_user_id") if user_id is None else user_id
             mysql = models.ReceivedFiles if mysql is None else mysql
-            print(f"{user_id = }, {web_file_path = }")
             if user_id:
                 mysql.objects.create(
                     uuid=str(user_id),
