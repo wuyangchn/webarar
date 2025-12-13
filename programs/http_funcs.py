@@ -9,7 +9,7 @@ from django.core.cache import cache
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
-from django.contrib.auth import logout
+# from django.contrib.auth import logout
 from calc import models
 from . import ap, log_funcs
 
