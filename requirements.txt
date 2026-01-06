@@ -1,4 +1,4 @@
-ararpy==0.1.35
+ararpy==0.2.1
 concurrent_log_handler==0.9.24
 Django==4.2.5
 matplotlib>=3.9.4
