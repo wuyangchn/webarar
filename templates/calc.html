@@ -65,7 +65,6 @@
             <form id="obj_choice_form" class="form-inline" method="post" enctype="multipart/form-data">
                 <br><div class="row">
                     <div class="form-group">
-                        <label for="text-input-1" class="sr-only"></label><input type="hidden" id="text-input-1" name="fingerprint" value="fingerprint">
                         <label for="button_index" class="sr-only"></label><input type="text" style="display: none" id="button_index" name="flag" value="">
                         <button id="file-btn-1" type="button" class="btn btn-primary btn-lg ladda-button" data-style="zoom-out" onclick="set_form_trigger('open_raw_file')">
                             <span class="ladda-label">Mass Spec <span style="color: red; font-weight: bolder">Raw</span> Files</span>
@@ -108,7 +107,7 @@
                     </div>
                     <div class="form-group">
                         <button id="file-btn-8" type="button" class="btn btn-primary btn-lg ladda-button" data-style="zoom-out" onclick="set_form_trigger('delete_uploaded_files')">
-                            <span class="ladda-label">Delete uploaded files</span>
+                            <span class="ladda-label">Delete Uploaded Files</span>
                         </button>
                     </div>
                 </div>
@@ -193,23 +192,6 @@
 </div>
 
 <script>
-    if (window.requestIdleCallback) {
-        requestIdleCallback(function () {
-            Fingerprint2.get(function (components) {
-                const values = components.map(components => components.value);
-                const fingerprint = Fingerprint2.x64hash128(values.join(''), 31);  // 生成指纹
-                $('#text-input-1').val(fingerprint);
-            })
-        });
-    } else {
-        setTimeout(function () {
-            Fingerprint2.get(function (components) {
-                const values = components.map(components => components.value);
-                const fingerprint = Fingerprint2.x64hash128(values.join(''), 31);  // 生成指纹
-                $('#text-input-1').val(fingerprint);
-            })
-        }, 500)
-    }
     // 初始化文件选择框
     $('#file-input-1').val('');
     $('#file-input-2').val('');

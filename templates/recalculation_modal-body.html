@@ -1,0 +1,436 @@
+<div style="padding-right: 15px; padding-left: 30px;">
+    <div>
+        <div class="progress-text" style="width: 900px; margin-top: 10px;">
+            <button id="recalcSelectAll" type="button" class="btn btn-primary">Select All</button>
+        </div>
+    </div>
+</div>
+<div style="padding-right: 15px; padding-left: 30px;">
+    <div>
+        <div class="progress-text" style="width: 950px; text-align: right; margin-top: 10px;">
+            <i class="fas fa-cog fa-spin sr-only" style="margin-right: 10px" id="progressIcon"></i>
+            <span id="progressText" style="width: 30px; display: inline-block; ">0%</span></div>
+        <div class="progress-container" style="width: 950px; margin-top: 0;" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+</div>
+<div style="padding-right: 15px; padding-left: 30px; float: none">
+    <form id="recalculationForm" method="post" enctype="multipart/form-data">
+        <div class="recalc-grid-container">
+
+            <div class="recalc-grid-item recalc-grid-1col" style="border-top: 1px dashed #333">
+                <div class="checkbox recalc-ingrid" style="margin: 5px 0 5px 0">
+                    <label title="Used to check for missing attributes in the current Arr file, will not modify any data that already defined">
+                        <input type="checkbox" class="recalc-checkbox">
+                        &nbsp;1&nbsp;. Reset Arr Attributes
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="border-top: 1px dashed #333">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block; margin: 5px 0 5px 0">
+                    <div class="radius-div"><div class="recalc-param-name">arr<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">version check<i class="far recalc-icon k2"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="border-top: 1px dashed #333">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block; margin: 5px 0 5px 0">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="border-top: 1px dashed #333">
+                <div class="checkbox recalc-ingrid" style="margin-top: 5px">
+                    <label title="Blank correction">
+                        <input type="checkbox" class="recalc-checkbox">
+                        &nbsp;2&nbsp;. Correction Blank
+                    </label>
+                    <a class="text-muted title" style="display:inline-block"
+                       data-title="Gain correction included. Gain correction first, and then apply correction for blank">
+                        <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="border-top: 1px dashed #333">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block; margin-top: 5px">
+                    <div class="radius-div"><div class="recalc-param-name">unknowns<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">blanks<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">gain-factors<i class="far recalc-icon k3"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="border-top: 1px dashed #333">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block; margin-top: 5px">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        &nbsp;3&nbsp;. Correction Mass Discr
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">blank corrected<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">masses<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">MDF<i class="far recalc-icon k3"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">method<i class="far recalc-icon k4"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        &nbsp;4&nbsp;. Correction Decay
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">Ar37<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">λAr37<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">Ar39<i class="far recalc-icon k3"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">λAr39<i class="far recalc-icon k4"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">irradiation cycles<i class="far recalc-icon k5"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">experiment datetime<i class="far recalc-icon k6"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        &nbsp;5&nbsp;. Degas Ca
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">Ar37Ca<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">36/37Ca<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">38/37Ca<i class="far recalc-icon k3"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">39/37Ca<i class="far recalc-icon k4"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        &nbsp;6&nbsp;. Degas K
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">Ar39<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">Ar39Ca<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">38/39K<i class="far recalc-icon k4"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">40/39K<i class="far recalc-icon k3"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        &nbsp;7&nbsp;. Degas Cl
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">Ar36<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">Ar38<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">38/36t<i class="far recalc-icon k3"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">36/38Cl productivity<i class="far recalc-icon k4"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">λCl36<i class="far recalc-icon k5"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">standing time<i class="far recalc-icon k6"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        &nbsp;8&nbsp;. Degas atm
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">Ar36<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">38/36t<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">40/36t<i class="far recalc-icon k3"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        &nbsp;9&nbsp;. Degas r
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">Ar40<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">Ar40K<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">Ar40a<i class="far recalc-icon k3"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        10. Calcualte Ratio
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">corrected values<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">degas values<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">K/Ca factor<i class="far recalc-icon k3"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">normalization factor<i class="far recalc-icon k4"></i></div></div>
+                    for Monte Carlo:
+                    <div class="radius-div"><div class="recalc-param-name">unknowns<i class="far recalc-icon k5"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">blanks<i class="far recalc-icon k6"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">mass<i class="far recalc-icon k7"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">gain<i class="far recalc-icon k8"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">mdf<i class="far recalc-icon k9"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">decay consts<i class="far recalc-icon k10"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">interference params<i class="far recalc-icon k11"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">experiment datetime<i class="far recalc-icon k12"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">J values<i class="far recalc-icon k13"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid" style="margin-bottom: 5px">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        11. Calculate Apparent Ages
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block; margin-bottom: 5px">
+                    <div class="radius-div"><div class="recalc-param-name">sample type<i class="far recalc-icon k1"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block; margin-bottom: 5px">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="border-top: 1px dashed #333">
+                <div class="checkbox recalc-ingrid" style="margin-top: 5px">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        12. Reset Plot Data
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="border-top: 1px dashed #333">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block; margin-top: 5px">
+                    <div class="radius-div"><div class="recalc-param-name">normal<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">inverse<i class="far recalc-icon k2"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">K-Cl-Ar 1<i class="far recalc-icon k3"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">K-Cl-Ar 2<i class="far recalc-icon k4"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">K-Cl-Ar 3<i class="far recalc-icon k5"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">3D<i class="far recalc-icon k6"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">age spectra<i class="far recalc-icon k7"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">degas pattern<i class="far recalc-icon k8"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">age distribution<i class="far recalc-icon k9"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="border-top: 1px dashed #333">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block; margin-top: 5px">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        13. Reset Plot Style
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">plot data<i class="far recalc-icon k1"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="">
+                <div class="checkbox recalc-ingrid">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        14. Reset Table Data
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block">
+                    <div class="radius-div"><div class="recalc-param-name">table data<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">step num<i class="far recalc-icon k2"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block">...</div>
+            </div>
+
+            <div class="recalc-grid-item recalc-grid-1col" style="border-bottom: 1px dashed #333">
+                <div class="checkbox recalc-ingrid" style="margin-bottom: 5px">
+                    <label>
+                        <input type="checkbox" class="recalc-checkbox">
+                        15. Reset Table Style
+                    </label>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-2col" style="border-bottom: 1px dashed #333">
+                <div class="checkbox recalc-ingrid infoText1" style="display: block; margin-bottom: 5px">
+                    <div class="radius-div"><div class="recalc-param-name">header<i class="far recalc-icon k1"></i></div></div>
+                    <div class="radius-div"><div class="recalc-param-name">col types<i class="far recalc-icon k2"></i></div></div>
+                </div>
+            </div>
+            <div class="recalc-grid-item recalc-grid-3col" style="border-bottom: 1px dashed #333">
+                <div class="checkbox recalc-ingrid infoText2" style="display: block; margin-bottom: 5px">...</div>
+            </div>
+
+        </div>
+        <p></p>
+
+        <button type="button" class="btn btn-primary sr-only" data-dismiss="modal" value="Apply" onclick="clickForceSyn()">Forced Syn</button>
+
+    </form>
+    <br>
+</div>
+
+<script>
+    // recalcualtion modal related functions
+    const $recalcCheckboxes = $('#recalculationForm :checkbox');
+    const $recalcInfoText1 = $("#recalculationForm div[class~='infoText1']");
+    const $recalcInfoText2 = $("#recalculationForm div[class~='infoText2']");
+    const $recalcSelectAll = $('#recalcSelectAll');
+    $recalcSelectAll.on('click', function() {
+        $recalcCheckboxes.prop('checked', $(this).text() === "Select All");
+        $(this).text($(this).text() === "Select All"?"Unselect All":"Select All");
+    });
+    // websocket
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const progressIcon = document.getElementById('progressIcon');
+
+    function initRecalcModal(startBtn, cache_key, options = {}) {
+
+        const { onopen, onprogress, onclose, onerror, onfinish } = options;
+
+        $(startBtn).off('click').on('click', function() {
+            const checked_options = $recalcCheckboxes.map(function() { return this.checked; }).get();
+            startBtn.disabled = true;
+            sendWebSocket('ws_recalculation', JSON.stringify({
+                'cache_key': cache_key, 'content': {'checked_options': checked_options, }
+                }), _onopen, _onprogress, _onclose, _onerror, _onfinish)
+        });
+
+        function _onopen(event) {
+            startBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            {#$recalcInfoText1.text('...');#}
+            $recalcInfoText2.text('...');
+            $recalcInfoText2.removeClass('error-text');
+            $recalcInfoText1.find('i').each((index, each) => {
+                $(each).removeClass('fa-times-circle recalc-error fa-check-circle recalc-success');
+                $(each).parent().removeClass('error-text recalc-success recalc-error');
+            });
+            progressIcon.className = 'fas fa-cog fa-spin';
+            onopen?.(event);
+        }
+
+        function _onprogress(data) {
+            const progress = data.progress;
+            progressBar.style.width = progress?`${progress}%`:progressBar.style.width;
+            progressText.textContent = progress?`${progress}%`:progressText.textContent;
+            if (data.index !== undefined) {
+                $recalcInfoText2.eq(data.index).text(data.info);
+                $recalcInfoText1.eq(data.index).find('i').each((index, each) => {
+                    $(each).parent().removeClass('recalc-error');
+                    $(each).parent().addClass('recalc-success');
+                    $(each).removeClass('fa-times-circle recalc-error fa-check-circle recalc-success');
+                    $(each).addClass('fa-check-circle recalc-success');
+                });
+            }
+            onprogress?.(data);
+        }
+
+        function _onclose(event) {
+            startBtn.disabled = false;
+            onclose?.(event);
+        }
+
+        function _onerror(data) {
+            const progress = data.progress;
+            progressBar.style.width = progress?`${progress}%`:progressBar.style.width;
+            progressText.textContent = progress?`${progress}%`:progressText.textContent;
+            if (data.index !== undefined) {
+                $recalcInfoText2.eq(data.index).text(data.error?data.error:data);
+                $recalcInfoText2.eq(data.index).addClass('error-text');
+                $recalcInfoText1.eq(data.index).find('i').each((index, each) => {
+                    $(each).parent().removeClass('recalc-success recalc-error');
+                    $(each).removeClass('fa-times-circle recalc-error fa-check-circle recalc-success');
+                    if (data.error_context !== undefined) {
+                        if (data.error_context.classnames?.some(cls => $(each).hasClass(cls))) {
+                            $(each).addClass('fa-times-circle recalc-error');
+                            $(each).parent().addClass('recalc-error');
+                        } else {
+                            $(each).addClass('fa-check-circle recalc-success');
+                            $(each).parent().addClass('recalc-success');
+                        }
+                    }
+                });
+            }
+            progressIcon.classList.remove('fa-spin', 'fa-check', 'recalc-success');
+            progressIcon.classList.add('fa-times', 'recalc-error');
+            onerror?.(data);
+        }
+
+        function _onfinish(data) {
+            startBtn.disabled = false;
+            progressIcon.classList.remove('fa-spin', 'fa-cog', 'recalc-error');
+            progressIcon.classList.add('fa-check', 'recalc-success');
+            onfinish?.(data);
+        }
+    }
+
+</script>

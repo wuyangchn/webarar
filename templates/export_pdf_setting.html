@@ -95,7 +95,7 @@
     </div>
 </div>
 
-<div class="modal" id="modal-save" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="overflow: auto">
+<div class="modal" id="modal-save" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="overflow: auto">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -182,142 +182,7 @@ function getPlotDataToExport(data={}, fresh=false, preview=false) {
         }
     });
 }
-function Tree2Json(treeNode, order=0, isArray=false) {
-    const json = {};
-    const array = [];
-    const ulNodes = order===0?treeNode.querySelector('ul.x-tree-root-ct'):treeNode.querySelector('ul.x-tree-node-ct');
-    const liNodes = ulNodes.querySelectorAll(':scope > li.x-tree-node');
-    liNodes.forEach((liNode) => {
-        const div = liNode.querySelector('div.x-tree-node-el');
-        const span = liNode.querySelector('span.x-tree-node-key');
-        const input = span.querySelector('input');
-        if (span) {
-            const text = span.textContent.trim();
-            const key = text.split(':').map(s => s.trim())[0];
-            if (input) {
-                let value = (val => {
-                    if (val.toLowerCase() === "" || val.includes(" ")) {
-                        return val;
-                    }
-                    // if (val.toLowerCase() === 'nan' || ! Number.isNaN(Number(val))) {
-                    //     return Number(val)
-                    // }  // 用字符串保存内容
-                    if (val.toLowerCase() === 'nan') {
-                        return Number(val)
-                    }
-                    return val
-                })(input.value);
-                if (isArray) {
-                    array.push(value);
-                } else {
-                    json[key] = value;
-                }
-            } else {
-                if (isArray) {
-                    let isArray = div.classList.contains('x-tree-node-expanded');
-                    array.push(Tree2Json(liNode, order+1, isArray));
-                } else {
-                    let isArray = div.classList.contains('x-tree-node-expanded');
-                    json[key] = Tree2Json(liNode, order+1, isArray);
-                }
-            }
-        }
-    });
-    return isArray ? array : json;
-}
-function Json2Tree(key, value, order=0) {
 
-    // 创建一个li节点表示key:value
-    const li = document.createElement('li');
-    li.classList.add('x-tree-node');
-
-    const div = document.createElement('div');
-    div.classList.add('x-tree-node-el', 'x-unselectable', 'active');
-
-    let span = document.createElement('span');
-    span.classList.add('x-tree-node-indent');
-    span.innerHTML = "";
-    for (let i=0; i<order; i++) {
-        span.innerHTML = span.innerHTML + '<img src="/static/image/s.gif" class="x-tree-icon" alt="">';
-    }
-
-    let img_1 = document.createElement('img');
-    img_1.src = "";
-    img_1.alt = "";
-
-    let img_2 = document.createElement('img');
-    img_2.src = "";
-    img_2.alt = "";
-
-    const text = document.createElement('span');
-    text.classList.add('x-tree-node-key');
-    // 如果value是基本类型（字符串、数字、布尔值等），直接显示key: value
-    if (typeof value !== 'object' || value === null) {
-        text.innerHTML = `${key} : <input class="x-tree-node-input" type="text" value="${value}">`;
-        img_1.classList.add('x-tree-ec-icon', 'x-tree-elbow-end');
-        img_2.classList.add('x-tree-node-icon', 'x-tree-node-inline-icon');
-        div.appendChild(span);
-        div.appendChild(img_1);
-        div.appendChild(img_2);
-        div.appendChild(text);
-        div.classList.add('x-tree-node-leaf');
-        li.appendChild(div);
-        return li;
-    }
-    // 如果value是对象或数组，递归生成子节点
-    else {
-        text.textContent = `${key} :`;
-        img_1.classList.add('x-tree-ec-icon', 'x-tree-elbow-end-plus');
-        img_1.onclick = function() { iconOnClick(img_1); }
-        if (Array.isArray(value)) {
-            img_2.classList.add('x-tree-node-icon', 'x-tree-node-inline-icon');
-            div.classList.add('x-tree-node-expanded');
-        } else {
-            img_2.classList.add('x-tree-node-icon', 'x-tree-node-inline-icon');
-            div.classList.add('x-tree-node-collapsed');
-        }
-        div.appendChild(span);
-        div.appendChild(img_1);
-        div.appendChild(img_2);
-        div.appendChild(text);
-        li.appendChild(div);
-
-        const ul_2 = document.createElement('ul');
-        ul_2.classList.add('x-tree-node-ct', 'x-tree-lines', 'x-tree-node-nested');
-
-        // 递归处理对象或数组的子元素
-        for (const childKey in value) {
-            if (value.hasOwnProperty(childKey)) {
-                const childLi = Json2Tree(childKey, value[childKey], order+1);
-                ul_2.appendChild(childLi);
-            }
-        }
-
-        li.appendChild(ul_2);
-
-        return li;
-    }
-}
-function iconOnClick(ele, expand=false, collapse=false) {
-    let treeNode = ele.closest('.x-tree-node');
-    let nestedList = treeNode.querySelector('.x-tree-node-ct');
-    if (nestedList === undefined || nestedList === null) {
-        return;
-    }
-    if (!nestedList.classList.contains('x-tree-node-active')) {
-        if (collapse) { return; }
-        ele.classList.remove('x-tree-elbow-end-plus');
-        ele.classList.add('x-tree-elbow-end-minus');
-        nestedList.classList.add('x-tree-node-active');
-        nestedList.classList.remove('x-tree-node-nested');
-    } else {
-        if (expand) { return; }
-        ele.classList.remove('x-tree-elbow-end-minus');
-        ele.classList.add('x-tree-elbow-end-plus');
-        nestedList.classList.remove('x-tree-node-active');
-        nestedList.classList.add('x-tree-node-nested');
-    }
-}
 function expandAll(){
     if ($('#expand_all').text().includes('Expand')) {
         for (let ele of $(".x-tree-ec-icon")) {

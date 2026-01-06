@@ -11,7 +11,6 @@
     {% load static %}
     <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'bootstrap-3.3.7-dist/css/bootstrap.css' %}" rel="stylesheet"  type="text/css">
-    <script src="{% static 'js/fingerprintjs2-2.1.4.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/jquery-3.6.1.js' %}" type="text/javascript" charset="UTF-8"></script>
     <style>
         label{
@@ -269,38 +268,5 @@
         $("#discipline_div").append(`<label style="color: ${color}"><input type="checkbox" class="${classified}" ${checked} value="${discipline}" name="${discipline}" onchange="refresh_table()">${discipline}</label>`);
     })
 
-    function post_fingerprint_journal_ranking(value) {
-        $.ajax({
-            url: "{% url 'journal_ranking' %}",
-            type: 'POST',
-            data: JSON.stringify({
-                'fingerprint': value
-            }),
-            contentType:'application/json',
-            success: function(res){
-                // pass
-            }
-        })
-    }
-
-    if (window.requestIdleCallback) {
-        requestIdleCallback(function () {
-            Fingerprint2.get(function (components) {
-                const values = components.map(components => components.value);
-                const fingerprint = Fingerprint2.x64hash128(values.join(''), 31);  // 生成指纹
-                console.log(fingerprint);
-                post_fingerprint_journal_ranking(fingerprint);
-            })
-        });
-    } else {
-        setTimeout(function () {
-            Fingerprint2.get(function (components) {
-                const values = components.map(components => components.value);
-                const fingerprint = Fingerprint2.x64hash128(values.join(''), 31);  // 生成指纹
-                console.log(fingerprint);
-                post_fingerprint_journal_ranking(fingerprint);
-            })
-        }, 500)
-    }
 </script>
 </html>

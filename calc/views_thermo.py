@@ -12,7 +12,6 @@
 import os
 import traceback
 import numpy as np
-import uuid
 import time
 import itertools
 
@@ -997,7 +996,7 @@ class ThermoView(http_funcs.ArArView):
         }
 
         filename = f"{sample_name}-closure temperature"
-        filepath = f"{settings.DOWNLOAD_URL}{filename}-{uuid.uuid4().hex[:8]}.pdf"
+        filepath = f"{settings.DOWNLOAD_URL}{filename}-{ap.calc.basic.random_choice(length=8)}.pdf"
         cvs = [[ap.smp.export.get_cv_from_dict(plot, **params_list) for plot in plot_data['data']]]
         filepath = ap.smp.export.export_chart_to_pdf(cvs, filename, filepath)
         export_href = '/' + filepath
@@ -1150,7 +1149,7 @@ class ThermoView(http_funcs.ArArView):
         cvs = [[ap.smp.export.get_cv_from_dict(plot, **next(params_list)) for plot in data['data']]]
 
         filename = data.get('file_name', 'file_name')
-        filepath = f"{settings.DOWNLOAD_URL}{filename}-{uuid.uuid4().hex[:8]}.pdf"
+        filepath = f"{settings.DOWNLOAD_URL}{filename}-{ap.calc.basic.random_choice(length=8)}.pdf"
         filepath = ap.smp.export.export_chart_to_pdf(cvs, filename, filepath, **params)
         export_href = '/' + filepath
 

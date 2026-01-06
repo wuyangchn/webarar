@@ -24,7 +24,7 @@
     <!-- 按钮触发模态框 -->
     <button class="btn btn-primary btn-lg sr-only" data-toggle="modal" data-target="#deleteUploadedFilesModal" id="showDeleteUploadedFilesModal">Modal</button>
     <!-- 模态框( Modal )  -->
-    <div class="modal fade" id="deleteUploadedFilesModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteUploadedFilesModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog modal-dialog-width-85">
             <div class="modal-content">
                 <div class="modal-header">
@@ -51,6 +51,7 @@
 
                 <div class="modal-footer">
                     <div>
+                        <button type="button" class="btn btn-danger" onclick="deleteAllFiles()">Delete All In List</button>
                         <button type="button" class="btn btn-primary" onclick="showFilesToDelete()">Find Files</button>
                         <input type="submit" form="filesToDeleteForm" class="btn btn-default" name="flag" value="Close">
                         <button type="button" class="btn btn-primary" onclick="deleteSelectedFiles()">Delete Selected</button>

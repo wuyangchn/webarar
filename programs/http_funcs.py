@@ -1,176 +1,55 @@
 import os
 import pickle
-import secrets
-import uuid
 import json
-import time
+import traceback
+from urllib.parse import urlparse, parse_qs
 from django.http import JsonResponse, HttpResponse
 from django.core.cache import cache
+from django.core.exceptions import *
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
+from django.http import Http404
 # from django.contrib.auth import logout
 from calc import models
 from . import ap, log_funcs
+from .basic_funcs import get_ip, get_device, touch_cache, set_cache
 
 DEFAULT_CACHE_TIMEOUT = 86400
 
 
-def get_ip(request):
-    """
-    Get ipv4 address from requests
-    """
-    if request.META.get('HTTP_X_FORWARDED_FOR'):
-        ip = request.META.get("HTTP_X_FORWARDED_FOR")
-    else:
-        ip = request.META.get("REMOTE_ADDR")
-    return ip
-
-
-def get_device(request):
-    """
-    Get device information of user browser
-    """
-    # print('请求相关的信息：', request.environ)  # environ里面有请求的所有信息
-    # print('设备信息：', request.environ.get("HTTP_USER_AGENT"))  # 全部返回的是个字典
-    try:
-        return request.environ.get("HTTP_USER_AGENT")
-    except AttributeError:
-        return "This is ASGIRequest"
-
-
-def get_lang(request):
-    """
-    Get language setting of user browser
-    """
-    try:
-        return request.environ.get("HTTP_ACCEPT_LANGUAGE")
-    except AttributeError:
-        return "This is ASGIRequest"
-
-
-def is_ajax(request):
-    """
-    Return if the request is from ajax
-    """
-    return request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
-
-
-def create_cache(obj, cache_key=''):
-    """
-    Create (leave key default) or update cache (give key). This is used to link sample
-    instance with cache key, which is an unique identifier for this object in the cache.
-    The cache key will also be sent to user so that changes from front can be identified.
-    """
-    if not cache_key:
-        cache_key = generate_uid()
-    cache_value = pickle.dumps(obj)
-    # cache_value = basic_funcs.getJsonDumps(sample)
-    cache.set(cache_key, cache_value, timeout=DEFAULT_CACHE_TIMEOUT)
-    return cache_key
-
-
-def create_cache_key():
-    """
-    Create UUID as a cache_key for each opened sample instance using uuid module.
-    Make a random UUID and convert it to a 32-character hexadecimal string.
-    uuid1() and uuid4() can both yield unique uuid, but uuid1() might contain the
-    computer’s network address
-    """
-    return str(uuid.uuid4().hex)
-
-
-def generate_uid():
-    """
-    32-character string, first-16-character is a timestamp, ending with 16-character urandom
-    Returns
-    -------
-
-    """
-    return str(int(time.time() * 1000000)) + secrets.token_hex(8)
-
-
-def touch_cache(cache_key=''):
-    return cache.touch(cache_key, timeout=DEFAULT_CACHE_TIMEOUT, version=None)
-
-
-def cache_load(cache_key):
-    """
-    Parameters
-    ----------
-    cache_key
-
-    Returns
-    -------
-
-    """
-    return pickle.loads(cache.get(cache_key))
-
-
-def set_mysql(request, mysql, fingerprint, file_path="", cache_key=""):
-    mysql.objects.create(
-        user=str(fingerprint),
-        ip=get_ip(request),
-        device=get_device(request),
-        file_path=file_path,
-        cache_key=cache_key
-    )
-
-
-def set_user_sql(request, mysql, fingerprint):
-    if mysql.objects.filter(uuid=str(fingerprint)).exists():
-        _user = mysql.objects.get(uuid=str(fingerprint))
+def set_user_sql(request, mysql, user_id):
+    if mysql.objects.filter(uuid=str(user_id)).exists():
+        _user = mysql.objects.get(uuid=str(user_id))
         _user.count = _user.count + 1
         _user.ip = get_ip(request)
         _user.device = get_device(request)
         _user.save()
     else:
         mysql.objects.create(
-            uuid=str(fingerprint),
+            uuid=str(user_id),
             ip=get_ip(request),
             device=get_device(request),
             count=1
         )
 
 
-def open_object_file(request, sample, web_file_path, cache_key=''):
-    # write cache, cache kay is considered as ID of sample instance
-    cache_key = create_cache(sample, cache_key=cache_key)
-    # write mysql
-    fingerprint = request.POST.get('fingerprint')
-    set_mysql(request, models.CalcRecord, fingerprint, web_file_path, cache_key)
-    #
+def open_object_file(user_id, cache_key):
+    cache_value = cache.get(f"user:{user_id}:data:{cache_key}:obj")
+    if cache_value is None:
+        raise Http404(f"Object not found. The cache might not exist or have been expired, key = {cache_key} ")
+    sample = pickle.loads(cache_value)
     allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
     allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
     allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
-    return {'cache_key': json.dumps(cache_key), 'webFilePath': json.dumps(f"{web_file_path} v={sample.version}"),
+    return {'cache_key': json.dumps(cache_key), 'webFilePath': json.dumps(f"v={sample.version}, user={user_id}"),
             'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames,
-            'sampleComponents': ap.smp.json.dumps(ap.smp.basic.get_components(sample)),}
-
-
-def open_last_object(request):
-    fingerprint = request.POST.get('fingerprint')
-    # print(cache.keys('*'))
-    try:
-        last_record = models.CalcRecord.objects.filter(user=str(fingerprint)).order_by('-id')[0]
-        cache_key = last_record.cache_key
-    except (BaseException, Exception):
-        cache_key = ''
-    try:
-        sample = cache_load(cache_key)
-        if sample is None:
-            raise IndexError
-    except (BaseException, Exception):
-        # print('No file found in cache!')
-        sample = ap.Sample()
-        ap.smp.initial.initial(sample)
-        cache_key = create_cache(sample, cache_key=cache_key)
-    return open_object_file(request, sample, web_file_path='', cache_key=cache_key)
+            'sampleComponents': ap.smp.json.dumps(ap.smp.basic.get_components(sample))}
 
 
 def upload(file, media_dir, request=None, user_id=None, mysql=None, check_suffix=True):
     try:
-        uid = generate_uid()
+        uid = ap.calc.basic.random_choice(length=8)
         name, suffix = os.path.splitext(file.name)
         if check_suffix and suffix.lower() not in [
             '.xls', '.age', '.xlsx', '.arr', '.jpg', '.png', '.txt',
@@ -224,7 +103,7 @@ class AnonymousUserIDMiddleware:
 
         if not anonymous_id:
             # 生成唯一ID（UUID4随机且唯一）
-            anonymous_id = str(uuid.uuid4())
+            anonymous_id = ap.calc.basic.random_choice(length=8)
 
         # 设置Cookie（过期时间：365天，可调整）
         response.set_cookie(
@@ -260,13 +139,19 @@ class ArArView(View):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Initialize
+        self.user_id = ''
         self.ip = ''
+        self.device = ''
         self.flag = ''
         self.body = {}
         self.content = {}
         self.cache_key = ''
+        self._cache_key = ''
         self.sample = ...
         self.fingerprint = ...
+        self.handler = ...
+        self.method = ...
+        self.referrer = ...
 
         # response
         self.error_msg = ""
@@ -281,25 +166,22 @@ class ArArView(View):
     def setup(self, request, *args, **kwargs):
         if hasattr(self, "get") and not hasattr(self, "head"):
             self.head = self.get
+        self.method = request.method
         self.request = request
-        self.args = args
-        self.kwargs = kwargs
-        self.ip = get_ip(self.request)
+        self.ip = get_ip(request)
+        self.device = get_device(request)
+        self.user_id = request.COOKIES.get("anonymous_user_id")
+        self.handler = self.http_method_not_allowed  # Default
         messages.set_level(self.request, 10)  # write debug level
+        # url
+        self.referrer = urlparse(request.META.get('HTTP_REFERER', ''))
 
-    def post(self, request, *args, **kwargs):
-        # Finding a right function to response the request
-        self.flag = request.POST.get('flag').lower()
-        if self.flag in self.dispatch_post_method_name:
-            handler = getattr(self, self.flag, self.flag_not_matched)
-        else:
-            handler = self.flag_not_matched
-        print("post: %s" % handler.__name__)
-        return self.handling(handler, request, *args, **kwargs)
-
-    def dispatch(self, request, *args, **kwargs):
-        # Rewrite dispatch method to add special responses to ajax requests
-        handler = self.http_method_not_allowed  # Default
+        # post flag
+        try:
+            self.flag = kwargs.get('flag', request.POST.get('flag'))
+        except TooManyFilesSent as e:
+            messages.error(request, e)
+            return JsonResponse({}, status=400)
 
         # fingerprint
         try:
@@ -307,52 +189,35 @@ class ArArView(View):
         except (Exception, BaseException):
             pass
 
-        # # cookie
-        #     if request.user.is_authenticated:
-        #         visitor_id = request.user.id
-        #         visitor_type = "登录用户"
-        #     else:
-        #         visitor_id = request.COOKIES.get("anonymous_user_id")
-        #         visitor_type = "匿名用户"
-        #
-        #     return HttpResponse(f"{visitor_type}，唯一标识：{visitor_id}")
-
-        # Ajax request, formdata type content, flag is included in POST
-        try:
-            self.flag = request.POST.get('flag').lower()
-            handler = getattr(self, self.flag, self.flag_not_matched)
-        except (Exception, BaseException):
-            pass
-        else:
-            print("flag: %s" % handler.__name__)
-            return self.handling(handler, request, *args, **kwargs)
-
         # Ajax request, json type content, flag is included in body
         try:
             self.body = ap.smp.json.loads(request.body.decode('utf-8'))
-            self.cache_key = str(self.body['cache_key'])  # Key to obtain sample from cache
-            self.sample = pickle.loads(cache.get(self.cache_key, default=pickle.dumps(ap.smp.Sample())))
-            touch_cache(self.cache_key)  # Update cache time
-        except KeyError:
-            print("No cache key in request body")
         except (Exception, BaseException):
             pass
-        try:
-            self.content = self.body['content']
-        except KeyError:
-            pass
-        if "flag" in kwargs.keys():
-            self.flag = kwargs['flag']
-            handler = getattr(self, self.flag, self.flag_not_matched)
-        elif is_ajax(request):
-            if "flag" in self.body.keys():
-                self.flag = str(self.body['flag']).lower()
-                handler = getattr(self, self.flag, self.flag_not_matched)
-        elif request.method.lower() in self.http_method_names:
-            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+        else:
+            try:
+                self.cache_key = str(self.body['cache_key'])
+                self._cache_key = f"user:{self.user_id}:data:{self.cache_key}:obj"
+                self.sample = pickle.loads(cache.get(self._cache_key, default=pickle.dumps(ap.smp.Sample())))
+                touch_cache(self._cache_key)  # Update cache time
+            except KeyError:
+                pass
+            # content
+            try:
+                self.content = self.body['content']
+            except KeyError:
+                pass
 
-        print("flag: %s" % handler.__name__)
-        return self.handling(handler, request, *args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        if self.flag and self.flag in self.dispatch_post_method_name:
+            return self.post(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if self.flag:
+            self.handler = getattr(self, self.flag.lower(), self.flag_not_matched)
+        print("post: %s" % self.handler.__name__)
+        return self.handling(self.handler, request, *args, **kwargs)
 
     def flag_not_matched(self, request, *args, **kwargs):
         print(f'flag_not_matched: {self.flag}')

@@ -173,7 +173,7 @@
                         <div class="text-center">
                             <button type="button" class="btn btn-default" onclick="showModal('modal-extrapolate')">Last
                                 <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
-                            <label style="width: 40px; font-weight: normal">1/5</label>
+                            <label style="width: 40px; font-weight: normal">1/6</label>
                             <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-irradiation-params')">Next
                                 <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
                         </div>
@@ -295,7 +295,7 @@
                         <div class="text-center">
                             <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-blank')">Last
                                 <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
-                            <label style="width: 40px; font-weight: normal">2/5</label>
+                            <label style="width: 40px; font-weight: normal">2/6</label>
                             <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-calc-params')">Next
                                 <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
                         </div>
@@ -341,7 +341,7 @@
                         <div class="text-center">
                             <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-irradiation-params')">Last
                                 <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
-                            <label style="width: 40px; font-weight: normal">3/5</label>
+                            <label style="width: 40px; font-weight: normal">3/6</label>
                             <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-sample-params')">Next
                                 <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
                         </div>
@@ -389,7 +389,7 @@
                         <div class="text-center">
                             <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-calc-params')">Last
                                 <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
-                            <label style="width: 40px; font-weight: normal">4/5</label>
+                            <label style="width: 40px; font-weight: normal">4/6</label>
                             <button type="button" class="btn btn-primary" onclick="showModalDialog('modal-dialog-sample-info')">Next
                                 <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
                         </div>
@@ -410,7 +410,6 @@
                         <div class="radio form-inline"></div>
                         {% include "sample_info_modal_body_div.html" %}
                     </div>
-
                 </div>
                 <div class="modal-footer">
                     <br>
@@ -421,8 +420,40 @@
                         <div class="text-center">
                             <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-sample-params')">Last
                                 <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
-                            <label style="width: 40px; font-weight: normal">5/5</label>
+                            <label style="width: 40px; font-weight: normal">5/6</label>
                             <button type="button" class="btn btn-primary" value="Submit" onclick="submitRawData()">Submit
+                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div>
+        <!-- /.modal 计算-->
+        <div class="modal-dialog modal-dialog-width-40" style="min-width: 1010px" id="modal-dialog-calculation" hidden>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Recalculation Options</h4>
+                </div>
+                <div class="modal-body modal-page-size" style="padding: 0 0 0 0; overflow: auto">
+                    {% include "recalculation_modal-body.html" %}
+                    <div style="padding-right: 15px; padding-left: 30px;">
+                        <div style="width: 950px; margin-top: 10px;">
+                            <button type="button" class="btn btn-primary" style="float:right;" id="applyRecalculation">Calculationn</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <br>
+                    <div class="pull-right">
+                        <a id="btn-Close-5" href="{% url 'calc_view' %}" class="btn btn-default">Close</a>
+                    </div>
+                    <div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-default" onclick="showModalDialog('modal-dialog-sample-info')">Last
+                                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+                            <label style="width: 40px; font-weight: normal">6/6</label>
+                            <button type="button" class="btn btn-primary" value="Submit" id="btn-extrapolate-submit">Submit
                                 <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
                         </div>
                     </div>
@@ -471,8 +502,7 @@
                 </div>
                 <div class="modal-footer">
                     <a id="export_sequence_link" href="" class="sr-only" download></a>
-                    <button type="button" class="btn btn-default" onclick="export_sequence_select_all()">Select All</button>
-                    <button type="button" class="btn btn-default" onclick="export_sequence_deselect_all()">Deselect All</button>
+                    <button type="button" class="btn btn-default" id="btn-extrapolate-select-all">Select All</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="export_sequence()">Export</button>
                 </div>
@@ -480,20 +510,28 @@
         </div><!-- /.modal -->
     </div>
 
-    <div class="sr-only">
-        <form method="post" id="fingerprint-form">
-            <label><input type="text" name="fingerprint" value=""/></label>
-            <label><input type="text" name="flag" value="to_project_view"/></label>
-        </form>
-    </div>
     <script type="text/javascript">
         let myRawData = {{ raw_data | safe }};
         let myRawCacheKey = {{ raw_cache_key | safe }};
+        let new_sample_key;
         console.log(myRawData);
         let newSequencesList = [];
         let current_page = 1;
         let max_page = myRawData.sequence_num;
         let sequenceContainer = document.getElementById('sequenceContainer');
+        const btnExtrapolateSelectAll = $('#btn-extrapolate-select-all');
+        const btnExtrapolateSubmit = $('#btn-extrapolate-submit');
+        btnExtrapolateSubmit.disabled = true;
+
+        btnExtrapolateSelectAll.on('click', function() {
+            $('.checkbox-extrapolate-export-sequence').prop('checked', $(this).text() === "Select All");
+            $(this).text($(this).text() === "Select All"?"Unselect All":"Select All");
+        });
+
+        btnExtrapolateSubmit.on('click', function() {
+            window.location.href = `../object/${new_sample_key}`
+        });
+
         // 创建图形, 初始化echarts实例
         let chartBig = echarts.init(document.getElementById('figure-big'), null, {renderer: 'svg'});
         chartBig.setOption(getExtrapolateDefaultOption());
@@ -633,9 +671,6 @@
         });
 
         showModal('modal-extrapolate');
-        {#changeIrraProject();#}
-        {#changeCalcProject();#}
-
         // 为各个阶段创建按钮
         for (let i=0;i<max_page;i++){
             let btn = document.createElement('button');
@@ -654,6 +689,73 @@
                 };
             })(i);  // 动态给btn绑定函数
             sequenceContainer.appendChild(btn);
+        }
+
+        function onfinish(data) {
+            btnExtrapolateSubmit.disabled = false;
+           if (data.res !== undefined) {
+               closePopupMessage();
+               let message = "Recalculation completed and charts have been updated.<br/><br/>Click " +
+                   "<strong>Submit</strong>" + " to view the object."
+               showPopupMessage("Recalculation completed!", message, true)
+           } else {
+               closePopupMessage();
+               showPopupMessage('Error', `Recalculation failed. ${data.error}.`, true)
+           }
+        }
+
+        function submitRawData() {
+            // Get boostraptable content
+            let selectedSequences = $('#table-sequences').bootstrapTable('getSelections');
+            selectedSequences.map((each, index) => {
+                each['blank'] = $('#blank-sele'+each.id).find("option:selected").text();
+            })
+            // Get params
+            let irradiation_params = {};
+            let calculation_params = {};
+            let sample_params = {};
+            irradiation_params['useProject'] = $('#irraParamsRadio1').is(':checked');
+            irradiation_params['project'] = $('#irraProjectName').text();
+            irradiation_params['useInput'] = $('#irraParamsRadio2').is(':checked');
+            irradiation_params['param'] = getParamsByObjectName('irra');
+            calculation_params['useProject'] = $('#calcParamsRadio1').is(':checked');
+            calculation_params['project'] = $('#calcProjectName').text();
+            calculation_params['useInput'] = $('#calcParamsRadio2').is(':checked');
+            calculation_params['param'] = getParamsByObjectName('calc');
+            sample_params['useProject'] = $('#smpParamsRadio1').is(':checked');
+            sample_params['project'] = $('#smpProjectName').text();
+            sample_params['useInput'] = $('#smpParamsRadio2').is(':checked');
+            sample_params['param'] = getParamsByObjectName('smp');
+            // Get sample info
+            let sample_info = Array.prototype.map.call(
+                document.getElementsByClassName('sample-info'), (each, index) => (each.value));
+            $.ajax({
+                url: url_raw_submit,
+                type: 'POST',
+                data: JSON.stringify({
+                    'irradiationParams': irradiation_params,
+                    'calculationParams': calculation_params,
+                    'sampleParams': sample_params,
+                    'sampleInfo': sample_info,
+                    'selectedSequences': selectedSequences,
+                    'cache_key': myRawCacheKey,
+                }),
+                contentType:'application/json',
+                success: function(res){
+                    // recalculation modal related functions
+                    new_sample_key = res.cache_key
+                    const _startBtn = document.getElementById('applyRecalculation');
+                    initRecalcModal(_startBtn, new_sample_key, { onfinish })
+                    showModalDialog('modal-dialog-calculation');
+                    if ($recalcSelectAll.text() !== "Unselect All") {
+                        $recalcSelectAll.click();
+                    }
+                    _startBtn.click();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+                }
+            })
         }
 
         $(document).ready(function(){
@@ -699,7 +801,7 @@
                         case 1: each.value = Number(myRawData.sequence[0].options.Jsig); break;
                         case 2: each.value = Number(myRawData.sequence[0].options.MDF); break;
                         case 3: each.value = Number(myRawData.sequence[0].options.MDFSig); break;
-                        case 4: each.value = myRawData.sequence[0].options.StdName; break;
+                        case 4: each.value = String(myRawData.sequence[0].options.StdName); break;
                         case 5: each.value = Number(myRawData.sequence[0].options.StdAge); break;
                         case 6: each.value = Number(myRawData.sequence[0].options.StdAgeSig); break;
                         default: //

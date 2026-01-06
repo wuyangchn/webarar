@@ -1,13 +1,15 @@
 from django.urls import path
-from . import views, views_thermo
+from . import views, views_thermo, consumers
 
 urlpatterns = [
     # /calc, opening file via different buttons
     path('', views.CalcHtmlView.as_view(), name="calc_view"),
     # /calc/delete_uploaded_files
     path('delete_uploaded_files', views.DeleteUploadedFilesView.as_view(), name="delete_uploaded_files"),
+
+    path('object', views.ObjectFlagView.as_view(), name="object_home"),
     # /calc/object/..., three methods: path, post, ajax
-    path('object/<str:flag>', views.ButtonsResponseObjectView.as_view(), name="object_views"),
+    path('object/<str:flag>', views.ObjectFlagView.as_view(), name="object_views"),
     # /calc/raw
     path('raw', views.RawFileView.as_view(), name="open_raw_file_filter"),
     # /calc/raw/...,
@@ -22,6 +24,10 @@ urlpatterns = [
     path('export/<str:flag>', views.ExportView.as_view(), name="export_views"),
     # api
     path('api/<str:flag>', views.ApiView.as_view(), name="api_views"),
+
+    # websocket
+    path('ws/<str:flag>/', views.ObjectFlagView.as_view(), name="ws_views"),
+    # path('ws/<str:flag>/', consumers.as_view, name="ws_views"),
 
     # This must be the last, matching other flags.
     # /calc/flag

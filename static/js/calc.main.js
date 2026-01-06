@@ -36,7 +36,7 @@ function closePopupMessage(confirmation=true) {
     cancelButton.style.display = 'none';
     return confirmation;
 }
-function showPopupMessage(title, message, show_button=true, time=undefined) {
+function showPopupMessage(title, message, show_button=true, show_cancel=false, time=undefined) {
     // 获取所需元素
     let popupContainer = document.getElementById('popupContainer');
     let popupTitle = document.getElementById('popupTitle');
@@ -51,7 +51,9 @@ function showPopupMessage(title, message, show_button=true, time=undefined) {
     if (show_button) {
         popupContainer.onclick = () => false;
         continueButton.style.display = 'inline-block';
-        cancelButton.style.display = 'inline-block';
+        if (show_cancel) {
+            cancelButton.style.display = 'inline-block';
+        }
         continueButton.focus();
     } else {
         if (time === undefined) {
@@ -72,11 +74,11 @@ function showPopupMessage(title, message, show_button=true, time=undefined) {
     }
 
     return new Promise(function(resolve, reject) {
-        continueButton.addEventListener('click', function() {
+        $(continueButton).off('click').on('click', function() {
             closePopupMessage(true);
             resolve(true);
         })
-        cancelButton.addEventListener('click', function() {
+        $(cancelButton).off('click').on('click', function() {
             closePopupMessage(false);
             resolve(false);
         })
@@ -110,46 +112,6 @@ function countOccurrences(str, target) {
     const matches = str.match(regex);
     return matches ? matches.length : 0;
 }
-class AjaxRequest {
-    constructor(url, content, async) {
-        this.url = url;
-        this.content = content;
-        this.async = async;
-        this.__response = this.send()
-    }
-    send() {
-        let response;
-        $.ajax({
-            url: this.url,
-            type: 'POST',
-            data: JSON.stringify({
-                'content': this.content,
-                'cache_key': cache_key,
-                'user_uuid': localStorage.getItem('fingerprint'),
-            }),
-            async: this.async,
-            contentType:'application/json',
-            success: function(AjaxResults, textStatus, xhr){
-                response = AjaxResults;
-            }
-        });
-        return response;
-    }
-    // get
-    get response() {
-        return this.__response
-    }
-    get results() {
-        return this.__response.res
-    }
-    get massage() {
-        return this.__response.msg
-    }
-    get status() {
-        return this.__response.status
-    }
-}
-
 // extrapolate-functions
 function addNametoBlankList(name) {
     let li = document.createElement('li');
@@ -210,9 +172,17 @@ function addNewBlankButtonClicked() {
     corrBlankMethodChanged(myRawData.sequence.filter((seq, index) => seq.is_blank && !seq.is_estimated));
 }
 function rawFilesChanged() {
+    const formDom = document.getElementById("rawFileForm");
+    const fileInput = formDom.querySelector('input[type="file"]');
+    const fileCount = fileInput.files.length;
+    const maxNumberFiles = 100;
     let table = $('#raw_file_list');
-    if ($('#file-input-1').val() === '') {return}
-    let formData = new FormData(document.getElementById("rawFileForm"));
+    if (fileCount === 0) {return}
+    if (fileCount > maxNumberFiles) {
+        showPopupMessage("Error", `The number of files (${fileCount}) exceeded MAX NUMBER (${maxNumberFiles})`, true);
+        return
+    }
+    let formData = new FormData(formDom);
     $.ajax({
         url: url_raw_files_changed,
         type: 'POST',
@@ -242,7 +212,10 @@ function rawFilesChanged() {
                 });
                 document.getElementById('input-filter-title-selection').innerHTML = filter_options;
             })
-        }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
+        },
     })
 }
 function showFilesToDelete() {
@@ -312,6 +285,12 @@ function deleteSelectedFiles() {
         // indexes based on 0
         if (row['checked']) { rowIndexes.push(Number(row['number']) - 1) }
     });
+    deleteUploadedFilesOnTable(rowIndexes);
+}
+function deleteAllFiles() {
+    let table = $('#uploaded_file_list');
+    let rowCount = table.bootstrapTable('getOptions').totalRows;
+    let rowIndexes = Array.from({ length: rowCount }, (_, index) => index);
     deleteUploadedFilesOnTable(rowIndexes);
 }
 function change_input_filter(row, index) {
@@ -417,6 +396,7 @@ function export_sequence() {
     let modal = $('#modal-export-sequence');
     let modal_body = $('#modal-export-sequence-body');
     if (!modal.is(':visible')) {
+        btnExtrapolateSelectAll.text("Select All");
         modal_body.empty();
         $.each(myRawData.sequence.filter((item, index) => !item.is_estimated), (index, sequence) => {
             let div = document.createElement('div');
@@ -425,7 +405,7 @@ function export_sequence() {
             checkbox.type = "checkbox";
             checkbox.id = sequence.name;
             checkbox.style.marginLeft = "0px";
-            checkbox.className = "export-sequence-select";
+            checkbox.className = "checkbox-extrapolate-export-sequence";
             div.className = "checkbox-inline checkbox";
             div.style.width = "250px";
             div.style.margin = "0 0 0 0";
@@ -439,7 +419,7 @@ function export_sequence() {
         })
         modal.modal('show');
     } else {
-        let selected = $('.export-sequence-select').map((index, item) => item.checked).get();
+        let selected = $('.checkbox-extrapolate-export-sequence').map((index, item) => item.checked).get();
         if (selected.filter((item, index) => item).length === 0) {
             return
         }
@@ -488,17 +468,6 @@ function check_regression() {
         },
     })
 }
-function export_sequence_select_all() {
-    $('.export-sequence-select').each(function (index, item) {
-        $(this).prop("checked", true);
-    });
-}
-function export_sequence_deselect_all() {
-    $('.export-sequence-select').each(function (index, item) {
-        $(this).prop("checked", false);
-    });
-}
-
 
 function getExportedData(table){
     let settings = (ele) => ele.options[ele.selectedIndex].innerText;
@@ -568,7 +537,6 @@ function filesToExportChanged() {
         }
     })
 }
-
 function createSmChart(container, option) {
     let chart = echarts.init(container, null, {renderer: 'svg'});
     chart.setOption(getExtrapolateDefaultOption());
@@ -1373,53 +1341,6 @@ function saveExportSettings() {
     $('#modal-save').modal('show');
     $('#name2').val($('select[name="projectName"]:first').val());
 }
-function submitRawData() {
-    // Get boostraptable content
-    let selectedSequences = $('#table-sequences').bootstrapTable('getSelections');
-    selectedSequences.map((each, index) => {
-        each['blank'] = $('#blank-sele'+each.id).find("option:selected").text();
-    })
-    // Get params
-    let irradiation_params = {};
-    let calculation_params = {};
-    let sample_params = {};
-    irradiation_params['useProject'] = $('#irraParamsRadio1').is(':checked');
-    irradiation_params['project'] = $('#irraProjectName').text();
-    irradiation_params['useInput'] = $('#irraParamsRadio2').is(':checked');
-    irradiation_params['param'] = getParamsByObjectName('irra');
-    calculation_params['useProject'] = $('#calcParamsRadio1').is(':checked');
-    calculation_params['project'] = $('#calcProjectName').text();
-    calculation_params['useInput'] = $('#calcParamsRadio2').is(':checked');
-    calculation_params['param'] = getParamsByObjectName('calc');
-    sample_params['useProject'] = $('#smpParamsRadio1').is(':checked');
-    sample_params['project'] = $('#smpProjectName').text();
-    sample_params['useInput'] = $('#smpParamsRadio2').is(':checked');
-    sample_params['param'] = getParamsByObjectName('smp');
-    // Get sample info
-    let sample_info = Array.prototype.map.call(
-        document.getElementsByClassName('sample-info'), (each, index) => (each.value));
-    $.ajax({
-        url: url_raw_submit,
-        type: 'POST',
-        data: JSON.stringify({
-            'irradiationParams': irradiation_params,
-            'calculationParams': calculation_params,
-            'sampleParams': sample_params,
-            'sampleInfo': sample_info,
-            'selectedSequences': selectedSequences,
-            'cache_key': myRawCacheKey,
-            'fingerprint': localStorage.getItem('fingerprint'),
-        }),
-        contentType:'application/json',
-        success: function(res){
-            $('input[name="fingerprint"]').val(localStorage.getItem('fingerprint'));
-            $('#fingerprint-form').submit();
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
-        }
-    })
-}
 function getSelectedData(sequence_data, sequence_flag) {
     let selected = sequence_data.map(function (arr, i) {
         return arr.map(function (value, j) {
@@ -1543,7 +1464,6 @@ function paramsRadioChanged(flag, callback=null) {
     }
     if (flag === 'smp'){initialRatioSelectChanged()}
 }
-
 // packaging a function to create echart instance (to be completed)
 // function getEchart(dom, option) {
 //     if (!option) option = {};
@@ -1738,7 +1658,6 @@ function getLinkedChart(mainDiv, ...divs) {
     smallChartClicked(0);
     return [chartMain, ...chartSmall]
 }
-
 function getRegressionResults(data, method, x) {
     let result = {r2: 'None', sey: 'None', line_data: [], step_data: []};
     $.ajax({
@@ -1945,7 +1864,6 @@ function exportSmp(url, download=true, merged_pdf=false) {
         type: 'POST',
         data: JSON.stringify({
             'cache_key': cache_key,
-            'user_uuid': localStorage.getItem('fingerprint'),
             'figure_id': getCurrentTableId(),
             'merged_pdf': merged_pdf,
         }),
@@ -1953,7 +1871,7 @@ function exportSmp(url, download=true, merged_pdf=false) {
         beforeSend: function(){
             if (download) {
                 // showMessage();
-                showPopupMessage("Information", "Exporting, this may take a few moments, please wait...", false, 300000)
+                showPopupMessage("Information", "Exporting, this may take a few moments, please wait...", false, false, 300000)
             }
         },
         success: function (res) {
@@ -2036,7 +1954,7 @@ async function saveChart(isExport=true) {
         // $.ajax({
         //     url: url_export_pdf,
         //     type: 'POST',
-        //     data: JSON.stringify({'cache_key': cache_key, 'user_uuid': localStorage.getItem('fingerprint'),}),
+        //     data: JSON.stringify({'cache_key': cache_key,}),
         //     contentType: 'application/json',
         //     success: function (res) {},
         // });
@@ -2054,276 +1972,59 @@ function initialRatioSelectChanged() {
     inputs.prop('disabled', disabled);
     inputs.css('background-color', disabled?'#eee':'#fff');
 }
+function clickPoints(params) {
 
-
-// 创建一个队列数组来存储待处理的请求
-const requestQueue = [];
-// 标记当前是否有请求正在处理
-let isProcessing = false;
-
-// 添加请求到队列中
-function addToQueue(request) {
-    requestQueue.push(request);
-    // 如果没有请求正在处理，开始处理队列中的请求
-    if (!isProcessing) {
-        processQueue();
-    }
-}
-
-// 处理请求队列
-function processQueue() {
-    // 如果队列中有请求
-    if (requestQueue.length > 0) {
-        // 取出队列中的第一个请求
-        const request = requestQueue.shift();
-        isProcessing = true;
-
-        // 发送 AJAX 请求
-        $.ajax({
-            url: request.url,
-            type: request.type,
-            data: request.data,
-            async: request.async || true,
-            contentType: request.contentType || 'application/json',
-            success: function(response) {
-                // 请求成功处理
-                request.success(response);
-                // 处理下一个请求
-                processQueue();
-            },
-            error: function(xhr, status, error) {
-                // 请求失败处理
-                request.error(xhr, status, error);
-                // 处理下一个请求
-                processQueue();
-            }
-        });
-    } else {
-        // 队列为空，没有请求需要处理
-        isProcessing = false;
-    }
-}
-
-
-
-
-async function clickPoints(params) {
-
-    if (isProcessing) {return}  // 判断是否还有未结束的运算，以彻底消除点击散点过快选点跳跃的问题
-
-    let current_set = ['set1', 'set2'][isochronLine1Btn.checked ? 0 : 1];
-    let current_figure = getCurrentTableId();
-    let first_figures;
+    const current_set = isochronLine1Btn.checked ? 1 : 2;
+    const current_figure = getCurrentTableId();
+    const clicked_index = [params.data.slice(-1)[0]];
     let all_figures = ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7'];
-    first_figures = [current_figure]
 
-    // console.log("=============");
-    // console.log(sampleComponents[current_figure].set2.data);
-    //
-    // if (ctrlIsPressed || true) {
-    //     let clicked_index = params.data[5] - 1;
-    //     if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
-    //         sampleComponents[current_figure][current_set].data =
-    //             sampleComponents[current_figure][current_set].data.filter(function(item) {
-    //                 return item !== clicked_index;
-    //             })
-    //         sampleComponents[current_figure].set3.data.push(clicked_index);
-    //     } else {
-    //         for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
-    //             if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
-    //                 sampleComponents[current_figure][i].data =
-    //                 sampleComponents[current_figure][i].data.filter(function(item) {
-    //                     return item !== clicked_index;
-    //                 })
-    //             }
-    //         }
-    //         sampleComponents[current_figure][current_set].data.push(clicked_index);
-    //     }
-    // }
-    // sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
-    //     item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
-    //     return item
-    // });
-    // showPage(current_figure);
-
-    // Get new results for the current figure
-    // let response = new AjaxRequest(
-    //     url_click_points, {
-    //         'clicked_data': params.data, 'current_set': current_set,
-    //         // 'auto_replot': ! ctrlIsPressed,
-    //         'auto_replot': false,
-    //         'figures': first_figures,
-    //     }, false
-    // )
-
-    // $.ajax({
-    //     url: url_click_points,
-    //     type: 'POST',
-    //     data: JSON.stringify({
-    //         'content': {
-    //             'clicked_data': params.data, 'current_set': current_set,
-    //             'auto_replot': ! ctrlIsPressed,
-    //             // 'auto_replot': false,
-    //             'figures': first_figures,
-    //         },
-    //         'cache_key': cache_key,
-    //         'user_uuid': localStorage.getItem('fingerprint'),
-    //     }),
-    //     async: false,
-    //     contentType:'application/json',
-    //     beforeSend: function() {
-    //         if (ctrlIsPressed) {
-    //             let clicked_index = params.data[5] - 1;
-    //             // console.log(`clicked at ${clicked_index}`);
-    //             if (sampleComponents[current_figure][current_set].data.includes(clicked_index)) {
-    //                 sampleComponents[current_figure][current_set].data =
-    //                     sampleComponents[current_figure][current_set].data.filter(function(item) {
-    //                         return item !== clicked_index;
-    //                     })
-    //                 sampleComponents[current_figure].set3.data.push(clicked_index);
-    //             } else {
-    //                 for (let i in {'set1': 0, 'set2': 1, 'set3': 2}) {
-    //                     if (sampleComponents[current_figure][i].data.includes(clicked_index)) {
-    //                         sampleComponents[current_figure][i].data =
-    //                         sampleComponents[current_figure][i].data.filter(function(item) {
-    //                             return item !== clicked_index;
-    //                         })
-    //                     }
-    //                 }
-    //                 sampleComponents[current_figure][current_set].data.push(clicked_index);
-    //             }
-    //         }
-    //     },
-    //     success: function(AjaxResults, textStatus, xhr){
-    //         // console.log(sampleComponents[current_figure].set2.data);
-    //         setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5]);
-    //         let results = myParse(AjaxResults.res);
-    //         sampleComponents = assignDiff(sampleComponents, results);
-    //         sampleComponents['7'].data = sampleComponents['7'].data.map((item, index) => {
-    //             item[2] = sampleComponents[current_figure].set1.data.includes(index) ? 1 : sampleComponents[current_figure].set2.data.includes(index) ? 2 : ''
-    //             return item
-    //         });
-    //         showPage(current_figure);
-    //
-    //         if (! ctrlIsPressed) {
-    //             // Get new results for other figures
-    //             let content_2 = {
-    //                 'checked_options': [], 'isochron_mark': transpose(sampleComponents['7'].data)[2],
-    //                 'others': {'re_plot': true, 'isInit': false,
-    //                 'isIsochron': true, 'isPlateau': true, 'figures': all_figures,}
-    //             };
-    //
-    //
-    //             // 示例：添加请求到队列中
-    //             addToQueue(
-    //                 {
-    //                 url: url_recalculation,
-    //                 type: 'POST',
-    //                 data: JSON.stringify({
-    //                     'content': content_2,
-    //                     'cache_key': cache_key,
-    //                     'user_uuid': localStorage.getItem('fingerprint'),
-    //                 }),
-    //                 // async: true,
-    //                 async: false,
-    //                 contentType:'application/json',
-    //                 success: function(AjaxResults, textStatus, xhr){
-    //                     // console.log("===========");
-    //                     // console.log(AjaxResults.res);
-    //                     sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
-    //                     setRightSideText();
-    //                     }
-    //                 }
-    //             );
-    //
-    //
-    //             // $.ajax({
-    //             //     url: url_recalculation,
-    //             //     type: 'POST',
-    //             //     data: JSON.stringify({
-    //             //         'content': content_2,
-    //             //         'cache_key': cache_key,
-    //             //         'user_uuid': localStorage.getItem('fingerprint'),
-    //             //     }),
-    //             //     async: true,
-    //             //     contentType:'application/json',
-    //             //     success: function(AjaxResults, textStatus, xhr){
-    //             //         // console.log("===========");
-    //             //         // console.log(AjaxResults.res);
-    //             //         sampleComponents = assignDiff(sampleComponents, myParse(AjaxResults.res));
-    //             //         setRightSideText();
-    //             //     }
-    //             // });
-    //         }
-    //     }
-    // });
-
-    // set selection
-    change_selection(params.data[5], current_set, 1);
-
-    // re-plot isochron
-    // const re_plot_isochron_sync = () => re_plot_isochrons();
-    // const re_plot_isochron_async = async () => {
-    //     return new Promise((resolve, reject) => {
-    //         // 在Promise的执行函数中调用耗时的同步函数
-    //         setTimeout(() => {
-    //             const result = re_plot_isochrons({calc_figure_2: false, calc_figure_3: false,
-    //                 calc_figure_4: true, calc_figure_5: true, calc_figure_6: true, calc_figure_7: true});
-    //             resolve(result);
-    //         }, 0); // 将同步函数调用放在setTimeout中，确保它在下一个事件循环中执行，避免阻塞主线程
-    //     });
-    // }
-    //
-    // re_plot_isochron_sync();
-    //
-    // re_plot_isochron_async().then(result => {
-    //     // send diff, update backend
-    //     $.ajax({
-    //         url: url_update_components_diff,
-    //         type: 'POST',
-    //         data: JSON.stringify({
-    //             'diff': findDiff(sampleComponentsBackup, sampleComponents),
-    //             'cache_key': cache_key,
-    //         }),
-    //         contentType:'application/json',
-    //         success: function(res){
-    //             sampleComponentsBackup = JSON.parse(JSON.stringify(sampleComponents));
-    //         }
-    //     });
-    // });
-    re_plot_isochrons({calc_figure_2: true, calc_figure_3: true, calc_figure_4: true,
-        calc_figure_5: true, calc_figure_6: true, calc_figure_7: true})
-
-    // age spectra
-    re_plot_age_spectra();
-
-    // diff
-    const diff = findDiff(sampleComponentsBackup, sampleComponents);
-    // console.log(diff);
-
-    // send diff, update backend
-    $.ajax({
-        url: url_update_components_diff,
-        type: 'POST',
-        data: JSON.stringify({
-            'diff': diff,
-            'cache_key': cache_key,
-        }),
-        contentType:'application/json',
-        success: function(res){
-            sampleComponentsBackup = JSON.parse(JSON.stringify(sampleComponents));
-        }
+    chart.off('click', chart_on_clicked);
+    let postData = JSON.stringify({ 'cache_key': cache_key,
+        'content': {'clicked_index': clicked_index, 'current_set': current_set,
+            'auto_replot': true, 'figures': [current_figure], }
     });
 
-    // refresh page
-    showPage(current_figure);
+    sendWebSocket('ws_click_chart', postData, onopen, onprogress, onclose, onerror, onfinish);
 
-    setConsoleText('Clicked：' + params.seriesName + ', ' + current_set + ', Label: ' + params.data[5]);
+    function onopen(event) {
+        let message = `Clicked：${params.seriesName}, Set${current_set}, Label: ${clicked_index}`;
+        setConsoleText(message);
+    }
+
+    function onprogress(data) {
+        if (data.res !== undefined) {
+            sampleComponents = assignDiff(sampleComponents, data.res);
+        }
+        if (data.refresh) {
+            showPage(current_figure, true);
+        }
+        setConsoleText(data.info);
+    }
+
+    function onclose(event) {
+        chart.on('click', chart_on_clicked);
+    }
+
+    function onerror(data) {
+        if (data.error !== undefined) {
+            showPage(getCurrentTableId(), true);
+            closePopupMessage();
+            setConsoleText('Recalculation completed!');
+            showPopupMessage("Error", data.error, true);
+        }
+    }
+
+    function onfinish(data) {
+        if (data.res !== undefined) {
+            sampleComponents = assignDiff(sampleComponents, data.res);
+            showPage(getCurrentTableId(), true);
+            setConsoleText(data.info);
+        }
+        chart.on('click', chart_on_clicked);
+    }
 
 }
-
-
-
 function getSetById(figure_id, set_id) {
     for (let [key, obj] of Object.entries(sampleComponents[figure_id])) {
         if (typeof obj === 'object' && obj !== null){
@@ -2372,8 +2073,7 @@ async function clickSaveTable() {
         }
     } else {
         let table = sampleComponents[getCurrentTableId()];
-        let sigma = $("#errorDisplayRadio2").is(':checked') ? 2 : 1;
-        table_data = hot.getSourceData().map((row) => row.map((col, index) => col = table.header[index].includes("σ") ? col / sigma : col));
+        table_data = hot.getSourceData().map((row) => row.map((col, index) => col = table.header[index].includes("σ") ? col / confidence_level : col));
         // console.log(table_data);
         if (rows_to_delete.length > 0) {
             await showPopupMessage("Please confirm ...",
@@ -2417,13 +2117,12 @@ async function clickSaveTable() {
             'btn_id': getCurrentTableId(),
             'recalculate': false,
             'cache_key': cache_key,
-            'user_uuid': localStorage.getItem('fingerprint'),
             'data': table_data,
             'rows_to_delete': rows_to_delete,
         }),
         contentType:'application/json',
         beforeSend: function(){
-            showPopupMessage("Information", "Saving, please wait...", false, 300000);
+            showPopupMessage("Information", "Saving, please wait...", false, false,300000);
         },
         success: function(res){
             let changed_components = myParse(res.changed_components);
@@ -2452,18 +2151,6 @@ function clickShowParams(flag) {
     showParamProject(document.getElementById(`${flag}RowNum`), flag, false);
     $(`#edit${flag.charAt(0).toUpperCase() + flag.slice(1)}Params`).modal('show');
 }
-function clickShowModal(modal_id) {
-    switch (modal_id) {
-        case "recalculation":
-            $("#errorDisplayRadio1").prop("checked", confidence_level === 1);
-            $("#errorDisplayRadio2").prop("checked", confidence_level === 2);
-            $(`#${modal_id}Modal`).modal('show');
-            break;
-        default:
-            break;
-    }
-
-}
 function clickForceSyn() {
     $.ajax({
         url: url_force_syn,
@@ -2482,28 +2169,23 @@ function clickForceSyn() {
     });
 }
 function clickRecalc() {
-    let checked_options = [];
-    $.each($('#recalculationForm :checkbox'), (index, item) => (
-        checked_options.push(item.checked)));
-    let sigma = $("#errorDisplayRadio2").is(':checked') ? 2 : 1;
-    // if (checked_options.every((currentValue, index, arr) => (!currentValue))) {
-    //      // return if all options are false
-    //     return
-    // }
+    const checked_options = $recalcCheckboxes.map(function() {
+        return this.checked;
+    }).get();
     $.ajax({
         url: url_recalculation,
         type: 'POST',
         data: JSON.stringify({
             'cache_key': cache_key,
             // 'checked_options': checked_options,
-            'content': {'checked_options': checked_options, 'others': {'sigma': sigma}}
+            'content': { 'checked_options': checked_options }
         }),
         contentType:'application/json',
         beforeSend: function(){
             if (checked_options[11]) {
-                showPopupMessage("Information", "Using Monte Carlo simulation, this may take a few minutes depending on the number of sequences involved, please wait...", false, 300000);
+                showPopupMessage("Information", "Using Monte Carlo simulation, this may take a few minutes depending on the number of sequences involved, please wait...", false, false, 300000);
             } else {
-                showPopupMessage("Information", "Recalculation starts, please wait...", false, 300000);
+                showPopupMessage("Information", "Recalculation starts, please wait...", false, false,300000);
             }
         },
         success: async function(response){
@@ -2602,9 +2284,16 @@ function readParams(type) {
             // console.log(changed_components);
             sampleComponents = assignDiff(sampleComponents, changed_components);
             showPage(getCurrentTableId());
-            showPopupMessage("Information", "Changes have been saved!", false);
+            closePopupMessage();
+            showPopupMessage("Information",
+                "Changes saved. Note that calculations will not run automatically. " +
+                "Any parameter changes affecting calculation results require a " +
+                "<strong>recalculation</strong>" +
+                " to take effect.",
+                true);
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            closePopupMessage();
             showErrorMessage(XMLHttpRequest, textStatus, errorThrown)
         },
     })
@@ -2616,7 +2305,6 @@ function autoChartScale() {
         data: JSON.stringify({
             'figure_id': getCurrentTableId(),
             'cache_key': cache_key,
-            'user_uuid': localStorage.getItem('fingerprint'),
         }),
         contentType:'application/json',
         success: function(res){
@@ -2631,14 +2319,6 @@ function autoChartScale() {
         }
     })
 }
-// function switchSigmaLevel(header, data, sigma){
-//     sigma = sigma === 2?2:1;
-//     return {
-//         header: header,
-//         data: data.map((row) => row.map((col, index) => col = header[index].includes("σ") ? col * sigma : col))
-//     }
-//
-// }
 function showPage(table_id, recalculate=false) {
     // When current table is isochron table and unsaved changes were detected, a confirm will display
     if (isochron_marks_changed) {
@@ -2680,7 +2360,7 @@ function showPage(table_id, recalculate=false) {
             break
         case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8":
             showTable();
-            let header = comp.header.map((col) => confidence_level === 2 ? col.replace("1σ", "2σ") : col.replace("2σ", "1σ"));
+            let header = comp.header.map((col) => String(confidence_level) === '2' ? col.replace("1σ", "2σ") : col.replace("2σ", "1σ"));
             let data = comp.data.map((row) => row.map((col, index) => col = header[index]?.includes("2σ") ? col * 2 : col));
             hot.updateSettings({
                 colHeaders: header,
@@ -2782,7 +2462,7 @@ function setConsoleText(text) {
 function setRightSideText(sigma=1) {
     let figure = getCurrentTableId();
     let sample_type = sampleComponents[0].sample?.type;
-    let ageUnit = sample_type === "Unknown" ? sampleComponents[0].preference?.ageUnit : "";
+    let age_unit = sample_type === "Unknown" ? sampleComponents[0].preference?.age_unit : "";
     let flag = sample_type === "Unknown" ? 'Age' : sample_type === "Standard" ? 'J' : sample_type === "Air" ? 'MDF' : '';
     let place = sample_type === "Unknown" ? 2 : 4;
     let text_list = [];
@@ -2792,7 +2472,7 @@ function setRightSideText(sigma=1) {
             `z = ${iso_res[0]['m1'].toFixed(place)} x ${iso_res[0]['m2'] > 0?'+':'-'} 
             ${Math.abs(iso_res[0]['m2']).toFixed(place)} y ${iso_res[0]['k'] > 0?'+':'-'} 
             ${Math.abs(iso_res[0]['k']).toFixed(place)}`,
-            `t = ${iso_res[0]['age'].toFixed(place)} ± ${(iso_res[0]['s1'] * sigma).toFixed(place)} | ${(iso_res[0]['s2'] * sigma).toFixed(place)} | ${(iso_res[0]['s3'] * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `t = ${iso_res[0]['age'].toFixed(place)} ± ${(iso_res[0]['s1'] * sigma).toFixed(place)} | ${(iso_res[0]['s2'] * sigma).toFixed(place)} | ${(iso_res[0]['s3'] * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
             `MSWD = ${iso_res[0]['MSWD'].toFixed(place)}, r2 = ${iso_res[0]['R2'].toFixed(place)}, Di = ${iso_res[0]['iter']}, 
             χ2 = ${iso_res[0]['Chisq'].toFixed(place)}, p = ${iso_res[0]['Pvalue'].toFixed(place)}, avg. error = ${iso_res[0]['rs'].toFixed(place)}%`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[0]['initial'].toFixed(place)} ± ${(iso_res[0]['sinitial'] * sigma).toFixed(place)} (${sigma}σ)`,
@@ -2801,13 +2481,13 @@ function setRightSideText(sigma=1) {
             `z = ${iso_res[1]['m1'].toFixed(place)} x ${iso_res[1]['m2'] > 0?'+':'-'} 
             ${Math.abs(iso_res[1]['m2']).toFixed(place)} y ${iso_res[1]['k'] > 0?'+':'-'} 
             ${Math.abs(iso_res[1]['k']).toFixed(place)}`,
-            `t = ${iso_res[1]['age'].toFixed(place)} ± ${(iso_res[1]['s1'] * sigma).toFixed(place)} | ${(iso_res[1]['s2'] * sigma).toFixed(place)} | ${(iso_res[1]['s3'] * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `t = ${iso_res[1]['age'].toFixed(place)} ± ${(iso_res[1]['s1'] * sigma).toFixed(place)} | ${(iso_res[1]['s2'] * sigma).toFixed(place)} | ${(iso_res[1]['s3'] * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
             `MSWD = ${iso_res[1]['MSWD'].toFixed(place)}, r2 = ${iso_res[1]['R2'].toFixed(place)}, Di = ${iso_res[1]['iter']}, 
             χ2 = ${iso_res[1]['Chisq'].toFixed(place)}, p = ${iso_res[1]['Pvalue'].toFixed(place)}, avg. error = ${iso_res[1]['rs'].toFixed(place)}%`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[1]['initial'].toFixed(place)} ± ${(iso_res[1]['sinitial'] * sigma).toFixed(place)} (${sigma}σ)`,
             "",
 
-            `Unselected`, `t = ${iso_res[2]['age'].toFixed(place)} ± ${(iso_res[2]['s1'] * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Unselected`, `t = ${iso_res[2]['age'].toFixed(place)} ± ${(iso_res[2]['s1'] * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
             `<sup>40</sup>Ar/<sup>36</sup>Ar = ${iso_res[2]['initial'].toFixed(place)} ± ${(iso_res[2]['sinitial'] * sigma).toFixed(place)} (${sigma}σ)`,
             "",
         ]
@@ -2832,19 +2512,19 @@ function setRightSideText(sigma=1) {
             line2 = "...";
         }
         text_list = [
-            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set1.age.toFixed(place)} ± ${(nor_res_set1.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
-            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set1.age.toFixed(place)} ± ${(inv_res_set1.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
-            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set1.age.toFixed(place)} ± ${(age_spectra_set1.s1 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
-            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set1.age.toFixed(place)} ± ${(plateau_set1.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set1.age.toFixed(place)} ± ${(nor_res_set1.s2 * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
+            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set1.age.toFixed(place)} ± ${(inv_res_set1.s2 * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
+            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set1.age.toFixed(place)} ± ${(age_spectra_set1.s1 * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
+            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set1.age.toFixed(place)} ± ${(plateau_set1.s2 * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
             `Regression Line`, line1,
 
-            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set2.age.toFixed(place)} ± ${(nor_res_set2.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
-            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set2.age.toFixed(place)} ± ${(inv_res_set2.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
-            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set2.age.toFixed(place)} ± ${(age_spectra_set2.s1 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
-            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set2.age.toFixed(place)} ± ${(plateau_set2.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Normal Isochron ${flag} (NI${flag.slice(0,1)})`, `${nor_res_set2.age.toFixed(place)} ± ${(nor_res_set2.s2 * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
+            `Inverse Isochron ${flag} (II${flag.slice(0,1)})`, `${inv_res_set2.age.toFixed(place)} ± ${(inv_res_set2.s2 * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
+            `Weighted Mean ${flag} (WM${flag.slice(0,1)})`, `${age_spectra_set2.age.toFixed(place)} ± ${(age_spectra_set2.s1 * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
+            `Initial Ratio Corrected WM${flag.slice(0,1)}`, `${plateau_set2.age.toFixed(place)} ± ${(plateau_set2.s2 * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
             `Regression Line`, line2,
 
-            `Total ${flag}`, `${total_age.age.toFixed(place)} ± ${(total_age.s2 * sigma).toFixed(place)} ${ageUnit} (${sigma}σ)`,
+            `Total ${flag}`, `${total_age.age.toFixed(place)} ± ${(total_age.s2 * sigma).toFixed(place)} ${age_unit} (${sigma}σ)`,
         ];
     }
 
@@ -2856,13 +2536,22 @@ function setRightSideText(sigma=1) {
 
 // Sample instance functions
 function assignDiff(target, diff) {
-    Object.keys(diff).map((key)=>{
-        if (Object.keys(target).includes(key)) {
-            target[key] = typeof target[key] === 'object' ?
-                target[key] instanceof Array || target[key] === null ? diff[key]:
-                    assignDiff(target[key], diff[key]):diff[key];
-        } else {target[key] = diff[key]}
-    })
+    console.log('=========== UPDATE SAMPLE COMPONENTS =============')
+    console.log(diff)
+    console.log('================== THE EDN =======================')
+    function _assign(a, b) {
+        Object.keys(b).map((key)=>{
+            if (Object.keys(a).includes(key)) {
+                a[key] = typeof a[key] === 'object' ?
+                    a[key] instanceof Array || a[key] === null ? b[key]:
+                        _assign(a[key], b[key]):b[key];
+            } else {a[key] = b[key]}
+        })
+        return a;
+    }
+    _assign(target, diff);
+    confidence_level = sampleComponents['0'].preference?.confidence_level;
+    filePathSpan.innerText = `v=${sampleComponents['0'].arr_version}`;
     return target;
 }
 function sendDiff(diff) {
@@ -3310,7 +2999,6 @@ function updateStyles(backup) {
         data: JSON.stringify({
             'diff': changed_styles,
             'cache_key': cache_key,
-            'user_uuid': localStorage.getItem('fingerprint'),
         }),
         contentType:'application/json',
         success: function(res){
@@ -3338,8 +3026,8 @@ function getIsochronData(arr, index, mark=5) {
     if (data.length === 0) {
         return [];
     } else {
-        return index.map(i => data[arr[mark].indexOf(i+1)]);
-        // i + 1, because sample.Sequence starts from 0, while label in isochron data[5] starts from 1
+        // starts from 0
+        return index.map(i => data[arr[mark].indexOf(i)]);
     }
 }
 function adjustSpectraData(arr, sigma=1) {
@@ -3370,7 +3058,7 @@ function transpose(arr) {
     return transposedArr;
 }
 function renderErrBarItem(param, api){
-    let sigma = $("#errorDisplayRadio2").is(':checked') ? 2 : 1;
+    let sigma = confidence_level;
     const set = sampleComponents[getCurrentTableId()].errline;
     const lineWidth = 1;
     let lineWidth_horizontal = 1;
@@ -3473,7 +3161,7 @@ function renderAgeBarItem(param, api){
 }
 function getIsochronEchart(chart, figure_id, animation, sigma=1) {
     let figure = sampleComponents[figure_id];
-    let ageUnit = sampleComponents[0].preference?.ageUnit;
+    let age_unit = sampleComponents[0].preference?.age_unit;
     // console.log(figure.data);
     let res = sampleComponents[0].results.isochron[figure_id];
     let option = {
@@ -3641,7 +3329,7 @@ function getIsochronEchart(chart, figure_id, animation, sigma=1) {
                         // }
                         // return figure.text1.text
                         if (figure.text1.text === "") {
-                            figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[0]['initial'].toFixed(2)} ± ${(res[0]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}\navg error = ${res[0]['rs'].toFixed(4)}%`;
+                            figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${age_unit} (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[0]['initial'].toFixed(2)} ± ${(res[0]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}\navg error = ${res[0]['rs'].toFixed(4)}%`;
                         }
                         return figure.text1.text
                     },
@@ -3666,7 +3354,7 @@ function getIsochronEchart(chart, figure_id, animation, sigma=1) {
                         // }
                         // return figure.text2.text
                         if (figure.text2.text === "") {
-                            figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${(res[1]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
+                            figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${age_unit} (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${(res[1]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
                         }
                         return figure.text2.text
                     },
@@ -3824,7 +3512,7 @@ function get3DEchart(chart, figure_id, animation) {
 }
 function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=false) {
     let figure = sampleComponents[figure_id];
-    let ageUnit = sampleComponents[0].preference?.ageUnit;
+    let age_unit = sampleComponents[0].preference?.age_unit;
     let res = sampleComponents[0].results.age_plateau
     let option = {
         title: {
@@ -4004,7 +3692,7 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=fals
                     formatter: (params) => {
                         if (figure.text1.text === "" || recalculate) {
                             if (sampleComponents['0'].sample.type === "Unknown") {
-                                figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${(res[0]['Ar39']*100).toFixed(2)}%\nn = ${res[0]['Num']}, χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
+                                figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${age_unit} (${sigma}σ)\nWMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${(res[0]['Ar39']*100).toFixed(2)}%\nn = ${res[0]['Num']}, χ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
                                 figure.text1.text = `WMF = ${res[0]['F'].toFixed(2)} ± ${(res[0]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nWMJ = ${res[0]['age'].toFixed(6)} ± ${(res[0]['s2'] * sigma).toFixed(6)} (${sigma}σ)\nn = ${res[0]['Num']}, MSWD = ${res[0]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}`;
@@ -4031,7 +3719,7 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=fals
                     formatter: (params) => {
                         if (figure.text2.text === "") {
                             if (sampleComponents['0'].sample.type === "Unknown") {
-                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${ageUnit} (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${(res[1]['Ar39']*100).toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
+                                figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${age_unit} (${sigma}σ)\nWMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, ∑{sup|39}Ar = ${(res[1]['Ar39']*100).toFixed(2)}%\nn = ${res[1]['Num']}, χ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
                             }
                             if (sampleComponents['0'].sample.type === "Standard") {
                                 figure.text2.text = `WMF = ${res[1]['F'].toFixed(2)} ± ${(res[1]['sF'] * sigma).toFixed(2)} (${sigma}σ)\nWMJ = ${res[1]['age'].toFixed(6)} ± ${(res[1]['s2'] * sigma).toFixed(6)} (${sigma}σ)\nn = ${res[1]['Num']}, MSWD = ${res[1]['MSWD'].toFixed(2)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}`;
@@ -4282,623 +3970,6 @@ function getChartInterval(chart, figure) {
     figure.xaxis.interval = chart._model._componentsMap.get('xAxis')[0].axis.scale.getInterval();
     figure.yaxis.interval = chart._model._componentsMap.get('yAxis')[0].axis.scale.getInterval();
 }
-
-
-
-function change_selection(clicked_index, current_set, base = 0) {
-    clicked_index -= base;
-    if (clicked_index < 0) return;
-    if (!current_set in {'set1': 0, 'set2': 1, 'set3': 2}) return;
-    let data = {
-        'set1': [...sampleComponents["figure_2"]["set1"].data],
-        'set2': [...sampleComponents["figure_2"]["set2"].data],
-        'set3': [...sampleComponents["figure_2"]["set3"].data]
-    }
-    if (data[current_set].includes(clicked_index)) {
-        data[current_set] = data[current_set].filter(function(item) {
-            return item !== clicked_index;
-        });
-        data["set3"].push(clicked_index);
-    } else {
-        for (let [key, val] of Object.entries(data)) {
-            if (val.includes(clicked_index)) {
-                data[key] = val.filter(function(item) {
-                    return item !== clicked_index;
-                });
-            }
-        }
-        data[current_set].push(clicked_index);
-    }
-    for (const [key, value] of Object.entries(data)) {
-        data[key] = [...value].sort((a, b) => a - b);
-    }
-    ["figure_2", "figure_3", "figure_4", "figure_5", "figure_6", "figure_7"].forEach(figure => {
-        for (const [key, value] of Object.entries(data)) {
-            sampleComponents[figure][key].data = [...value];
-        }
-    });
-    for (let i=1;i<=8;i++) {
-        sampleComponents[i].data = sampleComponents[i].data.map((item, index) => {
-            item[2] = data.set1.includes(index) ? 1 : data.set2.includes(index) ? 2 : ''
-            return item
-        });
-    }
-    sampleComponents[0].results.selection = dict_update(sampleComponents[0].results.selection,
-        {0: {data: data.set1}, 1: {data: data.set2}, 2: {data: data.set3}});
-}
-
-
-function re_plot_isochrons(options={}) {
-    const {calc_figure_2 = true, calc_figure_3 = true, calc_figure_4 = false,
-        calc_figure_5 = false, calc_figure_6 = false, calc_figure_7 = false} = options;
-
-    let figure_id, set, results;
-
-    let x, sx, y, sy, z, sz, pho1, pho2, pho3;
-    let k, sk, a, sa, b, sb, R2, mswd, conv, Di, mag, Chisq, p, rs, S;
-    let r, sr, f, sf, age, s1, s2, s3;
-
-    let using_Min = true;
-    let set_dict = {"set1": 0, "set2": 1, "set3": 2};
-    let x_scale, y_scale;
-
-    let unit = sampleComponents[0].preference?.ageUnit;
-    let unit_factor = unit === "Ga" ? 1000000000 : unit === "Ma" ? 1000000 : 1000;
-
-    // figure_2
-    if (calc_figure_2) {
-        figure_id = "figure_2";
-        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
-
-        set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        // set = "set3";
-        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        // results = york2(x, sx, y, sy, pho1);
-        // if (results !== false) {
-        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        //     [r, sr, f, sf] = [k, sk, a, sa];
-        //     [age, s1, s2, s3] = calc_age(f, sf);
-        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        //     });
-        //
-        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        // }
-
-    }
-
-
-    // figure_3
-    if (calc_figure_3) {
-        figure_id = "figure_3";
-        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
-
-        set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-            [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-            [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        // set = "set3";
-        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        // results = york2(x, sx, y, sy, pho1);
-        // if (results !== false) {
-        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        //     [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-        //     [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-        //     [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        //     [age, s1, s2, s3] = calc_age(f, sf);
-        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        //     });
-        //
-        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        // }
-    }
-
-
-    // figure_4
-    if (calc_figure_4) {
-        figure_id = "figure_4";
-        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
-
-        set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [r, sr, f, sf] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        // set = "set3";
-        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        // results = york2(x, sx, y, sy, pho1);
-        // if (results !== false) {
-        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        //     [r, sr, f, sf] = [k, sk, a, sa];
-        //     [age, s1, s2, s3] = calc_age(f, sf);
-        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        //     });
-        //
-        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`)
-        // }
-    }
-
-
-    // figure_5
-    if (calc_figure_5) {
-        figure_id = "figure_5";
-        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
-
-        set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-            [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-            [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        // set = "set3";
-        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        // results = york2(x, sx, y, sy, pho1);
-        // if (results !== false) {
-        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        //     [r, sr] = [1 / k, Math.abs(sk) / k ** 2];
-        //     [f, sf] = york2(y, sy, x, sx, pho1).slice(0, 2);
-        //     [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        //     [age, s1, s2, s3] = calc_age(f, sf);
-        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        //     });
-        //
-        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        // }
-    }
-
-
-    // figure_6
-    if (calc_figure_6) {
-        figure_id = "figure_6";
-        x_scale = [sampleComponents[figure_id].xaxis.min, sampleComponents[figure_id].xaxis.max];
-        y_scale = [sampleComponents[figure_id].yaxis.min, sampleComponents[figure_id].yaxis.max];
-
-        set = "set1";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [f, sf, r, sr] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        set = "set2";
-        [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        results = york2(x, sx, y, sy, pho1);
-        sampleComponents[figure_id][["text1", "text2", "text3"][set_dict[set]]].text = "";
-        if (results !== false) {
-            [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-            [f, sf, r, sr] = [k, sk, a, sa];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-                "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-                "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-            });
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = getLinePoints(x_scale, y_scale, [k, a]);
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        } else {
-            sampleComponents[figure_id][["line1", "line2", "line3"][set_dict[set]]].data = [];
-        }
-
-        // set = "set3";
-        // [x, sx, y, sy, pho1] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,5);
-        // results = york2(x, sx, y, sy, pho1);
-        // if (results !== false) {
-        //     [k, sk, a, sa, mswd, conv, Di, mag, R2, Chisq, p, rs] = results;
-        //     [f, sf, r, sr] = [k, sk, a, sa];
-        //     [age, s1, s2, s3] = calc_age(f, sf);
-        //     dict_update(sampleComponents[0].results.isochron[figure_id][set_dict[set]], {
-        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age,
-        //         "conv":conv, "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs,
-        //         "s1":s1, "s2":s2, "s3":s3, "sF":sf, "sinitial":sr, "sk":sk, "sm1":sa
-        //     });
-        //
-        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        // }
-    }
-
-
-    // figure_7
-    if (calc_figure_7) {
-        const total_params = numeric.transpose(sampleComponents[8].data);
-        const ar38ar36 = total_params[7][0];
-        const sar38ar36 = ar38ar36 * total_params[8][0] / 100;
-        figure_id = "figure_7";
-        set = "set1";
-        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
-        results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-        if (results !== false) {
-            [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, Chisq, p, rs] = results;
-            [r, sr] = [(a + b * ar38ar36) * (-1 / k), errDiv(a + b * ar38ar36, errAdd(sa, errMul(b, sb, ar38ar36, sar38ar36)), -k, sk)];
-            [f, sf] = [k, sk];
-            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
-                "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-                "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
-            })
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        }
-
-        set = "set2";
-        [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
-        results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-        if (results !== false) {
-            [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, Chisq, p, rs] = results;
-            [r, sr] = [(a + b * ar38ar36) * (-1 / k), errDiv(a + b * ar38ar36, errAdd(sa, errMul(b, sb, ar38ar36, sar38ar36)), -k, sk)];
-            [f, sf] = [k, sk];
-            [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-            [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-            dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
-                "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
-                "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-                "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
-            })
-            // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        }
-
-        set = "set3";
-        // [x, sx, y, sy, z, sz, pho1, pho2, pho3] = arr_slice(sampleComponents[figure_id].data, sampleComponents[figure_id][set].data).slice(0,9);
-        // results = wtd3DRegression(x, sx, y, sy, z, sz, pho1, pho2, pho3);
-        // if (results !== false) {
-        //     [k, sk, a, sa, b, sb, S, mswd, R2, conv, Di, mag, Chisq, p, rs] = results;
-        //     [r, sr] = [(a + b * ar38ar36) * (-1 / k), errDiv(a + b * ar38ar36, errAdd(sa, errMul(b, sb, ar38ar36, sar38ar36)), -k, sk)];
-        //     [f, sf] = [k, sk];
-        //     [f, sf] = [1 / f, Math.abs(sf) / f ** 2];
-        //     [age, s1, s2, s3] = calc_age(f, sf);
-        //     dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
-        //         "Chisq":Chisq, "F":f, "MSWD":mswd, "Pvalue":p, "R2":R2, "abs_conv":conv, "age":age, "conv":conv,
-        //         "initial":r, "iter":Di, "k":k, "m1":a, "mag":mag, "rs":rs, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-        //         "sinitial":sr, "sk":sk, "sm1":sa, "S": S, "m2": b, "sm2": sb
-        //     })
-        //     // console.log(`figure_id = ${figure_id}, set = ${set}, age = ${age} ± ${s1} | ${s2} | ${s3}, using Min = ${using_Min}, selected = ${sampleComponents[figure_id][set].data}`);
-        // }
-        dict_update(sampleComponents[0]["results"]["isochron"][figure_id][set_dict[set]], {
-            "Chisq":NaN, "F":NaN, "MSWD":NaN, "Pvalue": NaN, "R2": NaN, "abs_conv": NaN, "age": NaN, "conv": NaN,
-            "initial":NaN, "iter":NaN, "k":NaN, "m1": NaN, "mag": NaN, "rs": NaN, "s1": NaN, "s2": NaN, "s3": NaN, "sF": NaN,
-            "sinitial":NaN, "sk":NaN, "sm1":NaN, "S": NaN, "m2": NaN, "sm2": NaN
-        })
-    }
-
-    setConsoleText(`Replot isochron completed.`);
-
-}
-
-
-function re_plot_age_spectra() {
-
-    // default age spectra
-    const spectra_values = numeric.transpose(sampleComponents[6].data);
-    sampleComponents["figure_1"].data = ageSpectraPoints(spectra_values[10], spectra_values[5], spectra_values[6]);
-
-    let get_partial_data = (array, rows) => array.map((v, i) => {
-        if (i >= Math.min(...rows) && i <= Math.max(...rows)) { return v }
-    }).filter((v, _) => v !== undefined);
-
-    let f, sf, age, s1, s2, s3, num, mswd, chi_square, p_value, f_array;
-    let using_Min = true;
-    let unit = sampleComponents[0].preference?.ageUnit;
-    let unit_factor = unit === "Ga" ? 1000000000 : unit === "Ma" ? 1000000 : 1000;
-
-    // set1
-    try {
-        f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[3], spectra_values[4]]), sampleComponents["figure_2"]["set1"].data));
-        [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-        dict_update(sampleComponents[0]["results"]["age_spectra"][0], {
-            "Ar39": arr_sum(get_partial_data(spectra_values[10], sampleComponents["figure_2"]["set1"].data)),
-            "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-            "rs": NaN, "Chisq": chi_square
-        });
-    } catch (e) {
-        //
-    }
-
-
-    // set2
-    try {
-        f_array = numeric.transpose(get_partial_data(numeric.transpose([spectra_values[3], spectra_values[4]]), sampleComponents["figure_2"]["set2"].data));
-        [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-        dict_update(sampleComponents[0]["results"]["age_spectra"][1], {
-            "Ar39": arr_sum(get_partial_data(spectra_values[10], sampleComponents["figure_2"]["set2"].data)),
-            "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-            "rs": NaN, "Chisq": chi_square
-        });
-    } catch (e) {
-        //
-    }
-
-
-    // age spectra for set1 and set2
-    const parameters = numeric.transpose(sampleComponents[8].data);
-    const r_model = parameters[118];  // 0 for inverse, 1 for normal, 2 for input
-    const r1 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][0]["initial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][0]["initial"] : parameters[119][i])
-    const sr1 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][0]["sinitial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][0]["sinitial"] : parameters[120][i])
-    const r2 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][1]["initial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][1]["initial"] : parameters[121][i])
-    const sr2 = r_model.map((v, i) => Number(v) === 0 ? sampleComponents[0].results.isochron["figure_3"][1]["sinitial"] : Number(v) === 1 ? sampleComponents[0].results.isochron["figure_2"][1]["sinitial"] : parameters[122][i])
-    const degas_values = numeric.transpose(sampleComponents[4].data);
-    const total_values = numeric.transpose(sampleComponents[3].data);
-    const ar40 = total_values[11];
-    const sar40 = total_values[12];
-    const ar36a = degas_values[3];
-    const sar36a = degas_values[4];
-    const ar40k = degas_values[33];
-    const sar40k = degas_values[34];
-    const ar39k = degas_values[23];
-    const sar39k = degas_values[24];
-    let line_points, ages, set;
-
-    // calc mean age
-    // set1
-    try {
-        set = 'set1';
-        f_array = ar40.map((_, i) => calcAr40r_39k(r1[i], sr1[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
-            ar40[i], sar40[i], ar40k[i], sar40k[i]));
-        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], unit_factor, using_Min, i)));
-        line_points = ageSpectraPoints(spectra_values[10], ages[0], ages[2], sampleComponents["figure_2"][set].data);
-        sampleComponents["figure_1"][set].data = line_points;
-        f_array = numeric.transpose(f_array.map((v, i) => {
-            if (i >= Math.min(...sampleComponents["figure_2"][set].data) && i <= Math.max(...sampleComponents["figure_2"][set].data)) { return v }
-        }).filter((v, _) => v !== undefined));
-        [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-        dict_update(sampleComponents[0]["results"]["age_plateau"][0], {
-            "Ar39": line_points[line_points.length-1][0] - line_points[0][0],
-            "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-            "rs": NaN, "Chisq": chi_square
-        });
-        sampleComponents["figure_1"]["text1"].text = "";
-    } catch (e) {
-        //
-    }
-
-
-    // set2
-    try {
-        set = 'set2';
-        f_array = ar40.map((_, i) => calcAr40r_39k(r2[i], sr2[i], ar36a[i], sar36a[i], ar39k[i], sar39k[i],
-            ar40[i], sar40[i], ar40k[i], sar40k[i]));
-        ages = numeric.transpose(ar40.map((_, i) => calc_age(...f_array[i], unit_factor, using_Min, i)));
-        line_points = ageSpectraPoints(spectra_values[10], ages[0], ages[2], sampleComponents["figure_2"][set].data);
-        sampleComponents["figure_1"][set].data = line_points;
-        f_array = numeric.transpose(f_array.map((v, i) => {
-            if (i >= Math.min(...sampleComponents["figure_2"][set].data) && i <= Math.max(...sampleComponents["figure_2"][set].data)) { return v }
-        }).filter((v, _) => v !== undefined));
-        [f, sf, num, mswd, chi_square, p_value] = weightedMeanValue(f_array[0], f_array[1]);
-        [age, s1, s2, s3] = calc_age(f, sf, unit_factor, using_Min);
-        dict_update(sampleComponents[0]["results"]["age_plateau"][1], {
-            "Ar39": line_points[line_points.length-1][0] - line_points[0][0],
-            "F":f, "MSWD":mswd, "Pvalue":p_value, "Num":num, "age":age, "s1":s1, "s2":s2, "s3":s3, "sF":sf,
-            "rs": NaN, "Chisq": chi_square
-        });
-        sampleComponents["figure_1"]["text2"].text = "";
-    } catch (e) {
-        //
-    }
-
-}
-
-
-function calc_age(F, sF, unit_factor = 1, using_Min = true, idx = 0, auto_change_to_general = true) {
-
-    const parameters = numeric.transpose(sampleComponents[8].data);
-    const J = parameters[70];  // J values
-    const sJ = arr_multiply_by_number(arr_mul(parameters[71], J), 1 / 100);
-    const L = parameters[37];  // decay constant of 40K
-    const sL = arr_multiply_by_number(arr_mul(parameters[38], L), 1 / 100);
-
-    let res;
-
-    if (using_Min) {
-        const Le = parameters[39];  // decay constant of 40K(EC)
-        const sLe = arr_multiply_by_number(arr_mul(parameters[40], Le), 1 / 100);
-        const Lb = parameters[41];  // decay constant of 40K(B-)
-        const sLb = arr_multiply_by_number(arr_mul(parameters[42], Lb), 1 / 100);
-        const A = parameters[51];  // decay activity of 40K
-        const sA = arr_multiply_by_number(arr_mul(parameters[52], A), 1 / 100);
-        const Ae = parameters[53];  // decay activity of 40K(EC)
-        const sAe = arr_multiply_by_number(arr_mul(parameters[54], Ae), 1 / 100);
-        const Ab = parameters[55];  // decay activity of 40K(B-)
-        const sAb = arr_multiply_by_number(arr_mul(parameters[56], Ab), 1 / 100);
-        const t = parameters[62];  // standard age in Ma
-        const st = arr_multiply_by_number(arr_mul(parameters[63], t), 1 / 100);
-        const W = parameters[84];  // 40K Mass
-        const sW = arr_multiply_by_number(arr_mul(parameters[85], W), 1 / 100);
-        const Y = parameters[88];  // Year constant
-        const sY = arr_multiply_by_number(arr_mul(parameters[89], Y), 1 / 100);
-        const f = parameters[90];  // 40K/K ratio
-        const sf = arr_multiply_by_number(arr_mul(parameters[91], f), 1 / 100);
-        const No = parameters[86];  // Avogadro constant
-        const sNo = arr_multiply_by_number(arr_mul(parameters[87], No), 1 / 100);
-        const conf = {
-            'L': L[idx], 'sL': sL[idx], 'Le': Le[idx], 'sLe': sLe[idx], 'Lb': Lb[idx], 'sLb': sLb[idx],
-            'A': A[idx], 'sA': sA[idx], 'Ae': Ae[idx], 'sAe': sAe[idx], 'Ab': Ab[idx], 'sAb': sAb[idx],
-            't': t[idx], 'st': st[idx], 'J': J[idx], 'sJ': sJ[idx], 'W': W[idx], 'sW': sW[idx],
-            'No': No[idx], 'sNo': sNo[idx], 'Y': Y[idx], 'sY': sY[idx], 'f': f[idx], 'sf': sf[idx], 'Min': using_Min
-        };
-        res = calcAgeMin(F, sF, conf);
-        if (isNaN(res[0]) && auto_change_to_general) {
-            res = calcAgeGeneral(F, sF, J[idx], sJ[idx], L[idx], sL[idx]);
-        }
-    } else {
-        res = calcAgeGeneral(F, sF, J[idx], sJ[idx], L[idx], sL[idx]);
-    }
-    return res.map((_, i) => _ / unit_factor)
-}
-
-
 function deepMerge(target, source) {
     if (source.constructor === Array) {
         return source;
@@ -4912,7 +3983,6 @@ function deepMerge(target, source) {
     }
     return target;
 }
-
 function extendChartFuncs(chart) {
     chart.clearSeries = (resize=true) => {
         chart.setOption({series: []}, {replaceMerge: ['series']})
@@ -5032,7 +4102,6 @@ function extendChartFuncs(chart) {
     }
 
 }
-
 function splitByConsecutive(arr) {
     return arr.reduce((result, num, i) => {
         if (i === 0 || num !== arr[i - 1] + 1) {
@@ -5043,7 +4112,6 @@ function splitByConsecutive(arr) {
         return result;
     }, []);
 }
-
 function handsontableRemoveRow(key, options) {
     const rows = [];
     const arr = splitByConsecutive(rows_to_delete);
@@ -5070,7 +4138,6 @@ function handsontableRemoveRow(key, options) {
     });
     hot.render();
 }
-
 function exportChart(data, download=true) {
     let href = "";
     $.ajax({
@@ -5093,5 +4160,221 @@ function exportChart(data, download=true) {
     });
     return href;
 }
+function sendWebSocket(flag, postData, onopen, onprogress, onclose, onerror, onfinish) {
+    // 1. 调用HTTP接口启动任务
+    fetch(`/calc/ws/${flag}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')  // Django CSRF防护
+        },
+        body: postData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.code === 200) {
+            const taskId = data.task_id;
+            // 2. 建立WebSocket连接
+            connectWebSocket(taskId, onopen, onprogress, onclose, onerror, onfinish);
+        } else {
+            onerror(data.error);
+        }
+    })
+    .catch(error => {
+        onerror(error);
+    });
+}
+// 建立WebSocket连接
+function connectWebSocket(taskId, onopen, onprogress, onclose, onerror, onfinish) {
 
+    let webSocket = null;
+    // 构建WebSocket URL（注意替换为你的域名/端口）
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${window.location.host}/ws/progress/${taskId}/`;
 
+    // 创建WebSocket实例
+    webSocket = new WebSocket(wsUrl);
+
+    // 连接成功回调
+    webSocket.onopen = function(event) { onopen(event); };
+
+    // 接收后端推送的消息（进度）
+    webSocket.onmessage = function(event) {
+        // const data = JSON.parse(event.data);
+        const data = myParse(event.data);
+        if (data.error) {
+            // 处理错误
+            onerror(data);
+            if (data.close) {
+                onclose(event);
+                webSocket.close();
+            }
+        } else {
+            // 更新进度展示
+            onprogress(data);
+            // 任务完成
+            if (data.finished) {
+                onfinish(data);
+                webSocket.close();
+            }
+        }
+    };
+
+    // 连接关闭回调
+    webSocket.onclose = function(event) { onclose(event); };
+
+    // 连接错误回调
+    webSocket.onerror = function(error) { onerror(error); };
+}
+// 获取CSRF Cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function Tree2Json(treeNode, order=0, isArray=false) {
+    const json = {};
+    const array = [];
+    const ulNodes = order===0?treeNode.querySelector('ul.x-tree-root-ct'):treeNode.querySelector('ul.x-tree-node-ct');
+    const liNodes = ulNodes.querySelectorAll(':scope > li.x-tree-node');
+    liNodes.forEach((liNode) => {
+        const div = liNode.querySelector('div.x-tree-node-el');
+        const span = liNode.querySelector('span.x-tree-node-key');
+        const input = span.querySelector('input');
+        if (span) {
+            const text = span.textContent.trim();
+            const key = text.split(':').map(s => s.trim())[0];
+            if (input) {
+                let value = (val => {
+                    if (val.toLowerCase() === "" || val.includes(" ")) {
+                        return val;
+                    }
+                    // if (val.toLowerCase() === 'nan' || ! Number.isNaN(Number(val))) {
+                    //     return Number(val)
+                    // }  // 用字符串保存内容
+                    if (val.toLowerCase() === 'nan') {
+                        return Number(val)
+                    }
+                    return val
+                })(input.value);
+                if (isArray) {
+                    array.push(value);
+                } else {
+                    json[key] = value;
+                }
+            } else {
+                if (isArray) {
+                    let isArray = div.classList.contains('x-tree-node-expanded');
+                    array.push(Tree2Json(liNode, order+1, isArray));
+                } else {
+                    let isArray = div.classList.contains('x-tree-node-expanded');
+                    json[key] = Tree2Json(liNode, order+1, isArray);
+                }
+            }
+        }
+    });
+    return isArray ? array : json;
+}
+function Json2Tree(key, value, order=0) {
+
+    // 创建一个li节点表示key:value
+    const li = document.createElement('li');
+    li.classList.add('x-tree-node');
+
+    const div = document.createElement('div');
+    div.classList.add('x-tree-node-el', 'x-unselectable', 'active');
+
+    let span = document.createElement('span');
+    span.classList.add('x-tree-node-indent');
+    span.innerHTML = "";
+    for (let i=0; i<order; i++) {
+        span.innerHTML = span.innerHTML + '<img src="/static/image/s.gif" class="x-tree-icon" alt="">';
+    }
+
+    let img_1 = document.createElement('img');
+    img_1.src = "";
+    img_1.alt = "";
+
+    let img_2 = document.createElement('img');
+    img_2.src = "";
+    img_2.alt = "";
+
+    const text = document.createElement('span');
+    text.classList.add('x-tree-node-key');
+    // 如果value是基本类型（字符串、数字、布尔值等），直接显示key: value
+    if (typeof value !== 'object' || value === null) {
+        text.innerHTML = `${key} : <input class="x-tree-node-input" type="text" value="${value}">`;
+        img_1.classList.add('x-tree-ec-icon', 'x-tree-elbow-end');
+        img_2.classList.add('x-tree-node-icon', 'x-tree-node-inline-icon');
+        div.appendChild(span);
+        div.appendChild(img_1);
+        div.appendChild(img_2);
+        div.appendChild(text);
+        div.classList.add('x-tree-node-leaf');
+        li.appendChild(div);
+        return li;
+    }
+    // 如果value是对象或数组，递归生成子节点
+    else {
+        text.textContent = `${key} :`;
+        img_1.classList.add('x-tree-ec-icon', 'x-tree-elbow-end-plus');
+        img_1.onclick = function() { iconOnClick(img_1); }
+        if (Array.isArray(value)) {
+            img_2.classList.add('x-tree-node-icon', 'x-tree-node-inline-icon');
+            div.classList.add('x-tree-node-expanded');
+        } else {
+            img_2.classList.add('x-tree-node-icon', 'x-tree-node-inline-icon');
+            div.classList.add('x-tree-node-collapsed');
+        }
+        div.appendChild(span);
+        div.appendChild(img_1);
+        div.appendChild(img_2);
+        div.appendChild(text);
+        li.appendChild(div);
+
+        const ul_2 = document.createElement('ul');
+        ul_2.classList.add('x-tree-node-ct', 'x-tree-lines', 'x-tree-node-nested');
+
+        // 递归处理对象或数组的子元素
+        for (const childKey in value) {
+            if (value.hasOwnProperty(childKey)) {
+                const childLi = Json2Tree(childKey, value[childKey], order+1);
+                ul_2.appendChild(childLi);
+            }
+        }
+
+        li.appendChild(ul_2);
+
+        return li;
+    }
+}
+function iconOnClick(ele, expand=false, collapse=false) {
+    let treeNode = ele.closest('.x-tree-node');
+    let nestedList = treeNode.querySelector('.x-tree-node-ct');
+    if (nestedList === undefined || nestedList === null) {
+        return;
+    }
+    if (!nestedList.classList.contains('x-tree-node-active')) {
+        if (collapse) { return; }
+        ele.classList.remove('x-tree-elbow-end-plus');
+        ele.classList.add('x-tree-elbow-end-minus');
+        nestedList.classList.add('x-tree-node-active');
+        nestedList.classList.remove('x-tree-node-nested');
+    } else {
+        if (expand) { return; }
+        ele.classList.remove('x-tree-elbow-end-minus');
+        ele.classList.add('x-tree-elbow-end-plus');
+        nestedList.classList.remove('x-tree-node-active');
+        nestedList.classList.add('x-tree-node-nested');
+    }
+}

@@ -191,6 +191,16 @@ input.input-filter-params {
     margin-top: 10px;
     margin-bottom: 10px;
 }
+.modal-dialog-width-40{
+    width: 40vw;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.modal-dialog-width-50{
+    width: 50vw;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 .modal-page-size{
     height: calc(100vh - 170px);
     padding: 0 0 0 0;
@@ -365,34 +375,46 @@ input.input-filter-params {
 
 .popup-content {
     position: absolute;
-    top: 0;
     left: 50%;
-    transform: translate(-50%, 0);
+    top: 25%;
+    transform: translate(-50%, -50%);
     width: 500px;
     background-color: #fff;
-    padding: 20px;
+    /*padding: 20px;*/
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     text-align: left;
+    overflow: hidden;
 }
 
 .popup-title {
     font-size: 18px;
     font-weight: bold;
+    text-align: center;
+    /* 核心：蓝色向下渐变 background: linear-gradient(to bottom, 浅蓝, 深蓝) */
+    background: linear-gradient(to bottom, #A4CEFF, #fff); /* 浅蓝→深蓝，向下渐变 */
+    color: #333; /* 文字白色，提高可读性 */
+    padding: 20px 15px; /* 内边距，让渐变区域更饱满 */
+    line-height: 2;
 }
 
 .popup-message {
     font-size: 16px;
+    padding: 20px 15px;
     line-height: 1.5;
 }
 
+.popup-button-group {
+  padding: 0 15px 20px; /* 底部留空，和内容区分开 */
+  text-align: center; /* 容器内元素居中 */
+}
+
 .popup-button {
-    position: relative;
-    float: right;
-    bottom: 0;
-    margin-left: 10px;
-    display: none;
+    display: inline-block; /* 改为inline-block，配合text-align:center */
+    margin: 0 10px; /* 按钮之间的间距 */
     border-radius: 7px;
+    padding: 10px 30px; /* 按钮加大，更醒目 */
+    cursor: pointer;
 }
 
 .table-export-to-pdf tbody tr td {
@@ -417,3 +439,126 @@ input.input-filter-params {
     text-decoration: underline;
     color: #721c24;
 }
+
+.progress-container {
+    width: 400px;
+    height: 22px;
+    border: 1px solid #ccc;
+    margin: 20px 0;
+    /*display: none;*/
+    display: block;
+}
+.progress-bar {
+    height: 100%;
+    background-color: #4CAF50;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+.progress-text {
+    margin: 0 0;
+    /*display: none;*/
+    display: block;
+}
+.error-text {
+    color: red;
+    margin: 10px 0;
+    /*display: none;*/
+    display: block;
+}
+
+.recalc-grid-container {
+    /* 启用Grid布局 */
+    display: grid;
+    grid-template-columns: 250px 350px 350px;
+    grid-template-rows:
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(30px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto)
+            minmax(20px, auto);
+    /*grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;*/
+    /* 可选：设置网格间距（行列之间的间隙） */
+    gap: 0;
+}
+
+/* 网格项目：每个div样式 */
+.recalc-grid-item {
+    /*background-color: #42b983;*/
+    color: #333;
+    padding: 0 0 0 10px;
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*justify-content: center;*/
+    font-size: 16px;
+    border-radius: 0;
+
+    /* 重置盒模型：padding和border不撑大元素 */
+    box-sizing: border-box;
+    /*line-height: 26px;*/
+    /*overflow: hidden; */
+    /*white-space: nowrap; !* 文字不换行（如果需要换行则去掉） *!*/
+
+}
+.recalc-ingrid {
+    margin: 2px 0;
+    align-items: center; /* 垂直居中 */
+}
+.recalc-grid-1col {
+    border-left: 1px dashed #333;
+}
+.recalc-grid-2col {
+    border-left: 1px dashed #333;
+}
+.recalc-grid-3col {
+    border-left: 1px dashed #333;
+    border-right: 1px dashed #333;
+}
+
+
+/* 圆角框 */
+.radius-div {
+    background-color: #f0f8ff; /* 浅色背景 */
+    border: 1px solid #b3d9ff; /* 边框 */
+    border-radius: 8px;
+    padding: 0 4px; /* 内边距，避免内容贴边 */
+    display: inline-block; /* 可选：让外层仅包裹内容（块级元素默认占满一行宽度） */
+    align-items: center; /* 垂直居中 */
+    margin: 1px 0;
+    /*gap: 8px; !* 复选框与文字的间距 *!*/
+    /*line-height: 15px; !* 文字行高 *!*/
+    /*font-size: 14px; !* 文字大小 *!*/
+    /*color: #333; !* 文字颜色 *!*/
+}
+.infoText1 {
+    font-size: 12px;
+    color: #333;
+    display: block;
+    height: auto;
+    min-height: unset;
+}
+
+.recalc-success {
+    color: #28a745; /* 绿色 */
+}
+.recalc-error {
+    color: #dc3545; /* 红色 */
+}
+/* 可选：调整大小 */
+.recalc-icon {
+    min-width: 12px;
+    margin: 0 0 0 5px;
+    /*font-weight: 100;*/
+}
+
+/* far fa-times-circle recalc-icon */
+/* far fa-check-circle recalc-icon */

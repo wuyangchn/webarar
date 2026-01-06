@@ -26,7 +26,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1',  # localhost
     # 'www.webarar.com', this domain was cancelled
     'www.webarar.net',
-    '0.0.0.0:8000',
 ]
 
 # ALLOWED_HOSTS¶
@@ -60,6 +59,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'doc.apps.ManualConfig',
     'references.apps.ReferencesConfig',
     'sslserver',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -106,7 +107,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'webarar.wsgi.application'
+# WSGI_APPLICATION = 'webarar.wsgi.application'
+ASGI_APPLICATION = 'webarar.asgi.application'
 
 
 # redis配置, https://blog.csdn.net/jiandanokok/article/details/109426427
@@ -123,6 +125,18 @@ CACHES = {
         # 前缀, 前缀看个人需要，如不需要统一加前缀可以去掉
         # "KEY_PREFIX": "test"
     }
+}
+
+# 配置channels的通道层（用于进程间通信，用内存模式或，生产环境用Redis）
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],  # 与 CACHES 中的 Redis 地址一致
+            "capacity": 1000,  # 可选：通道容量
+            "expiry": 3600,    # 可选：连接过期时间
+        },
+    },
 }
 
 # Password validation

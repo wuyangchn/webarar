@@ -9,7 +9,7 @@ from django.shortcuts import render
 # import json
 import json
 
-from programs import http_funcs, log_funcs, ap
+from programs import basic_funcs, http_funcs, log_funcs, ap
 
 
 # Create your views here.
@@ -21,9 +21,9 @@ def references(request):
 
 def journal_ranking(request):
     # 记录访问
-    if http_funcs.is_ajax(request):
-        fingerprint = json.loads(request.body.decode('utf-8'))['fingerprint']
-        http_funcs.set_user_sql(request, home_models.User, fingerprint)
+    if basic_funcs.is_ajax(request):
+        user_id = request.COOKIES.get("anonymous_user_id")
+        http_funcs.set_user_sql(request, home_models.User, user_id)
         return JsonResponse({})
     # disciplines = [
     #     '信息与通信工程', '物理学', '土木工程', '水利工程', '环境科学与工程', '机械工程', '工商管理', '安全科学与工程', '地质资源与地质工程（资源）', '地球物理学',
@@ -134,7 +134,7 @@ def journal_ranking(request):
         except:
             return 0
     data.sort(key=lambda x: (x['tier'], neg_jif(x['jif24'])))
-    log_funcs.write_log(http_funcs.get_ip(request), 'info', 'Visit journal ranking html')
+    log_funcs.write_log(basic_funcs.get_ip(request), 'info', 'Visit journal ranking html')
 
     if not home_models.User.objects.filter(uuid=str('--journalrankingvisitorcounter--')).exists():
         home_models.User.objects.create(

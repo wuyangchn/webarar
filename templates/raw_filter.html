@@ -44,7 +44,7 @@
     <!-- 按钮触发模态框 -->
     <button class="btn btn-primary btn-lg sr-only" data-toggle="modal" data-target="#myModal" id="showRawFileModal">Modal</button>
     <!-- 模态框( Modal )  -->
-    <div class="modal fade" id="myModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal fade" id="myModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog modal-dialog-width-85">
             <div class="modal-content">
                 <div class="modal-header">
@@ -76,8 +76,15 @@
 <!--                    </div>-->
 <!--                    <div style="margin-top:-34.18px">-->
                     <div>
+                        <div>
+                            <div class="progress-container" style="width: 100%" id="progressContainer">
+                                <div class="progress-bar" id="progressBar"></div>
+                            </div>
+                            <div class="progress-text" id="progressText"></div>
+                            <div class="error-text" id="errorText"></div>
+                        </div>
                         <input type="submit" form="rawFileForm" class="btn btn-default" name="flag" value="Close">
-                        <input type="submit" form="rawFileForm" class="btn btn-primary" name="flag" id="submitBtn" value="Submit">
+                        <button class="btn btn-primary" id="submitRawFiles">Submit</button>
                     </div>
                 </div>
             </div><!-- /.modal-content -->
@@ -110,12 +117,54 @@
         {#$('#raw_file_list').on('all.bs.table', (e, arg) => {#}
         $('#raw_file_list').on('post-body.bs.table', (e, arg) => {
             updateRawFileTable();
-        })
+        });
+
+        // 获取DOM元素
+        const startBtn = document.getElementById('submitRawFiles');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const errorText = document.getElementById('errorText');
+        // 点击按钮启动任务
+         $(startBtn).off('click').on('click', function() {
+            startBtn.disabled = true;
+            const postData = $('#raw-file-table-input').val();
+            sendWebSocket('ws_raw_regression', postData, onopen, onprogress, onclose, onerror, onfinish)
+        });
+        function onopen() {
+            startBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            progressText.style.display = 'block';
+            errorText.style.display = 'block';
+            errorText.textContent = "";
+        }
+
+        function onprogress(data) {
+            const progress = data.progress;
+            const info = data.info;
+            progressBar.style.width = progress?`${progress}%`:progressBar.style.width;
+            progressText.textContent = (progress?`${progress}%    `:'') + info;
+        }
+
+        function onclose() {
+            startBtn.disabled = false;
+        }
+
+        function onerror(error) {
+            errorText.style.display = 'block';
+            errorText.textContent = `Error: ${error}`;
+            startBtn.disabled = false;
+        }
+
+        function onfinish(data) {
+            startBtn.disabled = false;
+            window.location.href = `raw/${data.raw_cache_key}`;
+        }
+
         //close alert after 3 seconds
         window.setTimeout(function() {
             $(".alert").fadeTo(500, 0).slideUp(500, function(){
                 $(this).remove();
-
             });
         }, 3000);
     </script>

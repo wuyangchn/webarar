@@ -5,20 +5,21 @@ import pickle
 import traceback
 import re
 import numpy as np
-import uuid
 import time
 import itertools
 
 # from math import ceil
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
+from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
-from . import models
-from programs import http_funcs, ap
+from . import models, consumers
+from programs import ap, basic_funcs, http_funcs
 from programs.log_funcs import debug_print
 
 
@@ -55,7 +56,12 @@ class CalcHtmlView(http_funcs.ArArView):
             messages.error(request, f"Open arr failed: {e}. {file_name = }")
             return self.render(request, 'calc.html')
         else:
-            return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path))
+            cache_key = basic_funcs.set_cache(sample, user_id=self.user_id)
+            # write mysql
+            models.CalcRecord.objects.create(
+                user=self.user_id, ip=self.ip, device=self.device, file_path=web_file_path, cache_key=cache_key
+            )
+            return redirect('object_views', flag=cache_key)
 
     def open_full_xls_file(self, request, *args, **kwargs):
         try:
@@ -69,7 +75,12 @@ class CalcHtmlView(http_funcs.ArArView):
             messages.error(request, e)
             return self.render(request, 'calc.html')
         else:
-            return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path))
+            cache_key = basic_funcs.set_cache(sample, user_id=self.user_id)
+            # write mysql
+            models.CalcRecord.objects.create(
+                user=self.user_id, ip=self.ip, device=self.device, file_path=web_file_path, cache_key=cache_key
+            )
+            return redirect('object_views', flag=cache_key)
 
     def open_age_file(self, request, *args, **kwargs):
         try:
@@ -82,26 +93,41 @@ class CalcHtmlView(http_funcs.ArArView):
                 sample.recalculate(re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
                 # ap.recalculate(sample, re_calc_ratio=True, re_plot=True, re_plot_style=True, re_set_table=True)
             except Exception as e:
-                messages.error(request, e)
+                messages.error(request, f"{type(e).__name__}: {str(e)}")
                 debug_print(f'Error in setting plot: {traceback.format_exc()}')
         except (Exception, BaseException) as e:
             debug_print(traceback.format_exc())
-            messages.error(request, e)
+            messages.error(request, f"{type(e).__name__}: {str(e)}")
             return self.render(request, 'calc.html')
         else:
-            return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path))
+            cache_key = basic_funcs.set_cache(sample, user_id=self.user_id)
+            # write mysql
+            models.CalcRecord.objects.create(
+                user=self.user_id, ip=self.ip, device=self.device, file_path=web_file_path, cache_key=cache_key
+            )
+            return redirect('object_views', flag=cache_key)
 
     def open_current_file(self, request, *args, **kwargs):
-        return self.render(request, 'object.html', http_funcs.open_last_object(request))
+        return redirect('object_home')
 
     def open_new_file(self, request, *args, **kwargs):
         sample = ap.from_empty()
-        return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path=''))
+        cache_key = basic_funcs.set_cache(sample, user_id=self.user_id)
+        # write mysql
+        models.CalcRecord.objects.create(
+            user=self.user_id, ip=self.ip, device=self.device, file_path="", cache_key=cache_key
+        )
+        return redirect('object_views', flag=cache_key)
 
     def open_example_file(self, request, *args, **kwargs):
         file_path = 'static/readme/Example.arr'
         sample = ap.from_arr(file_path=file_path)
-        return self.render(request, 'object.html', http_funcs.open_object_file(request, sample, web_file_path=file_path))
+        cache_key = basic_funcs.set_cache(sample, user_id=self.user_id)
+        # write mysql
+        models.CalcRecord.objects.create(
+            user=self.user_id, ip=self.ip, device=self.device, file_path=file_path, cache_key=cache_key
+        )
+        return redirect('object_views', flag=cache_key)
 
     def open_multi_files(self, request, *args, **kwargs):
         length = int(request.POST.get('length'))
@@ -134,9 +160,12 @@ class CalcHtmlView(http_funcs.ArArView):
                 debug_print(traceback.format_exc())
                 continue
             else:
-                contents.append(self.render('object.html', http_funcs.open_object_file(request, sample,
-                                                                                       web_file_path=file[
-                                                                                           'path'])).component)
+                cache_key = basic_funcs.set_cache(sample, user_id=self.user_id)
+                # write mysql
+                models.CalcRecord.objects.create(
+                    user=self.user_id, ip=self.ip, device=self.device, file_path=file['path'], cache_key=cache_key
+                )
+                contents.append(redirect('object_views', flag=cache_key).component)
         response.writelines(contents)
         return response
 
@@ -148,21 +177,35 @@ class CalcHtmlView(http_funcs.ArArView):
         return self.render(request, 'calc.html')
 
     def flag_not_matched(self, request, *args, **kwargs):
-        # Show calc.html when the received flag doesn't exist.
-        messages.error(request, f"{self.flag}, it is not matched")
+        # www.webarar.net/calc/flag
         return self.render(request, 'calc.html')
 
 
-class ButtonsResponseObjectView(http_funcs.ArArView):
+class ObjectFlagView(http_funcs.ArArView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.dispatch_post_method_name = [
-        ]
 
     def get(self, request, *args, **kwargs):
-        # Visiting /calc/object
-        return self.render(request, 'object.html', http_funcs.open_last_object(request))
+        # get /calc/object
+        if self.flag:
+            # get /calc/object/cache_key
+            data = http_funcs.open_object_file(self.user_id, cache_key=self.flag)
+            return self.render(request, 'object.html', data)
+        else:
+            last_record = models.CalcRecord.objects.filter(user=str(self.user_id)).order_by('-id')[0]
+            return redirect('object_views', flag=last_record.cache_key)
+
+    def flag_not_matched(self, request, *args, **kwargs):
+        cache_key = kwargs.get("flag")
+        # /calc/object/flag
+        if request.path.startswith('/calc/object'):
+            if cache_key:
+                return redirect('object_views', flag=cache_key)
+        # /calc/ws/flag
+        if request.path.startswith('/calc/ws'):
+            if cache_key:
+                return consumers.as_view(self, request, *args, **kwargs)
 
     def update_sample_photo(self, request, *args, **kwargs):
         file = request.FILES.get('picture')
@@ -191,15 +234,6 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         ap.smp.table.update_data_from_table(self.sample)
 
-        # self.sample.UnknownTable.data = ap.calc.arr.transpose(self.sample.UnknownTable.data)
-        # self.sample.BlankTable.data = ap.calc.arr.transpose(self.sample.BlankTable.data)
-        # self.sample.CorrectedTable.data = ap.calc.arr.transpose(self.sample.CorrectedTable.data)
-        # self.sample.DegasPatternTable.data = ap.calc.arr.transpose(self.sample.DegasPatternTable.data)
-        # self.sample.PublishTable.data = ap.calc.arr.transpose(self.sample.PublishTable.data)
-        # self.sample.AgeSpectraPlot.data = ap.calc.arr.transpose(self.sample.AgeSpectraPlot.data)
-        # self.sample.IsochronsTable.data = ap.calc.arr.transpose(self.sample.IsochronsTable.data)
-        # self.sample.TotalParamsTable.data = ap.calc.arr.transpose(self.sample.TotalParamsTable.data)
-
         res = {}
         if 'figure_9' in diff.keys() and not all(
                 [i not in diff.get('figure_9').keys() for i in ['set1', 'set2', 'set3']]):
@@ -211,7 +245,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 
         self.sample.sequence()
 
-        http_funcs.create_cache(self.sample, self.cache_key)  # Update cache
+        basic_funcs.set_cache(self.sample, self._cache_key)  # Update cache
         return self.JsonResponse(res)
 
     def click_points_update_figures(self, request, *args, **kwargs):
@@ -238,7 +272,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             backup=components_backup, smp=ap.smp.basic.get_components(sample))
         # Update isochron table data, changes in isotope table is not required to transfer
         ap.smp.table.update_table_data(sample, only_table='7')
-        http_funcs.create_cache(sample, self.cache_key)  # 更新缓存
+        basic_funcs.set_cache(sample, self._cache_key)  # 更新缓存
         # debug_print(f"在点击事件结束之后 {sample.IsochronMark = }")
 
         return self.JsonResponse({'res': ap.smp.json.dumps(res)})
@@ -275,7 +309,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             messages.error(request, e)
             return self.JsonResponse({'msg': f'Error: {e}'}, status=403)
 
-        http_funcs.create_cache(sample, self.cache_key)  # Update cache
+        basic_funcs.set_cache(sample, self._cache_key)  # Update cache
         res = ap.smp.basic.get_diff_smp(components_backup, ap.smp.basic.get_components(sample))
         messages.info(request, f"Keys of difference: {list(res.keys())}")
         return self.JsonResponse({'changed_components': ap.smp.json.dumps(res)})
@@ -344,7 +378,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             return self.JsonResponse({'msg': f'Error in recalculating: {e}'}, status=403)
         ap.smp.table.update_table_data(sample)  # Update data of tables after re-calculation
         # Update cache
-        http_funcs.create_cache(sample, self.cache_key)
+        basic_funcs.set_cache(sample, self._cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
         messages.info(request, f"Recalculation completed. Keys of difference: {list(res.keys())}")
         return self.JsonResponse({'msg': "Success to recalculate", 'res': ap.smp.json.dumps(res)})
@@ -358,14 +392,9 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
             messages.error(request, msg)
             return self.JsonResponse({'msg': msg}, status=403)
 
-    def flag_not_matched(self, request, *args, **kwargs):
-        # Show calc.html when the received flag doesn't exist.
-        return self.render(request, 'object.html', http_funcs.open_last_object(request))
-
     def get_uploaded_files(self, request, *args, **kwargs):
         files = []
-        user_id = request.COOKIES.get("anonymous_user_id")
-        for record in models.ReceivedFiles.objects.filter(uuid=user_id):
+        for record in models.ReceivedFiles.objects.filter(uuid=self.user_id):
             if record.deleted:
                 continue
             files.append({
@@ -377,12 +406,12 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
     def delete_selected_files(self, request, *args, **kwargs):
         indexes = self.body['indexes']
         paths = self.body['paths']
+
         file_ops = {
-            "deleted": [],  # 成功物理删除的文件路径
-            "failed": []  # 物理删除失败的文件（含原因）
+            "deleted": [],
+            "failed": []
         }
         try:
-            # 事务包裹：确保批量操作的原子性（要么全成功，要么全回滚）
             now = timezone.now()
             with transaction.atomic():
 
@@ -414,7 +443,7 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
                 "affected_count": affected_count,
             }
         except Exception as e:
-            messages.error(request, e)
+            messages.error(request, f"{type(e).__name__}: {str(e)}")
             return self.JsonResponse({'msg': "Failed to delete selected files", }, status=403)
 
         return self.JsonResponse(res)
@@ -423,18 +452,31 @@ class ButtonsResponseObjectView(http_funcs.ArArView):
 class RawFileView(http_funcs.ArArView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.dispatch_post_method_name = [
-            "submit",
-            'close',
-            'to_project_view',
-            'raw_data_submit',
-        ]
 
     def get(self, request, *args, **kwargs):
-        # Visiting /calc/raw
+        # get /calc/raw
+        if self.flag:
+            # get /calc/raw/cache_key
+            return self.flag_not_matched(request, *args, **kwargs)
         return self.render(request, 'raw_filter.html')
 
     def flag_not_matched(self, request, *args, **kwargs):
+        # /calc/raw/cache_key
+        cache_key = kwargs.get("flag")
+        if cache_key:
+            cache_value = cache.get(f"user:{self.user_id}:data:{cache_key}:obj")
+            if not cache_value:
+                return self.redirect('calc_view')
+            raw = pickle.loads(cache_value)
+            allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
+            allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
+            allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
+            data = {
+                'raw_data': ap.smp.json.dumps(raw),
+                'raw_cache_key': ap.smp.json.dumps(cache_key),
+                'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
+            }
+            return self.render(request, 'extrapolate.html', data)
         return self.redirect('calc_view')
 
     def close(self, request, *args, **kwargs):
@@ -459,41 +501,6 @@ class RawFileView(http_funcs.ArArView):
                 })
         return self.JsonResponse({'files': files})
 
-    def submit(self, request, *args, **kwargs):
-        """
-        Raw files submitted, do regression
-        """
-        files = json.loads(request.POST.get('raw-file-table'))['files']
-        file_names = [each['file_name'] for each in files if each['checked']]
-        file_paths = [each['file_path'] for each in files if each['checked']]
-        file_paths = [os.path.join(settings.UPLOAD_ROOT, f"{each}") for each in file_paths]
-        filter_names = [each['filter'] for each in files if each['checked']]
-        filter_paths = [getattr(models, "InputFilterParams").objects.get(name=each).file_path for each in filter_names]
-        try:
-            raw = ap.smp.raw.to_raw(file_path=file_paths, input_filter_path=filter_paths, file_name=file_names)
-            if not all([str(name).lower() == "seq" for name in filter_names]):
-                raw.do_regression()
-
-            allIrraNames = list(models.IrraParams.objects.values_list('name', flat=True))
-            allCalcNames = list(models.CalcParams.objects.values_list('name', flat=True))
-            allSmpNames = list(models.SmpParams.objects.values_list('name', flat=True))
-
-            # update cache
-            cache_key = http_funcs.create_cache(raw)
-            return self.render(request, 'extrapolate.html', {
-                'raw_data': ap.smp.json.dumps(raw), 'raw_cache_key': ap.smp.json.dumps(cache_key),
-                'allIrraNames': allIrraNames, 'allCalcNames': allCalcNames, 'allSmpNames': allSmpNames
-            })
-        except FileNotFoundError as e:
-            messages.error(request, e)
-        except ValueError as e:
-            debug_print(traceback.format_exc())
-            messages.error(request, e)
-        except (Exception, BaseException):
-            debug_print(traceback.format_exc())
-            messages.error(request, traceback.format_exc())
-        return self.render(request, 'raw_filter.html')
-
     def raw_data_submit(self, request, *args, **kwargs):
         """
         Raw data submit, return a sample instance and render a object html.
@@ -503,7 +510,6 @@ class RawFileView(http_funcs.ArArView):
         sampleParams = self.body['sampleParams']
         sampleInfo = self.body['sampleInfo']
         selectedSequences = self.body['selectedSequences']
-        fingerprint = self.body['fingerprint']
 
         raw: ap.RawData = self.sample
 
@@ -512,7 +518,6 @@ class RawFileView(http_funcs.ArArView):
         info = {
             'experiment': {
                 'name': sampleInfo[0], 'type': sampleInfo[1], 'instrument': sampleInfo[2],
-                'step_num': len(sample.SequenceName),
             },
             'laboratory': {
                 'name': sampleInfo[3], 'info': sampleInfo[4], 'analyst': sampleInfo[5],
@@ -530,28 +535,25 @@ class RawFileView(http_funcs.ArArView):
         sample.set_info(info=info)
 
         try:
-            rows = list(range(len(sample.SequenceName)))
+            n = sample.Info.experiment.step_num
+            rows = list(range(n))
             sample.set_params(irradiationParams['param'], 'irra', rows)
             sample.set_params(calculationParams['param'], 'calc', rows)
             sample.set_params(sampleParams['param'], 'smp', rows)
+            for col_index, col in enumerate(sample.TotalParam):
+                if len(col) != n:
+                    sample.TotalParam[col_index] = ['' if (col_index + 3) in sample.TotalParamsTable.text_indexes else 0 for i in range(n)]
         except (BaseException, Exception):
             debug_print(traceback.format_exc())
-        try:
-            sample.recalculate(*[True] * 11, False, *[True] * 4)  # Calculation after submitting row data
-            # ap.recalculate(sample, *[True] * 12)  # Calculation after submitting row data
-            ap.smp.table.update_table_data(sample)  # Update table after submission row data and calculation
-        except (Exception, BaseException) as e:
-            messages.error(request, message=f"Calculation Error: {e}")
-            return self.JsonResponse({'msg': f"Calculation Error: {e}"}, status=403)
-        # update cache
-        cache_key = http_funcs.create_cache(sample)
-        # write mysql
-        http_funcs.set_mysql(request, models.CalcRecord, fingerprint, cache_key=cache_key)
-        messages.info(request, "Submit raw file completed")
-        return self.JsonResponse({})
 
-    def to_project_view(self, request, *args, **kwargs):
-        return self.render(request, 'object.html', http_funcs.open_last_object(request))
+        # update cache
+        self.cache_key = basic_funcs.set_cache(sample, user_id=self.user_id)
+        # write mysql
+        models.CalcRecord.objects.create(
+            user=self.user_id, ip=self.ip, device=self.device, file_path="", cache_key=self.cache_key
+        )
+        messages.info(request, "Submit raw file completed")
+        return self.JsonResponse({'cache_key': self.cache_key})
 
     def import_blank_file(self, request, *args, **kwargs):
         file = request.FILES.get('blank_file')
@@ -569,7 +571,7 @@ class RawFileView(http_funcs.ArArView):
                 encoder=ap.smp.json.MyEncoder, status=403)
 
         raw.sequence = ap.calc.arr.multi_append(raw.sequence, *sequences)
-        http_funcs.create_cache(raw, cache_key=cache_key)
+        basic_funcs.set_cache(raw, key=self._cache_key)
 
         return self.JsonResponse({'sequences': sequences}, encoder=ap.smp.json.MyEncoder,
                                  content_type='application/json', safe=True)
@@ -581,7 +583,7 @@ class RawFileView(http_funcs.ArArView):
         fit_idx = self.body['fitting_index']
         # debug_print(f"{seq_idx = }, {iso_idx = }, {fit_idx = }")
         raw.get_sequence(seq_idx).fitting_method[iso_idx] = fit_idx
-        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
+        basic_funcs.set_cache(raw, key=self._cache_key)  # update raw
         return self.JsonResponse({})
 
     def change_seq_state(self, request, *args, **kwargs):
@@ -592,7 +594,7 @@ class RawFileView(http_funcs.ArArView):
         seq = raw.get_sequence(seq_idx)
         seq.as_type(is_blank and "blank")
         seq.is_removed = is_removed
-        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
+        basic_funcs.set_cache(raw, key=self._cache_key)  # update raw
         return self.JsonResponse({})
 
     def calc_raw_chart_clicked(self, request, *args, **kwargs):
@@ -615,7 +617,7 @@ class RawFileView(http_funcs.ArArView):
             messages.error(request, self.error_msg)
             return self.JsonResponse({'msg': self.error_msg}, status=403)
         else:
-            http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw data in cache
+            basic_funcs.set_cache(raw, key=self._cache_key)  # update raw data in cache
             messages.info(request, "Raw data regression completed")
             return self.JsonResponse({'sequence': raw.sequence[sequence_index]},
                                      encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
@@ -647,7 +649,7 @@ class RawFileView(http_funcs.ArArView):
         )
 
         raw.sequence.append(new_sequence)
-        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update raw
+        basic_funcs.set_cache(raw, key=self._cache_key)  # update raw
 
         return self.JsonResponse({'new_sequence': new_sequence},
                                  encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
@@ -677,7 +679,7 @@ class RawFileView(http_funcs.ArArView):
 
         raw: ap.RawData = self.sample
         raw.sequence.append(new_sequence)
-        http_funcs.create_cache(raw, cache_key=self.cache_key)
+        basic_funcs.set_cache(raw, key=self._cache_key)
 
         return self.JsonResponse({'newBlank': newBlank, 'new_sequence': new_sequence},
                                  encoder=ap.smp.json.MyEncoder, content_type='application/json', safe=True)
@@ -707,7 +709,7 @@ class RawFileView(http_funcs.ArArView):
         if raw.interpolated_blank is None:
             raw.interpolated_blank = []
         raw.interpolated_blank = ap.calc.arr.multi_append(raw.interpolated_blank, *new_sequences)
-        http_funcs.create_cache(raw, cache_key=self.cache_key)  # update cache
+        basic_funcs.set_cache(raw, key=self._cache_key)  # update cache
         return self.JsonResponse({'sequences': new_sequences}, encoder=ap.smp.json.MyEncoder,
                                  content_type='application/json', safe=True)
 
@@ -723,7 +725,7 @@ class RawFileView(http_funcs.ArArView):
                 if not all([isinstance(i, (float, int)) for i in regression_res]):
                     failed.append([seq.index, seq.name, f"Ar{36 + ar}"])
 
-        msg = "All sequence are valid for later calculation!"
+        msg = "All sequence are valid for further calculation!"
         if failed:
             failed = sorted(list(set([seq[0] + 1 for seq in failed])))
             msg = f"Errors: {failed}"
@@ -768,7 +770,7 @@ class ParamsSettingView(http_funcs.ArArView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.dispatch_post_method_name = [
-            "show_irra", "show_calc"
+            "show_irra", "show_calc", "show_smp", "show_input_filter", "show_database"
         ]
 
     def show_irra(self, request, *args, **kwargs):
@@ -794,10 +796,9 @@ class ParamsSettingView(http_funcs.ArArView):
     def get_param_names(self, request, *args, **kwargs):
         checked = bool(self.body['checked'])
         param_type = str(self.body['type'])
-        user_id = request.COOKIES.get("anonymous_user_id")
         model_name = f"{''.join([i.capitalize() for i in param_type.split('-')])}Params"
         model = getattr(models, model_name)
-        queryset = model.objects.filter(uploader_uuid=user_id) if checked else model.objects.all()
+        queryset = model.objects.filter(uploader_uuid=self.user_id) if checked else model.objects.all()
         names = list(queryset.values_list('name', flat=True))
         return self.JsonResponse({'names': names})
 
@@ -864,7 +865,7 @@ class ParamsSettingView(http_funcs.ArArView):
                         data[i] = False
                     elif data[i] is None:
                         data[i] = np.nan
-                pref = [sample.Info.preference.get(key, "") for key in ap.smp.initial.preference_keys]
+                pref = [getattr(sample.Info.preference, key) for key in ap.smp.initial.preference_keys]
                 param = [*data[67:71], *data[58:67], *data[97:100], *data[115:120], *data[126:136],
                          *pref, *_, *data[101:114]]
             elif 'thermo' in params_type.lower():
@@ -890,8 +891,7 @@ class ParamsSettingView(http_funcs.ArArView):
             return self.JsonResponse({'param': param})
 
     def edit_param_object(self, request, *args, **kwargs):
-        user_id = request.COOKIES.get("anonymous_user_id")
-        ip = http_funcs.get_ip(request)
+        ip = self.ip
         flag = str(self.body['flag']).lower()
         name = self.body['name']
         pin = self.body['pin']
@@ -911,7 +911,7 @@ class ParamsSettingView(http_funcs.ArArView):
             else:
                 path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{param_type}"), params)
                 model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip,
-                                     uploader_uuid=user_id)
+                                     uploader_uuid=self.user_id)
                 messages.info(request,
                               f'Create parameter project successfully. A {param_type.lower()} project has been updated, name: {name}, static verification code: {pin}, path: {path}, email: {email}')
                 return self.JsonResponse({'status': 'success'})
@@ -950,7 +950,6 @@ class ParamsSettingView(http_funcs.ArArView):
         params = list(self.body['params'])
         param_type = str(self.body['type'])  # type = 'irra', or 'calc', or 'smp'
         rows = [i - 1 for i in list(self.body['rows'])]  # zero based
-        debug_print(f"{rows = }")
         sample = self.sample
         # backup for later comparision
         components_backup = copy.deepcopy(ap.smp.basic.get_components(sample))
@@ -968,7 +967,7 @@ class ParamsSettingView(http_funcs.ArArView):
 
         ap.smp.table.update_table_data(sample)  # Update data of tables after changes of calculation parameters
         # update cache
-        http_funcs.create_cache(sample, self.cache_key)
+        basic_funcs.set_cache(sample, self._cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
         # debug_print(f"Diff after reset_calc_params: {res}")
         messages.error(request, f'Set parameters completed')
@@ -1946,7 +1945,7 @@ class ThermoView(http_funcs.ArArView):
         }
 
         filename = f"{sample_name}-closure temperature"
-        filepath = f"{settings.DOWNLOAD_URL}{filename}-{uuid.uuid4().hex[:8]}.pdf"
+        filepath = f"{settings.DOWNLOAD_URL}{filename}-{ap.calc.basic.random_choice(8)}.pdf"
         cvs = [[ap.smp.export.get_cv_from_dict(plot, **params_list) for plot in plot_data['data']]]
         filepath = ap.smp.export.export_chart_to_pdf(cvs, filename, filepath)
         export_href = '/' + filepath
@@ -2099,7 +2098,7 @@ class ThermoView(http_funcs.ArArView):
         cvs = [[ap.smp.export.get_cv_from_dict(plot, **next(params_list)) for plot in data['data']]]
 
         filename = data.get('file_name', 'file_name')
-        filepath = f"{settings.DOWNLOAD_URL}{filename}-{uuid.uuid4().hex[:8]}.pdf"
+        filepath = f"{settings.DOWNLOAD_URL}{filename}-{ap.calc.basic.random_choice(8)}.pdf"
         filepath = ap.smp.export.export_chart_to_pdf(cvs, filename, filepath, **params)
         export_href = '/' + filepath
 
@@ -2211,7 +2210,7 @@ class ExportView(http_funcs.ArArView):
         params_list = iter(params_list)
         cvs = [[ap.smp.export.get_cv_from_dict(plot, **next(params_list)) for plot in page] for page in plot_data_list]
 
-        file_path = f"{settings.DOWNLOAD_URL}{data['file_name']}-{uuid.uuid4().hex[:8]}.pdf"
+        file_path = f"{settings.DOWNLOAD_URL}{data['file_name']}-{ap.calc.basic.random_choice(8)}.pdf"
         try:
             file_path = ap.smp.export.export_chart_to_pdf(cvs, file_name=data['file_name'], file_path=file_path,
                                                           **page_settings)
@@ -2396,7 +2395,7 @@ class ApiView(http_funcs.ArArView):
         params = dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in params]))
 
         file_name = data.get('file_name', 'file_name')
-        filepath = f"{settings.DOWNLOAD_URL}{file_name}-{uuid.uuid4().hex[:8]}.pdf"
+        filepath = f"{settings.DOWNLOAD_URL}{file_name}-{ap.calc.basic.random_choice(8)}.pdf"
         filepath = ap.smp.export.export_chart_to_pdf(data, filepath, **params)
         export_href = '/' + filepath
 
