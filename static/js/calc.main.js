@@ -1976,7 +1976,7 @@ function clickPoints(params) {
 
     const current_set = isochronLine1Btn.checked ? 1 : 2;
     const current_figure = getCurrentTableId();
-    const clicked_index = [params.data.slice(-1)[0]];
+    const clicked_index = [params.data.slice(-1)[0]-1];  // should start from 0
     let all_figures = ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7'];
 
     chart.off('click', chart_on_clicked);
@@ -3026,8 +3026,8 @@ function getIsochronData(arr, index, mark=5) {
     if (data.length === 0) {
         return [];
     } else {
-        // starts from 0
-        return index.map(i => data[arr[mark].indexOf(i)]);
+        // index starts from 0, while the label of points start from 1
+        return index.map(i => data[arr[mark].indexOf(i+1)]);
     }
 }
 function adjustSpectraData(arr, sigma=1) {
