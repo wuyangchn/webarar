@@ -1976,19 +1976,19 @@ function clickPoints(params) {
 
     const current_set = isochronLine1Btn.checked ? 1 : 2;
     const current_figure = getCurrentTableId();
-    const clicked_index = [params.data.slice(-1)[0]-1];  // should start from 0
+    const clicked_index = params.data.slice(-1)[0];  // should start from 0
     let all_figures = ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7'];
 
     chart.off('click', chart_on_clicked);
     let postData = JSON.stringify({ 'cache_key': cache_key,
-        'content': {'clicked_index': clicked_index, 'current_set': current_set,
+        'content': {'clicked_index': [clicked_index], 'current_set': current_set,
             'auto_replot': true, 'figures': [current_figure], }
     });
 
     sendWebSocket('ws_click_chart', postData, onopen, onprogress, onclose, onerror, onfinish);
 
     function onopen(event) {
-        let message = `Clicked：${params.seriesName}, Set${current_set}, Label: ${clicked_index}`;
+        let message = `Clicked：${params.seriesName}, Set${current_set}, Label: ${clicked_index+1}`;
         setConsoleText(message);
     }
 
@@ -3026,8 +3026,7 @@ function getIsochronData(arr, index, mark=5) {
     if (data.length === 0) {
         return [];
     } else {
-        // index starts from 0, while the label of points start from 1
-        return index.map(i => data[arr[mark].indexOf(i+1)]);
+        return index.map(i => data[arr[mark].indexOf(i)]);
     }
 }
 function adjustSpectraData(arr, sigma=1) {
@@ -3263,21 +3262,21 @@ function getIsochronEchart(chart, figure_id, animation, sigma=1) {
                 name: 'Unselected Points', type: 'scatter', color: figure.set3.color, symbolSize: figure.set3.symbol_size, z: 2, data: getIsochronData(figure.data, figure.set3.data),
                 encode: {x: 0, y: 2}, itemStyle: {borderColor: figure.set3.border_color, borderWidth: figure.set3.border_width, opacity: figure.set3.opacity},
                 label: {
-                    show: figure.label.show, formatter: '{@[5]}', position: figure.label.position, distance: figure.label.distance,
+                    show: figure.label.show, formatter: (params)=>(params.value[5] + 1), position: figure.label.position, distance: figure.label.distance,
                     offset: figure.label.offset, color: figure.label.color},
                 },
             {
                 name: 'Points Set 1', type: 'scatter', color: figure.set1.color, symbolSize: figure.set1.symbol_size, z: 2, data: getIsochronData(figure.data, figure.set1.data),
                 encode: {x: 0, y: 2}, itemStyle: {borderColor: figure.set1.border_color, borderWidth: figure.set1.border_width, opacity: figure.set1.opacity},
                 label: {
-                    show: figure.label.show, formatter: '{@[5]}', position: figure.label.position, distance: figure.label.distance,
+                    show: figure.label.show, formatter: (params)=>(params.value[5] + 1), position: figure.label.position, distance: figure.label.distance,
                     offset: figure.label.offset, color: figure.label.color},
                 },
             {
                 name: 'Points Set 2', type: 'scatter', color: figure.set2.color, symbolSize: figure.set2.symbol_size, z: 2, data: getIsochronData(figure.data, figure.set2.data),
                 encode: {x: 0, y: 2}, itemStyle: {borderColor: figure.set2.border_color, borderWidth: figure.set2.border_width, opacity: figure.set2.opacity},
                 label: {
-                    show: figure.label.show, formatter: '{@[5]}', position: figure.label.position, distance: figure.label.distance,
+                    show: figure.label.show, formatter: (params)=>(params.value[5] + 1), position: figure.label.position, distance: figure.label.distance,
                     offset: figure.label.offset, color: figure.label.color},
                 },
             {
