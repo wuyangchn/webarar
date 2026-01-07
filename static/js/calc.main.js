@@ -2073,7 +2073,7 @@ async function clickSaveTable() {
         }
     } else {
         let table = sampleComponents[getCurrentTableId()];
-        table_data = hot.getSourceData().map((row) => row.map((col, index) => col = table.header[index].includes("σ") ? col / confidence_level : col));
+        table_data = hot.getSourceData().map((row) => row.map((col, index) => col = table.header[index].includes("σ") ? col===''? col : col / confidence_level : col));
         // console.log(table_data);
         if (rows_to_delete.length > 0) {
             await showPopupMessage("Please confirm ...",

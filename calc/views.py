@@ -292,10 +292,10 @@ class ObjectFlagView(http_funcs.ArArView):
             else:
                 data = ap.calc.arr.remove_empty(data)
                 if len(data) == 0:
-                    raise ValueError("The length of data list must be greater than 0")
+                    raise ValueError("Invalid values: empty data.")
                 sample.update_table(data, btn_id)
-                # if btn_id == '7':
-                if btn_id in [str(i) for i in range(1, 9)]:
+                if btn_id == '7':
+                # if btn_id in [str(i) for i in range(1, 9)]:
                     # Re-calculate isochron and plateau data, and replot.
                     # Re-calculation will not be applied automatically when other tables were changed
                     messages.info(request, f'Recalculating, btn id: {btn_id}, '
@@ -305,7 +305,6 @@ class ObjectFlagView(http_funcs.ArArView):
                     # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
 
         except Exception as e:
-            debug_print(traceback.format_exc())
             messages.error(request, e)
             return self.JsonResponse({'msg': f'Error: {e}'}, status=403)
 
