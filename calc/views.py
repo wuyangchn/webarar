@@ -223,7 +223,7 @@ class ObjectFlagView(http_funcs.ArArView):
 
     def update_components_diff(self, request, *args, **kwargs):
         diff = dict(self.body['diff'])
-        self.write_log(f"Update components diff, keys of difference: {list(diff.keys())}")
+        # self.write_log(f"Update components diff, keys of difference: {list(diff.keys())}")
         for name, attrs in diff.items():
             ap.smp.basic.update_object_from_dict(
                 ap.smp.basic.get_component_byid(self.sample, name), attrs)
@@ -293,7 +293,7 @@ class ObjectFlagView(http_funcs.ArArView):
                 data = ap.calc.arr.remove_empty(data)
                 if len(data) == 0:
                     raise ValueError("Invalid values: empty data.")
-                sample.update_table(data, btn_id)
+                ap.smp.table.update_handsontable(sample, data, btn_id)
                 if btn_id == '7':
                 # if btn_id in [str(i) for i in range(1, 9)]:
                     # Re-calculate isochron and plateau data, and replot.
@@ -492,7 +492,7 @@ class RawFileView(http_funcs.ArArView):
                 messages.error(request, e)
                 continue
             else:
-                self.write_log(f"Read raw file: {web_file_path}")
+                # self.write_log(f"Read raw file: {web_file_path}")
                 files.append({
                     'name': file_name, 'extension': suffix,
                     'path': os.path.basename(web_file_path),
@@ -827,7 +827,7 @@ class ParamsSettingView(http_funcs.ArArView):
         params_type = str(self.body['type'])  # params_type = irra, calc, smp
         name = str(self.body['name'])
         model_name = f"{''.join([i.capitalize() for i in params_type.split('-')])}Params"
-        self.write_log(f"Change param objects, {name = }, {params_type = }, {model_name = }")
+        # self.write_log(f"Change param objects, {name = }, {params_type = }, {model_name = }")
 
         try:
             obj = getattr(models, model_name).objects.get(name=name)
@@ -851,7 +851,8 @@ class ParamsSettingView(http_funcs.ArArView):
                 data = ap.calc.arr.transpose(sample.TotalParam)[row]
             if 'irra' in params_type.lower():
                 param = [*data[0:20], *data[56:58], *data[20:27],
-                         *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28], '', '']
+                         *ap.calc.corr.get_irradiation_datetime_by_string(data[27]), data[28],
+                         sample.Info.irradiation.location, sample.Info.irradiation.info]
             elif 'calc' in params_type.lower():
                 param = [*data[34:56], *data[71:97]]
             elif 'smp' in params_type.lower():
@@ -861,7 +862,13 @@ class ParamsSettingView(http_funcs.ArArView):
                     _ = [True, False, False]
                 for i in range(len(data)):
                     if i in range(101, 114) and not isinstance(data[i], bool):
-                        data[i] = False
+                        if isinstance(data[i], str):
+                            if data[i].lower() == 'false':
+                                data[i] = False
+                            elif data[i].lower() == 'true':
+                                data[i] = True
+                        else:
+                            data[i] = bool(data[i])
                     elif data[i] is None:
                         data[i] = np.nan
                 pref = [getattr(sample.Info.preference, key) for key in ap.smp.initial.preference_keys]

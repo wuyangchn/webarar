@@ -2376,7 +2376,7 @@ function showPage(table_id, recalculate=false) {
             if (table_id==="figure_1") {
                 chart = getSpectraEchart(chart, table_id, true, confidence_level, recalculate);
             } else {
-                chart = getIsochronEchart(chart, table_id, true, confidence_level);
+                chart = getIsochronEchart(chart, table_id, true, confidence_level, recalculate);
             }
             chart.resize();
             getChartInterval(chart, comp);
@@ -3158,7 +3158,7 @@ function renderAgeBarItem(param, api){
         return {type: 'rect', ignore: true}
     }
 }
-function getIsochronEchart(chart, figure_id, animation, sigma=1) {
+function getIsochronEchart(chart, figure_id, animation, sigma=1, recalculate=false) {
     let figure = sampleComponents[figure_id];
     let age_unit = sampleComponents[0].preference?.age_unit;
     // console.log(figure.data);
@@ -3327,7 +3327,7 @@ function getIsochronEchart(chart, figure_id, animation, sigma=1) {
                         //     sendDiff(diff);
                         // }
                         // return figure.text1.text
-                        if (figure.text1.text === "") {
+                        if (figure.text1.text === "" || recalculate) {
                             figure.text1.text = `t = ${res[0]['age'].toFixed(2)} ± ${(res[0]['s1'] * sigma).toFixed(2)} | ${(res[0]['s2'] * sigma).toFixed(2)} | ${(res[0]['s3'] * sigma).toFixed(2)} ${age_unit} (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[0]['initial'].toFixed(2)} ± ${(res[0]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[0]['MSWD'].toFixed(2)}, R{sup|2} = ${res[0]['R2'].toFixed(4)}\nχ{sup|2} = ${res[0]['Chisq'].toFixed(2)}, p = ${res[0]['Pvalue'].toFixed(2)}\navg error = ${res[0]['rs'].toFixed(4)}%`;
                         }
                         return figure.text1.text
@@ -3352,7 +3352,7 @@ function getIsochronEchart(chart, figure_id, animation, sigma=1) {
                         //     sendDiff(diff);
                         // }
                         // return figure.text2.text
-                        if (figure.text2.text === "") {
+                        if (figure.text2.text === "" || recalculate) {
                             figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${(res[1]['s1'] * sigma).toFixed(2)} | ${(res[1]['s2'] * sigma).toFixed(2)} | ${(res[1]['s3'] * sigma).toFixed(2)} ${age_unit} (${sigma}σ)\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${(res[1]['sinitial'] * sigma).toFixed(2)} (${sigma}σ)\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
                         }
                         return figure.text2.text
@@ -4205,7 +4205,10 @@ function connectWebSocket(taskId, onopen, onprogress, onclose, onerror, onfinish
             // 处理错误
             onerror(data);
             if (data.close) {
-                onclose(event);
+                webSocket.close();
+            }
+            else if (data.finished) {
+                onfinish(data);
                 webSocket.close();
             }
         } else {

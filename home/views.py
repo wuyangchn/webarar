@@ -17,7 +17,7 @@ def show(request):
         # http_funcs.set_user_sql(request, models.User, user_id)
         return JsonResponse({})
     else:
-        log_funcs.write_log(basic_funcs.get_ip(request), 'info', 'Visit home html')
+        # log_funcs.write_log(basic_funcs.get_ip(request), 'info', 'Visit home html')
         return render(request, 'home.html', {'ararpy_version': ap.version, 'web_version': version})
 
 

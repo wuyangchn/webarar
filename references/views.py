@@ -134,7 +134,7 @@ def journal_ranking(request):
         except:
             return 0
     data.sort(key=lambda x: (x['tier'], neg_jif(x['jif24'])))
-    log_funcs.write_log(basic_funcs.get_ip(request), 'info', 'Visit journal ranking html')
+    # log_funcs.write_log(basic_funcs.get_ip(request), 'info', 'Visit journal ranking html')
 
     if not home_models.User.objects.filter(uuid=str('--journalrankingvisitorcounter--')).exists():
         home_models.User.objects.create(

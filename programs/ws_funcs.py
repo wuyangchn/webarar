@@ -197,9 +197,10 @@ def recalculate(cls, task_id):
             except ap.smp.basic.ParamsInvalid as e:
                 print(traceback.format_exc())
                 active_connections[task_id].send_message(
-                    progress=progress, close=True, finished=progress == 100, next=next,
+                    progress=progress, close=e.fatal, finished=progress == 100, next=next,
                     error=f"{type(e).__name__}: {e}", index=index, error_context=e.context)
-                return
+                if e.fatal:
+                    return
             except (Exception, BaseException) as e:
                 print(traceback.format_exc())
                 active_connections[task_id].send_message(
@@ -238,7 +239,8 @@ def click_chart(cls, task_id):
     current_set = cls.content['current_set']
     auto_replot = cls.content['auto_replot']
     figures = cls.content['figures']
-    all_figures = ['figure_1', 'figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7']
+    all_figures = ['figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7', 'figure_1',]
+    # 请注意谱图至少要在等时线后更新，因为谱图可能用到截距值
 
     if not np.iterable(clicked_index):
         active_connections[task_id].send_message(
@@ -264,8 +266,7 @@ def click_chart(cls, task_id):
         if figure not in all_figures:
             raise KeyError
         try:
-            sample.recalculate(re_plot=True, isInit=False, isIsochron=True,
-                               isPlateau=figure == "figure_1", figures=[figure])
+            sample.recalculate(re_plot=True, isInit=False, figures=[figure])
         except ap.smp.basic.ParamsInvalid as e:
             print(traceback.format_exc())
             active_connections[task_id].send_message(
@@ -389,10 +390,64 @@ def sample_recalculate(
             )
 
     if re_calc_apparent_age:  # 11
-        ap.smp.basic.calc_apparent_ages(sample)
+
+        if str(sample.Info.sample.type).lower() == "unknown":
+            handler = ap.smp.basic.calc_age
+        elif str(sample.Info.sample.type).lower() == "standard":
+            handler = ap.smp.basic.calc_j
+        elif str(sample.Info.sample.type).lower() == "air":
+            handler = ap.smp.basic.calc_mdf
+        else:
+            raise TypeError(f"Sample type is not supported: {sample.Info.sample.type}")
+
+        try:
+            res = handler(smp=sample)
+        except (Exception, BaseException) as e:
+            raise ap.smp.basic.ParamsInvalid(400, f"{type(e).__name__}: {str(e)}", fatal=True)
+        else:
+            sample.ApparentAgeValues[2:6] = res[0:4]
+            sample.PublishValues[12:14] = copy.deepcopy(res[0:2])
+
     # --- plot and table ---
     if re_plot:  # 12
-        ap.smp.plots.set_plot_data(sample, **kwargs)
+
+        all_figures = [
+            'figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_7', 'figure_8', 'figure_9', 'figure_1',
+        ]
+        context = {'names': [], 'classnames': [], 'messages': []}
+        for idx, fig_id in enumerate(all_figures):
+            comp = ap.smp.basic.get_component_byid(sample, fig_id)
+            if not isinstance(comp, ap.Plot):
+                raise KeyError(f"Figure {fig_id} not found")
+            try:
+                if fig_id == 'figure_1':
+                    ap.smp.plots.init_age_spec_plot(sample)
+                    ap.smp.plots.recalc_plateaus(sample)
+                if fig_id == 'figure_2':
+                    ap.smp.plots.plot_normal_iso(sample, isInit=True)
+                if fig_id == 'figure_3':
+                    ap.smp.plots.plot_inverse_iso(sample, isInit=True)
+                if fig_id == 'figure_4':
+                    ap.smp.plots.plot_cl1_iso(sample, isInit=True)
+                if fig_id == 'figure_5':
+                    ap.smp.plots.plot_cl2_iso(sample, isInit=True)
+                if fig_id == 'figure_6':
+                    ap.smp.plots.plot_cl3_iso(sample, isInit=True)
+                if fig_id == 'figure_7':
+                    ap.smp.plots.plot_3D_iso(sample, isInit=True)
+                if fig_id == 'figure_8':
+                    ap.smp.plots.recalc_degassing_plot(sample)
+                if fig_id == 'figure_9':
+                    ap.smp.plots.recalc_agedistribution(sample)
+            except (Exception, BaseException) as e:
+                print(traceback.format_exc())
+                context['names'].append(comp.name)
+                context['classnames'].append(f"k{idx + 1}")
+                context['messages'].append(f"{comp.name}: {str(e)}")
+                continue
+        if context['names']:
+            raise ap.smp.basic.ParamsInvalid(400, '. '.join(context['messages']), context, fatal=False)
+
     if re_plot_style:  # 13
         ap.smp.style.set_plot_style(sample)
     if re_set_table:  # 14
