@@ -374,13 +374,12 @@ def sample_recalculate(
             # corrected
             sample.CorrectedValues = res[2 + 32 + 39:2 + 32 + 39 + 10]
             # publish
-            sample.PublishValues[0] = copy.deepcopy(sample.DegasValues[0])
-            sample.PublishValues[1] = copy.deepcopy(sample.DegasValues[8])
-            sample.PublishValues[2] = copy.deepcopy(sample.DegasValues[10])
-            sample.PublishValues[3] = copy.deepcopy(sample.DegasValues[20])
-            sample.PublishValues[4] = copy.deepcopy(sample.DegasValues[24])
-            sample.PublishValues[5:7] = copy.deepcopy(sample.ApparentAgeValues[2:4])
-            sample.PublishValues[7:9] = copy.deepcopy(sample.ApparentAgeValues[6:8])
+            data = np.array(sample.CorrectedValues)
+            data[1:10:2] = data[1:10:2] = np.abs(np.divide(data[1:10:2], data[0:10:2])) * 100
+            sample.PublishValues[0:10] = copy.deepcopy(data.tolist())
+            sample.PublishValues[10:14] = copy.deepcopy(sample.ApparentAgeValues[0:4])
+            sample.PublishValues[14:16] = copy.deepcopy(sample.ApparentAgeValues[6:8])
+            sample.PublishValues[16:17] = copy.deepcopy(res[2 + 32 + 39 + 10:2 + 32 + 39 + 10 + 2])
 
         else:
             ws.send_message(
