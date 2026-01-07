@@ -216,17 +216,19 @@ def recalculate(cls, task_id):
         if task_id in active_connections:
             active_connections[task_id].send_message(progress=progress, close=True, finished=True, error=str(e))
             del active_connections[task_id]
-    ap.smp.table.update_table_data(sample)  # Update data of tables after re-calculation
+    else:
 
-    # update cache
-    basic_funcs.set_cache(sample, key=cls._cache_key)
-    res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
+        ap.smp.table.update_table_data(sample)  # Update data of tables after re-calculation
 
-    # finished
-    if task_id in active_connections:
-        active_connections[task_id].send_message(
-            progress=100, finished=True, info="Recalculation completed! ", res=res)
-        del active_connections[task_id]
+        # update cache
+        basic_funcs.set_cache(sample, key=cls._cache_key)
+        res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
+
+        # finished
+        if task_id in active_connections:
+            active_connections[task_id].send_message(
+                progress=100, finished=True, info="Recalculation completed! ", res=res)
+            del active_connections[task_id]
 
 
 def click_chart(cls, task_id):
