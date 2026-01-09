@@ -2009,9 +2009,10 @@ function clickPoints(params) {
     function onerror(data) {
         if (data.error !== undefined) {
             showPage(getCurrentTableId(), true);
-            closePopupMessage();
-            setConsoleText('Recalculation completed!');
-            showPopupMessage("Error", data.error, true);
+            if (data.finished) {
+                closePopupMessage();
+                showPopupMessage("Error", data.error, true);
+            }
         }
     }
 

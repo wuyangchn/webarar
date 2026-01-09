@@ -247,7 +247,7 @@
                     <label>Opacity <input type="number" name="opacity" min="0" max="1" step="0.1"></label>
                     <label class="checkbox">Show Error Bar:
                         <input type="checkbox" style="width: 70px;" name="showErrBar" checked></label>
-                    <label class="checkbox">Show Error Ellipse (1σ):
+                    <label class="checkbox">Show Error Ellipse:
                         <input type="checkbox" style="width: 70px;" name="showEllipse" checked></label>
                 </div>
                 <div id="lines-setting-in-dialog" class="setting-dialog"  style="height: 500px" hidden>
@@ -825,7 +825,7 @@ Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
     let rightConsole = document.getElementById('right_console');
     let filePathSpan = document.getElementById('filePathSpan');
     rightConsole.innerText = `Open: ${getTime()}`;
-    filePathSpan.innerText = `v=${sampleComponents['0'].arr_version}`;
+    filePathSpan.innerText = `${sampleComponents['0'].experiment.name} v=${sampleComponents['0'].arr_version}`;
 
     let isochronLine1Btn = document.getElementById('isochronSetRadio1');
     let isochronLine2Btn = document.getElementById('isochronSetRadio2');

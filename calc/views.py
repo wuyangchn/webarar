@@ -294,15 +294,15 @@ class ObjectFlagView(http_funcs.ArArView):
                 if len(data) == 0:
                     raise ValueError("Invalid values: empty data.")
                 ap.smp.table.update_handsontable(sample, data, btn_id)
-                if btn_id == '7':
-                # if btn_id in [str(i) for i in range(1, 9)]:
-                    # Re-calculate isochron and plateau data, and replot.
-                    # Re-calculation will not be applied automatically when other tables were changed
-                    messages.info(request, f'Recalculating, btn id: {btn_id}, '
-                                           f're_plot=True, isInit=False, isIsochron=True, isPlateau=True')
-                    sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
-                    messages.info(request, f'Recalculation completed')
-                    # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
+                # if btn_id == '7':
+                # # if btn_id in [str(i) for i in range(1, 9)]:
+                #     # Re-calculate isochron and plateau data, and replot.
+                #     # Re-calculation will not be applied automatically when other tables were changed
+                #     messages.info(request, f'Recalculating, btn id: {btn_id}, '
+                #                            f're_plot=True, isInit=False, isIsochron=True, isPlateau=True')
+                #     sample.recalculate(re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
+                #     messages.info(request, f'Recalculation completed')
+                #     # ap.recalculate(sample, re_plot=True, isInit=False, isIsochron=True, isPlateau=True)
 
         except Exception as e:
             messages.error(request, e)
@@ -976,7 +976,6 @@ class ParamsSettingView(http_funcs.ArArView):
         basic_funcs.set_cache(sample, self._cache_key)
         res = ap.smp.basic.get_diff_smp(backup=components_backup, smp=ap.smp.basic.get_components(sample))
         # debug_print(f"Diff after reset_calc_params: {res}")
-        messages.error(request, f'Set parameters completed')
         return self.JsonResponse({'msg': 'Successfully!', 'changed_components': ap.smp.json.dumps(res)}, status=200)
 
 

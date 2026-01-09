@@ -138,6 +138,7 @@ def raw_regression(cls, task_id, file_names, file_paths, filter_names, filter_pa
             del active_connections[task_id]
 
     except Exception as e:
+        print(traceback.format_exc())
         if task_id in active_connections:
             active_connections[task_id].send_message(progress=0, finished=True, error=str(e))
             del active_connections[task_id]
