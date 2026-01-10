@@ -1,4 +1,5 @@
 /webarar/local_settings.py
+/programs/local_init.py
 private
 .idea
 git

@@ -2,8 +2,9 @@
 Import ararpy
 """
 version = "20260108"
-# import ararpy as ap                 # using Pip version
+import ararpy as ap                 # using Pip version
+
 try:
-    from .local_init import *
+    from .local_init import *       # local
 except ImportError:
-    import ararpy_package.ararpy as ap    # local
+    pass
