@@ -13,8 +13,8 @@
     <link href="{% static 'handsontable/handsontable.full.min.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'loading-indicator-dist/ladda-themeless.min.css' %}" rel="stylesheet" type="text/css">
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css/tree.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/style.css' %}?v={{ web_version }}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/tree.css' %}?v={{ web_version }}" rel="stylesheet" type="text/css">
 
 {#    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" type="text/javascript" charset="UTF-8"></script>#}
 {#    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" type="text/javascript" charset="UTF-8"></script>#}
