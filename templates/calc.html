@@ -54,10 +54,11 @@
     });
 </script>
 
-<div class="jumbotron" style="height: 1000px">
+<div class="jumbotron" style="height: 1000px; padding: 20px 0">
     <div class="container">
 {#        <h2 class="text-center" style="color: #c0c0c0">Start from...</h2>#}
-        <a id="" href="{% static 'examples/examples.zip' %}" download onclick="">Downlaod exmaple files: examples.zip</a>
+        <a id="" href="{% static 'examples/examples.zip' %}" download onclick="" style="font-size: 24px">Downlaod exmaple files: examples.zip</a>
+{#        <a id="" href="{% static 'readme/webarar_manul_v0.1.pdf' %}" download onclick="" style="font-size: 24px">Downlaod manual: examples.zip</a>#}
         <div class="upload-drop-zone" id="drop-zone" style="height: 180px">
             <h4 style="padding-top: 60px">Drag one or more files <i>here</i>.</h4>
             <h4>.arr .xls and .age are supported, and size should not exceed 5 MB</h4>

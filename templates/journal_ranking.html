@@ -18,18 +18,25 @@
         }
     </style>
     <script>
+        function escapeRegExp(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
         function write_tbody(tiers, disciplines, search) {
             $("#tbody").empty();
             let num = 0
+            const ignoreWords = ["AND", "OR", "THE", "A", "AN", "&", "OF", "ET", "DE"]
             data.forEach((journal, index) => {
-                const search_words = eval("/^.*?"+search+".*?$/");
-                if (tiers.includes(journal.tier) && disciplines.includes(journal.subject) && search_words.test(journal.full_name)) {
-                    num = num + 1;
+                {#const search_words = eval("/^.*?"+search+".*?$/");#}
+                const search_words = new RegExp(`.*${escapeRegExp(search)}.*`);
+                const regex_parts_abbr = search.toUpperCase().split('').map(char =>
+                    `\\b[^a-zA-Z]*${char}.*?(?:\\s+|AND\\s+|OR\\s+|OF\\s+|A\\s+|THE\\s+|AN\\s+|&\\s+|ET\\s+|DE\\s+)*`
+                );
+                const search_words_abbr = new RegExp(`^${regex_parts_abbr.join('')}.*$`, 'i');
+                if (tiers.includes(journal.tier) && disciplines.includes(journal.subject) && (search_words.test(journal.full_name) || search_words_abbr.test(journal.full_name))) {
                     let tr = document.createElement('tr');
                     tr.style.backgroundColor = num%2===0? '#fffaf0':'#ffffff';
-                    tbody.appendChild(tr);
                     let th = document.createElement('th');
-                    th.innerHTML = num;
+                    th.innerHTML = num + 1;
                     tr.appendChild(th);
                     for (let key in journal) {
                         if (!journal.hasOwnProperty(key)) { continue; }
@@ -37,7 +44,30 @@
                         const td = document.createElement('td');
                         switch (key) {
                             case "full_name":
-                                td.innerHTML = search.length === 0 ? value : value.split(search).join(`<em style=\"background-color: yellow\">${search}</em>`);
+                                if (search_words.test(journal.full_name)) {
+                                    td.innerHTML = search.length === 0 ? value : value.split(search).join(`<em style=\"background-color: yellow\">${search}</em>`);
+                                }
+                                if (search_words_abbr.test(journal.full_name)) {
+                                    const full_name_list = journal.full_name.split(/\s+/);
+                                    const search_list = search.toUpperCase().split('');
+                                    let word_index = 0;
+                                    let len = 0;
+                                    const match_indexes = search_list.map(char => {
+                                        for (let i = word_index; i < full_name_list.length; i++) {
+                                            const word = full_name_list[i];
+                                            len = len + word.length + 1;
+                                            if (word.toUpperCase().startsWith(char) && !ignoreWords.includes(word.toUpperCase())) {
+                                                word_index = i + 1;
+                                                return len - word.length - 1;
+                                            }
+                                        }
+                                    })
+                                    if (match_indexes.includes(undefined)) { return; }
+                                    const output_str = match_indexes.map((idx, i) => {
+                                        return value.slice(i === 0 ? 0 : match_indexes[i-1]+1, idx) + `<em style=\"background-color: yellow\">${search_list[i]}</em>`;
+                                    }).join("");
+                                    td.innerHTML = search.length === 0 ? value : output_str + value.slice(match_indexes[match_indexes.length-1] + 1);
+                                }
                                 break;
                             case "letpub_id":
                                 td.innerHTML = value === 0 ? `N/A` : `<button onclick=open_letpub(${value})>GoTo</button>`;
@@ -51,6 +81,8 @@
                         }
                         tr.appendChild(td);
                     }
+                    num = num + 1;
+                    tbody.appendChild(tr);
                 }
             });
         }
@@ -180,7 +212,7 @@
             <div>
                 <label>[查看<a target="_blank" href="https://eniec.cug.edu.cn/info/1048/1885.htm">学校公告</a>]</label>
                 <label>[按级别+最新影响因子排序]</label>
-                <label>[数据来自网络，不保证100%准确，反馈：<a href="mailto:wuycug@hotmail.com" target="_blank">wuycug@hotmail.com</a>]</label>
+                <label>[数据来自网络，不保证100%准确，反馈：<a href="mailto:ywu@webarar.net" target="_blank">ywu@webarar.net</a>]</label>
                 <label>[<a target="_blank" href="https://jcr.clarivate.com/jcr/browse-journals">查询影响因子</a>]</label>
                 <label>[查看<a href="http://kyy.neu.edu.cn/2024/0716/c10457a266027/page.psp" target="_blank">Nature Index</a>期刊目录]</label>
                 <label>[数据库更新时间：2025-07-14，访问次数：<span id="total_counter"></span>]</label><br>
@@ -189,7 +221,7 @@
                 <label><input id="social_sciences_disciplines" class="discipline_selector" type="checkbox" onchange="select_social_sciences()">人文社科类</label>
                 <label><input id="all_disciplines" class="discipline_selector" type="checkbox" onchange="select_all_disciplines()">全部学科</label>
                 <label><input id="no_discipline" type="checkbox" onchange="select_no_discipline()">全部取消</label>
-                <label><input id="search" type="search" style="width: 200px"></label>
+                <label><input id="search" type="search" style="width: 400px" placeholder="支持实词首字母缩写搜索，如EPSL"></label>
                 <button onclick="search_journal()">搜索</button>
                 <button style="margin-left: 2px" onclick="clear_search()">清空</button>
                 <div id="discipline_div" style="margin-top: 5px; margin-bottom: 5px; margin-right: 80px">
@@ -232,7 +264,7 @@
     let geology_disciplines = [
         '理工综合类', '地质学', '大气科学', '海洋科学', '地球物理学',
         '石油与天然气工程', '环境科学与工程', '测绘科学与技术', '地质资源与地质工程（资源）', '地质资源与地质工程（地球信息）',
-        '地质资源与地质工程（勘察地球物理）', '地质资源与地质工程（岩土钻掘）', '地质资源与地质工程（工程地质）'
+        '地质资源与地质工程（勘察地球物理）', '地质资源与地质工程（岩土钻掘）', '地质资源与地质工程（工程地质）', '地理科学'
     ];
     let natural_sciences_disciplines = [
         '信息与通信工程', '物理学', '土木工程', '水利工程', '环境科学与工程',
@@ -250,10 +282,10 @@
     let all_disciplines = [
         '理工综合类', '地质学', '大气科学', '海洋科学', '地球物理学',
         '石油与天然气工程', '环境科学与工程', '测绘科学与技术', '地质资源与地质工程（资源）', '地质资源与地质工程（地球信息）',
-        '地质资源与地质工程（勘察地球物理）', '地质资源与地质工程（岩土钻掘）', '地质资源与地质工程（工程地质）',
+        '地质资源与地质工程（勘察地球物理）', '地质资源与地质工程（岩土钻掘）', '地质资源与地质工程（工程地质）', '地理科学',
 
         '信息与通信工程', '物理学', '土木工程', '水利工程', '机械工程',
-        '安全科学与工程', '数学', '计算机科学与技术', '地理科学', '化学',
+        '安全科学与工程', '数学', '计算机科学与技术', '化学',
         '材料科学与工程', '软件工程', '生物学', '控制科学与工程', '应用经济学',
 
         '工商管理', '管理科学与工程', '外国语言文学', '新闻传播学', '法学',

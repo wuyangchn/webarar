@@ -18,6 +18,12 @@ from calc.models import ReceivedFiles
 
 class Command(BaseCommand):
 
+    """
+    using:
+    crontab -e
+    0 0 * * * /data/env/pyweb/bin/python3 /data/www/webarar/manage.py clean_upload_fold >> /data/www/webarar/logs/clean_upload_fold.log 2>&1
+    """
+
     help = 'Clear uploaded fold regularly (files uploaded > 24 hours ago are automatically cleared on 00:00 every day.)'
 
     def handle(self, *args, **options):

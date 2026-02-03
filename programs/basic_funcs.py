@@ -83,7 +83,7 @@ def get_device(request):
     try:
         return request.environ.get("HTTP_USER_AGENT")
     except AttributeError:
-        return "AttributeError"
+        return "Unknown Browser/Device (No User-Agent provided)"
 
 
 def get_lang(request):
@@ -93,7 +93,7 @@ def get_lang(request):
     try:
         return request.environ.get("HTTP_ACCEPT_LANGUAGE")
     except AttributeError:
-        return "This is ASGIRequest"
+        return "Unknown Language (No Accept-Language provided)"
 
 
 def is_ajax(request):
