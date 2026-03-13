@@ -2142,6 +2142,8 @@ class ExportView(http_funcs.ArArView):
             '#ffe156', '#6a0572', '#e6399b', '#255f85', '#47e5bc', '#ff924c', '#1b1f3b', '#d7c9aa', '#935116', '#495867'
         ]
 
+        #colors = ['#000000', '#e35000', '#e1ae0f', '#3d8ebf']
+
         def get_smp(file_path):
             _, ext = os.path.splitext(file_path)
             if ext[1:] not in ['arr', 'age']:
@@ -2184,8 +2186,6 @@ class ExportView(http_funcs.ArArView):
             if int(row['position']) > 0:
                 c = 0
             plot_together = int(row['position']) == 0
-            if plot_together:
-                c += 1
             options.update({'color': colors[c]})
             plot_data = ap.smp.export.get_plot_data(
                 smp=get_smp(row['file_path']), diagram=row['diagram'], **options)
@@ -2201,7 +2201,11 @@ class ExportView(http_funcs.ArArView):
                     plot_data['series'] = ap.smp.export.get_plot_series_data(
                         smp=get_smp(row['file_path']), diagram=row['diagram'], xAxis=plot_data['xAxis'], yAxis=plot_data['yAxis'], **options)
             if plot_together:
-                plot_data_list[-1][-1]['series'].extend(plot_data['series'])
+                c += 1
+                if len(plot_data_list[-1]) == 0:
+                    plot_data_list[-1].append(plot_data)
+                else:
+                    plot_data_list[-1][-1]['series'].extend(plot_data['series'])
             else:
                 plot_data_list[-1].append(plot_data)
 
