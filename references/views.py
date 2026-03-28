@@ -5,9 +5,10 @@ from home import models as home_models
 from . import models
 from django.shortcuts import render
 # from django.conf import settings
-# import requests
-# import json
-import json
+import requests
+from bs4 import BeautifulSoup
+import time
+import random
 
 from programs import basic_funcs, http_funcs, log_funcs, ap
 
@@ -123,8 +124,59 @@ def journal_ranking(request):
     #                 journal.save()
     #                 break
 
+    # i = 0
+    # for journal in models.CUGJournalRanking.objects.all():
+    #     i += 1
+    #     if journal.tag == "人文社科类":
+    #         continue
+    #     if journal.tier not in ['T4', 'T5', 'T6']:
+    #         continue
+    #     headers = {
+    #         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    #     }
+    #
+    #     if journal.xinrui_id != "N/A" and len(journal.xinrui_id) == 5:
+    #         continue
+    #     else:
+    #         journal.xinrui_id = "N/A"
+    #         x = requests.get(f'https://www.xr-scholar.com/Journals/Search?year=2026&keyword=' + journal.full_name, headers=headers, timeout=20)
+    #         if x.status_code == 200:
+    #             try:
+    #                 soup = BeautifulSoup(x.text, 'html.parser')
+    #                 res = soup.find('table', class_='table table-vcenter card-table').find('a', class_='text-reset fw-bold')
+    #                 href = res.get('href')[-5:]
+    #             except:
+    #                 continue
+    #             else:
+    #                 journal.xinrui_id = href
+    #             print(f"{i}, {journal.full_name}, {journal.xinrui_id}, {journal.xinrui_tier}, {journal.xinrui_top}")
+    #
+    #         time.sleep(random.uniform(0.2, 0.6))
+    #
+    #     # if journal.xinrui_tier.startswith('T') or journal.xinrui_id == 'N/A':
+    #     #     continue
+    #     # else:
+    #     #     x = requests.get(r'https://www.xr-scholar.com/Journals/' + journal.xinrui_id, headers=headers, timeout=100)
+    #     #     if x.status_code == 200:
+    #     #         try:
+    #     #             soup = BeautifulSoup(x.text, 'html.parser')
+    #     #             tbody = soup.find('table', class_='table table-vcenter table-bordered card-table text-center mb-0').find('tbody')
+    #     #             tier = tbody.find('span', class_=lambda cc: cc and 'xr-tier-badge' in cc and 'journal-tier-badge-wrap' in cc).text
+    #     #             top = tbody.find('span', class_=lambda cc: cc and 'xr-tier-top' in cc or 'text-muted' in cc).text
+    #     #         except:
+    #     #             continue
+    #     #         else:
+    #     #             journal.xinrui_tier = f"T" + re.search(r'\d+', tier).group()
+    #     #             journal.xinrui_top = "top" in top.lower()
+    #     #
+    #     #     time.sleep(random.uniform(0.2, 6))
+    #
+    #     # print(f"{i}, {journal.full_name}, {journal.xinrui_id}, {journal.xinrui_tier}, {journal.xinrui_top}")
+    #     journal.save()
+
     data = list(models.CUGJournalRanking.objects.values(
-        'full_name', 'tier', 'subject', 'tag', 'jif21', 'jif22', 'jif23', 'jif24', 'letpub_id'))
+        'full_name', 'tier', 'subject', 'tag', 'jif21', 'jif22', 'jif23', 'jif24',
+        'letpub_id', 'xinrui_id', 'xinrui_tier', 'xinrui_top'))
 
     def neg_jif(jif):
         if isinstance(jif, str) and not jif.isprintable():

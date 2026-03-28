@@ -15,6 +15,9 @@ class Journal(models.Model):
     issn = models.CharField("ISSN", max_length=64)
     eissn = models.CharField("EISSN", max_length=64)
     letpub_id = models.BigIntegerField("LETPUB_ID", unique=False, default=0)
+    xinrui_id = models.CharField("XINRUI_ID", max_length=10, default="N/A")
+    xinrui_tier = models.CharField("XINRUI_TIER", max_length=10, default="N/A")
+    xinrui_top = models.BooleanField("XINRUI_TOP", max_length=10, default=False)
 
 
 class CUGJournalRanking(models.Model):
@@ -31,3 +34,6 @@ class CUGJournalRanking(models.Model):
     issn = models.CharField("ISSN", max_length=64, default="N/A")
     eissn = models.CharField("EISSN", max_length=64, default="N/A")
     letpub_id = models.BigIntegerField("LETPUB_ID", unique=False, default=0)
+    xinrui_id = models.CharField("XINRUI_ID", max_length=10, default="N/A")
+    xinrui_tier = models.CharField("XINRUI_TIER", max_length=10, default="N/A")
+    xinrui_top = models.BooleanField("XINRUI_TOP", max_length=10, default=False)
