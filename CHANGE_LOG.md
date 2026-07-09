@@ -9,6 +9,10 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Error type selection
 * Add York-2004 method comparing to IsoplotR
 
+
+## 2026-07-09
+* 优化输出pdf，优化期刊目录显示
+
 ## 2025-12-28
 * Added: 使用Channels实现WebSocket连接，实现客户端向前端持续性发送内容的长连接，实现进度条等功能。Channels通道层使用Redis，
 用channels_redis，需将redis升级到最新版本
