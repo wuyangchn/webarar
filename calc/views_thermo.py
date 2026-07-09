@@ -51,7 +51,7 @@ class ThermoView(http_funcs.ArArView):
             try:
                 file = request.FILES.get(str(i))
                 web_file_path, file_name, suffix = http_funcs.upload(file, destination_folder, request=request)
-                arr_file = file_name + suffix
+                arr_file = os.path.basename(web_file_path)
             except (Exception, BaseException) as e:
                 pass
             else:

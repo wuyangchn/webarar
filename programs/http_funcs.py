@@ -226,21 +226,21 @@ class ArArView(View):
     def handling(self, func, request, *args, **kwargs):
         method = func.__name__
         path = request.path
-        # log_funcs.write_log(self.ip, 'INFO', f"Received request: {method}, {path}")
+        log_funcs.write_log(self.ip, 'INFO', f"Received request: {method}, {path}")
         return func(request, *args, **kwargs)
 
     def JsonResponse(self, data, status=200, **kwargs):
         if self.error_msg != "":
             status = 403
-        # self.write_log()
+        self.write_log()
         return JsonResponse(data, status=status, **kwargs)
 
     def redirect(self, view_name):
-        # self.write_log()
+        self.write_log()
         return redirect(view_name)
 
     def render(self, request, view_name, *args, **kwargs):
-        # self.write_log()
+        self.write_log()
         return render(request, view_name, *args, **kwargs)
 
     def write_log(self, msg: str = None, level: str = "Info", **kwargs):

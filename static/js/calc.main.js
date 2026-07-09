@@ -1839,7 +1839,7 @@ function extendData(data) {
 }
 function clickExportBtn() {
     let export_type = document.getElementById('exportChoicesLabel').selectedIndex;
-    // 0-Xls, 1-Opju, 2-single pdf, 3-merged pdf, 4-svg
+    // 0-Xls, 1-Opju, 2-single pdf, 3-svg, 4-All figures pdf,
     switch (export_type) {
         case 0:
             exportSmp(url_export_xls);
@@ -1848,11 +1848,11 @@ function clickExportBtn() {
             // exportSmp(url_export_opju);
             exportSmp(url_export_pdf, true, false);
             break
-        // case 2: case 3:
-        //     exportSmp(url_export_pdf, true, export_type === 3);
-        //     break
         case 2:
             saveChart(true);
+            break
+        case 3:
+            exportSmp(url_export_pdf, true, export_type === 3);
             break
         default:
             break

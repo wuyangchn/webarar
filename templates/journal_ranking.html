@@ -41,6 +41,20 @@
             background-color: rgba(51, 116, 188, 0.16) !important;
             border-color: rgba(51, 116, 188, 0.28) !important;
         }
+
+        #zan-box {
+            width: 70px;
+            height: 70px;
+            background: url(/static/image/OIP-C.png)no-repeat;
+            background-position: right;
+            background-size: cover;
+            margin: 0;
+            cursor: pointer;
+        }
+        #zan-box.animate {
+            background-position: right;
+            transition: background .6s steps(28);
+        }
     </style>
     <script>
         function escapeRegExp(str) {
@@ -243,15 +257,52 @@
                 search_journal();
             }
         }
+        function like_this_page() {
+            zan_count += 1;
+            $('#zan_counter').text(zan_count);
+            $.ajax({
+                url: "{% url 'journal_ranking_new_liker' %}",
+                type: 'POST',
+                data: '',
+                contentType: 'application/json',
+                success: function (res) {},
+            });
+        }
+
         $(document).ready(function () {
             refresh_table();
             window.addEventListener('keydown', keyDownHandler);
             $('#total_counter').text(total_count);
+            $('#zan_counter').text(zan_count);
+            const zanBox = document.getElementById('zan-box');
+            zanBox.style.backgroundPosition = 'right';
+            zanBox.addEventListener('click', function() {
+                zanBox.style.transition = 'none';
+                zanBox.style.backgroundPosition = 'left';
+                void zanBox.offsetWidth;
+                zanBox.style.transition = 'background-position 0.6s steps(28)';
+                zanBox.style.backgroundPosition = 'right';
+                $.ajax({
+                    url: "{% url 'journal_ranking_new_liker' %}",
+                    type: 'POST',
+                    data: '',
+                    contentType: 'application/json',
+                    success: function (res) {
+                        zan_count += 1;
+                        $('#zan_counter').text(zan_count);
+                    },
+                });
+            });
         });
     </script>
 </head>
 <body>
-    <h1 style="margin-left: 80px">地大最新期刊分类（2023）</h1>
+    <div style="display: flex; align-items: center;">
+        <h1 style="margin: 0 0 0 80px;">地大最新期刊分类（2023）</h1>
+        <div style="display: flex; align-items: center; margin-left: 30px"><div id="zan-box"></div></div>
+        <span id="zan_counter" style="font-size: 16px; color: rgb(217,52,80); display: flex; align-items: center; margin-left: -20px"></span>
+    </div>
+
     <div style="margin-left: 80px">
         <br>
             <div>
@@ -261,7 +312,8 @@
                 <label>[<a target="_blank" href="https://jcr.clarivate.com/jcr/browse-journals">查询影响因子</a>]</label>
                 <label>[查看<a href="http://kyy.neu.edu.cn/2024/0716/c10457a266027/page.psp" target="_blank">Nature Index</a>期刊目录]</label>
                 <label>[目前仅接入部分<a href="https://www.xr-scholar.com/" target="_blank">新锐期刊分区表</a>数据]</label>
-                <label>[数据库更新时间：2026-03-27，访问次数：<span id="total_counter"></span>]</label><br>
+                <label>[数据库更新时间：2026-03-27，访问次数：<span id="total_counter"></span>]</label>
+                <br>
                 <label style="color: orangered"><input id="geology_disciplines" class="discipline_selector" type="checkbox" checked onchange="select_geology()">地学类</label>
                 <label><input id="natural_sciences_disciplines" class="discipline_selector" type="checkbox" onchange="select_natural_sciences()">理工类</label>
                 <label><input id="social_sciences_disciplines" class="discipline_selector" type="checkbox" onchange="select_social_sciences()">人文社科类</label>
@@ -308,6 +360,7 @@
 <script>
     let data = {{ data | safe }};
     let total_count = {{ total_count | safe }};
+    let zan_count = {{ zan_count | safe }};
     let tbody = document.querySelector('tbody');
     let geology_disciplines = [
         '理工综合类', '地质学', '大气科学', '海洋科学', '地球物理学',

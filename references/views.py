@@ -186,7 +186,7 @@ def journal_ranking(request):
         except:
             return 0
     data.sort(key=lambda x: (x['tier'], neg_jif(x['jif24'])))
-    # log_funcs.write_log(basic_funcs.get_ip(request), 'info', 'Visit journal ranking html')
+    log_funcs.write_log(basic_funcs.get_ip(request), 'info', 'Visit journal ranking html')
 
     if not home_models.User.objects.filter(uuid=str('--journalrankingvisitorcounter--')).exists():
         home_models.User.objects.create(
@@ -195,11 +195,35 @@ def journal_ranking(request):
             device='N/A',
             count=1
         )
+    if not home_models.User.objects.filter(uuid=str('--journalrankinglikercounter--')).exists():
+        home_models.User.objects.create(
+            uuid=str('--journalrankinglikercounter--'),
+            ip='127.0.0.1',
+            device='N/A',
+            count=1
+        )
     _user = home_models.User.objects.get(uuid=str('--journalrankingvisitorcounter--'))
     _user.count = _user.count + 1
     _user.save()
 
-    return render(request, 'journal_ranking.html', {'data': ap.smp.json.dumps(data), 'total_count': _user.count})
+    return render(request, 'journal_ranking.html', {
+        'data': ap.smp.json.dumps(data),
+        'total_count': _user.count,
+        'zan_count': home_models.User.objects.get(uuid=str('--journalrankinglikercounter--')).count, })
+
+
+def new_liker(request):
+    if not home_models.User.objects.filter(uuid=str('--journalrankinglikercounter--')).exists():
+        home_models.User.objects.create(
+            uuid=str('--journalrankinglikercounter--'),
+            ip='127.0.0.1',
+            device='N/A',
+            count=1
+        )
+    _user = home_models.User.objects.get(uuid=str('--journalrankinglikercounter--'))
+    _user.count = _user.count + 1
+    _user.save()
+    return JsonResponse({"status": "success"})
 
 
 def api_callback(request):
