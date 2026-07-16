@@ -1,8 +1,10 @@
 const FILLED_POINTS_COLOR = '#337ab7';
-const rich_format = {
-    sub: {verticalAlign: "bottom",fontSize: 10, fontFamily: 'Microsoft Sans Serif', fontWeight: 'bold'},
-    sup: {verticalAlign: "top", fontSize: 10, fontFamily: 'Microsoft Sans Serif', fontWeight: 'bold'},
-};
+function richFormat(text) {
+    return {
+        sub: {verticalAlign: "bottom",fontSize: text.font_size * 0.5, fontFamily: text.font_family, fontWeight: text.font_weight},
+        sup: {verticalAlign: "top", fontSize: text.font_size * 0.5, fontFamily: text.font_family, fontWeight: text.font_weight},
+    }
+}
 // Basic functions
 function myParse(myString) {
     // Note that \\" to keep an escape character before double quote characters
@@ -2832,8 +2834,8 @@ function applySettingDialog() {
                     data: [text.pos], encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                     label: {
                         show: text.show, position: 'inside', color: text.color, fontSize: text.font_size,
-                        fontFamily: text.font_family, fontWeight: text.font_weight, rich: rich_format,
-                        formatter: text.text,
+                        fontFamily: text.font_family, fontWeight: text.font_weight,
+                        rich: richFormat(text), formatter: text.text,
                         },
                 }
             ],
@@ -3318,7 +3320,7 @@ function getIsochronEchart(chart, figure_id, animation, sigma=1, recalculate=fal
                     show: figure.set1.data.length >=3 ? figure.text1.show : false,
                     position: 'inside', color: figure.text1.color,
                     fontSize: figure.text1.font_size, fontFamily: figure.text1.font_family,
-                    fontWeight: figure.text1.font_weight, rich: rich_format,
+                    fontWeight: figure.text1.font_weight, rich: richFormat(figure.text1),
                     // formatter: figure.text1.text,
                     formatter: (params) => {
                         // if (figure.text1.text === "") {
@@ -3344,7 +3346,7 @@ function getIsochronEchart(chart, figure_id, animation, sigma=1, recalculate=fal
                     show: figure.set2.data.length >=3 ? figure.text2.show : false,
                     position: 'inside', color: figure.text2.color,
                     fontSize: figure.text2.font_size, fontFamily: figure.text2.font_family,
-                    fontWeight: figure.text2.font_weight, rich: rich_format,
+                    fontWeight: figure.text2.font_weight, rich: richFormat(figure.text2),
                     formatter: (params) => {
                         // if (figure.text2.text === "") {
                         //     figure.text2.text = `t = ${res[1]['age'].toFixed(2)} ± ${res[1]['s1'].toFixed(2)} | ${res[1]['s2'].toFixed(2)} | ${res[1]['s3'].toFixed(2)} Ma\n${figure_id === "figure_2" || figure_id === "figure_3" ?"({sup|40}Ar/{sup|36}Ar){sub|0}":"({sup|40}Ar/{sup|38}Ar){sub|Cl}"} = ${res[1]['initial'].toFixed(2)} ± ${res[1]['sinitial'].toFixed(2)}\nMSWD = ${res[1]['MSWD'].toFixed(2)}, R{sup|2} = ${res[1]['R2'].toFixed(4)}\nχ{sup|2} = ${res[1]['Chisq'].toFixed(2)}, p = ${res[1]['Pvalue'].toFixed(2)}\navg error = ${res[1]['rs'].toFixed(4)}%`;
@@ -3687,7 +3689,8 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=fals
                     show: sampleComponents['0'].sample.type === "Unknown" ? figure.set1.data.length >= 3 ? figure.text1.show : false : true,
                     position: 'inside', color: figure.text1.color,
                     fontSize: figure.text1.font_size, fontFamily: figure.text1.font_family,
-                    fontWeight: figure.text1.font_weight, rich: rich_format,
+                    fontWeight: figure.text1.font_weight,
+                    rich: richFormat(figure.text1),
                     // formatter: figure.text1.text,
                     formatter: (params) => {
                         if (figure.text1.text === "" || recalculate) {
@@ -3714,7 +3717,7 @@ function getSpectraEchart(chart, figure_id, animation, sigma=1, recalculate=fals
                     show: sampleComponents['0'].sample.type === "Unknown" ? figure.set2.data.length >= 3 ? figure.text2.show : false : true,
                     position: 'inside', color: figure.text2.color,
                     fontSize: figure.text2.font_size, fontFamily: figure.text2.font_family,
-                    fontWeight: figure.text2.font_weight, rich: rich_format,
+                    fontWeight: figure.text2.font_weight, rich: richFormat(figure.text2),
                     // formatter: figure.text2.text,
                     formatter: (params) => {
                         if (figure.text2.text === "") {
@@ -3904,7 +3907,7 @@ function getAgeDistributionEchart(chart, figure_id, animation) {
                 encode: {x: 0, y: 1}, itemStyle: {color: 'none'},
                 label: {
                     show: figure.text1.show, position: 'inside', color: figure.text1.color, fontSize: figure.text1.font_size,
-                    fontFamily: figure.text1.font_family, fontWeight: figure.text1.font_weight, rich: rich_format,
+                    fontFamily: figure.text1.font_family, fontWeight: figure.text1.font_weight, rich: richFormat(figure.text1),
                     formatter: figure.text1.text,
                     },
                 },

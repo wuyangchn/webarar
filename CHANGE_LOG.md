@@ -10,6 +10,9 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 * Add York-2004 method comparing to IsoplotR
 
 
+## 2026-07-15
+* 修正图件中角标的字号
+
 ## 2026-07-09
 * 优化输出pdf，优化期刊目录显示
 
