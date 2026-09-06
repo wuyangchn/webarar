@@ -52,6 +52,7 @@
                     <h4 class="modal-title" id="myModalLabel">Raw File Filter</h4>
                 </div>
                 <form id="rawFileForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
                     <div id="page-1" class="modal-body raw-file-filter-page">
                         <p><strong>Step 1:</strong> Upload your files</p>
                         <div class="form-group">

@@ -1,9 +1,18 @@
-ararpy==0.2.1
+ararpy>=0.2.12
 concurrent_log_handler==0.9.24
 Django==4.2.5
-matplotlib>=3.9.4
+matplotlib==3.9.4
 numpy==1.25.0
-pandas>=2.1.2
+pandas==2.1.2
 Requests==2.31.0
 scipy==1.11.3
-channels>=4.3.2
+channels==4.3.2
+daphne==4.0.0
+# ararpy requires these packages
+xlrd==2.0.1
+XlsxWriter==3.1.5
+msoffcrypto-tool==5.4.2
+chardet==5.2.0
+parse==1.20.0
+pdf-maker==0.62.3
+beautifulsoup4==4.13.4

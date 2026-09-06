@@ -13,6 +13,12 @@ The version number of WebArAr is updated simultaneously with ArArPy.
 ## 2026-07-15
 * 修正图件中角标的字号
 
+## 2026-08-18 0.2.12
+* 创建本地安装包
+
+## 2026-08-17
+* 数据库中参数文件记录由绝对路径改为只记录文件名
+
 ## 2026-07-09
 * 优化输出pdf，优化期刊目录显示
 

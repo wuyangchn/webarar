@@ -7,6 +7,7 @@ import re
 import numpy as np
 import time
 import itertools
+from pathlib import Path
 
 # from math import ceil
 from django.db import transaction
@@ -19,7 +20,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from . import models, consumers
-from programs import ap, basic_funcs, http_funcs
+from programs import ap, basic_funcs, http_funcs, unify_sql_path
 from programs.log_funcs import debug_print
 
 
@@ -120,7 +121,7 @@ class CalcHtmlView(http_funcs.ArArView):
         return redirect('object_views', flag=cache_key)
 
     def open_example_file(self, request, *args, **kwargs):
-        file_path = 'static/readme/Example.arr'
+        file_path = settings.STATIC_DIR / 'readme/Example.arr'
         sample = ap.from_arr(file_path=file_path)
         cache_key = basic_funcs.set_cache(sample, user_id=self.user_id)
         # write mysql
@@ -837,7 +838,9 @@ class ParamsSettingView(http_funcs.ArArView):
             messages.error(request, f"{e}")
             return self.JsonResponse({'msg': f"{e}"}, status=403)
         else:
-            param = ap.files.basic.read(obj.file_path)
+            file_path = unify_sql_path.get_setting_path(obj.file_path)
+            param = ap.files.basic.read(file_path)
+            debug_print(f"Parameter file path: {file_path}")
             return self.JsonResponse({'param': param})
 
         try:
@@ -915,8 +918,9 @@ class ParamsSettingView(http_funcs.ArArView):
                 messages.info(request, f'Create parameter project failed, duplicate name, name: {name}')
                 return self.JsonResponse({'msg': 'duplicate name'}, status=403)
             else:
-                path = ap.files.basic.write(os.path.join(settings.SETTINGS_ROOT, f"{name}.{param_type}"), params)
-                model.objects.create(name=name, pin=pin, file_path=path, uploader_email=email, ip=ip,
+                filename = f"{name}.{param_type}"
+                path = ap.files.basic.write(str(Path(settings.SETTINGS_ROOT) / filename), params)
+                model.objects.create(name=name, pin=pin, file_path=filename, uploader_email=email, ip=ip,
                                      uploader_uuid=self.user_id)
                 messages.info(request,
                               f'Create parameter project successfully. A {param_type.lower()} project has been updated, name: {name}, static verification code: {pin}, path: {path}, email: {email}')
@@ -932,13 +936,13 @@ class ParamsSettingView(http_funcs.ArArView):
             # if check_password(pin, old.pin):
             if pin == old.pin:
                 if flag == 'update':
-                    path = ap.files.basic.write(old.file_path, params)
+                    path = ap.files.basic.write(unify_sql_path.get_setting_path(old.file_path), params)
                     old.save()
                     messages.info(request,
                                   f'Update parameter project successfully. A {param_type.lower()} project has been updated, name: {name}, path: {path}')
                     return self.JsonResponse({'status': 'success'})
                 elif flag == 'delete':
-                    if ap.files.basic.delete(old.file_path):
+                    if ap.files.basic.delete(unify_sql_path.get_setting_path(old.file_path)):
                         old.delete()
                         messages.info(request,
                                       f'Delete parameter project successfully. A {param_type.lower()} project has been deleted, name: {name}')
@@ -2176,7 +2180,7 @@ class ExportView(http_funcs.ArArView):
         params_list = []
         for index, row in enumerate(files_table):
             params_list.append(dict(zip(keys, [int(val) if str(val).isnumeric() else val for val in ap.files.basic.read(
-                models.ExportPdfParams.objects.get(name=row['setting']).file_path)])))
+                unify_sql_path.get_setting_path(models.ExportPdfParams.objects.get(name=row['setting']).file_path))])))
             if index == 0 or int(row['position']) == 1:
                 page_num += 1;
                 plot_data_list.append([]);

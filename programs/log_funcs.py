@@ -1,19 +1,36 @@
 import logging
 import os
 import time
+from pathlib import Path
 from django.conf import settings
 from concurrent_log_handler import ConcurrentTimedRotatingFileHandler, ConcurrentRotatingFileHandler
 
 
+Path(settings.LOG_DIR).mkdir(
+    parents=True,
+    exist_ok=True,
+)
+
 # https://blog.csdn.net/tofu_yi/article/details/118566756
 # https://zhuanlan.zhihu.com/p/445411809
 logger_collect = logging.getLogger('collect')
+logger_collect.propagate = False
 # logfile = os.path.abspath("logs/main.log")
-logfile = os.path.join(settings.LOG_DIR, 'main.log')
+logfile = os.path.join(
+    settings.LOG_DIR,
+    'main.log',
+)
 # Using concurrent_log_handler instead of logging Headler,
 # to avoid PermissionError during rotating the log files
 # https://github.com/Preston-Landers/concurrent-log-handler
-logger_collect.addHandler(ConcurrentTimedRotatingFileHandler(logfile, when='MIDNIGHT', backupCount=0, encoding='utf-8'))
+logger_collect.addHandler(
+    ConcurrentTimedRotatingFileHandler(
+        logfile,
+        when='MIDNIGHT',
+        backupCount=0,
+        encoding='utf-8',
+    )
+)
 logger_collect.setLevel(getattr(logging, 'DEBUG'))
 
 level_int2name = {

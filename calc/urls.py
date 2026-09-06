@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, views_thermo, consumers
+from . import views, views_thermo, consumers, views_rga
 
 urlpatterns = [
     # /calc, opening file via different buttons
@@ -29,7 +29,12 @@ urlpatterns = [
     path('ws/<str:flag>/', views.ObjectFlagView.as_view(), name="ws_views"),
     # path('ws/<str:flag>/', consumers.as_view, name="ws_views"),
 
+    # rga
+    path('rga', views_rga.RgaView.as_view(), name="rga_zero_time"),
+    path('rga/<str:flag>', views_rga.RgaView.as_view(), name="rga_views"),
+
     # This must be the last, matching other flags.
     # /calc/flag
     path('<str:flag>', views.CalcHtmlView.as_view(), name="calc_sub_view"),
+
 ]

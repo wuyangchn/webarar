@@ -1870,7 +1870,9 @@ function exportSmp(url, download=true, merged_pdf=false) {
             'merged_pdf': merged_pdf,
         }),
         contentType: 'application/json',
-        beforeSend: function(){
+        beforeSend: function(xhr){
+            setCsrfHeader(xhr);
+
             if (download) {
                 // showMessage();
                 showPopupMessage("Information", "Exporting, this may take a few moments, please wait...", false, false, 300000)
@@ -2124,7 +2126,8 @@ async function clickSaveTable() {
             'rows_to_delete': rows_to_delete,
         }),
         contentType:'application/json',
-        beforeSend: function(){
+        beforeSend: function(xhr){
+            setCsrfHeader(xhr);
             showPopupMessage("Information", "Saving, please wait...", false, false,300000);
         },
         success: function(res){
@@ -2184,7 +2187,8 @@ function clickRecalc() {
             'content': { 'checked_options': checked_options }
         }),
         contentType:'application/json',
-        beforeSend: function(){
+        beforeSend: function(xhr){
+            setCsrfHeader(xhr);
             if (checked_options[11]) {
                 showPopupMessage("Information", "Using Monte Carlo simulation, this may take a few minutes depending on the number of sequences involved, please wait...", false, false, 300000);
             } else {
@@ -4169,7 +4173,7 @@ function sendWebSocket(flag, postData, onopen, onprogress, onclose, onerror, onf
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')  // Django CSRF防护
+            'X-CSRFToken': getCsrfToken()
         },
         body: postData
     })

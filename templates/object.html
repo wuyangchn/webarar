@@ -87,7 +87,7 @@
                 <h2 class="h2 align-top" id="exp_name_title">Sample Name</h2>
                 <br>
                 <form class="form-horizontal" method="post" enctype="multipart/form-data">
-
+                    {% csrf_token %}
                     <div class="form-group">
                         <label for="inputExpName" class="col-sm-2 control-label">Experiment Name</label>
                         <div class="col-sm-10">
@@ -759,6 +759,7 @@ Exsample: 1-10;12;20 Apply params to rows 1-10, 12 and 20.">
                     <h4 class="modal-title">Export</h4>
                 </div>
                 <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
                     <div class="modal-body" style="height: 400px;">
                         <p><span style="font-weight: bold">Download .Arr </span>
                             (with a single click, or right click and

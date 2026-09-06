@@ -658,6 +658,7 @@
             }),
             contentType:'application/json',
             beforeSend: function(){
+                setCsrfHeader(xhr);
                 showPopupMessage("Information", "Random walking...", false, false, 300000);
             },
             success: function(res){

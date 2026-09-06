@@ -32,6 +32,7 @@
                     <h4 class="modal-title" id="myModalLabel">Delete Uploaded Files</h4>
                 </div>
                 <form id="filesToDeleteForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
                     <div class="modal-body">
                         <p>
                             Files uploaded by users to Webarar will be renamed with a unique string,

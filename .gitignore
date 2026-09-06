@@ -1,4 +1,8 @@
 /webarar/local_settings.py
 /programs/local_init.py
+/build
+/dist
+/packaging
+.venv-packaging
 .idea
 git

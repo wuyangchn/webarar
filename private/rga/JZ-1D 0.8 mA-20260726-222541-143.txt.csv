@@ -1,0 +1,47 @@
+SRS RGASoft 4.4.1 - Residual Gas Analyzer Software
+Document created on, 2026年7月26日 22:25:41, 中国标准时间
+RGA ID, SRSRGA100VER0.24SN19218
+
+SCAN ANALYSIS
+
+Step Number, 1
+Scan Mode, Histogram
+Number of Data Points, 50
+Units, mbar
+Start Mass, 1, AMU
+Stop Mass, 50, AMU
+Points Per AMU, 1
+Scan Rate, 2.50, AMU/s
+Detector, Faraday Cup
+Focus Voltage, 90, V
+Ion Energy, 12, eV
+Electron Energy, 70, eV
+CEM Voltage, 0, V
+CEM Gain, 1.209
+Partial Pressure Sensitivity Factor, 0.1048
+Filament Current, 0.80, mA
+
+
+           Chemical Name,       Sensitivity Factor
+                Hydrogen,                    1.000
+                  Helium,                    0.572
+                 Methane,                    1.000
+                   Water,                    1.000
+                    Neon,                    0.830
+         Carbon monoxide,                    1.000
+                  Ethene,                    1.000
+                Nitrogen,                    1.000
+                     H2S,                    1.000
+                     HCl,                    1.000
+                 Propyne,                    1.000
+                   Argon,                    0.197
+                 Propane,                    1.000
+                     N2O,                    1.000
+          Carbon dioxide,                    0.185
+
+                   Scan#,                 Time(s),             Hydrogen(%),               Helium(%),              Methane(%),                Water(%),                 Neon(%),      Carbon monoxide(%),               Ethene(%),             Nitrogen(%),                  H2S(%),                  HCl(%),              Propyne(%),                Argon(%),              Propane(%),                  N2O(%),       Carbon dioxide(%)
+                       1,                       3,                 0.03541,                 1.69201,                 0.68020,                 0.15281,                 0.16423,                 2.10575,                 0.00007,                61.17928,                 0.00000,                 0.00000,                 0.00000,                 8.72337,                 0.06621,                 0.06545,                25.13521
+                       2,                      25,                 0.00000,                 1.82240,                 0.39857,                 0.09082,                 0.18049,                 1.98888,                 0.00070,                65.88762,                 0.00000,                 0.00000,                 0.00000,                 9.86708,                 0.06926,                 0.08489,                19.60929
+                       3,                      47,                 0.00000,                 1.90824,                 0.27046,                 0.07564,                 0.18623,                 1.94205,                 0.00136,                67.33546,                 0.00000,                 0.00000,                 0.00000,                10.50552,                 0.06929,                 0.09357,                17.61217
+                       4,                      68,                 0.00000,                 1.96817,                 0.19175,                 0.05408,                 0.18917,                 1.92082,                 0.00203,                67.23241,                 0.00000,                 0.00000,                 0.00000,                11.19553,                 0.06885,                 0.09912,                17.07806
+                       5,                      90,                 0.00000,                 1.99954,                 0.13446,                 0.06628,                 0.18823,                 1.90286,                 0.00104,                67.01106,                 0.00000,                 0.00000,                 0.00000,                11.71165,                 0.06899,                 0.10038,                16.81551

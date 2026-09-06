@@ -3,7 +3,7 @@ import pickle
 import json
 import traceback
 from urllib.parse import urlparse, parse_qs
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.core.cache import cache
 from django.core.exceptions import *
 from django.shortcuts import render, redirect
@@ -234,6 +234,9 @@ class ArArView(View):
             status = 403
         self.write_log()
         return JsonResponse(data, status=status, **kwargs)
+
+    def FileResponse(self, *args, **kwargs):
+        return FileResponse(*args, **kwargs)
 
     def redirect(self, view_name):
         self.write_log()

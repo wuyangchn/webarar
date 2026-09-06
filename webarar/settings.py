@@ -12,13 +12,59 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import importlib.util
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
+# The packaged Windows build runs without MySQL or Redis. Production deployments
+# can keep the original services by leaving WEBARAR_LOCAL unset
+LOCAL_MODE = os.getenv('WEBARAR_LOCAL', '').lower() in {'1', 'true', 'yes', 'on'}
+print(f"{LOCAL_MODE = }")
+
+DATA_DIR = Path(os.getenv('WEBARAR_DATA_DIR', Path.home() / 'AppData' / 'Local' / 'WebArAr'))
+if LOCAL_MODE:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    for subdir in (
+        'logs', 'download', 'settings',
+        # 'staticfiles_all',
+        'private/upload', 'private/mdd', 'private/rga',
+    ):
+        (DATA_DIR / subdir).mkdir(parents=True, exist_ok=True)
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+RUNTIME_DIR = DATA_DIR if LOCAL_MODE else BASE_DIR
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.1/howto/static-files/
+
+
+STATIC_URL = 'static/'
+STATIC_DIR = BASE_DIR / 'static'
+STATICFILES_DIRS = [STATIC_DIR, ]
+TEMPLATES_DIR = BASE_DIR / 'templates'
+# 用户下载文件的服务器保存地址
+DOWNLOAD_URL = 'static/download/'
+DOWNLOAD_ROOT = RUNTIME_DIR / 'download' if LOCAL_MODE else STATIC_DIR / 'download'
+
+# STATIC_ROOT = RUNTIME_DIR / 'staticfiles_all'
+PRIVATE_DIR = RUNTIME_DIR / 'private'
+UPLOAD_URL = 'private/upload/'
+UPLOAD_ROOT = PRIVATE_DIR / 'upload'
+MDD_URL = 'private/mdd/'
+MDD_ROOT = PRIVATE_DIR / 'mdd'
+RGA_URL = 'private/rga/'
+RGA_ROOT = PRIVATE_DIR / 'rga'
+SETTINGS_URL = 'static/settings/'
+SETTINGS_ROOT = RUNTIME_DIR / 'settings' if LOCAL_MODE else STATIC_DIR / 'settings'
+
+
+SECRET_KEY = os.getenv(
+    'DJANGO_SECRET_KEY',
+    'webarar-local-secret-key-change-for-production',
+)
 
 ALLOWED_HOSTS = [
     # '172.24.32.202',  # cug
@@ -28,7 +74,7 @@ ALLOWED_HOSTS = [
     'www.webarar.net',
 ]
 
-# ALLOWED_HOSTS¶
+# ALLOWED_HOSTS
 # Default: [] (Empty list)
 #
 # A list of strings representing the host/domain names that this Django site can serve. This is a security measure to
@@ -71,16 +117,18 @@ INSTALLED_APPS = [
     'detail.apps.DetailConfig',
     'doc.apps.ManualConfig',
     'references.apps.ReferencesConfig',
-    'sslserver',
     'channels',
 ]
+
+if not LOCAL_MODE and importlib.util.find_spec('sslserver'):
+    INSTALLED_APPS.append('sslserver')
 
 MIDDLEWARE = [
     # 处理编码和响应的中间件放在最前面
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -93,7 +141,7 @@ ROOT_URLCONF = 'webarar.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
+        'DIRS': [str(TEMPLATES_DIR), ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -102,6 +150,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.csrf',
             ],
         },
     },
@@ -114,6 +163,11 @@ ASGI_APPLICATION = 'webarar.asgi.application'
 # redis配置, https://blog.csdn.net/jiandanokok/article/details/109426427
 # https://django-redis-chs.readthedocs.io/zh_CN/latest/#
 CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "webarar-local-cache",
+    }
+} if LOCAL_MODE else {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/1",
@@ -129,6 +183,10 @@ CACHES = {
 
 # 配置channels的通道层（用于进程间通信，用内存模式或，生产环境用Redis）
 CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+} if LOCAL_MODE else {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
@@ -169,33 +227,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_all')
-
-STATIC_URL = 'static/'
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-# 用户下载文件的服务器保存地址
-DOWNLOAD_URL = 'static/download/'
-DOWNLOAD_ROOT = os.path.join(STATIC_DIR, 'download')
-# 用户上传文件的服务器保存地址
-# 如果使用static目录所有用户可以尝试文件名下载上传的文件
-# UPLOAD_URL = 'static/upload/'
-# UPLOAD_ROOT = os.path.join(STATIC_DIR, 'upload')
-PRIVATE_DIR = os.path.join(BASE_DIR, 'private')
-UPLOAD_URL = 'private/upload/'
-UPLOAD_ROOT = os.path.join(PRIVATE_DIR, 'upload')
-MDD_URL = 'private/mdd/'
-MDD_ROOT = os.path.join(PRIVATE_DIR, 'mdd')
-# 设置文件地址
-SETTINGS_URL = 'static/settings/'
-SETTINGS_ROOT = os.path.join(STATIC_DIR, 'settings')
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -208,7 +239,7 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = 'None'
 CSRF_TRUSTED_ORIGINS = ['https://www.webarar.net']
 
 # log
-LOG_DIR = os.path.join(BASE_DIR, 'logs')
+LOG_DIR = RUNTIME_DIR / 'logs'
 LOGGING = {
     'version': 1,  # 保留字
     'disable_existing_loggers': False,  # 是否禁用已经存在的日志实例
@@ -224,6 +255,11 @@ DEBUG = False
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": str(DATA_DIR / "webarar.sqlite3"),
+    }
+} if LOCAL_MODE else {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'your_database_name',
@@ -234,8 +270,8 @@ DATABASES = {
     }
 }
 
-
-try:
-    from webarar.local_settings import *
-except ImportError:
-    raise
+if not LOCAL_MODE:
+    try:
+        from webarar.local_settings import *
+    except ImportError:
+        raise

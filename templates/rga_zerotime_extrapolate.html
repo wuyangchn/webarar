@@ -1,0 +1,2324 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .rga-page {
+        display: flex;
+        box-sizing: border-box;
+        height: calc(100vh - 70px);
+        flex-direction: column;
+        padding: 20px 24px 36px;
+        background: #f6f8fa;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .rga-header {
+        display: flex;
+        box-sizing: border-box;
+        width: 100%;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        margin: 0 auto 18px;
+        max-width: 2560px;
+    }
+
+    .rga-header h2 {
+        margin: 0 0 6px;
+        color: #263746;
+        font-weight: 600;
+    }
+
+    .rga-header p {
+        margin: 0;
+        color: #6b7785;
+    }
+
+    .rga-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .rga-layout {
+        display: grid;
+        flex: 1 1 auto;
+        grid-template-columns: minmax(220px, 24%) minmax(220px, 24%) minmax(340px, 1fr) minmax(120px, 20%);
+        gap: 16px;
+        max-width: 2560px;
+        min-height: 0;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .rga-layout.rga-files-hidden {
+        grid-template-columns: minmax(220px, 24%) minmax(340px, 1fr) minmax(120px, 20%);
+    }
+
+    .rga-layout.rga-files-hidden .rga-files-panel {
+        display: none;
+    }
+
+    .rga-layout.rga-data-hidden {
+        grid-template-columns: minmax(220px, 24%) minmax(340px, 1fr) minmax(120px, 20%);
+    }
+
+    .rga-layout.rga-data-hidden .rga-data-panel {
+        display: none;
+    }
+
+    .rga-layout.rga-chemicals-hidden {
+        grid-template-columns: minmax(220px, 24%) minmax(220px, 24%) minmax(340px, 1fr);
+    }
+    .rga-layout.rga-chemicals-hidden .rga-chemicals-panel {
+        display: none;
+    }
+
+    .rga-layout.rga-files-hidden.rga-data-hidden{
+        grid-template-columns: minmax(340px,1fr) minmax(280px,24%);
+    }
+    /* files + chemicals 隐藏 */
+    .rga-layout.rga-files-hidden.rga-chemicals-hidden{
+        grid-template-columns: minmax(320px,32%) minmax(0,1fr);
+    }
+    /* data + chemicals 隐藏 */
+    .rga-layout.rga-data-hidden.rga-chemicals-hidden{
+        grid-template-columns: minmax(220px,24%) minmax(0,1fr);
+    }
+
+    .rga-layout.rga-files-hidden.rga-data-hidden.rga-chemicals-hidden{
+        grid-template-columns: minmax(0,1fr);
+    }
+
+    .rga-panel {
+        background: #fff;
+        border: 1px solid #dfe5eb;
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(38, 55, 70, .06);
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .rga-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 48px;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e7ebef;
+    }
+
+    .rga-panel-header h3 {
+        margin: 0;
+        color: #263746;
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+    .rga-panel-body {
+        padding: 14px 16px 16px;
+    }
+
+    .rga-files-panel {
+        display: flex;
+        height: 100%;
+        min-height: 0;
+        flex-direction: column;
+    }
+
+    .rga-files-panel .rga-panel-body {
+        display: flex;
+        min-height: 0;
+        flex: 1;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .rga-files-location {
+        margin-bottom: 9px;
+        color: #7d8994;
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .rga-files-list {
+        min-height: 0;
+        flex: 1;
+        overflow: auto;
+        border: 1px solid #e1e7ec;
+        border-radius: 3px;
+        background: #fbfcfd;
+        padding: 3px 0;
+    }
+
+    .rga-file-item {
+        display: block;
+        width: 100%;
+        margin: 0;
+        border: 0;
+        border-bottom: 1px solid #e7ebef;
+        background: transparent;
+        text-align: left;
+        padding: 9px 10px;
+        cursor: pointer;
+    }
+
+    .rga-file-select {
+        width: 12px;
+        height: 12px;
+        flex: 0 0 auto;
+        margin: 1px 2px 0 0;
+    }
+
+    .rga-files-multi-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 8px;
+    }
+
+    .rga-files-multi-label {
+        color: #7d8994;
+        font-size: 12px;
+    }
+
+    .rga-file-item:last-child {
+        border-bottom: 0;
+    }
+
+    .rga-file-item:hover {
+        background: #f1f6fa;
+    }
+
+    .rga-file-item:focus {
+        outline: 2px solid #8bb8d6;
+        outline-offset: -2px;
+    }
+
+    .rga-file-item.is-selected {
+        background: #e7f1f7;
+        box-shadow: inset 3px 0 #2f6f9f;
+    }
+
+    .rga-file-name {
+        display: flex;
+        gap: 7px;
+        align-items: flex-start;
+        color: #344454;
+        font-size: 12px;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .rga-file-name i {
+        flex: 0 0 auto;
+        margin-top: 2px;
+        color: #6b7785;
+    }
+
+    .rga-file-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 5px;
+        color: #7d8994;
+        font-size: 11px;
+    }
+
+    .rga-file-relative {
+        margin: 3px 0 0 19px;
+        color: #7d8994;
+        font-size: 11px;
+        font-weight: 400;
+        overflow-wrap: anywhere;
+    }
+
+    .rga-folder-toggle {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border: 0;
+        background: transparent;
+        color: #536171;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .rga-folder-toggle:hover {
+        background: #f1f6fa;
+    }
+
+    .rga-folder-toggle:focus {
+        outline: 2px solid #8bb8d6;
+        outline-offset: -2px;
+    }
+
+    .rga-folder-children {
+        margin-left: 14px;
+        border-left: 1px solid #e1e7ec;
+    }
+
+    .rga-folder.is-collapsed > .rga-folder-children {
+        display: none;
+    }
+
+    .rga-folder.is-collapsed > .rga-folder-toggle .fa-folder-open:before {
+        content: "\f07b";
+    }
+
+    .rga-files-selection {
+        min-height: 17px;
+        margin: 0 0 8px;
+        color: #536171;
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .rga-icon-button {
+        padding: 3px 7px;
+    }
+
+    .rga-data-panel {
+        display: flex;
+        height: 100%;
+        min-height: 0;
+        flex-direction: column;
+    }
+
+    .rga-data-panel .rga-panel-body {
+        min-height: 0;
+        flex: 1 1 auto;
+        overflow: auto;
+    }
+
+    .rga-chemicals-panel {
+        display: flex;
+        height: 100%;
+        min-height: 0;
+        flex-direction: column;
+    }
+
+    .rga-chemicals-panel .rga-panel-body {
+        min-height: 0;
+        flex: 1 1 auto;
+        overflow: auto;
+    }
+
+    .rga-parameter-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .rga-parameter-grid label {
+        margin-bottom: 4px;
+        color: #536171;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .rga-parameter-grid .form-control {
+        height: 32px;
+        padding: 5px 8px;
+        font-size: 13px;
+    }
+
+    .rga-section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 12px 0 8px;
+        color: #263746;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .rga-isotope-list .rga-checkbox-cell {
+        width: 46px;
+        padding: 0 7px !important;
+        text-align: center;
+        vertical-align: middle !important;
+    }
+
+    .rga-checkbox-wrap {
+        display: inline-flex;
+        width: 29px;
+        height: 29px;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        vertical-align: middle;
+    }
+
+    .rga-checkbox-wrap input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        margin: 0;
+        vertical-align: middle;
+    }
+
+    .rga-isotope-list {
+        min-height: 500px;
+        overflow: auto;
+        border: 1px solid #e1e7ec;
+        border-radius: 3px;
+        background: #fbfcfd;
+    }
+
+    .rga-isotope-list table {
+        min-width: 600px;
+        margin: 0;
+        font-size: 12px;
+    }
+
+    .rga-isotope-list thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f1f5f8;
+        color: #536171;
+        font-weight: 600;
+    }
+
+    .rga-isotope-list td,
+    .rga-isotope-list th {
+        padding: 6px 7px;
+        border-color: #e7ebef;
+        vertical-align: middle;
+    }
+
+    .rga-isotope-list tbody tr:hover {
+        background: #f1f6fa;
+    }
+
+    .rga-isotope-plot {
+        margin: 0;
+    }
+
+    .rga-isotope-name {
+        vertical-align: middle !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        min-width: 40px;
+        max-width: 95px;
+        color: #344454;
+        font-weight: 600;
+    }
+
+    .rga-isotope-name-text {
+        display: inline-flex;
+        min-height: 29px;
+        align-items: center;
+        line-height: 1.2;
+    }
+
+    .rga-isotope-list .rga-fit-method .form-control {
+        height: 29px;
+        min-width: 60px;
+        max-width: 150px;
+        padding: 4px 6px;
+        font-size: 12px;
+        margin: 0;
+        vertical-align: middle;
+    }
+
+    .rga-isotope-list .rga-isotope-mass {
+        width: 58px;
+        min-width: 0;
+        max-width: 58px;
+    }
+
+    .rga-isotope-list .rga-isotope-sensitivity {
+        width: 80px;
+        min-width: 0;
+        max-width: 80px;
+    }
+
+    .rga-fit-status {
+        display: inline-block;
+        min-width: 92px;
+        color: #6b7785;
+        white-space: normal;
+    }
+
+    .rga-fit-status.is-error {
+        color: #a94442;
+    }
+
+    .rga-table-wrap {
+        max-height: 415px;
+        overflow: auto;
+        border: 1px solid #e1e7ec;
+        border-radius: 3px;
+    }
+
+    .rga-table-wrap table {
+        margin: 0;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .rga-table-wrap thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f1f5f8;
+        color: #536171;
+        font-weight: 600;
+    }
+
+    .rga-table-wrap td,
+    .rga-table-wrap th {
+        padding: 7px 8px;
+        border-color: #e7ebef;
+    }
+
+    .rga-chart-panel {
+        display: flex;
+        height: 100%;
+        min-height: 0;
+        flex-direction: column;
+    }
+
+    .rga-chart-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        color: #6b7785;
+        font-size: 12px;
+    }
+
+    .rga-chart-toolbar .btn-group .btn {
+        padding: 4px 9px;
+        font-size: 12px;
+    }
+
+    #rga-fit-chart {
+        flex: 1 1 auto;
+        width: 100%;
+        min-height: 420px;
+    }
+
+    .rga-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 42px;
+        padding: 9px 16px;
+        border-top: 1px solid #e7ebef;
+        color: #6b7785;
+        font-size: 12px;
+    }
+
+    .rga-status strong {
+        color: #2f6f9f;
+    }
+
+    .rga-empty {
+        padding: 24px 10px;
+        color: #7d8994;
+        text-align: center;
+    }
+
+    @media (max-width: 1980px) {
+        .rga-header {
+            max-width: 1780px;
+        }
+
+        .rga-layout {
+            grid-template-columns: minmax(0, 20%) minmax(0, 20%) minmax(420px, 1fr) minmax(0, 20%);
+            max-width: 1780px;
+        }
+
+        .rga-files-panel {
+            min-height: 250px;
+        }
+
+        .rga-layout.rga-files-hidden {
+            grid-template-columns: minmax(220px, 22%) minmax(0, 1fr) minmax(200px, 24%);
+        }
+
+        .rga-layout.rga-data-hidden {
+            grid-template-columns: minmax(200px, 22%) minmax(0, 1fr) minmax(200px, 24%);
+        }
+
+        .rga-layout.rga-chemicals-hidden {
+            grid-template-columns: minmax(200px, 22%) minmax(200px, 24%) minmax(0, 1fr);
+        }
+
+        .rga-layout.rga-files-hidden.rga-data-hidden {
+            grid-template-columns: minmax(0, 1fr) minmax(500px, 40%);
+        }
+
+        .rga-layout.rga-data-hidden.rga-chemicals-hidden {
+            grid-template-columns: minmax(200px, 30%) minmax(0, 1fr);
+        }
+
+        .rga-layout.rga-files-hidden.rga-chemicals-hidden {
+            grid-template-columns: minmax(300px, 30%) minmax(0, 1fr);
+        }
+
+        #rga-fit-chart {
+            height: clamp(420px, 60vh, 760px);
+        }
+    }
+
+    @media (max-width: 980px) {
+        .rga-page {
+            height: auto;
+            min-height: calc(100vh - 70px);
+            overflow: visible;
+            max-width: 980px;
+        }
+
+        .rga-layout {
+            flex: none;
+            grid-template-columns: minmax(0, 1fr) minmax(50px, 34%) ;
+            max-width: 980px;
+        }
+
+        .rga-panel {
+            height: auto;
+            overflow: visible;
+            min-height: 260px;
+            max-height: 560px;
+        }
+
+        .rga-files-panel {
+            grid-column: 1 / -1;
+            min-height: 250px;
+        }
+
+        .rga-data-panel {
+            grid-column: 1 / -1;
+            min-height: 250px;
+        }
+
+        .rga-layout.rga-files-hidden {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 20%);
+        }
+
+        .rga-layout.rga-data-hidden {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 20%);
+        }
+
+        .rga-layout.rga-chemicals-hidden .rga-chart-panel {
+            grid-column: 1 / -1;
+        }
+
+        .rga-chart-panel {
+            overflow: hidden;
+        }
+    }
+
+    @media (min-width: 1981px) and (max-width: 2580px) {
+        .rga-header {
+            max-width: 2080px;
+        }
+
+        .rga-layout {
+            grid-template-columns: minmax(220px, 24%) minmax(220px, 24%) minmax(420px, 1fr) minmax(220px, 24%);
+            max-width: 2080px;
+        }
+
+        .rga-files-panel {
+            min-height: 250px;
+        }
+
+        .rga-layout.rga-files-hidden {
+            grid-template-columns: minmax(220px, 22%) minmax(0, 1fr) minmax(200px, 24%);
+        }
+
+        .rga-layout.rga-data-hidden {
+            grid-template-columns: minmax(200px, 22%) minmax(0, 1fr) minmax(200px, 24%);
+        }
+
+        .rga-layout.rga-chemicals-hidden {
+            grid-template-columns: minmax(200px, 22%) minmax(200px, 24%) minmax(0, 1fr);
+        }
+
+        .rga-layout.rga-files-hidden.rga-data-hidden {
+            grid-template-columns: minmax(0, 1fr) minmax(500px, 40%);
+        }
+
+        .rga-layout.rga-data-hidden.rga-chemicals-hidden {
+            grid-template-columns: minmax(200px, 30%) minmax(0, 1fr);
+        }
+
+        .rga-layout.rga-files-hidden.rga-chemicals-hidden {
+            grid-template-columns: minmax(300px, 30%) minmax(0, 1fr);
+        }
+    }
+</style>
+
+<div class="rga-page">
+    <div class="rga-header">
+        <div>
+            <h2>RGA Zero-Time Extrapolation</h2>
+            <p>Mass-spectrometric zero-time estimates and isotope fitting</p>
+        </div>
+        <div class="rga-toolbar">
+            <button type="button" class="btn btn-default btn-sm" id="rga-show-files-btn" style="display: none">
+                <i class="fa fa-folder-open" aria-hidden="true"></i> Show files
+            </button>
+            <button type="button" class="btn btn-default btn-sm" id="rga-show-data-btn" style="display: none">
+                <i class="fa fa-sliders" aria-hidden="true"></i> Show parameters
+            </button>
+            <button type="button" class="btn btn-default btn-sm" id="rga-show-chemicals-btn" style="display: none">
+                <i class="fa fa-table" aria-hidden="true"></i> Show chemicals
+            </button>
+            <button type="button" class="btn btn-default btn-sm" id="rga-reset-btn">Reset</button>
+            <button type="button" class="btn btn-primary btn-sm" id="rga-export-btn">Export results</button>
+        </div>
+    </div>
+
+    <div class="rga-layout">
+        <section class="rga-panel rga-files-panel" aria-labelledby="rga-files-title">
+            <div class="rga-panel-header">
+                <h3 id="rga-files-title">Files</h3>
+                <div class="rga-toolbar">
+                    <span class="text-muted" id="rga-files-count">0 files</span>
+                    <button type="button" class="btn btn-default btn-xs rga-icon-button"
+                            id="rga-hide-files-btn" title="Hide files panel" aria-label="Hide files panel">
+                        <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs rga-icon-button"
+                            id="rga-refresh-files-btn" title="Refresh file list" aria-label="Refresh file list">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="rga-panel-body">
+                <div class="rga-files-location" id="rga-files-location"
+                     data-files-root="{{ rga_files_root|default:'RGA data folder' }}">RGA data folder</div>
+                <div class="rga-files-selection" id="rga-selected-file">No file selected</div>
+                <div class="rga-files-multi-actions">
+                    <button type="button" class="btn btn-default btn-xs" id="rga-select-files-btn">Select all</button>
+                    <span class="text-muted rga-files-multi-label" id="rga-files-selected-count">0 selected</span>
+                </div>
+                <div id="rga-files-list" class="rga-files-list" role="list"></div>
+            </div>
+        </section>
+
+        <section class="rga-panel rga-data-panel" aria-labelledby="rga-data-title">
+            <div class="rga-panel-header">
+                <h3 id="rga-data-title">Parameters and data</h3>
+                <div class="rga-toolbar">
+                    <span class="text-muted" id="rga-row-count">0 rows</span>
+                    <button type="button" class="btn btn-default btn-xs rga-icon-button"
+                            id="rga-hide-data-btn" title="Hide parameters and data panel"
+                            aria-label="Hide parameters and data panel">
+                        <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="rga-panel-body">
+                <div class="rga-parameter-grid">
+                    <div>
+                        <label for="rga-sample-name">Sample</label>
+                        <input id="rga-sample-name" class="form-control" type="text" value="RGA example">
+                    </div>
+                    <div>
+                        <label for="rga-default-fit-model">Default fit method</label>
+                        <select id="rga-default-fit-model" class="form-control">
+                            <option value="linear">Linear</option>
+                            <option value="quadratic">Quadratic</option>
+                            <option value="exponential">Exponential</option>
+                            <option value="average">Average</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="rga-time-unit">Time unit</label>
+                        <select id="rga-time-unit" class="form-control">
+                            <option value="s">seconds</option>
+                            <option value="min">minutes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="rga-start-mass">Start Mass (AMU)</label>
+                        <input id="rga-start-mass" class="form-control" type="number" min="0" step="any" value="">
+                    </div>
+                    <div>
+                        <label for="rga-stop-mass">Stop Mass (AMU)</label>
+                        <input id="rga-stop-mass" class="form-control" type="number" min="0" step="any" value="">
+                    </div>
+                    <div>
+                        <label for="rga-scan-rate">Scan Rate (AMU/s)</label>
+                        <input id="rga-scan-rate" class="form-control" type="number" min="0" step="any" value="">
+                    </div>
+                    <div>
+                        <label for="rga-detector">Detector</label>
+                        <input id="rga-detector" class="form-control" type="text" value="">
+                    </div>
+                    <div>
+                        <label for="rga-cem-gain">CEM Gain</label>
+                        <input id="rga-cem-gain" class="form-control" type="number" min="0" step="any" value="">
+                    </div>
+                    <div>
+                        <label for="rga-filament-current">Filament Current (mA)</label>
+                        <input id="rga-filament-current" class="form-control" type="number" min="0" step="any" value="">
+                    </div>
+                    <div>
+                        <label for="rga-partial-pressure-sensitivity-factor">Partial Pressure Sensitivity Factor</label>
+                        <input id="rga-partial-pressure-sensitivity-factor" class="form-control" type="number" min="0" step="any" value="">
+                    </div>
+                    <div>
+                        <label for="rga-ion-energy">Ion Energy (eV)</label>
+                        <input id="rga-ion-energy" class="form-control" type="number" min="0" step="any" value="">
+                    </div>
+                    <div>
+                        <label for="rga-focus-voltage">Focus Voltage (V)</label>
+                        <input id="rga-focus-voltage" class="form-control" type="number" min="0" step="any" value="">
+                    </div>
+                </div>
+
+{#                <div class="rga-section-title">#}
+{#                    <span>Isotopes and metadata</span>#}
+{#                    <span class="text-muted" id="rga-selection-count">0 selected</span>#}
+{#                </div>#}
+{#                <div class="btn-group btn-group-sm" role="group" aria-label="Isotope selection mode">#}
+{#                    <button type="button" class="btn btn-primary" data-selection-mode="multi">Multiple</button>#}
+{#                    <button type="button" class="btn btn-default" data-selection-mode="single">Single</button>#}
+{#                </div>#}
+{#                <button type="button" class="btn btn-default btn-sm" id="rga-select-all-btn" style="margin-left: 6px">#}
+{#                    Select All#}
+{#                </button>#}
+{#                <button type="button" class="btn btn-default btn-sm" id="rga-apply-defaults-btn" style="margin-left: 6px">#}
+{#                    Apply method to selected#}
+{#                </button>#}
+{#                <div id="rga-isotope-list" class="rga-isotope-list" style="margin-top: 8px"></div>#}
+
+                <div class="rga-section-title">
+                    <span>Measured intensities</span>
+                    <span class="text-muted">scroll to inspect</span>
+                </div>
+                <div class="rga-table-wrap">
+                    <table class="table table-condensed table-hover" id="rga-data-table">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="rga-panel rga-chart-panel" aria-labelledby="rga-chart-title">
+            <div class="rga-panel-header">
+                <h3 id="rga-chart-title">Zero-time fit</h3>
+                <div class="rga-chart-toolbar">
+                    <span class="text-muted" id="rga-fit-summary">Select one or more isotopes</span>
+{#                    <button type="button" class="btn btn-default btn-xs rga-icon-button"#}
+{#                            id="rga-refresh-chart-btn" title="Refresh fitting and plotting" aria-label="Refresh chart">#}
+{#                        <i class="fas fa-sync"></i>#}
+{#                    </button>#}
+{#                    <div class="btn-group btn-group-sm" role="group" aria-label="Chart scale">#}
+{#                        <button type="button" class="btn btn-default active" data-scale="linear">Linear</button>#}
+{#                        <button type="button" class="btn btn-default" data-scale="log">Log Y</button>#}
+{#                    </div>#}
+                </div>
+            </div>
+            <div id="rga-fit-chart" aria-label="RGA isotope zero-time fitting chart"></div>
+            <div class="rga-status">
+                <span id="rga-status-text">Ready</span>
+                <span>Selected: <strong id="rga-status-isotopes">None</strong></span>
+            </div>
+        </section>
+
+        <section class="rga-panel rga-chemicals-panel" aria-labelledby="rga-chemicals-title">
+            <div class="rga-panel-header">
+                <h3 id="rga-chemicals-title">Chemicals</h3>
+                <div class="rga-toolbar">
+                    <span class="text-muted" id="rga-selection-count">0 selected</span>
+                    <button type="button" class="btn btn-default btn-xs rga-icon-button"
+                            id="rga-hide-chemicals-btn" title="Hide chemicals panel"
+                            aria-label="Hide chemicals panel">
+                        <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="rga-panel-body">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Isotope selection mode">
+                    <button type="button" class="btn btn-primary" data-selection-mode="multi">Multiple</button>
+                    <button type="button" class="btn btn-default" data-selection-mode="single">Single</button>
+                </div>
+                <button type="button" class="btn btn-default btn-sm" id="rga-select-all-btn" style="margin-left: 6px">
+                    Select All
+                </button>
+{#                <button type="button" class="btn btn-default btn-sm" id="rga-apply-defaults-btn" style="margin-left: 6px">#}
+{#                    Apply method to selected#}
+{#                </button>#}
+                <div id="rga-isotope-list" class="rga-isotope-list" style="margin-top: 8px"></div>
+
+            </div>
+        </section>
+
+    </div>
+</div>
+
+{% if rga_zero_time_data %}
+    {{ rga_zero_time_data|json_script:"rga-zero-time-data" }}
+{% else %}
+    <script id="rga-zero-time-data" type="application/json">null</script>
+{% endif %}
+
+{% if rga_files %}
+    {{ rga_files|json_script:"rga-files-data" }}
+{% else %}
+    <script id="rga-files-data" type="application/json">[]</script>
+{% endif %}
+
+{% if rga_configs %}
+    {{ rga_configs|json_script:"rga-configs" }}
+{% else %}
+    <script id="rga-configs" type="application/json">{}</script>
+{% endif %}
+
+<script>
+(function () {
+    const fallbackData = {
+        sample: 'RGA example',
+        parameters: {
+            start_mass: 1,
+            stop_mass: 50,
+            scan_rate: 2.5,
+            detector: 'Faraday Cup',
+            cem_gain: 1,
+            filament_current: 0.6,
+            partial_pressure_sensitivity_factor: 0.1,
+            ion_energy: 12,
+            focus_voltage: 90
+        },
+        chemicals: [
+            {name: '40Ar', mass: 40, sensitivity_factor: 1.0, values: [12.8, 10.9, 9.4, 8.1, 7.2, 6.5]},
+            {name: '39Ar', mass: 39, sensitivity_factor: 1.0, values: [4.8, 4.2, 3.7, 3.3, 3.0, 2.8]},
+            {name: '38Ar', mass: 38, sensitivity_factor: 1.0, values: [1.7, 1.5, 1.35, 1.22, 1.14, 1.08]},
+            {name: '36Ar', mass: 36, sensitivity_factor: 1.0, values: [2.6, 2.3, 2.05, 1.86, 1.73, 1.63]}
+        ],
+        time: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
+    };
+
+    const scanParameterDefinitions = [
+        {
+            key: 'start_mass',
+            id: 'rga-start-mass',
+            aliases: ['start_mass', 'startMass', 'Start Mass']
+        },
+        {
+            key: 'stop_mass',
+            id: 'rga-stop-mass',
+            aliases: ['stop_mass', 'stopMass', 'Stop Mass']
+        },
+        {
+            key: 'scan_rate',
+            id: 'rga-scan-rate',
+            aliases: ['scan_rate', 'scanRate', 'Scan Rate']
+        },
+        {
+            key: 'detector',
+            id: 'rga-detector',
+            aliases: ['detector', 'Detector']
+        },
+        {
+            key: 'cem_gain',
+            id: 'rga-cem-gain',
+            aliases: ['cem_gain', 'cemGain', 'CEM Gain']
+        },
+        {
+            key: 'filament_current',
+            id: 'rga-filament-current',
+            aliases: ['filament_current', 'filamentCurrent', 'Filament Current']
+        },
+        {
+            key: 'partial_pressure_sensitivity_factor',
+            id: 'rga-partial-pressure-sensitivity-factor',
+            aliases: [
+                'partial_pressure_sensitivity_factor',
+                'partialPressureSensitivityFactor',
+                'Partial Pressure Sensitivity Factor'
+            ]
+        },
+        {
+            key: 'ion_energy',
+            id: 'rga-ion-energy',
+            aliases: ['ion_energy', 'ionEnergy', 'Ion Energy']
+        },
+        {
+            key: 'focus_voltage',
+            id: 'rga-focus-voltage',
+            aliases: ['focus_voltage', 'focusVoltage', 'Focus Voltage']
+        }
+    ];
+
+    const dataElement = document.getElementById('rga-zero-time-data');
+    let sourceData = fallbackData;
+    try {
+        sourceData = JSON.parse(dataElement.textContent) || fallbackData;
+    } catch (error) {
+        sourceData = fallbackData;
+    }
+
+    let sourceParameters = {};
+
+    function refreshSourceParameters() {
+        sourceParameters = [
+            sourceData.parameters,
+            sourceData.scan_parameters,
+            sourceData.scanParameters,
+            sourceData.params,
+            sourceData.metadata
+        ].find(value => value && typeof value === 'object' && !Array.isArray(value)) || {};
+        scanParameterDefinitions.forEach(definition => {
+            const value = getSourceValue(
+                definition.aliases,
+                sourceParameters[definition.key]
+            );
+            sourceParameters[definition.key] = value;
+        });
+    }
+
+    refreshSourceParameters();
+
+    let sourceFiles = [];
+
+    function refreshSourceFiles() {
+        const filesElement = document.getElementById('rga-files-data');
+        try {
+            const parsedFiles = JSON.parse(filesElement.textContent) || [];
+            sourceFiles = Array.isArray(parsedFiles) ? parsedFiles : [];
+        } catch (error) {
+            sourceFiles = [];
+        }
+    }
+
+    refreshSourceFiles();
+
+    const configsElement = document.getElementById('rga-configs');
+    let pageConfigs = {};
+    try {
+        pageConfigs = JSON.parse(configsElement.textContent) || {};
+    } catch (error) {
+        pageConfigs = {};
+    }
+
+    function getSourceValue(names, fallback) {
+        const sources = [sourceParameters, sourceData];
+        for (const source of sources) {
+            for (const name of names) {
+                if (Object.prototype.hasOwnProperty.call(source, name)
+                    && source[name] !== undefined
+                    && source[name] !== null) {
+                    return source[name];
+                }
+            }
+        }
+        return fallback;
+    }
+
+    function parseNumeric(value) {
+        if (value === undefined || value === null || String(value).trim() === '') {
+            return null;
+        }
+        const direct = Number(value);
+        if (Number.isFinite(direct)) return direct;
+        const match = String(value).replace(/,/g, '').match(
+            /[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/i
+        );
+        if (!match) return null;
+        const parsed = Number(match[0]);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function getObjectValue(object, names) {
+        if (!object || typeof object !== 'object') return undefined;
+        for (const name of names) {
+            if (Object.prototype.hasOwnProperty.call(object, name)
+                && object[name] !== undefined
+                && object[name] !== null) {
+                return object[name];
+            }
+        }
+        return undefined;
+    }
+
+    function populateParameterInputs() {
+        const sample = getSourceValue(
+            ['sample', 'sample_name', 'sampleName'],
+            fallbackData.sample
+        );
+        const defaultMethod = getSourceValue(
+            ['default_method', 'defaultMethod'],
+            'linear'
+        );
+        const timeUnit = getSourceValue(
+            ['time_unit', 'timeUnit'],
+            's'
+        );
+        document.getElementById('rga-sample-name').value = sample || fallbackData.sample;
+        document.getElementById('rga-default-fit-model').value = normalizeMethod(defaultMethod);
+        document.getElementById('rga-time-unit').value = timeUnit === 'min' ? 'min' : 's';
+
+        scanParameterDefinitions.forEach(definition => {
+            const input = document.getElementById(definition.id);
+            if (!input) return;
+            const value = getSourceValue(
+                definition.aliases,
+                fallbackData.parameters[definition.key]
+            );
+            const displayValue = definition.key === 'detector' ? value : parseNumeric(value);
+            input.value = displayValue === undefined || displayValue === null
+                ? ''
+                : String(displayValue);
+        });
+    }
+
+    function readNumberInput(id) {
+        const input = document.getElementById(id);
+        return input ? parseNumeric(input.value) : null;
+    }
+
+    function serializeScanParameters() {
+        const parameters = {
+            sample: document.getElementById('rga-sample-name').value,
+            default_method: normalizeMethod(document.getElementById('rga-default-fit-model').value),
+            time_unit: document.getElementById('rga-time-unit').value
+        };
+        scanParameterDefinitions.forEach(definition => {
+            parameters[definition.key] = definition.key === 'detector'
+                ? document.getElementById(definition.id).value.trim()
+                : readNumberInput(definition.id);
+        });
+        return parameters;
+    }
+
+    // the data table and chart can use the selected file's time axis.
+    function normalizeTime(data) {
+        const rawTime = data.time || data.times || fallbackData.time;
+        const parsedTime = Array.isArray(rawTime) ? rawTime.map(Number) : [];
+        return parsedTime.length
+            ? parsedTime.map((value, index) => Number.isFinite(value) ? value : index)
+            : fallbackData.time.slice();
+    }
+
+    let time = normalizeTime(sourceData);
+
+    const methodLabels = {
+        linear: 'Linear',
+        quadratic: 'Quadratic',
+        exponential: 'Exponential',
+        average: 'Average'
+    };
+    const methodFromLegacyIndex = {
+        0: 'linear',
+        1: 'quadratic',
+        2: 'exponential',
+        4: 'average'
+    };
+    const pointSelectionEncoding = 'bitset-base64url-v1';
+    const pointSelectionPrefix = 'b64:';
+
+    function normalizeMethod(value) {
+        if (typeof value === 'number' || /^\d+$/.test(String(value))) {
+            return methodFromLegacyIndex[Number(value)] || 'linear';
+        }
+        return Object.prototype.hasOwnProperty.call(methodLabels, value)
+            ? value
+            : 'linear';
+    }
+
+    function clampWindow(value) {
+        const parsed = Number.parseInt(value, 10);
+        const fallback = Math.min(4, time.length);
+        const safe = Number.isFinite(parsed) ? parsed : fallback;
+        return Math.max(2, Math.min(safe, time.length));
+    }
+
+    function normalizePointIndices(points) {
+        if (!Array.isArray(points)) return [];
+        return [...new Set(points.map(Number)
+            .filter(value => Number.isInteger(value) && value >= 1 && value <= time.length))]
+            .sort((left, right) => left - right);
+    }
+
+    function bytesToBase64Url(bytes) {
+        let binary = '';
+        for (let index = 0; index < bytes.length; index += 1) {
+            binary += String.fromCharCode(bytes[index]);
+        }
+        return btoa(binary)
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/g, '');
+    }
+
+    function base64UrlToBytes(value) {
+        if (typeof value !== 'string') return null;
+        const normalized = value.trim()
+            .replace(/^b64:/i, '')
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+        if (!/^[a-z0-9+/]*={0,2}$/i.test(normalized)) return null;
+        const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
+        try {
+            const binary = atob(padded);
+            const bytes = new Uint8Array(binary.length);
+            for (let index = 0; index < binary.length; index += 1) {
+                bytes[index] = binary.charCodeAt(index);
+            }
+            return bytes;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function decodeBase64PointSelection(value) {
+        const bytes = base64UrlToBytes(value);
+        if (!bytes) return [];
+        const points = [];
+        for (let point = 1; point <= time.length; point += 1) {
+            const byteIndex = Math.floor((point - 1) / 8);
+            const bitIndex = (point - 1) % 8;
+            if (byteIndex < bytes.length && (bytes[byteIndex] & (1 << bitIndex))) {
+                points.push(point);
+            }
+        }
+        return points;
+    }
+
+    function decodeLegacyHexPointSelection(value) {
+        try {
+            const mask = BigInt(value.trim());
+            const points = [];
+            for (let point = 1; point <= time.length; point += 1) {
+                if ((mask & (BigInt(1) << BigInt(point - 1))) !== BigInt(0)) {
+                    points.push(point);
+                }
+            }
+            return points;
+        } catch (error) {
+            return [];
+        }
+    }
+
+    // One bit represents one 1-based test-point index. Base64url keeps the
+    // bitset compact without relying on JavaScript Number precision.
+    function encodePointSelection(points) {
+        const bytes = new Uint8Array(Math.ceil(time.length / 8));
+        normalizePointIndices(points).forEach(point => {
+            const bitIndex = point - 1;
+            bytes[Math.floor(bitIndex / 8)] |= 1 << (bitIndex % 8);
+        });
+        return `${pointSelectionPrefix}${bytesToBase64Url(bytes)}`;
+    }
+
+    function decodePointSelection(value) {
+        if (typeof value !== 'string') return [];
+        const normalized = value.trim();
+        if (/^b64:/i.test(normalized)) {
+            return decodeBase64PointSelection(normalized);
+        }
+        if (/^0x[0-9a-f]+$/i.test(normalized)) {
+            return decodeLegacyHexPointSelection(normalized);
+        }
+        return [];
+    }
+
+    function normalizePointSelection(item) {
+        const raw = item.selected_points !== undefined
+            ? item.selected_points
+            : item.point_selection;
+        if (Array.isArray(raw)) {
+            return normalizePointIndices(raw);
+        }
+        if (raw && typeof raw === 'object' && typeof raw.value === 'string') {
+            if (raw.encoding === pointSelectionEncoding || raw.encoding === undefined) {
+                return decodePointSelection(raw.value);
+            }
+        }
+        if (typeof raw === 'string' && item.point_selection_encoding === pointSelectionEncoding) {
+            return decodeBase64PointSelection(raw);
+        }
+        if (typeof raw === 'string' && (/^b64:/i.test(raw.trim()) || /^0x[0-9a-f]+$/i.test(raw.trim()))) {
+            return decodePointSelection(raw);
+        }
+
+        // Keep old window-based data readable while migrating to point selections.
+        const legacyWindow = item.window || item.fit_window || sourceData.zero_window || 4;
+        const count = clampWindow(legacyWindow);
+        return Array.from({length: count}, (_, index) => index + 1);
+    }
+
+    function normalizePointSync(item) {
+        return Boolean(
+            item.sync_point_clicks ||
+            item.sync_points ||
+            item.apply_point_clicks
+        );
+    }
+
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[character]));
+    }
+
+    function getFileField(file, names, fallback) {
+        for (const name of names) {
+            if (file[name] !== undefined && file[name] !== null && file[name] !== '') {
+                return file[name];
+            }
+        }
+        return fallback;
+    }
+
+    function formatFileDate(value) {
+        if (value === undefined || value === null || value === '') return 'Unknown modified time';
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            const milliseconds = value < 100000000000 ? value * 1000 : value;
+            const date = new Date(milliseconds);
+            if (!Number.isNaN(date.getTime())) return date.toLocaleString();
+        }
+        return String(value);
+    }
+
+    function formatFileSize(value) {
+        if (value === undefined || value === null || value === '') return '';
+        if (typeof value !== 'number' || !Number.isFinite(value)) return String(value);
+        if (value < 1024) return `${value} B`;
+        if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+        if (value < 1024 * 1024 * 1024) return `${(value / 1024 / 1024).toFixed(1)} MB`;
+        return `${(value / 1024 / 1024 / 1024).toFixed(1)} GB`;
+    }
+
+    function normalizeRelativePath(value) {
+        return String(value || '')
+            .replace(/\\/g, '/')
+            .split('/')
+            .filter(part => part && part !== '.' && part !== '..')
+            .join('/');
+    }
+
+    function getFileRelativePath(file) {
+        const fallback = getFileField(file, ['name', 'filename', 'file_name'], 'Unnamed file');
+        const candidate = getFileField(
+            file,
+            ['relative_path', 'relativePath', 'path'],
+            fallback
+        );
+        const normalized = normalizeRelativePath(candidate);
+        // Older payloads may contain an absolute path. Do not send it back as
+        // a relative selector; use the legacy filename instead.
+        if (/^(?:[a-z]:\/|\/)/i.test(normalized)) {
+            return normalizeRelativePath(fallback) || 'Unnamed file';
+        }
+        return normalized || normalizeRelativePath(fallback) || 'Unnamed file';
+    }
+
+    function createFileTreeNode() {
+        return {folders: Object.create(null), files: []};
+    }
+
+    function buildFileTree(files) {
+        const root = createFileTreeNode();
+        rgaFileEntries = files.map(file => {
+            const relativePath = getFileRelativePath(file);
+            const segments = relativePath.split('/').filter(Boolean);
+            const filename = segments.pop() || 'Unnamed file';
+            const entry = Object.assign({}, file, {
+                filename: filename,
+                relative_path: relativePath
+            });
+            let node = root;
+            segments.forEach(folderName => {
+                if (!node.folders[folderName]) {
+                    node.folders[folderName] = createFileTreeNode();
+                }
+                node = node.folders[folderName];
+            });
+            node.files.push(entry);
+            return entry;
+        });
+        return root;
+    }
+
+    function renderFileTreeNode(node) {
+        const folderMarkup = Object.keys(node.folders)
+            .sort((left, right) => left.localeCompare(right))
+            .map(folderName => `
+                <div class="rga-folder" role="group">
+                    <button type="button" class="rga-folder-toggle" aria-expanded="true">
+                        <i class="fa fa-folder-open" aria-hidden="true"></i>
+                        <span>${escapeHtml(folderName)}</span>
+                    </button>
+                    <div class="rga-folder-children" role="group">
+                        ${renderFileTreeNode(node.folders[folderName])}
+                    </div>
+                </div>`)
+            .join('');
+
+        const fileMarkup = node.files
+            .slice()
+            .sort((left, right) => Number(getFileField(right, ['st_mtime', 'mtime'], 0))
+                - Number(getFileField(left, ['st_mtime', 'mtime'], 0)))
+            .map(file => {
+                const name = file.filename;
+                const relativePath = file.relative_path;
+                const modified = getFileField(
+                    file,
+                    ['modified', 'modify_time', 'modified_at', 'mtime', 'updated_at'],
+                    ''
+                );
+                const size = formatFileSize(getFileField(file, ['size', 'size_bytes'], ''));
+                const sizeText = size ? `<span>${escapeHtml(size)}</span>` : '';
+                return `
+                    <div class="rga-file-item" role="button" tabindex="0"
+                         data-relative-path="${escapeHtml(relativePath)}"
+                         title="${escapeHtml(relativePath)}" aria-pressed="false">
+                        <div class="rga-file-name">
+                            <input type="checkbox" class="rga-file-select"
+                                   data-relative-path="${escapeHtml(relativePath)}"
+                                   aria-label="Select ${escapeHtml(relativePath)}">
+                            <i class="fa fa-file-o" aria-hidden="true"></i>
+                            <span>${escapeHtml(name)}</span>
+                        </div>
+{#                        <div class="rga-file-relative">${escapeHtml(relativePath)}</div>#}
+                        <div class="rga-file-meta">
+                            <span>${escapeHtml(formatFileDate(modified))}</span>
+                            ${sizeText}
+                        </div>
+                    </div>`;
+            })
+            .join('');
+
+        return folderMarkup + fileMarkup;
+    }
+
+    let selectedRgaFile = '';
+    let rgaFileEntries = [];
+    let rgaFileRequestId = 0;
+    const selectedRgaFiles = new Set();
+    const selectedRgaData = new Map();
+
+    function updateSelectedRgaFiles() {
+        const selected = rgaFileEntries.filter(file => selectedRgaFiles.has(file.relative_path));
+        const count = document.getElementById('rga-files-selected-count');
+        const button = document.getElementById('rga-select-files-btn');
+        if (count) count.textContent = `${selected.length} selected`;
+        if (button) {
+            const allSelected = rgaFileEntries.length > 0 && selected.length === rgaFileEntries.length;
+            button.textContent = allSelected ? 'Clear all' : 'Select all';
+            button.title = allSelected ? 'Clear all file selections' : 'Select all files';
+            button.setAttribute('aria-label', button.title);
+        }
+        document.querySelectorAll('#rga-files-list .rga-file-select').forEach(input => {
+            input.checked = selectedRgaFiles.has(input.dataset.relativePath);
+        });
+        window.rgaSelectedFiles = selected.map(file => Object.assign({}, file));
+        window.dispatchEvent(new CustomEvent('rga-files-selected', {
+            detail: {files: window.rgaSelectedFiles}
+        }));
+    }
+
+    function toggleAllRgaFiles() {
+        const allSelected = rgaFileEntries.length > 0
+            && rgaFileEntries.every(file => selectedRgaFiles.has(file.relative_path));
+        selectedRgaFiles.clear();
+        if (!allSelected) rgaFileEntries.forEach(file => selectedRgaFiles.add(file.relative_path));
+        updateSelectedRgaFiles();
+    }
+
+    async function loadSelectedRgaFile(relativePath) {
+        const selectedLabel = document.getElementById('rga-selected-file');
+        const requestId = ++rgaFileRequestId;
+        selectedLabel.textContent = `${relativePath} (loading...)`;
+        try {
+            const response = await fetch(url_rga_readfile, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({relative_path: relativePath})
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(payload.error || `HTTP ${response.status}`);
+            }
+            if (requestId !== rgaFileRequestId) return;
+            window.rgaSelectedFileData = payload.data;
+            selectedLabel.textContent = `${payload.relative_path} (loaded)`;
+            // 向整个页面广播一个自定义事件。其他代码可以监听
+            window.dispatchEvent(new CustomEvent('rga-file-loaded', {
+                detail: payload
+            }));
+        } catch (error) {
+            if (requestId !== rgaFileRequestId) return;
+            selectedLabel.textContent = `${relativePath} (load failed)`;
+            console.error('Error on sending request of selected filepath:', error);
+        }
+    }
+
+    function updateSelectedRgaFile(relativePath) {
+        const selected = rgaFileEntries.find(file => file.relative_path === relativePath);
+        if (!selected) return;
+        selectedRgaFile = selected.relative_path;
+        document.querySelectorAll('#rga-files-list .rga-file-item').forEach(item => {
+            const isSelected = item.dataset.relativePath === selectedRgaFile;
+            item.classList.toggle('is-selected', isSelected);
+            item.setAttribute('aria-pressed', String(isSelected));
+        });
+        const selectedLabel = document.getElementById('rga-selected-file');
+        selectedLabel.textContent = `${selectedRgaFile} (selected)`;
+        window.rgaSelectedFile = selectedRgaFile;
+        void loadSelectedRgaFile(selectedRgaFile);
+        window.dispatchEvent(new CustomEvent('rga-file-selected', {
+            detail: {
+                filename: selected.filename,
+                relative_path: selected.relative_path
+            }
+        }));
+    }
+
+    window.rgaGetSelectedFile = () => selectedRgaFile || null;
+
+    function renderFiles() {
+        const list = document.getElementById('rga-files-list');
+        const count = document.getElementById('rga-files-count');
+        const location = document.getElementById('rga-files-location');
+        const root = getFileField(
+            sourceData,
+            ['files_root', 'rga_data_dir', 'data_dir'],
+            location.dataset.filesRoot || 'RGA data folder'
+        );
+        location.textContent = root;
+        count.textContent = `${sourceFiles.length} file${sourceFiles.length === 1 ? '' : 's'}`;
+
+        if (!sourceFiles.length) {
+            list.innerHTML = '<div class="rga-empty">No RGA data files found.</div>';
+            return;
+        }
+        list.innerHTML = '';
+
+        list.innerHTML = renderFileTreeNode(buildFileTree(sourceFiles));
+        list.querySelectorAll('.rga-folder-toggle').forEach(button => {
+            button.addEventListener('click', function () {
+                const folder = this.closest('.rga-folder');
+                const expanded = this.getAttribute('aria-expanded') === 'true';
+                folder.classList.toggle('is-collapsed', expanded);
+                this.setAttribute('aria-expanded', String(!expanded));
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-folder-open', !expanded);
+                icon.classList.toggle('fa-folder', expanded);
+            });
+        });
+        list.querySelectorAll('.rga-file-item').forEach(item => {
+            const select = () => updateSelectedRgaFile(item.dataset.relativePath);
+            item.addEventListener('click', select);
+            item.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    select();
+                }
+            });
+        });
+    }
+
+    function setFilesPanelHidden(hidden) {
+        const layout = document.querySelector('.rga-layout');
+        const showButton = document.getElementById('rga-show-files-btn');
+        layout.classList.toggle('rga-files-hidden', hidden);
+        showButton.style.display = hidden ? '' : 'none';
+        window.setTimeout(() => {
+            if (chart) chart.resize();
+        }, 0);
+    }
+
+    function setDataPanelHidden(hidden) {
+        const layout = document.querySelector('.rga-layout');
+        const showButton = document.getElementById('rga-show-data-btn');
+        layout.classList.toggle('rga-data-hidden', hidden);
+        showButton.style.display = hidden ? '' : 'none';
+        window.setTimeout(() => {
+            if (chart) chart.resize();
+        }, 0);
+    }
+
+    function setChemicalsPanelHidden(hidden) {
+        const layout = document.querySelector('.rga-layout');
+        const showButton = document.getElementById('rga-show-chemicals-btn');
+        layout.classList.toggle('rga-chemicals-hidden', hidden);
+        showButton.style.display = hidden ? '' : 'none';
+        window.setTimeout(() => {
+            if (chart) chart.resize();
+        }, 0);
+    }
+
+    function normalizeChemicals(data, defaultValues={}) {
+        return Array.isArray(data.chemicals)
+        ? data.chemicals.map((item, index) => {
+            const chemical = item && typeof item === 'object' ? item : {};
+            const name = chemical.name || `Chemical ${index + 1}`;
+            const rawMass = getObjectValue(chemical, [
+                'mass',
+                'mass_amu',
+                'massAMU',
+                'mass_number',
+                'massNumber'
+            ]);
+            const rawSensitivity = getObjectValue(chemical, [
+                'sensitivity_factor',
+                'sensitivityFactor',
+                'sensitivity'
+            ]);
+            const parsedMass = parseNumeric(rawMass);
+            const parsedSensitivity = parseNumeric(rawSensitivity);
+            const chemicalSelected = defaultValues.chemicalSelected || [];
+            const fittingMethod = defaultValues.fittingMethod || [];
+            const status = 'Ready';
+            const fitResult = null;
+            return {
+                name: name,
+                values: Array.isArray(chemical.values) ? chemical.values.map(Number) : [],
+                mass: parsedMass,
+                sensitivityFactor: parsedSensitivity === null ? 1 : parsedSensitivity,
+                method: normalizeMethod(fittingMethod.length > index ? fittingMethod[index] : chemical.method || chemical.fit_method || chemical.default_method),
+                selectedPoints: normalizePointSelection(chemical),
+                syncPointClicks: normalizePointSync(chemical),
+                selected: chemical.selected === undefined ? chemicalSelected.length > index ? Boolean(chemicalSelected[index]) : index < 2 : Boolean(chemical.selected),
+                status: status,
+                fitResult: fitResult
+            };
+        })
+        : [];
+    }
+
+    let chemicals = normalizeChemicals(sourceData);
+
+    let selectionMode = 'multi';
+    let yScale = 'linear';
+    let chart;
+
+    function fitLinear(x, y) {
+        if (x.length < 2) throw new Error('Linear fit requires at least 2 points.');
+        const meanX = x.reduce((sum, value) => sum + value, 0) / x.length;
+        const meanY = y.reduce((sum, value) => sum + value, 0) / y.length;
+        let numerator = 0;
+        let denominator = 0;
+        x.forEach((value, index) => {
+            numerator += (value - meanX) * (y[index] - meanY);
+            denominator += (value - meanX) ** 2;
+        });
+        if (!denominator) throw new Error('Linear fit requires different time values.');
+        const slope = numerator / denominator;
+        const intercept = meanY - slope * meanX;
+        return {
+            evaluate: value => intercept + slope * value,
+            zeroTime: intercept,
+            parameters: {slope: slope, intercept: intercept}
+        };
+    }
+
+    function solveLinearSystem(matrix, vector) {
+        const size = vector.length;
+        const augmented = matrix.map((row, index) => row.slice().concat(vector[index]));
+        for (let column = 0; column < size; column += 1) {
+            let pivot = column;
+            for (let row = column + 1; row < size; row += 1) {
+                if (Math.abs(augmented[row][column]) > Math.abs(augmented[pivot][column])) {
+                    pivot = row;
+                }
+            }
+            if (Math.abs(augmented[pivot][column]) < 1e-12) return null;
+            [augmented[column], augmented[pivot]] = [augmented[pivot], augmented[column]];
+            for (let row = column + 1; row < size; row += 1) {
+                const factor = augmented[row][column] / augmented[column][column];
+                for (let cell = column; cell <= size; cell += 1) {
+                    augmented[row][cell] -= factor * augmented[column][cell];
+                }
+            }
+        }
+        const result = Array(size).fill(0);
+        for (let row = size - 1; row >= 0; row -= 1) {
+            let value = augmented[row][size];
+            for (let column = row + 1; column < size; column += 1) {
+                value -= augmented[row][column] * result[column];
+            }
+            result[row] = value / augmented[row][row];
+        }
+        return result;
+    }
+
+    function fitQuadratic(x, y) {
+        // y = a + b * x + c * x^2
+        if (x.length < 3) throw new Error('Quadratic fit requires at least 3 points.');
+        const sums = [0, 0, 0, 0, 0];
+        const right = [0, 0, 0];
+        x.forEach((value, index) => {
+            const x2 = value * value;
+            sums[0] += 1;
+            sums[1] += value;
+            sums[2] += x2;
+            sums[3] += x2 * value;
+            sums[4] += x2 * x2;
+            right[0] += y[index];
+            right[1] += value * y[index];
+            right[2] += x2 * y[index];
+        });
+        const coefficients = solveLinearSystem([
+            [sums[0], sums[1], sums[2]],
+            [sums[1], sums[2], sums[3]],
+            [sums[2], sums[3], sums[4]]
+        ], right);
+        if (!coefficients) throw new Error('Quadratic fit is singular for these time values.');
+        const [constant, linear, quadratic] = coefficients;
+        return {
+            evaluate: value => constant + linear * value + quadratic * value * value,
+            zeroTime: constant,
+            parameters: {constant: constant, linear: linear, quadratic: quadratic}
+        };
+    }
+
+    function fitExponential(x, y) {
+        // y = exp(ax + b)
+        const positive = x.map((value, index) => [value, y[index]])
+            .filter(point => point[1] > 0);
+        if (positive.length < 2) {
+            throw new Error('Exponential fit requires at least 2 positive intensities.');
+        }
+        const logarithmic = fitLinear(
+            positive.map(point => point[0]),
+            positive.map(point => Math.log(point[1]))
+        );
+        return {
+            evaluate: value => Math.exp(logarithmic.evaluate(value)),
+            zeroTime: Math.exp(logarithmic.zeroTime),
+            parameters: logarithmic.parameters
+        };
+    }
+
+    function fitAverage(x, y) {
+        if (!y.length) throw new Error('Average requires at least 1 point.');
+        const average = y.reduce((sum, value) => sum + value, 0) / y.length;
+        return {
+            evaluate: () => average,
+            zeroTime: average,
+            parameters: {average: average}
+        };
+    }
+
+    function fitByMethod(x, y, method) {
+        if (method === 'quadratic') return fitQuadratic(x, y);
+        if (method === 'exponential') return fitExponential(x, y);
+        if (method === 'average') return fitAverage(x, y);
+        return fitLinear(x, y);
+    }
+
+    function getFitPoints(settings, chemicalIndex) {
+        const selected = new Set(settings.selectedPoints);
+        const points = time.map((value, index) => [
+            //value,
+            value + (settings.mass - sourceParameters.start_mass) / sourceParameters.scan_rate,
+            Number(chemicals[chemicalIndex].values[index]),
+            index + 1])
+            .filter(point => selected.has(point[2]))
+            .filter(point => Number.isFinite(point[0]) && Number.isFinite(point[1]))
+            .sort((left, right) => left[0] - right[0])
+            .map(point => [point[0], point[1], point[2]]);
+        return points;
+    }
+
+    function setFitStatus(index, message, isError) {
+        const status = document.querySelector(`[data-fit-status="${index}"]`);
+        if (!status) return;
+        status.textContent = message;
+        status.classList.toggle('is-error', Boolean(isError));
+    }
+
+    function renderChemicalList() {
+        const list = document.getElementById('rga-isotope-list');
+        if (!chemicals.length) {
+            list.innerHTML = '<div class="rga-empty">No chemical data available.</div>';
+            updateSelectionLabels();
+            return;
+        }
+
+        list.innerHTML = `
+            <table class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Plot</th>
+                        <th>Chemical</th>
+                        <th>Fit method</th>
+                        <th>Mass (AMU)</th>
+                        <th>Sensitivity Factor</th>
+                        <th>Sync clicks</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>`;
+        const body = list.querySelector('tbody');
+
+        chemicals.forEach((chemical, index) => {
+            const row = document.createElement('tr');
+            const massValue = chemical.mass === null || chemical.mass === undefined
+                ? ''
+                : String(chemical.mass);
+            const sensitivityValue = chemical.sensitivityFactor === null
+                || chemical.sensitivityFactor === undefined
+                ? ''
+                : String(chemical.sensitivityFactor);
+            row.innerHTML = `
+                <td class="rga-checkbox-cell">
+                    <label class="rga-checkbox-wrap">
+                        <input type="checkbox" class="rga-isotope-plot" data-index="${index}">
+                    </label>
+                </td>
+                <td class="rga-isotope-name"><span class="rga-isotope-name-text">${escapeHtml(chemical.name)}</span></td>
+                <td>
+                    <select class="form-control rga-fit-method" data-index="${index}">
+                        <option value="linear">Linear</option>
+                        <option value="quadratic">Quadratic</option>
+                        <option value="exponential">Exponential</option>
+                        <option value="average">Average</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" min="0" step="any" class="form-control rga-isotope-mass"
+                           data-index="${index}" value="${escapeHtml(massValue)}"
+                           aria-label="Mass in AMU for ${escapeHtml(chemical.name)}">
+                </td>
+                <td>
+                    <input type="number" min="0" step="any" class="form-control rga-isotope-sensitivity"
+                           data-index="${index}" value="${escapeHtml(sensitivityValue)}"
+                           aria-label="Sensitivity factor for ${escapeHtml(chemical.name)}">
+                </td>
+                <td class="rga-checkbox-cell">
+                    <label class="rga-checkbox-wrap">
+                        <input type="checkbox" class="rga-point-sync" data-index="${index}"
+                               title="Apply point clicks from another isotope to this isotope">
+                    </label>
+                </td>
+                <td><span class="rga-fit-status" data-fit-status="${index}"></span></td>`;
+
+            const plotInput = row.querySelector('.rga-isotope-plot');
+            const massInput = row.querySelector('.rga-isotope-mass');
+            const sensitivityInput = row.querySelector('.rga-isotope-sensitivity');
+            const methodInput = row.querySelector('.rga-fit-method');
+            const pointSyncInput = row.querySelector('.rga-point-sync');
+            plotInput.checked = chemical.selected;
+            methodInput.value = chemical.method;
+            pointSyncInput.checked = chemical.syncPointClicks;
+            row.querySelector('.rga-fit-status').textContent = `${chemical.status} (${encodePointSelection(chemical.selectedPoints)})`;
+            row.querySelector('.rga-fit-status').classList.toggle('is-error', chemical.status.startsWith('Error'));
+
+            plotInput.addEventListener('change', function () {
+                if (selectionMode === 'single' && this.checked) {
+                    chemicals.forEach(item => { item.selected = false; });
+                    chemical.selected = true;
+                    renderChemicalList();
+                } else {
+                    chemical.selected = this.checked;
+                }
+                updateSelectionLabels();
+                renderChart();
+            });
+
+            massInput.addEventListener('change', function () {
+                chemical.mass = parseNumeric(this.value);
+                this.value = chemical.mass === null ? '' : String(chemical.mass);
+                chemical.status = 'Modified';
+                setFitStatus(index, chemical.status, false);
+                renderChart();
+            });
+
+            sensitivityInput.addEventListener('change', function () {
+                chemical.sensitivityFactor = parseNumeric(this.value);
+                this.value = chemical.sensitivityFactor === null ? '' : String(chemical.sensitivityFactor);
+                // settings.status = 'Modified';
+                // setFitStatus(index, settings.status, false);
+            });
+
+            methodInput.addEventListener('change', function () {
+                chemical.method = normalizeMethod(this.value);
+                chemical.status = 'Modified';
+                setFitStatus(index, chemical.status, false);
+                renderChart();
+            });
+
+            pointSyncInput.addEventListener('change', function () {
+                chemical.syncPointClicks = this.checked;
+                // settings.status = 'Modified';
+                // setFitStatus(index, settings.status, false);
+            });
+
+            body.appendChild(row);
+        });
+        updateSelectionLabels();
+    }
+
+    function updateSelectionLabels() {
+        const names = chemicals.filter(item => item.selected).map(item => item.name);
+        const count = names.length;
+        document.getElementById('rga-selection-count').textContent = `${count} selected`;
+        document.getElementById('rga-status-isotopes').textContent = names.length ? names.join(', ') : 'None';
+        document.getElementById('rga-row-count').textContent = `${time.length} rows`;
+
+        const selectAllButton = document.getElementById('rga-select-all-btn');
+        if (selectAllButton) {
+            const hasChemicals = chemicals.length > 0;
+            const allSelected = hasChemicals && count === chemicals.length;
+            selectAllButton.textContent = allSelected ? 'Clear all' : 'Select all';
+            selectAllButton.setAttribute(
+                'aria-label',
+                allSelected ? 'Clear all chemical selections' : 'Select all chemicals'
+            );
+            selectAllButton.title = allSelected ? 'Clear all chemical selections' : 'Select all chemicals';
+            selectAllButton.disabled = !hasChemicals;
+        }
+    }
+
+    function renderTable() {
+        const table = document.getElementById('rga-data-table');
+        const head = table.querySelector('thead');
+        const body = table.querySelector('tbody');
+        head.innerHTML = '<tr><th>Time</th>' + chemicals.map(item => `<th>${escapeHtml(item.name)}</th>`).join('') + '</tr>';
+        body.innerHTML = time.map((value, row) => {
+            const cells = chemicals.map(item => {
+                const datum = item.values && item.values[row] !== undefined ? Number(item.values[row]) : NaN;
+                const display = Number.isFinite(datum) ? datum.toPrecision(6) : '';
+                return `<td>${escapeHtml(display)}</td>`;
+            }).join('');
+            return `<tr><td>${escapeHtml(value)}</td>${cells}</tr>`;
+        }).join('');
+    }
+
+    function chartOption() {
+        const series = [];
+        const colors = ['#2f6f9f', '#d27a2c', '#4b9560', '#9b5ca8', '#7b8794', '#b24d4d'];
+        let max_mass = 0;
+
+        chemicals.forEach((chemical, index) => {
+            if (!chemical.selected) return;
+            max_mass = Math.max(max_mass, chemicals[index].mass);
+        })
+        const chartStart = Math.min(0, ...time);
+        const chartEnd = Math.max(...time) + (max_mass - sourceParameters.start_mass) / sourceParameters.scan_rate;
+
+        chemicals.forEach((chemical, index) => {
+            if (!chemical.selected) return;
+            const color = colors[index % colors.length];
+            const selectedPoints = new Set(chemical.selectedPoints);
+            const data = time.map((ti, point) => {
+                const x = ti + (chemical.mass - sourceParameters.start_mass) / sourceParameters.scan_rate;
+                const value = Number(chemical.values[point]);
+                if (!Number.isFinite(x) || !Number.isFinite(value)) return null;
+                return {
+                    value: [x, value],
+                    pointNumber: point + 1,
+                    itemStyle: {
+                        color: selectedPoints.has(point + 1) ? color : '#ffffff',
+                        borderColor: color,
+                        opacity: 1
+                    }
+                };
+            }).filter(Boolean);
+
+            series.push({
+                id: `rga-isotope-${index}`,
+                name: chemical.name,
+                type: 'scatter',
+                symbolSize: 8,
+                data: data,
+                itemStyle: {color: color},
+                // emphasis: {focus: 'series'},
+                zlevel: 999,
+            });
+
+            const fitPoints = getFitPoints(chemical, index);
+            const fitX = fitPoints.map(point => point[0]);
+            const fitY = fitPoints.map(point => point[1]);
+            try {
+                const fit = fitByMethod(fitX, fitY, chemical.method);
+                chemical.fitResult = fit;
+                chemical.status = `${methodLabels[chemical.method]} fit: y0 = ${fit.zeroTime.toPrecision(6)} (${encodePointSelection(chemical.selectedPoints)})`;
+                setFitStatus(index, chemical.status, false);
+                const fitData = Array.from({length: 50}, (_, point) => {
+                    const x = chartStart + (chartEnd - chartStart) * point / 49;
+                    return [x, fit.evaluate(x)];
+                });
+                series.push({
+                    name: `${chemical.name} fit (${methodLabels[chemical.method]})`,
+                    type: 'line',
+                    data: fitData,
+                    showSymbol: false,
+                    itemStyle: {color: color},
+                    lineStyle: {color: color, type: 'dashed', width: 2},
+                    tooltip: {show: false}
+                });
+            } catch (error) {
+                chemical.fitResult = null;
+                chemical.status = `Error: ${error.message} (${encodePointSelection(chemical.selectedPoints)})`;
+                setFitStatus(index, chemical.status, true);
+            }
+        });
+        return {
+            animation: false,
+            tooltip: {trigger: 'axis'},
+            legend: {top: 8, type: 'scroll'},
+            grid: {left: 62, right: 28, top: 56, bottom: 56},
+            xAxis: {type: 'value', name: 'Time', nameLocation: 'middle', nameGap: 32, axisLine: {onZero: false}},
+            yAxis: {type: yScale === 'log' ? 'log' : 'value', name: 'Intensity', nameLocation: 'middle', nameGap: 46},
+            series: series
+        };
+    }
+
+    function renderChart() {
+        if (!chart) return;
+        const count = chemicals.filter(item => item.selected).length;
+        document.getElementById('rga-fit-summary').textContent = sourceData.sample;
+        document.getElementById('rga-status-text').textContent = count ? 'Fit updated' : 'Select a chemical to plot';
+        chart.setOption(chartOption(), true);
+    }
+
+    function togglePointSelection(sourceIndex, pointNumber) {
+        const source = chemicals[sourceIndex];
+        if (!source || !Number.isInteger(pointNumber) || pointNumber < 1 || pointNumber > time.length) {
+            return;
+        }
+        const currentlySelected = source.selectedPoints.includes(pointNumber);
+        const targets = chemicals.filter((settings, index) => (
+            index === sourceIndex || settings.syncPointClicks
+        ));
+        targets.forEach(settings => {
+            if (currentlySelected) {
+                settings.selectedPoints = settings.selectedPoints.filter(point => point !== pointNumber);
+            } else {
+                settings.selectedPoints = normalizePointIndices(settings.selectedPoints.concat(pointNumber));
+            }
+            settings.status = 'Modified';
+        });
+        renderChemicalList();
+        renderChart();
+    }
+
+    function serializeFitSettings() {
+        return chemicals.map(chemical => ({
+            name: chemical.name,
+            selected: chemical.selected,
+            method: chemical.method,
+            mass: chemical.mass,
+            sensitivity_factor: chemical.sensitivityFactor,
+            sync_point_clicks: chemical.syncPointClicks,
+            point_selection: encodePointSelection(chemical.selectedPoints),
+            point_selection_encoding: pointSelectionEncoding,
+            point_count: time.length
+        }));
+    }
+
+    window.rgaGetFitSettings = serializeFitSettings;
+    window.rgaGetScanParameters = serializeScanParameters;
+    window.rgaEncodePointSelection = encodePointSelection;
+    window.rgaDecodePointSelection = decodePointSelection;
+    window.rgaPointSelectionEncoding = pointSelectionEncoding;
+    window.rgaGetSelectedFiles = () => window.rgaSelectedFiles || [];
+
+    function applyDefaultsToSelected() {
+        const method = normalizeMethod(document.getElementById('rga-default-fit-model').value);
+        chemicals.forEach(chemical => {
+            if (chemical.selected) {
+                chemical.method = method;
+                chemical.status = 'Defaults applied';
+            }
+        });
+        renderChemicalList();
+        renderChart();
+    }
+
+    function toggleAllChemicals() {
+        if (!chemicals.length) return;
+
+        const allSelected = chemicals.every(chemical => chemical.selected);
+        const nextSelected = !allSelected;
+
+        if (nextSelected && selectionMode === 'single') {
+            selectionMode = 'multi';
+            document.querySelectorAll('[data-selection-mode]').forEach(button => {
+                const isMulti = button.dataset.selectionMode === 'multi';
+                button.classList.toggle('btn-primary', isMulti);
+                button.classList.toggle('btn-default', !isMulti);
+            });
+        }
+
+        chemicals.forEach(chemical => {
+            chemical.selected = nextSelected;
+        });
+        renderChemicalList();
+        updateSelectionLabels();
+        renderChart();
+    }
+
+    function resetPage() {
+        yScale = 'linear';
+        populateParameterInputs();
+        document.querySelectorAll('[data-scale]').forEach(button => button.classList.toggle('active', button.dataset.scale === yScale));
+        renderChemicalList();
+        renderChart();
+    }
+
+    async function exportResults() {
+        const requestId = ++rgaFileRequestId;
+        try {
+            const selectedPaths = Array.from(selectedRgaFiles);
+            const selectedInputs = Array.from(
+                document.querySelectorAll('#rga-files-list .rga-file-select')
+            ).filter(input => input.checked);
+
+            let fetch_url;
+            let content;
+            if (selectedRgaFiles.size > 0) {
+                fetch_url = url_rga_export_multi;
+                for (const input of selectedInputs) {
+                    if (!selectedRgaData.has(input.dataset.relativePath)) {
+                        throw new Error(`File "${input.dataset.relativePath}" was never clicked.`);
+                    }
+                }
+                const files = Array.from(selectedRgaData.values());
+                content = {files: files};
+            } else {
+                fetch_url = url_rga_export_single;
+                content = {
+                    chemicals: chemicals,
+                    parameters: sourceParameters,
+                    sample: sourceData.sample,
+                }
+            }
+
+            const response = await fetch(fetch_url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify(content)
+            });
+            if (!response.ok) {
+                throw new Error(payload.error || `HTTP ${response.status}`);
+            }
+            if (requestId !== rgaFileRequestId) return;
+
+            const blob = await response.blob();
+            const disposition = response.headers.get("Content-Disposition") || "";
+            const match = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)["']?/i);
+
+            const filename = match
+                ? decodeURIComponent(match[1])
+                : "rga-export.csv";
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            URL.revokeObjectURL(url);
+
+        } catch (error) {
+            if (requestId !== rgaFileRequestId) return;
+            console.error('Export failed:', error);
+            const message = error instanceof Error ? error.message : String(error);
+            showPopupMessage('Export failed', message);
+        }
+    }
+
+    async function refreshFileList() {
+        const requestId = ++rgaFileRequestId;
+        try {
+            const response = await fetch(url_rga_get_file_list, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(payload.error || `HTTP ${response.status}`);
+            }
+            if (requestId !== rgaFileRequestId) return;
+            // 向整个页面广播一个自定义事件。其他代码可以监听
+            window.dispatchEvent(new CustomEvent('rga-file-list-refreshed', {
+                detail: payload
+            }));
+        } catch (error) {
+            if (requestId !== rgaFileRequestId) return;
+        }
+    }
+
+    function applyRgaLoadedData() {
+
+        const chemicalSelected = chemicals.map((chemical, index) => {
+            return chemical.selected;
+        })
+
+        const fittingMethod = chemicals.map((chemical, index) => {
+            return chemical.method;
+        })
+
+        refreshSourceParameters();
+        time = normalizeTime(sourceData);
+        chemicals = normalizeChemicals(sourceData, {chemicalSelected: chemicalSelected, fittingMethod: fittingMethod});
+
+        populateParameterInputs();
+        renderTable();
+        renderChemicalList();
+
+        const sample = getSourceValue(
+            ['sample', 'sample_name', 'sampleName'],
+            fallbackData.sample
+        );
+        document.getElementById('rga-status-text').textContent =
+            `Loaded ${sample || 'RGA file'}`;
+
+        if (chart) {
+            renderChart();
+            window.setTimeout(() => chart.resize(), 0);
+        }
+    }
+
+    // 监听文件加载完成
+    window.addEventListener('rga-file-loaded', function (event) {
+        const data = event.detail.data;
+        const relativePath = event.detail.relative_path;
+        console.log('文件加载完成:', data);
+
+        if (!data || typeof data !== 'object') return;
+        sourceData = data;
+        applyRgaLoadedData();
+
+        // 文件加载完毕后判断是否勾选，若勾选将文件内容缓存
+        const selectedInput = Array.from(
+            document.querySelectorAll('#rga-files-list .rga-file-select')
+        ).find(input => input.dataset.relativePath === relativePath);
+
+        if (selectedInput) {
+            if (selectedInput.checked) {
+                selectedRgaFiles.add(relativePath);
+                selectedRgaData.set(relativePath, {
+                    relative_path: relativePath,
+                    data: {
+                        chemicals: chemicals,
+                        parameters: sourceParameters,
+                        sample: sourceData.sample,
+                    }
+                });
+            } else {
+                selectedRgaFiles.delete(relativePath);
+                selectedRgaData.delete(relativePath);
+            }
+        }
+
+    });
+
+    window.addEventListener('rga-file-list-refreshed', function (event) {
+        document.getElementById('rga-files-data').textContent = JSON.stringify(event.detail.rga_files);
+        document.getElementById('rga-files-location').textContent = event.detail.rga_files_root;
+        refreshSourceFiles();
+        renderFiles();
+    });
+
+    // Public for later toolbar/import integrations and easy browser-console
+    // testing with another API-shaped data object.
+    window.rgaApplyLoadedData = applyRgaLoadedData;
+
+    function initialize() {
+        populateParameterInputs();
+        renderTable();
+        renderChemicalList();
+        chart = echarts.init(document.getElementById('rga-fit-chart'));
+        chart.on('click', function (params) {
+            if (params.seriesType !== 'scatter' || !params.data || !params.seriesId) return;
+            const match = String(params.seriesId).match(/^rga-isotope-(\d+)$/);
+            const pointNumber = Number(params.data.pointNumber);
+            if (match && Number.isInteger(pointNumber)) {
+                togglePointSelection(Number(match[1]), pointNumber);
+            }
+        });
+        renderChart();
+
+        document.querySelectorAll('[data-selection-mode]').forEach(button => {
+            button.addEventListener('click', function () {
+                selectionMode = this.dataset.selectionMode;
+                document.querySelectorAll('[data-selection-mode]').forEach(item => item.classList.toggle('btn-primary', item === button));
+                document.querySelectorAll('[data-selection-mode]').forEach(item => item.classList.toggle('btn-default', item !== button));
+                if (selectionMode === 'single') {
+                    const first = chemicals.findIndex(item => item.selected);
+                    chemicals.forEach((item, index) => {
+                        item.selected = index === (first < 0 ? 0 : first);
+                    });
+                    renderChemicalList();
+                    renderChart();
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-scale]').forEach(button => {
+            button.addEventListener('click', function () {
+                yScale = this.dataset.scale;
+                document.querySelectorAll('[data-scale]').forEach(item => item.classList.toggle('active', item === button));
+                renderChart();
+            });
+        });
+
+        document.getElementById('rga-reset-btn').addEventListener('click', resetPage);
+        document.getElementById('rga-export-btn').addEventListener('click', exportResults);
+        {#document.getElementById('rga-apply-defaults-btn').addEventListener('click', applyDefaultsToSelected);#}
+        document.getElementById('rga-select-all-btn').addEventListener('click', toggleAllChemicals);
+        window.addEventListener('resize', () => chart.resize());
+    }
+
+    renderFiles();
+    document.getElementById('rga-hide-files-btn').addEventListener('click', () => setFilesPanelHidden(true));
+    document.getElementById('rga-show-files-btn').addEventListener('click', () => setFilesPanelHidden(false));
+    document.getElementById('rga-hide-data-btn').addEventListener('click', () => setDataPanelHidden(true));
+    document.getElementById('rga-show-data-btn').addEventListener('click', () => setDataPanelHidden(false));
+    document.getElementById('rga-hide-chemicals-btn').addEventListener('click', () => setChemicalsPanelHidden(true));
+    document.getElementById('rga-show-chemicals-btn').addEventListener('click', () => setChemicalsPanelHidden(false));
+    document.getElementById('rga-refresh-files-btn').addEventListener('click', refreshFileList);
+    document.getElementById('rga-select-files-btn').addEventListener('click', toggleAllRgaFiles);
+
+    setFilesPanelHidden(!pageConfigs.show_files);
+    setDataPanelHidden(!pageConfigs.show_data);
+    setChemicalsPanelHidden(!pageConfigs.show_chemicals);
+
+    if (chemicals.length) {
+        initialize();
+    } else {
+        populateParameterInputs();
+        document.getElementById('rga-isotope-list').innerHTML = '<div class="rga-empty">No isotope data available.</div>';
+    }
+})();
+</script>
+{% endblock %}
