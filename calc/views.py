@@ -2372,13 +2372,17 @@ class ApiView(http_funcs.ArArView):
         name = f"{self.sample.Info.sample.name}_{figure.name}"
         export_filepath = os.path.join(settings.DOWNLOAD_ROOT, f"{name}.pdf")
 
-        if not merged_pdf:
-            ap.smp.export.to_pdf(export_filepath, [figure_id], self.sample, cv_width=12, cv_height=8)
-        else:
-            ap.smp.export.to_pdf(export_filepath,
-                ['figure_1', 'figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_8', 'figure_9'],
-                self.sample)
-            pass
+        try:
+            if not merged_pdf:
+                ap.smp.export.to_pdf(export_filepath, [figure_id], self.sample, cv_width=12, cv_height=8)
+            else:
+                ap.smp.export.to_pdf(export_filepath,
+                    ['figure_1', 'figure_2', 'figure_3', 'figure_4', 'figure_5', 'figure_6', 'figure_8', 'figure_9'],
+                    self.sample)
+        except (Exception, BaseException) as e:
+            self.error_msg += f'Failed to export pdf, sample name: {self.sample.Info.sample.name}. Error: {str(e)}'
+            messages.error(request, self.error_msg)
+            return self.JsonResponse({'status': 'fail', 'msg': traceback.format_exc()})
 
         export_href = '/' + settings.DOWNLOAD_URL + f"{name}.pdf"
 
